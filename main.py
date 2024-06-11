@@ -30,8 +30,6 @@ async def transform_function(ctx: discord.ApplicationContext,
             f.write(user.name)
             f.write("\n")
 
-    await ctx.send(f'You have transformed {user.mention} into "{into}"!')
-
 
 # Bot startup
 @bot.event
@@ -82,6 +80,7 @@ async def transform(ctx: discord.ApplicationContext,
 
     if into:
         await transform_function(ctx, user, into, image_url)
+        await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
         return
 
     await ctx.respond(f"What do we want to transform {user.mention} into?")
