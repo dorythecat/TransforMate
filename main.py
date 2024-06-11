@@ -125,8 +125,10 @@ async def goback(ctx: discord.ApplicationContext,
 
     # Delete all webhooks with the same name
     # This can lead to deleting more webhooks than we need to, but it shouldn't cause too much of a performance hit
-    await utils.get_webhook_by_name(await ctx.guild.webhooks(), name).delete()
-    await ctx.respond(f"{user.mention} has been returned to normal!")
+    for wh in await ctx.guild.webhooks():
+        if wh.name == name:
+            await wh.delete()
+    await ctx.respond(f"{user.mention} has been turned back to normal!")
 
 
 # Misc commands
