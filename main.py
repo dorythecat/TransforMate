@@ -21,14 +21,11 @@ async def transform_function(ctx: discord.ApplicationContext,
         return await ctx.send("Please provide a name longer than 1 character!")
 
     with open(f"cache/people/{user.name}.txt", "w+") as f:
-        f.write(into)
-        f.write("\n")
-        f.write(image_url if image_url else user.avatar.url)
+        f.write(f"{into}\n{image_url if image_url else user.avatar.url}")
 
     with open("cache/transformed.txt", "r+") as f:
         if user.name not in f.read():
-            f.write(user.name)
-            f.write("\n")
+            f.write(f"{user.name}\n")
 
 
 # Bot startup
