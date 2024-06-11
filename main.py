@@ -83,8 +83,10 @@ async def transform(ctx: discord.ApplicationContext,
         await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
         return
 
-    await ctx.respond(f"What do we want to transform {user.mention} into?")
+    await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
     response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
+    if response.content == "CANCEL":
+        return await ctx.respond("Cancelled the transformation!")
     await transform_function(ctx,
                              user,
                              response.content,
