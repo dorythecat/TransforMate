@@ -64,6 +64,19 @@ async def on_message(message: discord.Message):
             await message.delete()
 
 
+# Reaction added
+@bot.event
+async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
+    # Check if reaction is reacting to a message sent by a transformed user
+    if str(reaction.emoji) == "❓":
+        with open("cache/transformed.txt", "r") as f1:
+            for line in f1.readlines():
+                tf_data = utils.load_tf_by_name(line.strip())
+                if tf_data["into"] == reaction.message.author.name:
+                    await user.send(f"*{reaction.message.author.name}* is, in reality,"
+                                    f"*{line.strip()}*, who has been transformed, by *{tf_data['transformed_by']}*!")
+                    await reaction.remove(user)
+
 # Transformation commands
 @bot.slash_command(description="Transform someone")
 async def transform(ctx: discord.ApplicationContext,
