@@ -151,6 +151,9 @@ async def prefix(ctx: discord.ApplicationContext,
                                             description="Add a space after the prefix") = False):
     if user is None:
         user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     if whitespace:
         prefix = prefix + " "
     utils.write_tf(user, ctx.guild, prefix=prefix)
@@ -166,6 +169,9 @@ async def suffix(ctx: discord.ApplicationContext,
                                             description="Add a space before the suffix") = False):
     if user is None:
         user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     if whitespace:
         suffix = " " + suffix
     utils.write_tf(user, ctx.guild, suffix=suffix)
