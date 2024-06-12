@@ -47,7 +47,7 @@ async def on_message(message: discord.Message):
     if utils.is_transformed(message.author, message.guild):
         tf_data = utils.load_tf(message.author, message.guild)
         name = tf_data["into"]
-        avatar_url = tf_data["image_url"]
+        image_url = tf_data["image_url"]
 
         webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
         if not webhook:
@@ -57,10 +57,10 @@ async def on_message(message: discord.Message):
             if message.reference:
                 await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n"
                                    f">>> {message.reference.resolved.content})")
-            await webhook.send(utils.transform_text(tf_data, message.content), username=name, avatar_url=avatar_url)
+            await webhook.send(utils.transform_text(tf_data, message.content), username=name, avatar_url=image_url)
         if message.attachments:  # Send attachments too, even if in separate messages
             for attachment in message.attachments:
-                await webhook.send(file=await attachment.to_file(), username=name, avatar_url=avatar_url)
+                await webhook.send(file=await attachment.to_file(), username=name, avatar_url=image_url)
         await message.delete()
 
         if message.stickers:
