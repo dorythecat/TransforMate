@@ -69,7 +69,8 @@ async def on_message(message: discord.Message):
 async def transform(ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None,
                     into: discord.Option(discord.SlashCommandOptionType.string, description="Who to transform") = None,
-                    image_url: discord.Option(discord.SlashCommandOptionType.string, description="Image URL to use") = None):
+                    image_url: discord.Option(discord.SlashCommandOptionType.string,
+                                              description="Image URL to use") = None):
     if not user:
         user = ctx.author
 
@@ -80,7 +81,7 @@ async def transform(ctx: discord.ApplicationContext,
 
     await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
     response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
-    if response.content == "CANCEL":
+    if response.content.strip() == "CANCEL":
         return await ctx.respond("Cancelled the transformation!")
     await transform_function(ctx,
                              user,
@@ -110,7 +111,8 @@ async def goback(ctx: discord.ApplicationContext,
         if not found:
             with open(f"cache/people/{user.name}.json", "r") as f2:
                 if f2.read().strip() == "":
-                    return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
+                    return await ctx.respond(
+                        f"{user.mention} is not transformed at the moment, and has no form to go back to!")
             f.write(user.name)
             f.write("\n")
             return await ctx.respond(f"{user.mention} has been turned back to their last form!")
