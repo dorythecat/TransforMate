@@ -20,6 +20,9 @@ async def transform_function(ctx: discord.ApplicationContext,
     if len(into.strip()) <= 1:
         return await ctx.send("Please provide a name longer than 1 character!")
 
+    if not image_url:
+        image_url = user.avatar.url
+
     utils.write_tf(user, ctx.guild, ctx.author.name, into, image_url)
     utils.write_transformed(user, ctx.guild)
 
