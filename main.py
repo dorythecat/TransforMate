@@ -51,6 +51,9 @@ async def on_message(message: discord.Message):
             webhook = await message.channel.create_webhook(name=name)
 
         if message.content:  # If there's no content and we try to send, it will trigger a 400 error
+            if message.reference:
+                await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n"
+                                   f">>> {message.reference.resolved.content})")
             await webhook.send(message.content, username=name, avatar_url=avatar_url)
         if message.attachments:  # Send attachments too, even if in separate messages
             for attachment in message.attachments:
