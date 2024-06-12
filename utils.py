@@ -185,6 +185,17 @@ def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return use
 def get_transformed(guild: discord.Guild) -> dict: return load_transformed(guild)
 
 
+# TEXT UTILS
+# Apply all necessary modifications to the message, based on the user's transformation data
+def transform_text(tf_data: dict, original: str) -> str:
+    transformed = original
+    if tf_data["prefix"]:
+        transformed = tf_data["prefix"] + transformed
+    if tf_data["suffix"]:
+        transformed = transformed + tf_data["suffix"]
+    return transformed
+
+
 # MISCELLANEOUS UTILS
 def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
     for wh in webhooks:

@@ -54,7 +54,7 @@ async def on_message(message: discord.Message):
             if message.reference:
                 await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n"
                                    f">>> {message.reference.resolved.content})")
-            await webhook.send(message.content, username=name, avatar_url=avatar_url)
+            await webhook.send(utils.transform_text(tf_data, message.content), username=name, avatar_url=avatar_url)
         if message.attachments:  # Send attachments too, even if in separate messages
             for attachment in message.attachments:
                 await webhook.send(file=await attachment.to_file(), username=name, avatar_url=avatar_url)
@@ -133,6 +133,40 @@ async def listtransformed(ctx: discord.ApplicationContext):
     if not transformed:
         return await ctx.respond("No one is transformed at the moment!")
     await ctx.respond("The following people are transformed at the moment:\n" + "".join(transformed))
+
+
+# "Set" Commands
+set_command = bot.create_group("set", "Set various things about transformed users")
+
+
+@set_command.command(description="Set a prefix for the transformed messages")
+async def prefix(ctx: discord.ApplicationContext,
+                 prefix: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="Prefix to add"),
+                 user: discord.Option(discord.User) = None,
+                 whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
+                                            description="Add a space after the prefix") = False):
+    if user is None:
+        user = ctx.author
+    if whitespace:
+        prefix = prefix + " "
+    utils.write_tf(user, ctx.guild, prefix=prefix)
+    await ctx.respond(f"Prefix for {user.mention} set to \"*{prefix}*\"!")
+
+
+@set_command.command(description="Set a suffix for the transformed messages")
+async def suffix(ctx: discord.ApplicationContext,
+                 suffix: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="Suffix to add"),
+                 user: discord.Option(discord.User) = None,
+                 whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
+                                            description="Add a space before the suffix") = False):
+    if user is None:
+        user = ctx.author
+    if whitespace:
+        suffix = " " + suffix
+    utils.write_tf(user, ctx.guild, suffix=suffix)
+    await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix}*\"!")
 
 
 # Misc commands
