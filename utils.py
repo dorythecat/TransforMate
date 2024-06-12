@@ -164,7 +164,7 @@ def write_transformed(user: discord.User, guild: discord.Guild) -> None:
     data = load_transformed()
     if data == {}:  # If the file is empty, we need to add the version info
         data["version"] = CURRENT_TRANSFORMED_DATA_VERSION
-    if guild.id not in data:
+    if str(guild.id) not in data:
         data[str(guild.id)] = []
     if user.name not in data[str(guild.id)]:
         data[str(guild.id)].append(user.name)
