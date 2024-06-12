@@ -102,7 +102,7 @@ def write_tf(user: discord.User,
             data[str(guild.id)]["image_url"] = image_url
         if claim_user:
             data[str(guild.id)]["claim"] = claim_user.strip()
-        elif claim_user.strip() == "":
+        elif claim_user == "":
             data[str(guild.id)]["claim"] = None
         if eternal:
             data[str(guild.id)]["eternal"] = eternal
@@ -113,19 +113,19 @@ def write_tf(user: discord.User,
         if censor:
             data[str(guild.id)]["censor"]["active"] = True
             data[str(guild.id)]["censor"]["contents"] = censor.strip()
-        elif censor.strip() == "":
+        elif censor == "":
             data[str(guild.id)]["censor"]["active"] = False
             data[str(guild.id)]["censor"]["contents"] = None
         if sprinkle:
             data[str(guild.id)]["sprinkle"]["active"] = True
             data[str(guild.id)]["sprinkle"]["contents"] = sprinkle.strip()
-        elif sprinkle.strip() == "":
+        elif sprinkle == "":
             data[str(guild.id)]["sprinkle"]["active"] = False
             data[str(guild.id)]["sprinkle"]["contents"] = None
         if muffle:
             data[str(guild.id)]["muffle"]["active"] = True
             data[str(guild.id)]["muffle"]["contents"] = muffle.strip()
-        elif muffle.strip() == "":
+        elif muffle == "":
             data[str(guild.id)]["muffle"]["active"] = False
             data[str(guild.id)]["muffle"]["contents"] = None
     with open(f"cache/people/{user.name}.json", "w+") as f:
