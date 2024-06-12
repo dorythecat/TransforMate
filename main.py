@@ -138,6 +138,15 @@ async def goback(ctx: discord.ApplicationContext,
     await ctx.respond(f"{user.mention} has been turned back to normal!")
 
 
+@bot.slash_command(description="Get a list of transformed users")
+async def listtransformed(ctx: discord.ApplicationContext):
+    with open("cache/transformed.txt", "r") as f:
+        transformed = f.readlines()
+    if not transformed:
+        return await ctx.respond("No one is transformed at the moment!")
+    await ctx.respond("The following people are transformed at the moment:\n" + "".join(transformed))
+
+
 # Misc commands
 @bot.slash_command(description="Replies with the bot's latency.")
 async def ping(ctx: discord.ApplicationContext):
