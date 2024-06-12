@@ -101,6 +101,7 @@ async def transform(ctx: discord.ApplicationContext,
                              user,
                              response.content,
                              response.attachments[0].url if response.attachments else None)
+    await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
 
 
 @bot.slash_command(description="Return someone to their previous state")
