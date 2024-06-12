@@ -186,6 +186,14 @@ async def ping(ctx: discord.ApplicationContext):
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
 
 
+@bot.slash_command(description="Kill all webhooks, and let the bot regenerate them")
+@discord.default_permissions(administrator=True)
+async def killhooks(ctx: discord.ApplicationContext):
+    for wh in await ctx.guild.webhooks():
+        await wh.delete()
+    await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.")
+
+
 # Start the bot up
 load_dotenv()
 bot.run(os.getenv("BOT_TOKEN"))
