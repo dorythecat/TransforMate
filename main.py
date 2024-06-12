@@ -58,9 +58,10 @@ async def on_message(message: discord.Message):
         if message.attachments:  # Send attachments too, even if in separate messages
             for attachment in message.attachments:
                 await webhook.send(file=await attachment.to_file(), username=name, avatar_url=avatar_url)
+        await message.delete()
+
         if message.stickers:
             await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
-        await message.delete()
 
 
 # Reaction added
