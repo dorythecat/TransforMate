@@ -22,6 +22,7 @@ async def transform_function(ctx: discord.ApplicationContext,
 
     if not image_url:
         image_url = user.avatar.url
+    image_url = image_url[:image_url.index("?")]  # Prune url
 
     utils.write_tf(user, ctx.guild, ctx.author.name, into, image_url)
     utils.write_transformed(user, ctx.guild)
