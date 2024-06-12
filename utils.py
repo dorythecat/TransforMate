@@ -3,21 +3,15 @@ import os
 
 import discord
 
-CURRENT_TFEE_DATA_VERSION = 2
-# VERSION 1: Base version
 # VERSION 2: Added guild specific data
-
-CURRENT_TRANSFORMED_DATA_VERSION = 1
 # VERSION 1: Base version
+CURRENT_TFEE_DATA_VERSION = 2
+
+# VERSION 1: Base version
+CURRENT_TRANSFORMED_DATA_VERSION = 1
 
 
-def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
-    for wh in webhooks:
-        if wh.name == name:
-            return wh
-    return None
-
-
+# USER TRANSFORMATION DATA UTILS
 def load_tf_by_name(name: str, guild: discord.Guild = None) -> dict:
     if f"{name}.json" not in os.listdir("cache/people"):
         return {}
@@ -34,8 +28,7 @@ def load_tf_by_name(name: str, guild: discord.Guild = None) -> dict:
             return {}
 
 
-def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
-    return load_tf_by_name(user.name, guild)
+def load_tf(user: discord.User, guild: discord.Guild = None) -> dict: return load_tf_by_name(user.name, guild)
 
 
 def write_tf(user: discord.User,
@@ -150,6 +143,7 @@ def remove_all_tf(user: discord.User) -> None:
     os.remove(f"cache/people/{user.name}.json")
 
 
+# TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild = None) -> dict:
     if "transformed.json" not in os.listdir("cache"):
         return {}
@@ -185,9 +179,15 @@ def remove_transformed(user: discord.User, guild: discord.Guild) -> None:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-def is_transformed(user: discord.User, guild: discord.Guild) -> bool:
-    return user.name in load_transformed(guild)
+def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return user.name in load_transformed(guild)
 
 
-def get_transformed(guild: discord.Guild) -> dict:
-    return load_transformed(guild)
+def get_transformed(guild: discord.Guild) -> dict: return load_transformed(guild)
+
+
+# MISCELLANEOUS UTILS
+def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
+    for wh in webhooks:
+        if wh.name == name:
+            return wh
+    return None
