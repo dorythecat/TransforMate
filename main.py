@@ -20,8 +20,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if len(into.strip()) <= 1:
         return await ctx.send("Please provide a name longer than 1 character!")
 
-    with open(f"cache/people/{user.name}.txt", "w+") as f:
-        f.write(f"{into}\n{image_url if image_url else user.avatar.url}")
+    utils.write_tf(user, ctx.author.name, into, image_url)
 
     with open("cache/transformed.txt", "r+") as f:
         if user.name not in f.read():
@@ -47,22 +46,21 @@ async def on_message(message: discord.Message):
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     with open("cache/transformed.txt", "r") as f1:
         if message.author.name in f1.read():
-            with open(f"cache/people/{message.author.name}.txt", "r") as f2:
-                lines = f2.readlines()
-                name = lines[0].strip()
-                avatar_url = lines[1].strip()
+            tf_data = utils.load_tf(message.author)
+            name = tf_data["into"]
+            avatar_url = tf_data["image_url"]
 
-                webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
-                if not webhook:
-                    webhook = await message.channel.create_webhook(name=name)
+            webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
+            if not webhook:
+                webhook = await message.channel.create_webhook(name=name)
 
-                if message.content:  # If there's no content and we try to send, it will trigger a 400 error
-                    await webhook.send(message.content, username=name, avatar_url=avatar_url)
-                if message.attachments:  # Send attachments too, even if in separate messages
-                    for attachment in message.attachments:
-                        await webhook.send(file=await attachment.to_file(), username=name, avatar_url=avatar_url)
-                if message.stickers:
-                    await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
+            if message.content:  # If there's no content and we try to send, it will trigger a 400 error
+                await webhook.send(message.content, username=name, avatar_url=avatar_url)
+            if message.attachments:  # Send attachments too, even if in separate messages
+                for attachment in message.attachments:
+                    await webhook.send(file=await attachment.to_file(), username=name, avatar_url=avatar_url)
+            if message.stickers:
+                await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
             await message.delete()
 
 
@@ -110,21 +108,17 @@ async def goback(ctx: discord.ApplicationContext,
             else:
                 found = True
         if not found:
-            with open(f"cache/people/{user.name}.txt", "r") as f2:
+            with open(f"cache/people/{user.name}.json", "r") as f2:
                 if f2.read().strip() == "":
                     return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
             f.write(user.name)
             f.write("\n")
             return await ctx.respond(f"{user.mention} has been turned back to their last form!")
 
-    # Keep the transformation file, just in case the user wants to go back again to their transformed form
-    with open(f"cache/people/{user.name}.txt", "r") as f:
-        name = f.readlines()[0].strip()
-
     # Delete all webhooks with the same name
     # This can lead to deleting more webhooks than we need to, but it shouldn't cause too much of a performance hit
     for wh in await ctx.guild.webhooks():
-        if wh.name == name:
+        if wh.name == utils.load_tf(user)["into"]:
             await wh.delete()
     await ctx.respond(f"{user.mention} has been turned back to normal!")
 
