@@ -58,10 +58,11 @@ async def on_message(message: discord.Message):
             if message.reference:
                 await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n"
                                    f">>> {message.reference.resolved.content})")
-            await webhook.send(utils.transform_text(tf_data, message.content), username=name, avatar_url=image_url)
-        if message.attachments:  # Send attachments too, even if in separate messages
-            for attachment in message.attachments:
-                await webhook.send(file=await attachment.to_file(), username=name, avatar_url=image_url)
+            await webhook.send(utils.transform_text(tf_data, message.content), avatar_url=image_url)
+        for attachment in message.attachments:
+            if attachment.url[:attachment.url.index("?")] == image_url:
+                return
+            await webhook.send(file=await attachment.to_file(), avatar_url=image_url)
         await message.delete()
 
         if message.stickers:
