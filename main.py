@@ -85,7 +85,7 @@ async def on_message(message: discord.Message):
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     # Check if reaction is reacting to a message sent by a transformed user
     if str(reaction.emoji) == "❓":
-        transformed = utils.get_transformed(reaction.message.guild)
+        transformed = utils.load_transformed(reaction.message.guild)
         for tfed in transformed:
             data = utils.load_tf(reaction.message.author, reaction.message.guild)
             if str(reaction.message.channel.id) in data:
@@ -169,7 +169,7 @@ async def goback(ctx: discord.ApplicationContext,
 
 @bot.slash_command(description="Get a list of transformed users")
 async def listtransformed(ctx: discord.ApplicationContext):
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if not transformed:
         return await ctx.respond("No one is transformed at the moment!")
     await ctx.respond("The following people are transformed at the moment:\n" + "".join(transformed))
@@ -240,7 +240,7 @@ async def prefix(ctx: discord.ApplicationContext,
                                             description="Add a space after the prefix (defaults true)") = True):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -261,7 +261,7 @@ async def suffix(ctx: discord.ApplicationContext,
                                             description="Add a space before the suffix (defaults true)") = True):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -278,7 +278,7 @@ async def big(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -295,7 +295,7 @@ async def small(ctx: discord.ApplicationContext,
                 user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -312,7 +312,7 @@ async def hush(ctx: discord.ApplicationContext,
                user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -329,7 +329,7 @@ async def eternal(ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User)):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -350,7 +350,7 @@ async def all_fields(ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -375,7 +375,7 @@ async def prefix(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -392,7 +392,7 @@ async def suffix(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -409,7 +409,7 @@ async def big(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -426,7 +426,7 @@ async def small(ctx: discord.ApplicationContext,
                 user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -443,7 +443,7 @@ async def hush(ctx: discord.ApplicationContext,
                user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
@@ -460,7 +460,7 @@ async def eternal(ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User)):
     if user is None:
         user = ctx.author
-    transformed = utils.get_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)

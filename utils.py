@@ -212,9 +212,6 @@ def remove_transformed(user: discord.User, guild: discord.Guild) -> None:
 def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return user.name in load_transformed(guild)
 
 
-def get_transformed(guild: discord.Guild) -> dict: return load_transformed(guild)
-
-
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict, original: str) -> str:
