@@ -85,7 +85,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     if str(reaction.emoji) == "❓":
         transformed = utils.load_transformed(reaction.message.guild)
         for tfed in transformed:
-            data = utils.load_tf(reaction.message.author, reaction.message.guild)
+            data = utils.load_tf_by_name(tfed, reaction.message.guild)
             if str(reaction.message.channel.id) in data:
                 data = data[str(reaction.message.channel.id)]
             elif 'all' in data:
