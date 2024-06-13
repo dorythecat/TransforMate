@@ -241,6 +241,8 @@ def transform_text(tf_data: dict, original: str) -> str:
         tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
         for i in range(len(alphabet)):
             transformed = transformed.replace(alphabet[i], tiny_alphabet[i])
+    if tf_data["hush"]:
+        transformed = "||" + transformed + "||"
     return transformed
 
 

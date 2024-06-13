@@ -204,6 +204,18 @@ async def small(ctx: discord.ApplicationContext,
     await ctx.respond(f"{user.mention} will now speak in small text!")
 
 
+@set_command.command(description="Set the transformed user to hush")
+async def hush(ctx: discord.ApplicationContext,
+               user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    utils.write_tf(user, ctx.guild, hush=1)
+    await ctx.respond(f"{user.mention} will now hush!")
+
+
 # "Clear" commands
 clear_command = bot.create_group("clear", "Clear various things about transformed users")
 
@@ -288,6 +300,21 @@ async def small(ctx: discord.ApplicationContext,
         return await ctx.respond(f"{user.mention} doesn't have small text set!")
     utils.write_tf(user, ctx.guild, small=0)
     await ctx.respond(f"{user.mention} will no longer speak in small text!")
+
+
+@clear_command.command(description="Clear hush setting")
+async def hush(ctx: discord.ApplicationContext,
+               user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if not data["hush"]:
+        return await ctx.respond(f"{user.mention} doesn't have hush set!")
+    utils.write_tf(user, ctx.guild, hush=0)
+    await ctx.respond(f"{user.mention} will no longer hush!")
 
 
 # Misc commands
