@@ -150,7 +150,7 @@ async def prefix(ctx: discord.ApplicationContext,
                                         description="Prefix to add"),
                  user: discord.Option(discord.User) = None,
                  whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
-                                            description="Add a space after the prefix") = False):
+                                            description="Add a space after the prefix (defaults true)") = True):
     if user is None:
         user = ctx.author
     transformed = utils.get_transformed(ctx.guild)
@@ -168,7 +168,7 @@ async def suffix(ctx: discord.ApplicationContext,
                                         description="Suffix to add"),
                  user: discord.Option(discord.User) = None,
                  whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
-                                            description="Add a space before the suffix") = False):
+                                            description="Add a space before the suffix (defaults true)") = True):
     if user is None:
         user = ctx.author
     transformed = utils.get_transformed(ctx.guild)
