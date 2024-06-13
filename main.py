@@ -295,6 +295,23 @@ async def hush(ctx: discord.ApplicationContext,
     await ctx.respond(f"{user.mention} will now hush!")
 
 
+@set_command.command(description="Set the transformed user to be eternally transformed")
+async def eternal(ctx: discord.ApplicationContext,
+                  user: discord.Option(discord.User)):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['eternal']:
+        return await ctx.respond(f"{user.mention} is already eternally transformed!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, eternal=1)
+    await ctx.respond(f"{user.mention} is now eternally transformed!")
+
+
 # "Clear" commands
 clear_command = bot.create_group("clear", "Clear various things about transformed users")
 
@@ -408,6 +425,22 @@ async def hush(ctx: discord.ApplicationContext,
     utils.write_tf(user, ctx.guild, hush=0)
     await ctx.respond(f"{user.mention} will no longer hush!")
 
+
+@clear_command.command(description="Clear eternal setting")
+async def eternal(ctx: discord.ApplicationContext,
+                  user: discord.Option(discord.User)):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if not data['eternal']:
+        return await ctx.respond(f"{user.mention} isn't eternally transformed!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, eternal=0)
+    await ctx.respond(f"{user.mention} is no longer eternally transformed!")
 
 # Misc commands
 @bot.slash_command(description="Replies with the bot's latency.")
