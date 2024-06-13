@@ -50,7 +50,12 @@ async def on_message(message: discord.Message):
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     if utils.is_transformed(message.author, message.guild):
         data = utils.load_tf(message.author, message.guild)
-        data = data[str(message.channel if str(message.channel) in data else 'all')]
+        if str(message.channel.id) in data:
+            data = data[str(message.channel.id)]
+        elif 'all' in data:
+            data = data['all']
+        else:
+            return
         name = data['into']
         image_url = data['image_url']
 
@@ -82,8 +87,13 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     if str(reaction.emoji) == "❓":
         transformed = utils.get_transformed(reaction.message.guild)
         for tfed in transformed:
-            data = utils.load_tf_by_name(tfed, reaction.message.guild)
-            data = data[str(reaction.message.channel if str(reaction.message.channel) in data else 'all')]
+            data = utils.load_tf(reaction.message.author, reaction.message.guild)
+            if str(reaction.message.channel.id) in data:
+                data = data[str(reaction.message.channel.id)]
+            elif 'all' in data:
+                data = data['all']
+            else:
+                return
             if data['into'] == reaction.message.author.name:
                 await user.send(f"*{reaction.message.author.name}* is, in fact, *{tfed}*!\n"
                                 f"(Transformed by *{data['transformed_by']}*)")
