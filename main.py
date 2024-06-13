@@ -113,7 +113,12 @@ async def transform(ctx: discord.ApplicationContext,
 
     if utils.is_transformed(user, ctx.guild):
         data = utils.load_tf(user, ctx.guild)
-        data = data[str(ctx.channel if str(ctx.channel) in data else 'all')]
+        if str(ctx.channel.id) in data:
+            data = data[str(ctx.channel.id)]
+        elif 'all' in data:
+            data = data['all']
+        else:
+            return
         if data['eternal'] and ctx.author.name != data['claim']:
             if ctx.author.name != user.name:
                 return await ctx.respond(
@@ -142,7 +147,13 @@ async def goback(ctx: discord.ApplicationContext,
     if user is None:
         user = ctx.author
     data = utils.load_tf(user, ctx.guild)
-    data = data[str(ctx.channel if str(ctx.channel) in data else 'all')]
+    if str(ctx.channel.id) in data:
+        data = data[str(ctx.channel.id)]
+    elif 'all' in data:
+        data = data['all']
+    else:
+        return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!"
+                                 f"(At least on this channel)")
     into = data['into']
 
     if not utils.is_transformed(user, ctx.guild):
@@ -171,8 +182,16 @@ async def goback(ctx: discord.ApplicationContext,
 async def listtransformed(ctx: discord.ApplicationContext):
     transformed = utils.load_transformed(ctx.guild)
     if not transformed:
-        return await ctx.respond("No one is transformed at the moment!")
-    await ctx.respond("The following people are transformed at the moment:\n" + "".join(transformed))
+        return await ctx.respond("No one is transformed (globally) at the moment!")
+    to_send = "The following people are transformed (globally) at the moment:\n"
+    for tfed in transformed:
+        data = utils.load_tf_by_name(tfed, ctx.guild)
+        for channel in data:
+            if channel == 'all':
+                data = data[channel]
+                break
+        to_send += f"**{tfed}** has been transformed into *{data['into']}* by *{data['transformed_by']}*\n"
+    await ctx.respond(to_send)
 
 
 @bot.slash_command(description="Claim a transformed user")
@@ -191,7 +210,7 @@ async def claim(ctx: discord.ApplicationContext,
         data = data['all']
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} has been claimed already by {data['claim']}!")
-    utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.name, eternal=1)
+    utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.name)
     await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
 
 
