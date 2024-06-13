@@ -17,9 +17,6 @@ async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str,
                              image_url: str):
-    if len(into.strip()) <= 1:
-        return await ctx.send("Please provide a name longer than 1 character!")
-
     if not image_url:
         image_url = user.avatar.url
     if image_url[:4] != "http":
@@ -126,6 +123,8 @@ async def transform(ctx: discord.ApplicationContext,
             return await ctx.respond(f"Your master can't allow you to transform, at least for now...")
 
     if into:
+        if len(into.strip()) <= 1:
+            return await ctx.send("Please provide a name longer than 1 character!")
         await transform_function(ctx, user, into, image_url)
         await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
         return
@@ -134,6 +133,8 @@ async def transform(ctx: discord.ApplicationContext,
     response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
     if response.content.strip() == "CANCEL":
         return await ctx.respond("Cancelled the transformation!")
+    if len(response.content.strip()) <= 1:
+        return await ctx.send("Please provide a name longer than 1 character!")
     await transform_function(ctx,
                              user,
                              response.content,
