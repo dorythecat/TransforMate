@@ -65,8 +65,9 @@ async def on_message(message: discord.Message):
                 await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n",
                                    avatar_url=image_url)
                 if message.reference.resolved.content:
-                    await webhook.send(f">>> {message.reference.resolved.content}", avatar_url=image_url)
-            await webhook.send(utils.transform_text(data, message.content), avatar_url=image_url)
+                    await webhook.send(f">>> {message.reference.resolved.content}",
+                                       avatar_url=image_url, wait=True)
+            await webhook.send(utils.transform_text(data, message.content), avatar_url=image_url, wait=True)
         for attachment in message.attachments:
             if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
                 return
