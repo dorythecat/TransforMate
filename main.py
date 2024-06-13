@@ -242,6 +242,8 @@ async def big(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
+    if data['big']:
+        return await ctx.respond(f"{user.mention} is already speaking big!")
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, big=1)
@@ -257,6 +259,8 @@ async def small(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
+    if data['small']:
+        return await ctx.respond(f"{user.mention} is already speaking small!")
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, small=1)
@@ -272,6 +276,8 @@ async def hush(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
+    if data['hush']:
+        return await ctx.respond(f"{user.mention} is already hushed!")
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, hush=1)
