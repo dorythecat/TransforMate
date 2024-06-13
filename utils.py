@@ -110,11 +110,11 @@ def write_tf(user: discord.User,
             }
         }
     else:
-        if transformed_by:
+        if transformed_by is not None and transformed_by != "":
             data[str(guild.id)]["transformed_by"] = transformed_by
-        if image_url:
+        if image_url is not None and image_url != "":
             data[str(guild.id)]["image_url"] = image_url
-        if claim_user:
+        if claim_user is not None and claim_user != "":
             data[str(guild.id)]["claim"] = claim_user.strip()
         elif claim_user == "":
             data[str(guild.id)]["claim"] = None
@@ -123,9 +123,9 @@ def write_tf(user: discord.User,
                 data[str(guild.id)]["eternal"] = False
             else:
                 data[str(guild.id)]["eternal"] = True
-        if prefix:
+        if prefix is not None:
             data[str(guild.id)]["prefix"] = prefix
-        if suffix:
+        if suffix is not None:
             data[str(guild.id)]["suffix"] = suffix
         if big is not None:
             if big == 0:
@@ -142,19 +142,19 @@ def write_tf(user: discord.User,
                 data[str(guild.id)]["hush"] = False
             else:
                 data[str(guild.id)]["hush"] = True
-        if censor:
+        if censor is not None and censor != "":
             data[str(guild.id)]["censor"]["active"] = True
             data[str(guild.id)]["censor"]["contents"] = censor.strip()
         elif censor == "":
             data[str(guild.id)]["censor"]["active"] = False
             data[str(guild.id)]["censor"]["contents"] = None
-        if sprinkle:
+        if sprinkle is not None and sprinkle != "":
             data[str(guild.id)]["sprinkle"]["active"] = True
             data[str(guild.id)]["sprinkle"]["contents"] = sprinkle.strip()
         elif sprinkle == "":
             data[str(guild.id)]["sprinkle"]["active"] = False
             data[str(guild.id)]["sprinkle"]["contents"] = None
-        if muffle:
+        if muffle is not None and muffle != "":
             data[str(guild.id)]["muffle"]["active"] = True
             data[str(guild.id)]["muffle"]["contents"] = muffle.strip()
         elif muffle == "":
