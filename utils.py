@@ -3,10 +3,12 @@ import os
 
 import discord
 
+# DATA VERSIONS
+# VERSION 4: Changed "transformed_by" to "owned_by"
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 3
+CURRENT_TFEE_DATA_VERSION = 4
 
 # VERSION 1: Base version
 CURRENT_TRANSFORMED_DATA_VERSION = 1
@@ -34,7 +36,7 @@ def load_tf(user: discord.User, guild: discord.Guild = None) -> dict: return loa
 
 def write_tf(user: discord.User,
              guild: discord.Guild,
-             transformed_by: str = None,
+             owned_by: str = None,
              into: str = None,
              image_url: str = None,
              claim_user: str = None,
@@ -57,7 +59,7 @@ def write_tf(user: discord.User,
         data["version"] = CURRENT_TFEE_DATA_VERSION
         if data["version"] < 2:
             data[str(guild.id)] = {
-                "transformed_by": data["transformed_by"],
+                "owned_by": data["transformed_by"],
                 "into": data["into"],
                 "image_url": data["image_url"],
                 "claim": data["claim"],
@@ -81,12 +83,18 @@ def write_tf(user: discord.User,
                 }
             }
         elif data["version"] < 3:
+            data[str(guild.id)]["owned_by"] = data["transformed_by"]
+            del data["transformed_by"]
+
             data[str(guild.id)]["big"] = False
             data[str(guild.id)]["small"] = False
             data[str(guild.id)]["hush"] = False
+        elif data["version"] < 4:
+            data[str(guild.id)]["owned_by"] = data["transformed_by"]
+            del data["transformed_by"]
     if into not in ["", None]:
         data[str(guild.id)] = {  # Add guild specific data
-            "transformed_by": transformed_by,
+            "owned_by": owned_by,
             "into": into,
             "image_url": image_url,
             "claim": claim_user,
@@ -110,8 +118,8 @@ def write_tf(user: discord.User,
             }
         }
     else:
-        if transformed_by is not None and transformed_by != "":
-            data[str(guild.id)]["transformed_by"] = transformed_by
+        if owned_by is not None and owned_by != "":
+            data[str(guild.id)]["owned_by"] = owned_by
         if image_url is not None and image_url != "":
             data[str(guild.id)]["image_url"] = image_url
         if claim_user is not None and claim_user != "":
