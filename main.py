@@ -22,7 +22,10 @@ async def transform_function(ctx: discord.ApplicationContext,
 
     if not image_url:
         image_url = user.avatar.url
-    image_url = image_url[:image_url.index("?")]  # Prune url
+    if image_url[:4] != "http":
+        return await ctx.send("Invalid URL! Please provide a valid image URL!")
+    if "?" in image_url:
+        image_url = image_url[:image_url.index("?")]  # Prune url
 
     utils.write_tf(user, ctx.guild, ctx.author.name, into, image_url)
     utils.write_transformed(user, ctx.guild)
@@ -60,7 +63,7 @@ async def on_message(message: discord.Message):
                                    f">>> {message.reference.resolved.content})")
             await webhook.send(utils.transform_text(tf_data, message.content), avatar_url=image_url)
         for attachment in message.attachments:
-            if attachment.url[:attachment.url.index("?")] == image_url:
+            if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
                 return
             await webhook.send(file=await attachment.to_file(), avatar_url=image_url)
         await message.delete()
