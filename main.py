@@ -187,6 +187,17 @@ async def unclaim(ctx: discord.ApplicationContext,
     await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
 
 
+@bot.slash_command(description="Safeword command. Use in case of abuse or incomodity, to unclaim yourself.")
+async def safeword(ctx: discord.ApplicationContext):
+    data = utils.load_tf(ctx.author, ctx.guild)
+    if data['claim'] is None:
+        return await ctx.respond(f"You are not claimed by anyone at the moment!")
+    utils.write_tf(ctx.author, ctx.guild, claim_user="", eternal=0)
+    await ctx.respond(f"You have successfully activated the safeword command."
+                      f"Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
+                      f"Use \"/goback\" to return to normal.")
+
+
 # "Set" Commands
 set_command = bot.create_group("set", "Set various things about transformed users")
 
