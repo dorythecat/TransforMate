@@ -155,7 +155,7 @@ async def goback(ctx: discord.ApplicationContext,
         if ctx.author.name != user.name:
             return await ctx.respond(
                 f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
-        return await ctx.respond(f"Your master can't allow you to turn back, at least for now...")
+        return await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
 
     utils.remove_transformed(user, ctx.guild)
 
@@ -224,7 +224,7 @@ async def safeword(ctx: discord.ApplicationContext):
     utils.write_tf(ctx.author, ctx.guild, claim_user="", eternal=0)
     await ctx.respond(f"You have successfully activated the safeword command."
                       f"Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
-                      f"Use \"/goback\" to return to normal.")
+                      f"Use \"/goback\" to return to your normal self.")
 
 
 # "Set" Commands
