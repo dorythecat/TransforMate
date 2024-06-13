@@ -50,8 +50,8 @@ async def on_message(message: discord.Message):
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     if utils.is_transformed(message.author, message.guild):
         tf_data = utils.load_tf(message.author, message.guild)
-        name = tf_data["into"]
-        image_url = tf_data["image_url"]
+        name = tf_data['into']
+        image_url = tf_data['image_url']
 
         webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
         if not webhook:
@@ -80,7 +80,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
         transformed = utils.get_transformed(reaction.message.guild)
         for tfed in transformed:
             tf_data = utils.load_tf_by_name(tfed, reaction.message.guild)
-            if tf_data["into"] == reaction.message.author.name:
+            if tf_data['into'] == reaction.message.author.name:
                 await user.send(f"*{reaction.message.author.name}* is, in fact, *{tfed}*!\n"
                                 f"(Transformed by *{tf_data['transformed_by']}*)")
                 await reaction.remove(user)
@@ -117,7 +117,7 @@ async def goback(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    into = utils.load_tf(user, ctx.guild)["into"]
+    into = utils.load_tf(user, ctx.guild)['into']
 
     if not utils.is_transformed(user, ctx.guild):
         if into == "":
@@ -254,7 +254,7 @@ async def prefix(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
-    if data["prefix"] is None:
+    if data['prefix'] is None:
         return await ctx.respond(f"{user.mention} doesn't have a prefix set!")
     utils.write_tf(user, ctx.guild, prefix="")
     await ctx.respond(f"Prefix for {user.mention} has been cleared!")
@@ -269,7 +269,7 @@ async def suffix(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
-    if data["suffix"] is None:
+    if data['suffix'] is None:
         return await ctx.respond(f"{user.mention} doesn't have a suffix set!")
     utils.write_tf(user, ctx.guild, suffix="")
     await ctx.respond(f"Suffix for {user.mention} has been cleared!")
@@ -284,7 +284,7 @@ async def big(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
-    if not data["big"]:
+    if not data['big']:
         return await ctx.respond(f"{user.mention} doesn't have big text set!")
     utils.write_tf(user, ctx.guild, big=0)
     await ctx.respond(f"{user.mention} will no longer speak in big text!")
@@ -299,7 +299,7 @@ async def small(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
-    if not data["small"]:
+    if not data['small']:
         return await ctx.respond(f"{user.mention} doesn't have small text set!")
     utils.write_tf(user, ctx.guild, small=0)
     await ctx.respond(f"{user.mention} will no longer speak in small text!")
@@ -314,7 +314,7 @@ async def hush(ctx: discord.ApplicationContext,
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
     data = utils.load_tf(user, ctx.guild)
-    if not data["hush"]:
+    if not data['hush']:
         return await ctx.respond(f"{user.mention} doesn't have hush set!")
     utils.write_tf(user, ctx.guild, hush=0)
     await ctx.respond(f"{user.mention} will no longer hush!")
