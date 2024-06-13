@@ -3,9 +3,10 @@ import os
 
 import discord
 
+# VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 2
+CURRENT_TFEE_DATA_VERSION = 3
 
 # VERSION 1: Base version
 CURRENT_TRANSFORMED_DATA_VERSION = 1
@@ -37,9 +38,12 @@ def write_tf(user: discord.User,
              into: str = None,
              image_url: str = None,
              claim_user: str = None,
-             eternal: bool = False,
+             eternal: int = None,
              prefix: str = None,
              suffix: str = None,
+             big: int = None,
+             small: int = None,
+             hush: int = None,
              censor_bool: bool = False,
              censor: str = None,
              sprinkle_bool: bool = False,
@@ -52,7 +56,7 @@ def write_tf(user: discord.User,
     elif data["version"] != CURRENT_TFEE_DATA_VERSION:
         data["version"] = CURRENT_TFEE_DATA_VERSION
         if data["version"] < 2:
-            data[guild.id] = {
+            data[str(guild.id)] = {
                 "transformed_by": data["transformed_by"],
                 "into": data["into"],
                 "image_url": data["image_url"],
@@ -60,6 +64,9 @@ def write_tf(user: discord.User,
                 "eternal": data["eternal"],
                 "prefix": data["prefix"],
                 "suffix": data["suffix"],
+                "big": False,
+                "small": False,
+                "hush": False,
                 "censor": {
                     "active": data["censor"]["active"],
                     "contents": data["censor"]["contents"]
@@ -73,15 +80,22 @@ def write_tf(user: discord.User,
                     "contents": data["muffle"]["contents"]
                 }
             }
+        elif data["version"] < 3:
+            data[str(guild.id)]["big"] = False
+            data[str(guild.id)]["small"] = False
+            data[str(guild.id)]["hush"] = False
     if into not in ["", None]:
         data[str(guild.id)] = {  # Add guild specific data
             "transformed_by": transformed_by,
             "into": into,
             "image_url": image_url,
             "claim": claim_user,
-            "eternal": eternal,
+            "eternal": False if eternal == 0 else True,
             "prefix": prefix,
             "suffix": suffix,
+            "big": False if big == 0 else True,
+            "small": False if small == 0 else True,
+            "hush": False if hush == 0 else True,
             "censor": {
                 "active": censor_bool,
                 "contents": censor
@@ -104,12 +118,30 @@ def write_tf(user: discord.User,
             data[str(guild.id)]["claim"] = claim_user.strip()
         elif claim_user == "":
             data[str(guild.id)]["claim"] = None
-        if eternal:
-            data[str(guild.id)]["eternal"] = eternal
+        if eternal is not None:
+            if eternal == 0:
+                data[str(guild.id)]["eternal"] = False
+            else:
+                data[str(guild.id)]["eternal"] = True
         if prefix:
             data[str(guild.id)]["prefix"] = prefix
         if suffix:
             data[str(guild.id)]["suffix"] = suffix
+        if big is not None:
+            if big == 0:
+                data[str(guild.id)]["big"] = False
+            else:
+                data[str(guild.id)]["big"] = True
+        if small is not None:
+            if small == 0:
+                data[str(guild.id)]["small"] = False
+            else:
+                data[str(guild.id)]["small"] = True
+        if hush is not None:
+            if hush == 0:
+                data[str(guild.id)]["hush"] = False
+            else:
+                data[str(guild.id)]["hush"] = True
         if censor:
             data[str(guild.id)]["censor"]["active"] = True
             data[str(guild.id)]["censor"]["contents"] = censor.strip()
