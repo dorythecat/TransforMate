@@ -27,7 +27,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:
         image_url = image_url[:image_url.index("?")]  # Prune url
 
-    utils.write_tf(user, ctx.guild, ctx.author.name, into, image_url)
+    utils.write_tf(user, ctx.guild, None, ctx.author.name, into, image_url)
     utils.write_transformed(user, ctx.guild)
 
 
@@ -49,19 +49,21 @@ async def on_message(message: discord.Message):
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     if utils.is_transformed(message.author, message.guild):
-        tf_data = utils.load_tf(message.author, message.guild)
-        name = tf_data['into']
-        image_url = tf_data['image_url']
+        data = utils.load_tf(message.author, message.guild)
+        data = data[str(message.channel if str(message.channel) in data else 'all')]
+        name = data['into']
+        image_url = data['image_url']
 
         webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
         if not webhook:
             webhook = await message.channel.create_webhook(name=name)
 
-        if message.content:  # If there's no content and we try to send, it will trigger a 400 error
+        if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
             if message.reference:
-                await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n"
-                                   f">>> {message.reference.resolved.content})")
-            await webhook.send(utils.transform_text(tf_data, message.content), avatar_url=image_url)
+                await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n")
+                if message.reference.resolved.content:
+                    await webhook.send(f">>> {message.reference.resolved.content}")
+            await webhook.send(utils.transform_text(data, message.content), avatar_url=image_url)
         for attachment in message.attachments:
             if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
                 return
@@ -79,10 +81,11 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     if str(reaction.emoji) == "❓":
         transformed = utils.get_transformed(reaction.message.guild)
         for tfed in transformed:
-            tf_data = utils.load_tf_by_name(tfed, reaction.message.guild)
-            if tf_data['into'] == reaction.message.author.name:
+            data = utils.load_tf_by_name(tfed, reaction.message.guild)
+            data = data[str(reaction.message.channel if str(reaction.message.channel) in data else 'all')]
+            if data['into'] == reaction.message.author.name:
                 await user.send(f"*{reaction.message.author.name}* is, in fact, *{tfed}*!\n"
-                                f"(Transformed by *{tf_data['transformed_by']}*)")
+                                f"(Transformed by *{data['transformed_by']}*)")
                 await reaction.remove(user)
 
 
@@ -90,7 +93,8 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
 @bot.slash_command(description="Transform someone")
 async def transform(ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None,
-                    into: discord.Option(discord.SlashCommandOptionType.string, description="Who to transform") = None,
+                    into: discord.Option(discord.SlashCommandOptionType.string,
+                                         description="Who to transform") = None,
                     image_url: discord.Option(discord.SlashCommandOptionType.string,
                                               description="Image URL to use") = None):
     if not user:
@@ -98,6 +102,7 @@ async def transform(ctx: discord.ApplicationContext,
 
     if utils.is_transformed(user, ctx.guild):
         data = utils.load_tf(user, ctx.guild)
+        data = data[str(ctx.channel if str(ctx.channel) in data else 'all')]
         if data['eternal'] and ctx.author.name != data['claim']:
             if ctx.author.name != user.name:
                 return await ctx.respond(
@@ -125,7 +130,9 @@ async def goback(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
     if user is None:
         user = ctx.author
-    into = utils.load_tf(user, ctx.guild)['into']
+    data = utils.load_tf(user, ctx.guild)
+    data = data[str(ctx.channel if str(ctx.channel) in data else 'all')]
+    into = data['into']
 
     if not utils.is_transformed(user, ctx.guild):
         if into == "":
@@ -133,7 +140,6 @@ async def goback(ctx: discord.ApplicationContext,
         utils.write_transformed(user, ctx.guild)
         return await ctx.respond(f"{user.mention} has been turned back to their last form!")
 
-    data = utils.load_tf(user, ctx.guild)
     if data['eternal'] and ctx.author.name != data['claim']:
         if ctx.author.name != user.name:
             return await ctx.respond(
@@ -166,9 +172,15 @@ async def claim(ctx: discord.ApplicationContext,
     if not utils.is_transformed(user, ctx.guild):
         return await ctx.respond(f"{user.mention} is not transformed at the moment, you can't claim them!")
     data = utils.load_tf(user, ctx.guild)
+    channel = None
+    if str(ctx.channel) in data:
+        data = data[str(ctx.channel)]
+        channel = ctx.channel
+    else:
+        data = data['all']
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} has been claimed already by {data['claim']}!")
-    utils.write_tf(user, ctx.guild, claim_user=ctx.author.name, eternal=1)
+    utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.name, eternal=1)
     await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
 
 
@@ -179,11 +191,17 @@ async def unclaim(ctx: discord.ApplicationContext,
         return await ctx.respond(f"You can't unclaim yourself! Only your master can do that!\n"
                                  f"||Use \"/safeword\", if you actually want to unclaim yourself.||")
     data = utils.load_tf(user, ctx.guild)
+    channel = None
+    if str(ctx.channel) in data:
+        data = data[str(ctx.channel)]
+        channel = ctx.channel
+    else:
+        data = data['all']
     if data['claim'] is None:
         return await ctx.respond(f"{user.mention} is currently not claimed by anyone!")
     if data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is claimed by {data['claim']}, not you!")
-    utils.write_tf(user, ctx.guild, claim_user="", eternal=0)
+    utils.write_tf(user, ctx.guild, channel, claim_user="", eternal=0)
     await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
 
 
