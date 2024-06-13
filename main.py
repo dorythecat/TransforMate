@@ -96,6 +96,14 @@ async def transform(ctx: discord.ApplicationContext,
     if not user:
         user = ctx.author
 
+    if utils.is_transformed(user, ctx.guild):
+        data = utils.load_tf(user, ctx.guild)
+        if data['eternal'] and ctx.author.name != data['claim']:
+            if ctx.author.name != user.name:
+                return await ctx.respond(
+                    f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
+            return await ctx.respond(f"Your master can't allow you to transform, at least for now...")
+
     if into:
         await transform_function(ctx, user, into, image_url)
         await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
@@ -125,6 +133,13 @@ async def goback(ctx: discord.ApplicationContext,
         utils.write_transformed(user, ctx.guild)
         return await ctx.respond(f"{user.mention} has been turned back to their last form!")
 
+    data = utils.load_tf(user, ctx.guild)
+    if data['eternal'] and ctx.author.name != data['claim']:
+        if ctx.author.name != user.name:
+            return await ctx.respond(
+                f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
+        return await ctx.respond(f"Your master can't allow you to turn back, at least for now...")
+
     utils.remove_transformed(user, ctx.guild)
 
     # Delete all webhooks with the same name
@@ -143,6 +158,35 @@ async def listtransformed(ctx: discord.ApplicationContext):
     await ctx.respond("The following people are transformed at the moment:\n" + "".join(transformed))
 
 
+@bot.slash_command(description="Claim a transformed user")
+async def claim(ctx: discord.ApplicationContext,
+                user: discord.Option(discord.User)):
+    if user == ctx.author:
+        return await ctx.respond(f"You can't claim yourself!")
+    if not utils.is_transformed(user, ctx.guild):
+        return await ctx.respond(f"{user.mention} is not transformed at the moment, you can't claim them!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} has been claimed already by {data['claim']}!")
+    utils.write_tf(user, ctx.guild, claim_user=ctx.author.name, eternal=1)
+    await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
+
+
+@bot.slash_command(description="Unclaim a transformed user")
+async def unclaim(ctx: discord.ApplicationContext,
+                  user: discord.Option(discord.User)):
+    if user == ctx.author:
+        return await ctx.respond(f"You can't unclaim yourself! Only your master can do that!\n"
+                                 f"||Use \"/safeword\", if you actually want to unclaim yourself.||")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is None:
+        return await ctx.respond(f"{user.mention} is currently not claimed by anyone!")
+    if data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is claimed by {data['claim']}, not you!")
+    utils.write_tf(user, ctx.guild, claim_user="", eternal=0)
+    await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
+
+
 # "Set" Commands
 set_command = bot.create_group("set", "Set various things about transformed users")
 
@@ -159,6 +203,9 @@ async def prefix(ctx: discord.ApplicationContext,
     transformed = utils.get_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     if whitespace:
         prefix = prefix + " "
     utils.write_tf(user, ctx.guild, prefix=prefix)
@@ -177,6 +224,9 @@ async def suffix(ctx: discord.ApplicationContext,
     transformed = utils.get_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     if whitespace:
         suffix = " " + suffix
     utils.write_tf(user, ctx.guild, suffix=suffix)
@@ -191,6 +241,9 @@ async def big(ctx: discord.ApplicationContext,
     transformed = utils.get_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, big=1)
     await ctx.respond(f"{user.mention} will now speak in big text!")
 
@@ -203,6 +256,9 @@ async def small(ctx: discord.ApplicationContext,
     transformed = utils.get_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, small=1)
     await ctx.respond(f"{user.mention} will now speak in small text!")
 
@@ -215,6 +271,9 @@ async def hush(ctx: discord.ApplicationContext,
     transformed = utils.get_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, hush=1)
     await ctx.respond(f"{user.mention} will now hush!")
 
@@ -231,6 +290,9 @@ async def all_fields(ctx: discord.ApplicationContext,
     transformed = utils.get_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user,
                    ctx.guild,
                    claim_user="",
@@ -256,6 +318,8 @@ async def prefix(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     if data['prefix'] is None:
         return await ctx.respond(f"{user.mention} doesn't have a prefix set!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, prefix="")
     await ctx.respond(f"Prefix for {user.mention} has been cleared!")
 
@@ -271,6 +335,8 @@ async def suffix(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     if data['suffix'] is None:
         return await ctx.respond(f"{user.mention} doesn't have a suffix set!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, suffix="")
     await ctx.respond(f"Suffix for {user.mention} has been cleared!")
 
@@ -286,6 +352,8 @@ async def big(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     if not data['big']:
         return await ctx.respond(f"{user.mention} doesn't have big text set!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, big=0)
     await ctx.respond(f"{user.mention} will no longer speak in big text!")
 
@@ -301,6 +369,8 @@ async def small(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     if not data['small']:
         return await ctx.respond(f"{user.mention} doesn't have small text set!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, small=0)
     await ctx.respond(f"{user.mention} will no longer speak in small text!")
 
@@ -316,6 +386,8 @@ async def hush(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     if not data['hush']:
         return await ctx.respond(f"{user.mention} doesn't have hush set!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, hush=0)
     await ctx.respond(f"{user.mention} will no longer hush!")
 
