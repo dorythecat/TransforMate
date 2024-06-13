@@ -148,24 +148,27 @@ def write_tf(user: discord.User,
                 data[str(guild.id)]["hush"] = False
             else:
                 data[str(guild.id)]["hush"] = True
-        if censor is not None and censor != "":
-            data[str(guild.id)]["censor"]["active"] = True
-            data[str(guild.id)]["censor"]["contents"] = censor.strip()
-        elif censor == "":
-            data[str(guild.id)]["censor"]["active"] = False
-            data[str(guild.id)]["censor"]["contents"] = None
-        if sprinkle is not None and sprinkle != "":
-            data[str(guild.id)]["sprinkle"]["active"] = True
-            data[str(guild.id)]["sprinkle"]["contents"] = sprinkle.strip()
-        elif sprinkle == "":
-            data[str(guild.id)]["sprinkle"]["active"] = False
-            data[str(guild.id)]["sprinkle"]["contents"] = None
-        if muffle is not None and muffle != "":
-            data[str(guild.id)]["muffle"]["active"] = True
-            data[str(guild.id)]["muffle"]["contents"] = muffle.strip()
-        elif muffle == "":
-            data[str(guild.id)]["muffle"]["active"] = False
-            data[str(guild.id)]["muffle"]["contents"] = None
+        if censor is not None:
+            if censor != "":
+                data[str(guild.id)]["censor"]["active"] = True
+                data[str(guild.id)]["censor"]["contents"] = censor.strip()
+            else:
+                data[str(guild.id)]["censor"]["active"] = False
+                data[str(guild.id)]["censor"]["contents"] = None
+        if sprinkle is not None:
+            if sprinkle != "":
+                data[str(guild.id)]["sprinkle"]["active"] = True
+                data[str(guild.id)]["sprinkle"]["contents"] = sprinkle.strip()
+            else:
+                data[str(guild.id)]["sprinkle"]["active"] = False
+                data[str(guild.id)]["sprinkle"]["contents"] = None
+        if muffle is not None:
+            if muffle != "":
+                data[str(guild.id)]["muffle"]["active"] = True
+                data[str(guild.id)]["muffle"]["contents"] = muffle.strip()
+            else:
+                data[str(guild.id)]["muffle"]["active"] = False
+                data[str(guild.id)]["muffle"]["contents"] = None
     with open(f"cache/people/{user.name}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
