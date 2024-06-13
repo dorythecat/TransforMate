@@ -124,9 +124,15 @@ def write_tf(user: discord.User,
             else:
                 data[str(guild.id)]["eternal"] = True
         if prefix is not None:
-            data[str(guild.id)]["prefix"] = prefix
+            if prefix != "":
+                data[str(guild.id)]["prefix"] = prefix
+            else:
+                data[str(guild.id)]["prefix"] = None
         if suffix is not None:
-            data[str(guild.id)]["suffix"] = suffix
+            if suffix != "":
+                data[str(guild.id)]["suffix"] = suffix
+            else:
+                data[str(guild.id)]["suffix"] = None
         if big is not None:
             if big == 0:
                 data[str(guild.id)]["big"] = False
