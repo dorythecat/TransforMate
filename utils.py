@@ -66,31 +66,81 @@ def write_tf(user: discord.User,
         if str(guild.id) not in data:
             data[str(guild.id)] = {}
         if channel_id not in data[str(guild.id)]:
-            data[str(guild.id)][channel_id] = {}
-        data[str(guild.id)][channel_id] = {  # Add guild specific data
-            'transformed_by': transformed_by,
-            'into': into,
-            'image_url': image_url,
-            'claim': claim_user,
-            'eternal': False if eternal is None or eternal == 0 else True,
-            'prefix': prefix,
-            'suffix': suffix,
-            'big': False if big is None or big == 0 else True,
-            'small': False if small is None or small == 0 else True,
-            'hush': False if hush is None or hush == 0 else True,
-            'censor': {
-                'active': censor_bool,
-                'contents': censor
-            },
-            'sprinkle': {
-                'active': sprinkle_bool,
-                'contents': sprinkle
-            },
-            'muffle': {
-                'active': muffle_bool,
-                'contents': muffle
+            data[str(guild.id)][channel_id] = {
+                'transformed_by': "",
+                'into': "",
+                'image_url': "",
+                'claim': None,
+                'eternal': False,
+                'prefix': None,
+                'suffix': None,
+                'big': False,
+                'small': False,
+                'hush': False,
+                'censor': {
+                    'active': False,
+                    'contents': None
+                },
+                'sprinkle': {
+                    'active': False,
+                    'contents': None
+                },
+                'muffle': {
+                    'active': False,
+                    'contents': None
+                }
             }
-        }
+        if into not in ["", None]:
+            if into not in ["", None]:
+                data[str(guild.id)][channel_id] = {  # Add guild specific data
+                    'transformed_by': transformed_by,
+                    'into': into,
+                    'image_url': image_url,
+                    'claim': data[str(guild.id)][channel_id]['claim'],
+                    'eternal': data[str(guild.id)][channel_id]['eternal'],
+                    'prefix': data[str(guild.id)][channel_id]['prefix'],
+                    'suffix': data[str(guild.id)][channel_id]['suffix'],
+                    'big': data[str(guild.id)][channel_id]['big'],
+                    'small': data[str(guild.id)][channel_id]['small'],
+                    'hush': data[str(guild.id)][channel_id]['hush'],
+                    'censor': {
+                        'active': data[str(guild.id)][channel_id]['censor']['active'],
+                        'contents': data[str(guild.id)][channel_id]['censor']['contents']
+                    },
+                    'sprinkle': {
+                        'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
+                        'contents': data[str(guild.id)][channel_id]['sprinkle']['contents']
+                    },
+                    'muffle': {
+                        'active': data[str(guild.id)][channel_id]['muffle']['active'],
+                        'contents': data[str(guild.id)][channel_id]['muffle']['contents']
+                    }
+                }
+            else:
+                data[str(guild.id)][channel_id] = {  # Add guild specific data
+                    'transformed_by': transformed_by,
+                    'into': into,
+                    'image_url': image_url,
+                    'claim': claim_user,
+                    'eternal': False if eternal is None or eternal == 0 else True,
+                    'prefix': prefix,
+                    'suffix': suffix,
+                    'big': False if big is None or big == 0 else True,
+                    'small': False if small is None or small == 0 else True,
+                    'hush': False if hush is None or hush == 0 else True,
+                    'censor': {
+                        'active': censor_bool,
+                        'contents': censor
+                    },
+                    'sprinkle': {
+                        'active': sprinkle_bool,
+                        'contents': sprinkle
+                    },
+                    'muffle': {
+                        'active': muffle_bool,
+                        'contents': muffle
+                    }
+                }
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
