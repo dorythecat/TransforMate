@@ -234,6 +234,13 @@ def transform_text(tf_data: dict, original: str) -> str:
         transformed = tf_data["prefix"] + transformed
     if tf_data["suffix"]:
         transformed = transformed + tf_data["suffix"]
+    if tf_data["big"]:
+        transformed = "# " + transformed
+    if tf_data["small"]:
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
+        for i in range(len(alphabet)):
+            transformed = transformed.replace(alphabet[i], tiny_alphabet[i])
     return transformed
 
 

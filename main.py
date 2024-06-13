@@ -180,6 +180,30 @@ async def suffix(ctx: discord.ApplicationContext,
     await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix}*\"!")
 
 
+@set_command.command(description="Set the transformed user to speak in big text")
+async def big(ctx: discord.ApplicationContext,
+              user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    utils.write_tf(user, ctx.guild, big=1)
+    await ctx.respond(f"{user.mention} will now speak in big text!")
+
+
+@set_command.command(description="Set the transformed user to speak in small text")
+async def small(ctx: discord.ApplicationContext,
+                user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    utils.write_tf(user, ctx.guild, small=1)
+    await ctx.respond(f"{user.mention} will now speak in small text!")
+
+
 # "Clear" commands
 clear_command = bot.create_group("clear", "Clear various things about transformed users")
 
@@ -234,6 +258,36 @@ async def suffix(ctx: discord.ApplicationContext,
         return await ctx.respond(f"{user.mention} doesn't have a suffix set!")
     utils.write_tf(user, ctx.guild, suffix="")
     await ctx.respond(f"Suffix for {user.mention} has been cleared!")
+
+
+@clear_command.command(description="Clear the big text setting for the transformed messages")
+async def big(ctx: discord.ApplicationContext,
+              user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if not data["big"]:
+        return await ctx.respond(f"{user.mention} doesn't have big text set!")
+    utils.write_tf(user, ctx.guild, big=0)
+    await ctx.respond(f"{user.mention} will no longer speak in big text!")
+
+
+@clear_command.command(description="Clear the small text setting for the transformed messages")
+async def small(ctx: discord.ApplicationContext,
+                user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if not data["small"]:
+        return await ctx.respond(f"{user.mention} doesn't have small text set!")
+    utils.write_tf(user, ctx.guild, small=0)
+    await ctx.respond(f"{user.mention} will no longer speak in small text!")
 
 
 # Misc commands
