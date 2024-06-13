@@ -180,6 +180,62 @@ async def suffix(ctx: discord.ApplicationContext,
     await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix}*\"!")
 
 
+# "Clear" commands
+clear_command = bot.create_group("clear", "Clear various things about transformed users")
+
+
+@clear_command.command(description="Clear all settings for the transformed user")
+async def all_fields(ctx: discord.ApplicationContext,
+                     user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    utils.write_tf(user,
+                   ctx.guild,
+                   claim_user="",
+                   eternal=0,
+                   prefix="",
+                   suffix="",
+                   big=0,
+                   small=0,
+                   hush=0,
+                   censor="",
+                   sprinkle="",
+                   muffle="")
+
+
+@clear_command.command(description="Clear the prefix for the transformed messages")
+async def prefix(ctx: discord.ApplicationContext,
+                 user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data["prefix"] is None:
+        return await ctx.respond(f"{user.mention} doesn't have a prefix set!")
+    utils.write_tf(user, ctx.guild, prefix="")
+    await ctx.respond(f"Prefix for {user.mention} has been cleared!")
+
+
+@clear_command.command(description="Clear the suffix for the transformed messages")
+async def suffix(ctx: discord.ApplicationContext,
+                 user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.get_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    if data["suffix"] is None:
+        return await ctx.respond(f"{user.mention} doesn't have a suffix set!")
+    utils.write_tf(user, ctx.guild, suffix="")
+    await ctx.respond(f"Suffix for {user.mention} has been cleared!")
+
+
 # Misc commands
 @bot.slash_command(description="Replies with the bot's latency.")
 async def ping(ctx: discord.ApplicationContext):
