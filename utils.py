@@ -59,7 +59,10 @@ def write_tf(user: discord.User,
              sprinkle_bool: bool = False,
              sprinkle: str = None,
              muffle_bool: bool = False,
-             muffle: str = None) -> None:
+             muffle: str = None,
+             chance: int = None,
+             type: int = None,
+             clear_contents: bool = None) -> None:
     data = load_tf(user)
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
@@ -251,6 +254,15 @@ def write_tf(user: discord.User,
             else:
                 data[str(guild.id)][channel_id]['muffle']['active'] = False
                 data[str(guild.id)][channel_id]['muffle']['chance'] = 0
+        if type and chance is not None:
+            if type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
+                data[str(guild.id)][channel_id][type]['chance'] = chance
+        if clear_contents is not None:
+            data[str(guild.id)][channel_id]['prefix']['contents'] = []
+            data[str(guild.id)][channel_id]['suffix']['contents'] = []
+            data[str(guild.id)][channel_id]['sprinkle']['contents'] = []
+            data[str(guild.id)][channel_id]['muffle']['contents'] = []
+            data[str(guild.id)][channel_id]['censor']['contents'] = {}
     with open(f"cache/people/{user.name}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
@@ -320,25 +332,33 @@ def transform_text(data: dict, original: str) -> str:
     words = transformed.split(" ")
     if data["censor"]["active"]:
         # Censor will change the censored word to the word provided in the data
+        words = transformed.split(" ")
+        # force lowercase for comparison
+        # also strip punctuation
+        word = words[0].lower().strip(".,!?")
         for i in range(len(words)):
-            if words[i].lower() in data["censor"]["contents"]:
+            if word in data["censor"]["contents"]:
                 words[i] = data["censor"]["contents"][words[i].lower()]
         transformed = " ".join(words)
-    if data["sprinkle"]["active"]:
-        # Sprinkle will add the sprinkled word to the message between words by random chance
-        for i in range(len(words)):
-            if random.randint(1, 100) <= data["sprinkle"]["chance"]:
-                words.insert(i, data["sprinkle"]["contents"][random.randint(0, len(data["sprinkle"]["contents"]) - 1)])
-        transformed = " ".join(words)
+    
     if data["muffle"]["active"]:
         # Muffle will overwrite a word with a word from the data array by random chance
         for i in range(len(words)):
             if random.randint(1, 100) <= data["muffle"]["chance"]:
                 words[i] = data["muffle"]["contents"][random.randint(0, len(data["muffle"]["contents"]) - 1)]
 
+
         transformed = " ".join(words)
-    # Moving these below so text changes are applied before the prefix and suffix,
-    # so they aren't affected by censors or such
+    if data["sprinkle"]["active"]:
+        # Sprinkle will add the sprinkled word to the message between words by random chance
+        words = transformed.split(" ")
+        # for each word, if the chance is met, add a sprinkled word before it
+        length = len(words)
+        for i in range(length):
+            if random.randint(1, 100) <= data["sprinkle"]["chance"]:
+                words[i] = data["sprinkle"]["contents"][random.randint(0, len(data["sprinkle"]["contents"]) - 1)] + " " + words[i]
+        transformed = " ".join(words) 
+        # Moving these below so text changes are applied before the prefix and suffix so they aren't affected by censors or such
     if data["prefix"]["active"]:
         # Prefix will add the prefix to the message, try the chance of adding it,
         # and then select a random prefix from the list
@@ -372,3 +392,16 @@ def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
         if wh.name == name:
             return wh
     return None
+
+# Obfuscate Overly Repetitive Code
+async def logic_command(ctx: discord.ApplicationContext,
+                  user: discord.User,
+):
+    if user is None:
+        user = ctx.author
+    transformed = load_transformed(ctx.guild)
+    if user.name not in transformed:
+        return [await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!"), data, user]
+    data = load_tf(user, ctx.guild)
+    data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
+    return [True, data, user]
