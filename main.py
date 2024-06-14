@@ -16,12 +16,12 @@ async def transform_function(ctx: discord.ApplicationContext,
                              into: str,
                              image_url: str,
                              channel: discord.TextChannel):
-    if not image_url:
+    if not image_url.strip():
         image_url = user.avatar.url
-    if image_url[:4] != "http":
+    if image_url.strip()[:4] != "http":
         return await ctx.send("Invalid URL! Please provide a valid image URL!")
     if "?" in image_url:
-        image_url = image_url[:image_url.index("?")]  # Prune url
+        image_url = image_url.strip()[:image_url.index("?")]  # Prune url
 
     utils.write_tf(user, ctx.guild, channel, ctx.author.name, into, image_url)
     utils.write_transformed(user, ctx.guild)
