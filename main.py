@@ -123,7 +123,7 @@ async def transform(ctx: discord.ApplicationContext,
             return
         if data['claim'] is not None and data['claim'] != ctx.author.name:
             return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}!")
-        if data['eternal'] and ctx.author.name != data['claim']:
+        if data['eternal'] and ctx.author.name != data['claim'] and data['claim'] is not None:
             if ctx.author.name != user.name:
                 return await ctx.respond(
                     f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")

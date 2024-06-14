@@ -4,8 +4,6 @@ import random
 
 import discord
 
-import spacy
-
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
@@ -320,7 +318,7 @@ def transform_text(data: dict, original: str) -> str:
 
         for i in range(len(words)):
             if words[i].lower() in data["censor"]["contents"]:
-                words[i] = data["censor"]["contents"][words[i]]
+                words[i] = data["censor"]["contents"][words[i].lower()]
         transformed = " ".join(words)
     if data["sprinkle"]["active"]:
         # Sprinkle will add the sprinkled word to the message between words by random chance
