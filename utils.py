@@ -1,15 +1,19 @@
 import json
 import os
+import random
 
 import discord
 
+import spacy
+
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
 # VERSION 4: Reworked to work with per-channel data. - DROPPED SUPPORT FOR TRANSLATING PREVIOUS VERSIONS
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 4
+CURRENT_TFEE_DATA_VERSION = 5
 
 # VERSION 1: Base version
 CURRENT_TRANSFORMED_DATA_VERSION = 1
@@ -44,13 +48,16 @@ def write_tf(user: discord.User,
              image_url: str = None,
              claim_user: str = None,
              eternal: int = None,
+             prefix_bool: bool = False,
              prefix: str = None,
+             suffix_bool: bool = False,
              suffix: str = None,
              big: int = None,
              small: int = None,
              hush: int = None,
              censor_bool: bool = False,
              censor: str = None,
+             censor_replacement: str = None,
              sprinkle_bool: bool = False,
              sprinkle: str = None,
              muffle_bool: bool = False,
@@ -59,7 +66,6 @@ def write_tf(user: discord.User,
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
-        print("Data loaded is from older versions! Beware of monsters!") # Debug message, remove for production
         data['version'] = CURRENT_TFEE_DATA_VERSION
     channel_id = 'all' if channel is None else str(channel.id)
     if into not in ["", None]:
@@ -72,22 +78,32 @@ def write_tf(user: discord.User,
                 'image_url': "",
                 'claim': None,
                 'eternal': False,
-                'prefix': None,
-                'suffix': None,
+                'prefix': {
+                    'active': False,
+                    'contents': [],
+                    'chance': 0
+                },
+                'suffix': {
+                    'active': False,
+                    'contents': [],
+                    'chance': 0
+                },
                 'big': False,
                 'small': False,
                 'hush': False,
                 'censor': {
                     'active': False,
-                    'contents': None
+                    'contents': {}
                 },
                 'sprinkle': {
                     'active': False,
-                    'contents': None
+                    'contents': [],
+                    'chance': 0
                 },
                 'muffle': {
                     'active': False,
-                    'contents': None
+                    'contents': [],
+                    'chance': 0
                 }
             }
         if into not in ["", None]:
@@ -98,8 +114,16 @@ def write_tf(user: discord.User,
                     'image_url': image_url,
                     'claim': data[str(guild.id)][channel_id]['claim'],
                     'eternal': data[str(guild.id)][channel_id]['eternal'],
-                    'prefix': data[str(guild.id)][channel_id]['prefix'],
-                    'suffix': data[str(guild.id)][channel_id]['suffix'],
+                    'prefix': {
+                        'active': data[str(guild.id)][channel_id]['prefix']['active'],
+                        'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
+                        'chance': data[str(guild.id)][channel_id]['prefix']['chance']
+                    },
+                    'suffix': {
+                        'active': data[str(guild.id)][channel_id]['suffix']['active'],
+                        'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
+                        'chance': data[str(guild.id)][channel_id]['suffix']['chance']
+                    },
                     'big': data[str(guild.id)][channel_id]['big'],
                     'small': data[str(guild.id)][channel_id]['small'],
                     'hush': data[str(guild.id)][channel_id]['hush'],
@@ -109,11 +133,13 @@ def write_tf(user: discord.User,
                     },
                     'sprinkle': {
                         'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
-                        'contents': data[str(guild.id)][channel_id]['sprinkle']['contents']
+                        'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
+                        'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
                     },
                     'muffle': {
                         'active': data[str(guild.id)][channel_id]['muffle']['active'],
-                        'contents': data[str(guild.id)][channel_id]['muffle']['contents']
+                        'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
+                        'chance': data[str(guild.id)][channel_id]['muffle']['chance']
                     }
                 }
             else:
@@ -123,22 +149,32 @@ def write_tf(user: discord.User,
                     'image_url': image_url,
                     'claim': claim_user,
                     'eternal': False if eternal is None or eternal == 0 else True,
-                    'prefix': prefix,
-                    'suffix': suffix,
+                    'prefix': {
+                        'active': False if prefix_bool is None or prefix_bool == 0 else True,
+                        'contents': prefix,
+                        'chance': 0
+                    },
+                    'suffix': {
+                        'active': False if suffix_bool is None or suffix_bool == 0 else True,
+                        'contents': suffix,
+                        'chance': 0
+                    },
                     'big': False if big is None or big == 0 else True,
                     'small': False if small is None or small == 0 else True,
                     'hush': False if hush is None or hush == 0 else True,
                     'censor': {
                         'active': censor_bool,
-                        'contents': censor
+                        'contents': {}
                     },
                     'sprinkle': {
                         'active': sprinkle_bool,
-                        'contents': sprinkle
+                        'contents': sprinkle,
+                        'chance': 0
                     },
                     'muffle': {
                         'active': muffle_bool,
-                        'contents': muffle
+                        'contents': muffle,
+                        'chance': 0
                     }
                 }
     else:
@@ -157,14 +193,20 @@ def write_tf(user: discord.User,
                 data[str(guild.id)][channel_id]['eternal'] = True
         if prefix is not None:
             if prefix != "":
-                data[str(guild.id)][channel_id]['prefix'] = prefix
+                data[str(guild.id)][channel_id]['prefix']['active'] = True
+                data[str(guild.id)][channel_id]['prefix']['contents'] = data[str(guild.id)][channel_id]['prefix']['contents'] + [prefix.strip()]
+                data[str(guild.id)][channel_id]['prefix']['chance'] = 30
             else:
-                data[str(guild.id)][channel_id]['prefix'] = None
+                data[str(guild.id)][channel_id]['prefix']['active'] = False
+                data[str(guild.id)][channel_id]['prefix']['chance'] = 0
         if suffix is not None:
             if suffix != "":
-                data[str(guild.id)][channel_id]['suffix'] = suffix
+                data[str(guild.id)][channel_id]['suffix']['active'] = True
+                data[str(guild.id)][channel_id]['suffix']['contents'] = data[str(guild.id)][channel_id]['suffix']['contents'] + [suffix.strip()]
+                data[str(guild.id)][channel_id]['suffix']['chance'] = 30
             else:
-                data[str(guild.id)][channel_id]['suffix'] = None
+                data[str(guild.id)][channel_id]['suffix']['active'] = False
+                data[str(guild.id)][channel_id]['suffix']['chance'] = 0
         if big is not None:
             if big == 0:
                 data[str(guild.id)][channel_id]['big'] = False
@@ -183,24 +225,28 @@ def write_tf(user: discord.User,
         if censor is not None:
             if censor != "":
                 data[str(guild.id)][channel_id]['censor']['active'] = True
-                data[str(guild.id)][channel_id]['censor']['contents'] = censor.strip()
+                if censor_replacement is not None and censor_replacement != "":
+                    if data[str(guild.id)][channel_id]['censor']['contents'] is None:
+                        data[str(guild.id)][channel_id]['censor']['contents'] = {}
+                    data[str(guild.id)][channel_id]['censor']['contents'][censor.strip().lower()] = censor_replacement.strip()
             else:
                 data[str(guild.id)][channel_id]['censor']['active'] = False
-                data[str(guild.id)][channel_id]['censor']['contents'] = None
         if sprinkle is not None:
             if sprinkle != "":
                 data[str(guild.id)][channel_id]['sprinkle']['active'] = True
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = sprinkle.strip()
+                data[str(guild.id)][channel_id]['sprinkle']['contents'] = data[str(guild.id)][channel_id]['sprinkle']['contents'] + [sprinkle.strip()]
+                data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30
             else:
                 data[str(guild.id)][channel_id]['sprinkle']['active'] = False
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = None
+                data[str(guild.id)][channel_id]['sprinkle']['chance'] = 0
         if muffle is not None:
             if muffle != "":
                 data[str(guild.id)][channel_id]['muffle']['active'] = True
-                data[str(guild.id)][channel_id]['muffle']['contents'] = muffle.strip()
+                data[str(guild.id)][channel_id]['muffle']['contents'] = data[str(guild.id)][channel_id]['muffle']['contents'] + [muffle.strip()]
+                data[str(guild.id)][channel_id]['muffle']['chance'] = 30
             else:
                 data[str(guild.id)][channel_id]['muffle']['active'] = False
-                data[str(guild.id)][channel_id]['muffle']['contents'] = None
+                data[str(guild.id)][channel_id]['muffle']['chance'] = 0
     with open(f"cache/people/{user.name}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
@@ -266,10 +312,41 @@ def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return use
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict, original: str) -> str:
     transformed = original
-    if data["prefix"]:
-        transformed = data["prefix"] + transformed
-    if data["suffix"]:
-        transformed = transformed + data["suffix"]
+    
+    if data["censor"]["active"]:
+        # Censor will change the censored word to the word provided in the data
+        words = transformed.split(" ")
+        # force lowercase for comparison
+
+        for i in range(len(words)):
+            if words[i].lower() in data["censor"]["contents"]:
+                words[i] = data["censor"]["contents"][words[i]]
+        transformed = " ".join(words)
+    if data["sprinkle"]["active"]:
+        # Sprinkle will add the sprinkled word to the message between words by random chance
+        words = transformed.split(" ")
+        for i in range(len(words)):
+            if random.randint(1, 100) <= data["sprinkle"]["chance"]:
+                words.insert(i, data["sprinkle"]["contents"][random.randint(0, len(data["sprinkle"]["contents"]) - 1)])
+        transformed = " ".join(words)
+    if data["muffle"]["active"]:
+        # Muffle will overwrite a word with a word from the data array by random chance
+        words = transformed.split(" ")
+        for i in range(len(words)):
+            if random.randint(1, 100) <= data["muffle"]["chance"]:
+                words[i] = data["muffle"]["contents"][random.randint(0, len(data["muffle"]["contents"]) - 1)]
+
+
+        transformed = " ".join(words)
+    # Moving these below so text changes are applied before the prefix and suffix so they aren't affected by censors or such
+    if data["prefix"]["active"]:
+        # Prefix will add the prefix to the message, try the chance of adding it and then select a random prefix from the list
+        if data["prefix"]["chance"] >= 100 or data["prefix"]["chance"] >= 0 and random.randint(1, 100) <= data["prefix"]["chance"]:
+            transformed = data["prefix"]["contents"][random.randint(0, len(data["prefix"]["contents"]) - 1)] + " " + transformed
+    if data["suffix"]["active"]:
+        # Suffix will add the suffix to the message, try the chance of adding it and then select a random suffix from the list
+        if data["suffix"]["chance"] >= 100 or data["suffix"]["chance"] >= 0 and random.randint(1, 100) <= data["suffix"]["chance"]:
+            transformed = transformed + " " + data["suffix"]["contents"][random.randint(0, len(data["suffix"]["contents"]) - 1)]
     if data["big"]:
         transformed = "# " + transformed
     if data["small"]:
@@ -279,6 +356,7 @@ def transform_text(data: dict, original: str) -> str:
             transformed = transformed.replace(alphabet[i], tiny_alphabet[i])
     if data["hush"]:
         transformed = "||" + transformed + "||"
+
     return transformed
 
 
