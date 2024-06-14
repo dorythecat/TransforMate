@@ -192,7 +192,8 @@ def write_tf(user: discord.User,
         if prefix is not None:
             if prefix != "":
                 data[str(guild.id)][channel_id]['prefix']['active'] = True
-                data[str(guild.id)][channel_id]['prefix']['contents'] = data[str(guild.id)][channel_id]['prefix']['contents'] + [prefix.strip()]
+                data[str(guild.id)][channel_id]['prefix']['contents'] = data[str(guild.id)][channel_id]['prefix'][
+                                                                            'contents'] + [prefix.strip()]
                 data[str(guild.id)][channel_id]['prefix']['chance'] = 30
             else:
                 data[str(guild.id)][channel_id]['prefix']['active'] = False
@@ -200,7 +201,8 @@ def write_tf(user: discord.User,
         if suffix is not None:
             if suffix != "":
                 data[str(guild.id)][channel_id]['suffix']['active'] = True
-                data[str(guild.id)][channel_id]['suffix']['contents'] = data[str(guild.id)][channel_id]['suffix']['contents'] + [suffix.strip()]
+                data[str(guild.id)][channel_id]['suffix']['contents'] = data[str(guild.id)][channel_id]['suffix'][
+                                                                            'contents'] + [suffix.strip()]
                 data[str(guild.id)][channel_id]['suffix']['chance'] = 30
             else:
                 data[str(guild.id)][channel_id]['suffix']['active'] = False
@@ -226,13 +228,15 @@ def write_tf(user: discord.User,
                 if censor_replacement is not None and censor_replacement != "":
                     if data[str(guild.id)][channel_id]['censor']['contents'] is None:
                         data[str(guild.id)][channel_id]['censor']['contents'] = {}
-                    data[str(guild.id)][channel_id]['censor']['contents'][censor.strip().lower()] = censor_replacement.strip()
+                    data[str(guild.id)][channel_id]['censor']['contents'][
+                        censor.strip().lower()] = censor_replacement.strip()
             else:
                 data[str(guild.id)][channel_id]['censor']['active'] = False
         if sprinkle is not None:
             if sprinkle != "":
                 data[str(guild.id)][channel_id]['sprinkle']['active'] = True
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = data[str(guild.id)][channel_id]['sprinkle']['contents'] + [sprinkle.strip()]
+                data[str(guild.id)][channel_id]['sprinkle']['contents'] = data[str(guild.id)][channel_id]['sprinkle'][
+                                                                              'contents'] + [sprinkle.strip()]
                 data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30
             else:
                 data[str(guild.id)][channel_id]['sprinkle']['active'] = False
@@ -240,7 +244,8 @@ def write_tf(user: discord.User,
         if muffle is not None:
             if muffle != "":
                 data[str(guild.id)][channel_id]['muffle']['active'] = True
-                data[str(guild.id)][channel_id]['muffle']['contents'] = data[str(guild.id)][channel_id]['muffle']['contents'] + [muffle.strip()]
+                data[str(guild.id)][channel_id]['muffle']['contents'] = data[str(guild.id)][channel_id]['muffle'][
+                                                                            'contents'] + [muffle.strip()]
                 data[str(guild.id)][channel_id]['muffle']['chance'] = 30
             else:
                 data[str(guild.id)][channel_id]['muffle']['active'] = False
@@ -310,41 +315,43 @@ def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return use
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict, original: str) -> str:
     transformed = original
-    
+
+    words = transformed.split(" ")
     if data["censor"]["active"]:
         # Censor will change the censored word to the word provided in the data
-        words = transformed.split(" ")
-        # force lowercase for comparison
-
         for i in range(len(words)):
             if words[i].lower() in data["censor"]["contents"]:
                 words[i] = data["censor"]["contents"][words[i]]
         transformed = " ".join(words)
     if data["sprinkle"]["active"]:
         # Sprinkle will add the sprinkled word to the message between words by random chance
-        words = transformed.split(" ")
         for i in range(len(words)):
             if random.randint(1, 100) <= data["sprinkle"]["chance"]:
                 words.insert(i, data["sprinkle"]["contents"][random.randint(0, len(data["sprinkle"]["contents"]) - 1)])
         transformed = " ".join(words)
     if data["muffle"]["active"]:
         # Muffle will overwrite a word with a word from the data array by random chance
-        words = transformed.split(" ")
         for i in range(len(words)):
             if random.randint(1, 100) <= data["muffle"]["chance"]:
                 words[i] = data["muffle"]["contents"][random.randint(0, len(data["muffle"]["contents"]) - 1)]
 
-
         transformed = " ".join(words)
-    # Moving these below so text changes are applied before the prefix and suffix so they aren't affected by censors or such
+    # Moving these below so text changes are applied before the prefix and suffix,
+    # so they aren't affected by censors or such
     if data["prefix"]["active"]:
-        # Prefix will add the prefix to the message, try the chance of adding it and then select a random prefix from the list
-        if data["prefix"]["chance"] >= 100 or data["prefix"]["chance"] >= 0 and random.randint(1, 100) <= data["prefix"]["chance"]:
-            transformed = data["prefix"]["contents"][random.randint(0, len(data["prefix"]["contents"]) - 1)] + " " + transformed
+        # Prefix will add the prefix to the message, try the chance of adding it,
+        # and then select a random prefix from the list
+        if (0 <= data["prefix"]["chance"] < 100 and random.randint(1, 100) <= data["prefix"]["chance"]) or \
+                 data["prefix"]["chance"] >= 100:
+            transformed = data["prefix"]["contents"][
+                              random.randint(0, len(data["prefix"]["contents"]) - 1)] + " " + transformed
     if data["suffix"]["active"]:
-        # Suffix will add the suffix to the message, try the chance of adding it and then select a random suffix from the list
-        if data["suffix"]["chance"] >= 100 or data["suffix"]["chance"] >= 0 and random.randint(1, 100) <= data["suffix"]["chance"]:
-            transformed = transformed + " " + data["suffix"]["contents"][random.randint(0, len(data["suffix"]["contents"]) - 1)]
+        # Suffix will add the suffix to the message, try the chance of adding it,
+        # and then select a random suffix from the list
+        if (0 <= data["suffix"]["chance"] < 100 and random.randint(1, 100) <= data["suffix"]["chance"]) or \
+                 data["suffix"]["chance"] >= 100:
+            transformed = transformed + " " + data["suffix"]["contents"][
+                random.randint(0, len(data["suffix"]["contents"]) - 1)]
     if data["big"]:
         transformed = "# " + transformed
     if data["small"]:

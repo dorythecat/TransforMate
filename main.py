@@ -44,7 +44,7 @@ async def on_message(message: discord.Message):
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     if utils.is_transformed(message.author, message.guild):
-        if message.content.startswith('. '):
+        if message.content.startswith('.'):
             return
         data = utils.load_tf(message.author, message.guild)
         if str(message.channel.id) in data:
@@ -306,7 +306,6 @@ async def suffix(ctx: discord.ApplicationContext,
     await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix}*\"!")
 
 
-
 @set_command.command(description="Set the transformed user to speak in big text")
 async def big(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User) = None):
@@ -378,58 +377,63 @@ async def eternal(ctx: discord.ApplicationContext,
     utils.write_tf(user, ctx.guild, eternal=1)
     await ctx.respond(f"{user.mention} is now eternally transformed!")
 
+
 @set_command.command(description="Set the transformed user to be censored")
 async def censor(ctx: discord.ApplicationContext,
-                    censor: discord.Option(discord.SlashCommandOptionType.string,
-                                            description="Word to censor"),
-                    replacement: discord.Option(discord.SlashCommandOptionType.string,
-                                                description="Word to replace with"),
-                    user: discord.Option(discord.User) = None):
-        if user is None:
-            user = ctx.author
-        transformed = utils.load_transformed(ctx.guild)
-        if user.name not in transformed:
-            return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-        data = utils.load_tf(user, ctx.guild)
-        data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
-        await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
+                 censor: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="Word to censor"),
+                 replacement: discord.Option(discord.SlashCommandOptionType.string,
+                                             description="Word to replace with"),
+                 user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.load_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
+    await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
+
 
 @set_command.command(description="Set the transformed user to have specific words sprinkled in their messages")
 async def sprinkle(ctx: discord.ApplicationContext,
-                    sprinkle: discord.Option(discord.SlashCommandOptionType.string,
+                   sprinkle: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Word to sprinkle"),
-                    user: discord.Option(discord.User) = None):
-        if user is None:
-            user = ctx.author
-        transformed = utils.load_transformed(ctx.guild)
-        if user.name not in transformed:
-            return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-        data = utils.load_tf(user, ctx.guild)
-        data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        utils.write_tf(user, ctx.guild, sprinkle=sprinkle)
-        await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
+                   user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.load_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, sprinkle=sprinkle)
+    await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
 
-@set_command.command(description="Set the transformed user to have their words randomly replaced with a specific set of words")
+
+@set_command.command(
+    description="Set the transformed user to have their words randomly replaced with a specific set of words")
 async def muffle(ctx: discord.ApplicationContext,
-                    muffle: discord.Option(discord.SlashCommandOptionType.string,
-                                            description="Word that will replace words"),
-                    user: discord.Option(discord.User) = None):
-        if user is None:
-            user = ctx.author
-        transformed = utils.load_transformed(ctx.guild)
-        if user.name not in transformed:
-            return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-        data = utils.load_tf(user, ctx.guild)
-        data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        utils.write_tf(user, ctx.guild, muffle=muffle)
-        await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
+                 muffle: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="Word that will replace words"),
+                 user: discord.Option(discord.User) = None):
+    if user is None:
+        user = ctx.author
+    transformed = utils.load_transformed(ctx.guild)
+    if user.name not in transformed:
+        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+    data = utils.load_tf(user, ctx.guild)
+    data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, muffle=muffle)
+    await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
+
 
 # TODO: Add commands to remove individual censors, sprinkles, muffle, etc.
 # TODO: Add commands to list censors, sprinkles, muffle, etc.
@@ -509,7 +513,7 @@ async def big(ctx: discord.ApplicationContext,
     transformed = utils.load_transformed(ctx.guild)
     if user.name not in transformed:
         return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-    data = utils.load_tf(user, ctx.guild)    
+    data = utils.load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
     if not data['big']:
         return await ctx.respond(f"{user.mention} doesn't have big text set!")
@@ -571,6 +575,7 @@ async def eternal(ctx: discord.ApplicationContext,
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, eternal=0)
     await ctx.respond(f"{user.mention} is no longer eternally transformed!")
+
 
 # Misc commands
 @bot.slash_command(description="Replies with the bot's latency.")
