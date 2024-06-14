@@ -379,7 +379,7 @@ def transform_text(data: dict, original: str) -> str:
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
         for i in range(len(alphabet)):
-            transformed = transformed.replace(alphabet[i], tiny_alphabet[i])
+            transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
     if data["hush"]:
         transformed = "||" + transformed + "||"
 
