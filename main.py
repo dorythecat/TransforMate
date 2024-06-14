@@ -14,7 +14,8 @@ bot = discord.Bot(intents=intents)
 async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str,
-                             image_url: str):
+                             image_url: str,
+                             channel: discord.TextChannel):
     if not image_url:
         image_url = user.avatar.url
     if image_url[:4] != "http":
@@ -22,7 +23,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:
         image_url = image_url[:image_url.index("?")]  # Prune url
 
-    utils.write_tf(user, ctx.guild, None, ctx.author.name, into, image_url)
+    utils.write_tf(user, ctx.guild, channel, ctx.author.name, into, image_url)
     utils.write_transformed(user, ctx.guild)
 
 
@@ -105,13 +106,16 @@ async def transform(ctx: discord.ApplicationContext,
                     into: discord.Option(discord.SlashCommandOptionType.string,
                                          description="Who to transform") = None,
                     image_url: discord.Option(discord.SlashCommandOptionType.string,
-                                              description="Image URL to use") = None):
+                                              description="Image URL to use") = None,
+                    channel: discord.Option(discord.TextChannel,
+                                            description="Transform the user only on this channel") = None):
     if not user:
         user = ctx.author
 
     if utils.is_transformed(user, ctx.guild):
         data = utils.load_tf(user, ctx.guild)
-        if str(ctx.channel.id) in data:
+        channel_id = ctx.channel.id if not channel else channel.id
+        if str(channel_id) in data:
             data = data[str(ctx.channel.id)]
         elif 'all' in data:
             data = data['all']
@@ -128,7 +132,7 @@ async def transform(ctx: discord.ApplicationContext,
     if into:
         if len(into.strip()) <= 1:
             return await ctx.send("Please provide a name longer than 1 character!")
-        await transform_function(ctx, user, into, image_url)
+        await transform_function(ctx, user, into, image_url, channel)
         await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
         return
 
@@ -141,7 +145,8 @@ async def transform(ctx: discord.ApplicationContext,
     await transform_function(ctx,
                              user,
                              response.content,
-                             response.attachments[0].url if response.attachments else None)
+                             response.attachments[0].url if response.attachments else None,
+                             channel)
     await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
 
