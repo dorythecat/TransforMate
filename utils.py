@@ -4,8 +4,6 @@ import random
 
 import discord
 
-import spacy
-
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
