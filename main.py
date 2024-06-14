@@ -5,10 +5,6 @@ from dotenv import load_dotenv
 
 import discord
 
-
-
-COMMAND_PREFIX = "!"
-
 intents = discord.Intents.all()
 
 bot = discord.Bot(intents=intents)
