@@ -45,7 +45,7 @@ async def on_message(message: discord.Message):
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     if utils.is_transformed(message.author, message.guild):
-        if message.content.startswith('('):
+        if message.content.strip().startswith('('):
             return
         data = utils.load_tf(message.author, message.guild)
         if str(message.channel.id) in data:
