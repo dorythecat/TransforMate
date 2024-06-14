@@ -64,6 +64,7 @@ def write_tf(user: discord.User,
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
+        print("Data loaded is from older versions! Beware of monsters!") # Debug message, remove for production
         data['version'] = CURRENT_TFEE_DATA_VERSION
     channel_id = 'all' if channel is None else str(channel.id)
     if into not in ["", None]:
