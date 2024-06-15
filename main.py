@@ -57,6 +57,43 @@ async def on_message(message: discord.Message):
         name = data['into']
         image_url = data['image_url']
 
+        # Check if user is muffled, and if so, get who transformed them or who claimed them
+        # if data['muffle']['active']:
+        #     print('in muffle')
+        #     if data['claim'] is not None:
+        #         owner = data['claim']
+        #     else:
+        #         owner = data['transformed_by']
+        #     # now send the text before being transformed to the owner
+        #     print(await discord.utils.get(message.guild.members, name=owner))
+        #     await discord.utils.get(message.guild.members, name=owner).send(f"**{message.author.name}** said: {message.content}")
+
+        
+        if message.channel.type == discord.ChannelType.private_thread or message.channel.type == discord.ChannelType.public_thread:
+            # From: https://stackoverflow.com/questions/70631696/discord-webhook-post-to-channel-thread
+            # `https://discord.com/api/webhooks/${webhook.id}/${webhook.token}?thread_id=${thread.id}
+            channel = discord.Bot.get_channel(bot, message.channel.parent.id)
+            thread_id = message.channel.id
+            if not channel:
+                return
+            webhook = utils.get_webhook_by_name(await channel.webhooks(), name)
+            if not webhook:
+                webhook = await channel.create_webhook(name=name)
+            else:
+                # use aiohttp to create and post to the webhook
+                async with aiohttp.ClientSession() as session:
+                    #TODO: Add error handling and image support
+                    async with session.post(f"https://discord.com/api/webhooks/{webhook.id}/{webhook.token}?thread_id={thread_id}", 
+                                            json={
+                                                "username": name,
+                                                "avatar_url": image_url,
+                                                "content": utils.transform_text(data, message.content)}) as resp:
+                        if resp.status != 200 and resp.status != 204:
+                            print(f"Failed to send message to webhook: {resp.status}")
+                await message.delete()
+                return     
+            return
+
         webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
         if not webhook:
             webhook = await message.channel.create_webhook(name=name)
@@ -638,9 +675,9 @@ async def censor(ctx: discord.ApplicationContext,
         if censor_word is not None:
             if censor_word not in data['censor']['contents']:
                 return await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
-            data['censor']['contents'].remove(censor_word)
-            utils.write_tf(user, ctx.guild, censor=data['censor'])
-            return await ctx.respond(f"{user.mention} will no longer have the word \"{censor_word}\" censored!")
+            # data['censor']['contents'].remove(censor_word)
+            # utils.write_tf(user, ctx.guild, censor=data['censor'])
+            return await ctx.respond("This feature is not yet implemented!")
 
         # If no word is provided, we can just clear the censor contents completely
         utils.write_tf(user, ctx.guild, censor_bool=0)

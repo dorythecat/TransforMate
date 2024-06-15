@@ -335,10 +335,14 @@ def transform_text(data: dict, original: str) -> str:
         words = transformed.split(" ")
         # force lowercase for comparison
         # also strip punctuation
-        word = words[0].lower().strip(".,!?")
+        print(words)
         for i in range(len(words)):
-            if word in data["censor"]["contents"]:
-                words[i] = data["censor"]["contents"][words[i].lower()]
+
+            word = words[i].lower().strip("*.,!?")
+            if word in data["censor"]["contents"].keys():
+                to_be = words[i].lower()
+                words[i] = to_be.replace(word, data["censor"]["contents"][word])
+
         transformed = " ".join(words)
     
     if data["muffle"]["active"]:
