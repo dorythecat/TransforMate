@@ -435,6 +435,18 @@ async def muffle(ctx: discord.ApplicationContext,
     await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
 
 
+@set_command.command(description="Set a biography for the transformed user")
+async def bio(ctx: discord.ApplicationContext,
+              bio: discord.Option(discord.SlashCommandOptionType.string,
+                                  description="Biography to set"),
+              user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user)
+    if not valid:
+        return
+    utils.write_tf(user, ctx.guild, bio=bio)
+    await ctx.respond(f"{user.mention}'s biography has been set!")
+
+
 # "Clear" commands
 clear_command = bot.create_group("clear", "Clear various things about transformed users")
 
@@ -456,7 +468,8 @@ async def all_fields(ctx: discord.ApplicationContext,
                    hush=0,
                    censor="",
                    sprinkle="",
-                   muffle="")
+                   muffle="",
+                   bio="")
     await ctx.respond(f"{user.mention} has been cleared of all settings!")
 
 
@@ -601,6 +614,18 @@ async def eternal(ctx: discord.ApplicationContext,
     await ctx.respond(f"{user.mention} is no longer eternally transformed!")
 
 
+@clear_command.command(description="Clear a user's biography")
+async def bio(ctx: discord.ApplicationContext,
+              user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user)
+    if not valid:
+        return
+    if data['bio'] == "":
+        return await ctx.respond(f"{user.mention} doesn't have a biography set!")
+    utils.write_tf(user, ctx.guild, bio="")
+    await ctx.respond(f"{user.mention}'s biography has been cleared!")
+
+
 # 'Get' commands
 get_command = bot.create_group("get", "Get to know various things about transformed users")
 
@@ -699,6 +724,20 @@ async def suffixes(ctx: discord.ApplicationContext,
         return await ctx.respond(f"{user.mention} has no suffixes at the moment!")
     embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
     await ctx.respond(embed=embed)
+
+
+@get_command.command(description="Get the biography of a transformed user")
+async def bio(ctx: discord.ApplicationContext,
+              user: discord.Option(discord.User) = None):
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        if not valid:
+            return
+        embed = discord.Embed(title=f"Biography for {user.name}",
+                              color=discord.Color.blue())
+        if data['bio'] == "" or data['bio'] is None:
+            return await ctx.respond(f"{user.mention} has no biography set!")
+        embed.add_field(name="", value=data['bio'])
+        await ctx.respond(embed=embed)
 
 
 @get_command.command(description="Get a list of transformed users")
