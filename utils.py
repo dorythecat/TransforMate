@@ -382,7 +382,7 @@ def transform_text(data: dict, original: str) -> str:
     if data["small"]:
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
-        for i in range(len(alphabet)):
+        for i in range(26): # 26 letters in alphabet
             transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
 
     if data["hush"]:
@@ -391,15 +391,7 @@ def transform_text(data: dict, original: str) -> str:
     return transformed
 
 
-# MISCELLANEOUS UTILS
-def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
-    for wh in webhooks:
-        if wh.name == name:
-            return wh
-    return None
-
-
-# Extract tf data
+# ABSTRACTION FUNCTIONS
 async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User) -> [bool, dict, discord.User]:
     if user is None:
         user = ctx.author
@@ -410,3 +402,11 @@ async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User) -
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
     return [True, data, user]
+
+
+# MISCELLANEOUS UTILS
+def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
+    for wh in webhooks:
+        if wh.name == name:
+            return wh
+    return
