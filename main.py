@@ -40,6 +40,7 @@ async def on_ready():
 # Message sent
 @bot.event
 async def on_message(message: discord.Message):
+    # TODO: Rework this system to work with a single webhook per channel, instead of per transformed user
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
     if message.author == bot.user:
         return
@@ -68,7 +69,7 @@ async def on_message(message: discord.Message):
             return
         webhook = utils.get_webhook_by_name(await channel.webhooks(), name)
         if not webhook:
-            webhook = await channel.create_webhook(name=name)
+            webhook = await message.channel.parent.create_webhook(name=name)
             return
         # Post data to the webhook using aiohttp
         async with aiohttp.ClientSession() as session:
