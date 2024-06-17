@@ -118,40 +118,41 @@ def write_tf(user: discord.User,
                     'chance': 0
                 }
             }
-        data[str(guild.id)][channel_id] = {  # Add guild specific data
-            'transformed_by': transformed_by,
-            'into': into,
-            'image_url': image_url,
-            'claim': data[str(guild.id)][channel_id]['claim'],
-            'eternal': data[str(guild.id)][channel_id]['eternal'],
-            'prefix': {
-                'active': data[str(guild.id)][channel_id]['prefix']['active'],
-                'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
-                'chance': data[str(guild.id)][channel_id]['prefix']['chance']
-            },
-            'suffix': {
-                'active': data[str(guild.id)][channel_id]['suffix']['active'],
-                'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
-                'chance': data[str(guild.id)][channel_id]['suffix']['chance']
-            },
-            'big': data[str(guild.id)][channel_id]['big'],
-            'small': data[str(guild.id)][channel_id]['small'],
-            'hush': data[str(guild.id)][channel_id]['hush'],
-            'censor': {
-                'active': data[str(guild.id)][channel_id]['censor']['active'],
-                'contents': data[str(guild.id)][channel_id]['censor']['contents']
-            },
-            'sprinkle': {
-                'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
-                'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
-                'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
-            },
-            'muffle': {
-                'active': data[str(guild.id)][channel_id]['muffle']['active'],
-                'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
-                'chance': data[str(guild.id)][channel_id]['muffle']['chance']
+        else:
+            data[str(guild.id)][channel_id] = {  # Add guild specific data
+                'transformed_by': transformed_by,
+                'into': into,
+                'image_url': image_url,
+                'claim': data[str(guild.id)][channel_id]['claim'],
+                'eternal': data[str(guild.id)][channel_id]['eternal'],
+                'prefix': {
+                    'active': data[str(guild.id)][channel_id]['prefix']['active'],
+                    'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['prefix']['chance']
+                },
+                'suffix': {
+                    'active': data[str(guild.id)][channel_id]['suffix']['active'],
+                    'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['suffix']['chance']
+                },
+                'big': data[str(guild.id)][channel_id]['big'],
+                'small': data[str(guild.id)][channel_id]['small'],
+                'hush': data[str(guild.id)][channel_id]['hush'],
+                'censor': {
+                    'active': data[str(guild.id)][channel_id]['censor']['active'],
+                    'contents': data[str(guild.id)][channel_id]['censor']['contents']
+                },
+                'sprinkle': {
+                    'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
+                    'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
+                },
+                'muffle': {
+                    'active': data[str(guild.id)][channel_id]['muffle']['active'],
+                    'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['muffle']['chance']
+                },
             }
-        }
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
