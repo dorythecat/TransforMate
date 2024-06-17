@@ -636,9 +636,7 @@ async def settings(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    embed = discord.Embed(title=f"Settings for {user.name}",
-                          description="Here are the settings for the transformed user:",
-                          color=discord.Color.blue())
+    embed = utils.get_embed_base(f"Settings for {user.name}")
     embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
     embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
     embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
@@ -656,11 +654,9 @@ async def censors(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    embed = discord.Embed(title=f"Censors for {user.name}",
-                          description="Here are the censors for the transformed user",
-                          color=discord.Color.blue())
     if not data['censor']['active']:
         return await ctx.respond(f"{user.mention} is not censored at the moment!")
+    embed = utils.get_embed_base(f"Censors for {user.name}")
     for word in data['censor']['contents']:
         embed.add_field(name=word, value=data['censor']['contents'][word])
     await ctx.respond(embed=embed)
@@ -672,11 +668,9 @@ async def sprinkles(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    embed = discord.Embed(title=f"Sprinkles for {user.name}",
-                          description="Here are the sprinkles for the transformed user",
-                          color=discord.Color.blue())
     if not data['sprinkle']:
         return await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
+    embed = utils.get_embed_base(f"Sprinkles for {user.name}")
     embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
     await ctx.respond(embed=embed)
 
@@ -687,11 +681,9 @@ async def muffle(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    embed = discord.Embed(title=f"Muffle for {user.name}",
-                          description="Here are the muffles the transformed user has",
-                          color=discord.Color.blue())
     if not data['muffle']:
         return await ctx.respond(f"{user.mention} has no muffles at the moment!")
+    embed = utils.get_embed_base(f"Muffle for {user.name}")
     embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
     await ctx.respond(embed=embed)
 
@@ -702,11 +694,9 @@ async def prefixes(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    embed = discord.Embed(title=f"Prefixes for {user.name}",
-                          description="Here are the prefixes for the transformed user",
-                          color=discord.Color.blue())
     if not data['prefix']:
         return await ctx.respond(f"{user.mention} has no prefixes at the moment!")
+    embed = utils.get_embed_base(f"Prefixes for {user.name}")
     embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
     await ctx.respond(embed=embed)
 
@@ -717,11 +707,9 @@ async def suffixes(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    embed = discord.Embed(title=f"Suffixes for {user.name}",
-                          description="Here are the suffixes for the transformed user",
-                          color=discord.Color.blue())
     if not data['suffix']:
         return await ctx.respond(f"{user.mention} has no suffixes at the moment!")
+    embed = utils.get_embed_base(f"Suffixes for {user.name}")
     embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
     await ctx.respond(embed=embed)
 
@@ -729,15 +717,14 @@ async def suffixes(ctx: discord.ApplicationContext,
 @get_command.command(description="Get the biography of a transformed user")
 async def bio(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User) = None):
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
-        if not valid:
-            return
-        embed = discord.Embed(title=f"Biography for {user.name}",
-                              color=discord.Color.blue())
-        if data['bio'] == "" or data['bio'] is None:
-            return await ctx.respond(f"{user.mention} has no biography set!")
-        embed.add_field(name="", value=data['bio'])
-        await ctx.respond(embed=embed)
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    if data['bio'] == "" or data['bio'] is None:
+        return await ctx.respond(f"{user.mention} has no biography set!")
+    embed = utils.get_embed_base(f"Biography for {user.name}")
+    embed.add_field(name="", value=data['bio'])
+    await ctx.respond(embed=embed)
 
 
 @get_command.command(description="Get a list of transformed users")
@@ -753,11 +740,7 @@ async def transformed(ctx: discord.ApplicationContext):
         description += f"**{user}** -> *{into}*\n\n"
     # Take off the last two new lines
     description = description[:-2]
-    embed = discord.Embed(title="Transformed Users",
-                          description=description,
-                          color=discord.Color.blue(),
-                          author=discord.EmbedAuthor(name="TransforMate"))  # , icon_url=bot.user.avatar.url))
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=utils.get_embed_base("Transformed Users", description))
 
 
 # "Admin" Commands
@@ -815,10 +798,7 @@ async def block_channel(ctx: discord.ApplicationContext,
 
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext):
-    embed = discord.Embed(title="TransforMate",
-                          description="> \"Let's get transforming!\"",
-                          color=discord.Color.blue(),
-                          author=discord.EmbedAuthor(name="TransforMate"))  # , icon_url=bot.user.avatar.url))
+    embed = utils.get_embed_base("Info", "> \"Let's get transforming!\"")
     embed.add_field(name="Creators", value="dorythecat\nipabapi")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")

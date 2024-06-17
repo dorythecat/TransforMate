@@ -378,3 +378,10 @@ def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
         if wh.name == name:
             return wh
     return
+
+
+def get_embed_base(title: str, desc: str = None) -> discord.Embed:
+    return discord.Embed(title=title,
+                         description=desc,
+                         color=discord.Color.blue(),
+                         author=discord.EmbedAuthor(name="TransforMate", icon_url=bot.user.avatar.url))
