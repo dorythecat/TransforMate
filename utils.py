@@ -18,9 +18,10 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 1: Base version
 CURRENT_TFEE_DATA_VERSION = 6
 
+# VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 2
+CURRENT_TRANSFORMED_DATA_VERSION = 3
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -269,7 +270,8 @@ def load_transformed(guild: discord.Guild = None) -> dict:
 
 def write_transformed(guild: discord.Guild,
                       user: discord.User = None,
-                      block_channel: discord.TextChannel = None) -> None:
+                      block_channel: discord.TextChannel = None,
+                      block_user: discord.User = None) -> None:
     data = load_transformed()
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
@@ -279,6 +281,7 @@ def write_transformed(guild: discord.Guild,
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
     if str(guild.id) not in data:
         data[str(guild.id)] = {
+            'blocked_users': [],
             'blocked_channels': [],
             'transformed_users': []
         }
@@ -289,6 +292,11 @@ def write_transformed(guild: discord.Guild,
             data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
         else:
             data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+    if block_user is not None:
+        if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
+            data[str(guild.id)]['blocked_users'].append(str(block_user.id))
+        else:
+            data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
     with open("cache/transformed.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
