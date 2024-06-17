@@ -17,7 +17,7 @@ async def transform_function(ctx: discord.ApplicationContext,
                              into: str,
                              image_url: str,
                              channel: discord.TextChannel):
-    if not image_url.strip():
+    if not image_url:
         image_url = user.avatar.url
     if image_url.strip()[:4] != "http":
         return await ctx.send("Invalid URL! Please provide a valid image URL!")
