@@ -25,14 +25,16 @@ async def transform_function(ctx: discord.ApplicationContext,
                              channel: discord.TextChannel) -> bool:
     if not image_url:
         image_url = user.avatar.url
-    if image_url.strip()[:4] != "http":
+    image_url = image_url.strip()
+    if image_url[:4] != "http":
         await ctx.send("Invalid URL! Please provide a valid image URL!")
         return False
-    if "?" in image_url:
-        image_url = image_url.strip()[:image_url.index("?")]  # Prune url
+    if "?" in image_url:  # Prune url, if possible, to preserve space
+        image_url = image_url[:image_url.index("?")]
 
     utils.write_tf(user, ctx.guild, channel, None, str(ctx.author.id), into, image_url)
     utils.write_transformed(ctx.guild, user)
+    return True
 
 
 # Bot startup
@@ -47,7 +49,6 @@ async def on_ready():
 # Message sent
 @bot.event
 async def on_message(message: discord.Message):
-    # TODO: Rework this system to work with a single webhook per channel, instead of per transformed user
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
     if message.author == bot.user:
         return
@@ -106,13 +107,14 @@ async def on_message(message: discord.Message):
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
         if message.reference:
             await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n",
-                               avatar_url=image_url)
+                               username=name, avatar_url=image_url)
             if message.reference.resolved.content:
                 await webhook.send(f">>> {message.reference.resolved.content}",
                                    username=name, avatar_url=image_url)
         await webhook.send(utils.transform_text(data, message.content), username=name, avatar_url=image_url)
     for attachment in message.attachments:
-        if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
+        if (attachment.url.strip()[:attachment.url.index("?")] if "?" in attachment.url
+        else attachment.url) == image_url:
             return
         await webhook.send(file=await attachment.to_file(), username=name, avatar_url=image_url)
     await message.delete()
@@ -727,7 +729,7 @@ admin_command = bot.create_group("admin", "Admin commands for the bot")
 @discord.default_permissions(administrator=True)
 async def killhooks(ctx: discord.ApplicationContext):
     for wh in await ctx.guild.webhooks():
-        if wh.name == WEBHOOK_NAME: # Delete only our webhooks, which all should have the same name
+        if wh.name == WEBHOOK_NAME:  # Delete only our webhooks, which all should have the same name
             await wh.delete()
     await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.", ephemeral=True)
 

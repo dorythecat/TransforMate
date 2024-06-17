@@ -87,9 +87,9 @@ def write_tf(user: discord.User,
         if channel_id not in data[str(guild.id)]:
             data[str(guild.id)]['blocked_channels'] = []
             data[str(guild.id)][channel_id] = {
-                'transformed_by': "",
-                'into': "",
-                'image_url': "",
+                'transformed_by': transformed_by,
+                'into': into,
+                'image_url': image_url,
                 'claim': None,
                 'eternal': False,
                 'prefix': {
@@ -197,13 +197,13 @@ def write_tf(user: discord.User,
             data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
             data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if sprinkle != "" else []
             data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30 if sprinkle != "" else 0
-        if muffle:
+        if muffle is not None:
             data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
             data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if muffle != "" else []
             data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
-        if mod_type and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
+        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
             data[str(guild.id)][channel_id][mod_type]['chance'] = chance
-        if bio:
+        if bio is not None:
             data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
     with open(f"cache/people/{str(user.id)}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
@@ -279,7 +279,7 @@ def write_transformed(guild: discord.Guild,
 
 def remove_transformed(user: discord.User, guild: discord.Guild) -> None:
     data = load_transformed()
-    data[str(guild.id)].remove(str(user.id))
+    data[str(guild.id)]['transformed_users'].remove(str(user.id))
     with open("cache/transformed.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
@@ -357,9 +357,8 @@ def transform_text(data: dict, original: str) -> str:
 
 
 # ABSTRACTION FUNCTIONS
-async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User, get_command: bool = False) -> [bool,
-                                                                                                              dict,
-                                                                                                              discord.User]:
+async def extract_tf_data(ctx: discord.ApplicationContext,
+                          user: discord.User, get_command: bool = False) -> [bool, dict, discord.User]:
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild):
