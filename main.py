@@ -145,11 +145,15 @@ async def transform(ctx: discord.ApplicationContext,
     if not user:
         user = ctx.author
 
+    data = utils.load_tf(user, ctx.guild)
+    channel_id = str(ctx.channel.id if not channel else channel.id)
+
+    if channel_id in data['blocked_channels']:
+        return await ctx.respond(f"You can't transform {user.mention} in this channel!")
+
     if utils.is_transformed(user, ctx.guild):
-        data = utils.load_tf(user, ctx.guild)
-        channel_id = ctx.channel.id if not channel else channel.id
-        if str(channel_id) in data:
-            data = data[str(ctx.channel.id)]
+        if channel_id in data:
+            data = data[channel_id]
         elif 'all' in data:
             data = data['all']
         else:
