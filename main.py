@@ -45,76 +45,65 @@ async def on_message(message: discord.Message):
         return
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
-    if utils.is_transformed(message.author, message.guild):
-        if message.content.strip().startswith('('):
-            return
-        data = utils.load_tf(message.author, message.guild)
-        if str(message.channel.id) in data:
-            data = data[str(message.channel.id)]
-        elif 'all' in data:
-            data = data['all']
-        else:
-            return
-        name = data['into']
-        image_url = data['image_url']
+    if not utils.is_transformed(message.author, message.guild):
+        return
+    if message.content.strip().startswith('('):
+        return
+    data = utils.load_tf(message.author, message.guild)
+    if str(message.channel.id) in data:
+        data = data[str(message.channel.id)]
+    elif 'all' in data:
+        data = data['all']
+    else:
+        return
+    name = data['into']
+    image_url = data['image_url']
 
-        # Check if user is muffled, and if so, get who transformed them or who claimed them
-        # if data['muffle']['active']:
-        #     print('in muffle')
-        #     if data['claim'] is not None:
-        #         owner = data['claim']
-        #     else:
-        #         owner = data['transformed_by']
-        #     # now send the text before being transformed to the owner
-        #     print(await discord.utils.get(message.guild.members, name=owner))
-        #     await discord.utils.get(message.guild.members, name=owner).send(f"**{message.author.name}** said: {message.content}")
-
-        
-        if message.channel.type == discord.ChannelType.private_thread or message.channel.type == discord.ChannelType.public_thread:
-            # From: https://stackoverflow.com/questions/70631696/discord-webhook-post-to-channel-thread
-            # `https://discord.com/api/webhooks/${webhook.id}/${webhook.token}?thread_id=${thread.id}
-            channel = discord.Bot.get_channel(bot, message.channel.parent.id)
-            thread_id = message.channel.id
-            if not channel:
-                return
-            webhook = utils.get_webhook_by_name(await channel.webhooks(), name)
-            if not webhook:
-                webhook = await channel.create_webhook(name=name)
-            else:
-                # use aiohttp to create and post to the webhook
-                async with aiohttp.ClientSession() as session:
-                    #TODO: Add error handling and image support
-                    async with session.post(f"https://discord.com/api/webhooks/{webhook.id}/{webhook.token}?thread_id={thread_id}", 
-                                            json={
-                                                "username": name,
-                                                "avatar_url": image_url,
-                                                "content": utils.transform_text(data, message.content)}) as resp:
-                        if resp.status != 200 and resp.status != 204:
-                            print(f"Failed to send message to webhook: {resp.status}")
-                await message.delete()
-                return     
+    if message.channel.type == discord.ChannelType.private_thread or \
+            message.channel.type == discord.ChannelType.public_thread:
+        # From: https://stackoverflow.com/questions/70631696/discord-webhook-post-to-channel-thread
+        # https://discord.com/api/webhooks/${webhook.id}/${webhook.token}?thread_id=${thread.id}
+        channel = discord.Bot.get_channel(bot, message.channel.parent.id)
+        if not channel:
             return
-
-        webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
+        webhook = utils.get_webhook_by_name(await channel.webhooks(), name)
         if not webhook:
-            webhook = await message.channel.create_webhook(name=name)
-
-        if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
-            if message.reference:
-                await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n",
-                                   avatar_url=image_url)
-                if message.reference.resolved.content:
-                    await webhook.send(f">>> {message.reference.resolved.content}",
-                                       avatar_url=image_url, wait=True)
-            await webhook.send(utils.transform_text(data, message.content), avatar_url=image_url, wait=True)
-        for attachment in message.attachments:
-            if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
-                return
-            await webhook.send(file=await attachment.to_file(), avatar_url=image_url)
+            webhook = await channel.create_webhook(name=name)
+            return
+        # Post data to the webhook using aiohttp
+        async with aiohttp.ClientSession() as session:
+            # TODO: Add error handling and image support
+            async with session.post(
+                    f"https://discord.com/api/webhooks/{webhook.id}/{webhook.token}?thread_id={message.channel.id}",
+                    json={
+                        "username": name,
+                        "avatar_url": image_url,
+                        "content": utils.transform_text(data, message.content)}) as resp:
+                if resp.status != 200 and resp.status != 204:
+                    print(f"Failed to send message to webhook: {resp.status}")
         await message.delete()
+        return
 
-        if message.stickers:
-            await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
+    webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
+    if not webhook:
+        webhook = await message.channel.create_webhook(name=name)
+
+    if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
+        if message.reference:
+            await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n",
+                               avatar_url=image_url)
+            if message.reference.resolved.content:
+                await webhook.send(f">>> {message.reference.resolved.content}",
+                                   avatar_url=image_url, wait=True)
+        await webhook.send(utils.transform_text(data, message.content), avatar_url=image_url, wait=True)
+    for attachment in message.attachments:
+        if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
+            return
+        await webhook.send(file=await attachment.to_file(), avatar_url=image_url)
+    await message.delete()
+
+    if message.stickers:
+        await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
 
 
 # Reaction added
@@ -293,7 +282,8 @@ set_command = bot.create_group("set", "Set various things about transformed user
 async def prefix(ctx: discord.ApplicationContext,
                  prefix: discord.Option(discord.SlashCommandOptionType.string,
                                         description="Prefix to add"),
-                 prefix_chance: discord.Option(discord.SlashCommandOptionType.integer, description="Chance for prefix to go off") = 30,
+                 prefix_chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                               description="Chance for prefix to go off") = 30,
                  user: discord.Option(discord.User) = None,
                  whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                             description="Add a space after the prefix (defaults true)") = True):
@@ -312,7 +302,8 @@ async def prefix(ctx: discord.ApplicationContext,
 async def suffix(ctx: discord.ApplicationContext,
                  suffix: discord.Option(discord.SlashCommandOptionType.string,
                                         description="Suffix to add"),
-                 suffix_chance: discord.Option(discord.SlashCommandOptionType.integer, description="Chance for suffix to go off") = 30,
+                 suffix_chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                               description="Chance for suffix to go off") = 30,
                  user: discord.Option(discord.User) = None,
                  whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                             description="Add a space before the suffix (defaults true)") = True):
@@ -385,48 +376,52 @@ async def eternal(ctx: discord.ApplicationContext,
 
 @set_command.command(description="Set the transformed user to be censored")
 async def censor(ctx: discord.ApplicationContext,
-                    censor: discord.Option(discord.SlashCommandOptionType.string,
-                                            description="Word to censor"),
-                    replacement: discord.Option(discord.SlashCommandOptionType.string,
-                                                description="Word to replace with"),
-                    user: discord.Option(discord.User) = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
-        await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
+                 censor: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="Word to censor"),
+                 replacement: discord.Option(discord.SlashCommandOptionType.string,
+                                             description="Word to replace with"),
+                 user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
+    await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
+
 
 @set_command.command(description="Set the transformed user to have specific words sprinkled in their messages")
 async def sprinkle(ctx: discord.ApplicationContext,
                    sprinkle: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Word to sprinkle"),
-                    sprinkle_chance: discord.Option(discord.SlashCommandOptionType.integer,
-                                                    description='Chance for sprinkle to go off') = 30,
-                    user: discord.Option(discord.User) = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        utils.write_tf(user, ctx.guild, sprinkle=sprinkle, type="sprinkle", chance=sprinkle_chance)
-        await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
+                   sprinkle_chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                                   description='Chance for sprinkle to go off') = 30,
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, sprinkle=sprinkle, type="sprinkle", chance=sprinkle_chance)
+    await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
 
-@set_command.command(description="Set the transformed user to have their words randomly replaced with a specific set of words")
+
+@set_command.command(
+    description="Set the transformed user to have their words randomly replaced with a specific set of words")
 async def muffle(ctx: discord.ApplicationContext,
-                    muffle: discord.Option(discord.SlashCommandOptionType.string,
-                                            description="Word that will replace words"),
-                    chance: discord.Option(discord.SlashCommandOptionType.integer,
-                                           description='Chance for muffle to go off') = 30,
-                    user: discord.Option(discord.User) = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        utils.write_tf(user, ctx.guild, muffle=muffle, type="muffle", chance=chance)
-        await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
+                 muffle: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="Word that will replace words"),
+                 chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                        description='Chance for muffle to go off') = 30,
+                 user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    utils.write_tf(user, ctx.guild, muffle=muffle, type="muffle", chance=chance)
+    await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
+
 
 # 'List' commands
 list_command = bot.create_group("list", "List various things about transformed users")
@@ -434,105 +429,111 @@ list_command = bot.create_group("list", "List various things about transformed u
 
 @list_command.command(description="List the settings for the transformed user")
 async def settings(ctx: discord.ApplicationContext,
-                     user: discord.Option(discord.User) = None):
-     valid, data, user = await utils.logic_command(ctx, user)
-     if not valid:
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
         return
-     # Create embed
-     embed = discord.Embed(title=f"Settings for {user.name}",
-                        description="Here are the settings for the transformed user",
-                        color=discord.Color.blue())
-     embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
-     embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
-     embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
-     embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
-     embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
-     embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
-     embed.add_field(name="Sprinkle", value=f"{data['sprinkle']['chance']}%" if data['sprinkle'] else "None")
-     embed.add_field(name="Muffle", value=f"{data['muffle']['chance']}%" if data['muffle'] else "None")
-     await ctx.respond(embed=embed)
+    # Create embed
+    embed = discord.Embed(title=f"Settings for {user.name}",
+                          description="Here are the settings for the transformed user",
+                          color=discord.Color.blue())
+    embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
+    embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
+    embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
+    embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
+    embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
+    embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
+    embed.add_field(name="Sprinkle", value=f"{data['sprinkle']['chance']}%" if data['sprinkle'] else "None")
+    embed.add_field(name="Muffle", value=f"{data['muffle']['chance']}%" if data['muffle'] else "None")
+    await ctx.respond(embed=embed)
+
 
 @list_command.command(description="List the censors for the transformed user")
 async def censors(ctx: discord.ApplicationContext,
-                    user: discord.Option(discord.User) = None):
-     valid, data, user = await utils.logic_command(ctx, user)
-     if not valid:
+                  user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
         return
-     # Create embed
-     embed = discord.Embed(title=f"Censors for {user.name}",
-                        description="Here are the censors for the transformed user",
-                        color=discord.Color.blue())
-     if data['censor']['active']:
-          for word in data['censor']['contents']:
-               embed.add_field(name=word, value=data['censor']['contents'][word])
-     else:
-          return await ctx.respond(f"{user.mention} is not censored at the moment!")
-     await ctx.respond(embed=embed)
+    # Create embed
+    embed = discord.Embed(title=f"Censors for {user.name}",
+                          description="Here are the censors for the transformed user",
+                          color=discord.Color.blue())
+    if data['censor']['active']:
+        for word in data['censor']['contents']:
+            embed.add_field(name=word, value=data['censor']['contents'][word])
+    else:
+        return await ctx.respond(f"{user.mention} is not censored at the moment!")
+    await ctx.respond(embed=embed)
+
 
 @list_command.command(description="List the sprinkles for the transformed user")
 async def sprinkles(ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None):
-     valid, data, user = await utils.logic_command(ctx, user)
-     if not valid:
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
         return
-     # Create embed
-     embed = discord.Embed(title=f"Sprinkles for {user.name}",
-                        description="Here are the sprinkles for the transformed user",
-                        color=discord.Color.blue())
-     if data['sprinkle']:
-            embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
-     else:
-          return await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
-     await ctx.respond(embed=embed)
+    # Create embed
+    embed = discord.Embed(title=f"Sprinkles for {user.name}",
+                          description="Here are the sprinkles for the transformed user",
+                          color=discord.Color.blue())
+    if data['sprinkle']:
+        embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
+    else:
+        return await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
+    await ctx.respond(embed=embed)
+
 
 @list_command.command(description="List the muffle for the transformed user")
 async def muffle(ctx: discord.ApplicationContext,
-                user: discord.Option(discord.User) = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        # Create embed
-        embed = discord.Embed(title=f"Muffle for {user.name}",
-                        description="Here are the muffles the transformed user has",
-                        color=discord.Color.blue())
-        if data['muffle']:
-            embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
-        else:
-            return await ctx.respond(f"{user.mention} has no muffles at the moment!")
-        await ctx.respond(embed=embed)
+                 user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
+    # Create embed
+    embed = discord.Embed(title=f"Muffle for {user.name}",
+                          description="Here are the muffles the transformed user has",
+                          color=discord.Color.blue())
+    if data['muffle']:
+        embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
+    else:
+        return await ctx.respond(f"{user.mention} has no muffles at the moment!")
+    await ctx.respond(embed=embed)
+
 
 @list_command.command(description="List the prefixes for the transformed user")
 async def prefixes(ctx: discord.ApplicationContext,
-                    user: discord.Option(discord.User) = None):
-     valid, data, user = await utils.logic_command(ctx, user)
-     if not valid:
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
         return
-     # Create embed
-     embed = discord.Embed(title=f"Prefixes for {user.name}",
-                        description="Here are the prefixes for the transformed user",
-                        color=discord.Color.blue())
-     if data['prefix']:
-          embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
-     else:
-          return await ctx.respond(f"{user.mention} has no prefixes at the moment!")
-     await ctx.respond(embed=embed)
-    
+    # Create embed
+    embed = discord.Embed(title=f"Prefixes for {user.name}",
+                          description="Here are the prefixes for the transformed user",
+                          color=discord.Color.blue())
+    if data['prefix']:
+        embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
+    else:
+        return await ctx.respond(f"{user.mention} has no prefixes at the moment!")
+    await ctx.respond(embed=embed)
+
+
 @list_command.command(description="List the suffixes for the transformed user")
 async def suffixes(ctx: discord.ApplicationContext,
-                    user: discord.Option(discord.User) = None):
-     valid, data, user = await utils.logic_command(ctx, user)
-     if not valid:
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
         return
-     # Create embed
-     embed = discord.Embed(title=f"Suffixes for {user.name}",
-                        description="Here are the suffixes for the transformed user",
-                        color=discord.Color.blue())
-     if data['suffix']:
-          # Make field value all suffixes, with a new line in between
-            embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
-     else:
-          return await ctx.respond(f"{user.mention} has no suffixes at the moment!")
-     await ctx.respond(embed=embed)
+    # Create embed
+    embed = discord.Embed(title=f"Suffixes for {user.name}",
+                          description="Here are the suffixes for the transformed user",
+                          color=discord.Color.blue())
+    if data['suffix']:
+        # Make field value all suffixes, with a new line in between
+        embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
+    else:
+        return await ctx.respond(f"{user.mention} has no suffixes at the moment!")
+    await ctx.respond(embed=embed)
+
 
 @list_command.command(description="Get a list of transformed users")
 async def transformed(ctx: discord.ApplicationContext):
@@ -555,7 +556,7 @@ async def transformed(ctx: discord.ApplicationContext):
                           description=description,
                           color=discord.Color.blue())
     await ctx.respond(embed=embed)
-    
+
 
 # "Clear" commands
 clear_command = bot.create_group("clear", "Clear various things about transformed users")
@@ -658,77 +659,81 @@ async def hush(ctx: discord.ApplicationContext,
     utils.write_tf(user, ctx.guild, hush=0)
     await ctx.respond(f"{user.mention} will no longer hush!")
 
+
 @clear_command.command(description="Clear censor setting")
 async def censor(ctx: discord.ApplicationContext,
-                    user: discord.Option(discord.User) = None,
-                    censor_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                description="Word to clear") = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        # If the user is not censored, we can just return
-        if data['censor']['active'] == 0:
-            return await ctx.respond(f"{user.mention} is not censored at the moment!")
-        # If a word is provided, we can check if it is in the contents array
-        if censor_word is not None:
-            if censor_word not in data['censor']['contents']:
-                return await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
-            # data['censor']['contents'].remove(censor_word)
-            # utils.write_tf(user, ctx.guild, censor=data['censor'])
-            return await ctx.respond("This feature is not yet implemented!")
+                 user: discord.Option(discord.User) = None,
+                 censor_word: discord.Option(discord.SlashCommandOptionType.string,
+                                             description="Word to clear") = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
 
-        # If no word is provided, we can just clear the censor contents completely
-        utils.write_tf(user, ctx.guild, censor_bool=0)
-        await ctx.respond(f"{user.mention} will no longer have a censor set!")
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    # If the user is not censored, we can just return
+    if data['censor']['active'] == 0:
+        return await ctx.respond(f"{user.mention} is not censored at the moment!")
+    # If a word is provided, we can check if it is in the contents array
+    if censor_word is not None:
+        if censor_word not in data['censor']['contents']:
+            return await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
+        # data['censor']['contents'].remove(censor_word)
+        # utils.write_tf(user, ctx.guild, censor=data['censor'])
+        return await ctx.respond("This feature is not yet implemented!")
+
+    # If no word is provided, we can just clear the censor contents completely
+    utils.write_tf(user, ctx.guild, censor_bool=0)
+    await ctx.respond(f"{user.mention} will no longer have a censor set!")
+
 
 @clear_command.command(description="Clear sprinkle setting")
 async def sprinkle(ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None,
-                     sprinkle_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                  description="Word to clear") = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        # If the user is not sprinkled, we can just return
-        if data['sprinkle']['active'] == 0:
-            return await ctx.respond(f"{user.mention} is not sprinkled at the moment!")
-        # If a word is provided, we can check if it is in the contents array
-        if sprinkle_word is not None:
-            if sprinkle_word not in data['sprinkle']['contents']:
-                return await ctx.respond(f"{user.mention} is not sprinkled with the word \"{sprinkle_word}\"!")
-            data['sprinkle']['contents'].remove(sprinkle_word)
-            utils.write_tf(user, ctx.guild, sprinkle=data['sprinkle'])
-            return await ctx.respond(f"{user.mention} will no longer have the word \"{sprinkle_word}\" sprinkled!")
-        utils.write_tf(user, ctx.guild, sprinkle_bool=0)
-        await ctx.respond(f"{user.mention} will no longer have a sprinkle set!")
+                   sprinkle_word: discord.Option(discord.SlashCommandOptionType.string,
+                                                 description="Word to clear") = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    # If the user is not sprinkled, we can just return
+    if data['sprinkle']['active'] == 0:
+        return await ctx.respond(f"{user.mention} is not sprinkled at the moment!")
+    # If a word is provided, we can check if it is in the contents array
+    if sprinkle_word is not None:
+        if sprinkle_word not in data['sprinkle']['contents']:
+            return await ctx.respond(f"{user.mention} is not sprinkled with the word \"{sprinkle_word}\"!")
+        data['sprinkle']['contents'].remove(sprinkle_word)
+        utils.write_tf(user, ctx.guild, sprinkle=data['sprinkle'])
+        return await ctx.respond(f"{user.mention} will no longer have the word \"{sprinkle_word}\" sprinkled!")
+    utils.write_tf(user, ctx.guild, sprinkle_bool=0)
+    await ctx.respond(f"{user.mention} will no longer have a sprinkle set!")
+
 
 @clear_command.command(description="Clear muffle setting")
 async def muffle(ctx: discord.ApplicationContext,
-                   user: discord.Option(discord.User) = None,
-                     muffle_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                  description="Word to clear") = None):
-        valid, data, user = await utils.logic_command(ctx, user)
-        if not valid:
-            return
-        if data['claim'] is not None and data['claim'] != ctx.author.name:
-            return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-        # If the user is not muffled, we can just return
-        if data['muffle']['active'] == 0:
-            return await ctx.respond(f"{user.mention} is not muffled at the moment!")
-        # If a word is provided, we can check if it is in the contents array
-        if muffle_word is not None:
-            if muffle_word not in data['muffle']['contents']:
-                return await ctx.respond(f"{user.mention} is not muffled with the word \"{muffle_word}\"!")
-            data['muffle']['contents'].remove(muffle_word)
-            utils.write_tf(user, ctx.guild, muffle=data['muffle'])
-            return await ctx.respond(f"{user.mention} will no longer have the word \"{muffle_word}\" muffled!")
-        utils.write_tf(user, ctx.guild, muffle_bool=0)
-        await ctx.respond(f"{user.mention} will no longer have a muffle set!")
+                 user: discord.Option(discord.User) = None,
+                 muffle_word: discord.Option(discord.SlashCommandOptionType.string,
+                                             description="Word to clear") = None):
+    valid, data, user = await utils.logic_command(ctx, user)
+    if not valid:
+        return
+    if data['claim'] is not None and data['claim'] != ctx.author.name:
+        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
+    # If the user is not muffled, we can just return
+    if data['muffle']['active'] == 0:
+        return await ctx.respond(f"{user.mention} is not muffled at the moment!")
+    # If a word is provided, we can check if it is in the contents array
+    if muffle_word is not None:
+        if muffle_word not in data['muffle']['contents']:
+            return await ctx.respond(f"{user.mention} is not muffled with the word \"{muffle_word}\"!")
+        data['muffle']['contents'].remove(muffle_word)
+        utils.write_tf(user, ctx.guild, muffle=data['muffle'])
+        return await ctx.respond(f"{user.mention} will no longer have the word \"{muffle_word}\" muffled!")
+    utils.write_tf(user, ctx.guild, muffle_bool=0)
+    await ctx.respond(f"{user.mention} will no longer have a muffle set!")
+
 
 @clear_command.command(description="Clear eternal setting")
 async def eternal(ctx: discord.ApplicationContext,
@@ -748,6 +753,7 @@ async def eternal(ctx: discord.ApplicationContext,
 @bot.slash_command(description="Replies with the bot's latency.")
 async def ping(ctx: discord.ApplicationContext):
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
+
 
 # @bot.slash_command(description="Get the bot's invite link")
 
