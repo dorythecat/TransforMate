@@ -72,7 +72,7 @@ def write_tf(user: discord.User,
              chance: int = None,
              mod_type: str = None) -> None:
     data = load_tf(user)
-    if data == {}:  # If the file is empty, we need to add the version info
+    if data == {'blocked_channels': []}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
         if CLEAR_OLD_TFEE_DATA:
