@@ -11,6 +11,7 @@ WEBHOOK_NAME = "TransforMate Webhook"  # Name to use for the webhooks
 BLOCKED_USERS = [  # Users that are blocked from using the bot, for whatever reason.
     "967123840587141181"
 ]
+USER_REPORTS_CHANNEL_ID = 1252358817682030743  # Channel to use for the /report command
 
 intents = discord.Intents.all()
 
@@ -789,6 +790,36 @@ async def block_channel(ctx: discord.ApplicationContext,
     if channel == ctx.channel:
         return await ctx.respond(f"You will now be transformed in this channel!")
     return await ctx.respond(f"You will now be transformed in {channel.mention}!")
+
+
+@bot.slash_command(description="Report a user for misuse of this bot")
+async def report(ctx: discord.ApplicationContext,
+                 user: discord.User,
+                 reason: discord.SlashCommandOptionType.string):
+    if reason.strip() == "":
+        return await ctx.respond("Please provide a valid reason for the report!")
+    await ctx.respond("Are you sure you want to report this user? This will send a message to the server owner, and to"
+                      "the bot developers, with the reason you provided. This action is irreversible. If we find this"
+                      "is a false report, we will take action against you. Please confirm this action by typing"
+                      "\"CONFIRM\".",
+                      ephemeral=True)
+    response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
+    if response.content.strip() != "CONFIRM":
+        return await ctx.send("Cancelled the report!")
+    await ctx.channel.delete_messages([response]) # Delete confirmation message, for privacy
+
+    embed = utils.get_embed_base("RECEIVED A REPORT")
+    embed.add_field(name="Reported User", value=user.mention)
+    embed.add_field(name="Reporter", value=ctx.author.mention)
+    embed.add_field(name="Reason", value=reason)
+    await ctx.guild.owner.send(embed=embed)
+
+    # Dev data
+    embed.add_field(name="Server", value=ctx.guild.name)
+    embed.add_field(name="Server Owner", value=ctx.guild.owner.mention)
+    await bot.get_channel(1252358817682030743).send(embed=embed)
+
+    await ctx.respond("Report sent! Thank you for helping us keep this bot safe!", ephemeral=True)
 
 
 @bot.slash_command(description="See information about the bot")
