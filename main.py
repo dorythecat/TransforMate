@@ -719,15 +719,15 @@ async def block_channel(ctx: discord.ApplicationContext,
                         channel: discord.TextChannel = None):
     if channel is None:
         channel = ctx.channel
-    data = utils.load_transformed(ctx.guild)['blocked_channels']
     utils.write_transformed(ctx.guild, block_channel=channel)
+    data = utils.load_transformed(ctx.guild)['blocked_channels']
     if str(channel.id) in data:
-        return await ctx.respond(f"{channel.mention} has been unblocked!", ephemeral=True)
-    await ctx.respond(f"{channel.mention} has been blocked!", ephemeral=True)
+        return await ctx.respond(f"{channel.mention} has been blocked!", ephemeral=True)
+    await ctx.respond(f"{channel.mention} has been unblocked!", ephemeral=True)
 
 
 # Misc commands
-@bot.slash_command(description="Set a channel where you just wanna be youurself")
+@bot.slash_command(description="Set a channel where you just wanna be yourself")
 async def block_channel(ctx: discord.ApplicationContext,
                         channel: discord.TextChannel = None):
     if channel is None:
