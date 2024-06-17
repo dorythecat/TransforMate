@@ -421,8 +421,7 @@ async def all_fields(ctx: discord.ApplicationContext,
                    hush=0,
                    censor="",
                    sprinkle="",
-                   muffle="",
-                   clear_contents=True)
+                   muffle="")
     await ctx.respond(f"{user.mention} has been cleared of all settings!")
 
 

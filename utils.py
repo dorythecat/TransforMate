@@ -61,8 +61,7 @@ def write_tf(user: discord.User,
              muffle_bool: bool = False,
              muffle: str = None,
              chance: int = None,
-             mod_type: str = None,
-             clear_contents: bool = None) -> None:
+             mod_type: str = None) -> None:
     data = load_tf(user)
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
@@ -256,12 +255,6 @@ def write_tf(user: discord.User,
         if mod_type and chance is not None:
             if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
                 data[str(guild.id)][channel_id][mod_type]['chance'] = chance
-        if clear_contents is not None:
-            data[str(guild.id)][channel_id]['prefix']['contents'] = []
-            data[str(guild.id)][channel_id]['suffix']['contents'] = []
-            data[str(guild.id)][channel_id]['sprinkle']['contents'] = []
-            data[str(guild.id)][channel_id]['muffle']['contents'] = []
-            data[str(guild.id)][channel_id]['censor']['contents'] = {}
     with open(f"cache/people/{user.name}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
