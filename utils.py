@@ -80,13 +80,13 @@ def write_tf(user: discord.User,
         if str(guild.id) not in data:
             data[str(guild.id)] = {}
         if channel_id not in data[str(guild.id)]:
+            data[str(guild.id)]['blocked_channels'] = []
             data[str(guild.id)][channel_id] = {
                 'transformed_by': "",
                 'into': "",
                 'image_url': "",
                 'claim': None,
                 'eternal': False,
-                'blocked_channels': [],
                 'prefix': {
                     'active': False,
                     'contents': [],
@@ -115,78 +115,40 @@ def write_tf(user: discord.User,
                     'chance': 0
                 }
             }
-        if into not in ["", None]:
-            data[str(guild.id)][channel_id] = {  # Add guild specific data
-                'transformed_by': transformed_by,
-                'into': into,
-                'image_url': image_url,
-                'claim': data[str(guild.id)][channel_id]['claim'],
-                'eternal': data[str(guild.id)][channel_id]['eternal'],
-                'blocked_channels': data[str(guild.id)][channel_id]['blocked_channels'],
-                'prefix': {
-                    'active': data[str(guild.id)][channel_id]['prefix']['active'],
-                    'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['prefix']['chance']
-                },
-                'suffix': {
-                    'active': data[str(guild.id)][channel_id]['suffix']['active'],
-                    'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['suffix']['chance']
-                },
-                'big': data[str(guild.id)][channel_id]['big'],
-                'small': data[str(guild.id)][channel_id]['small'],
-                'hush': data[str(guild.id)][channel_id]['hush'],
-                'censor': {
-                    'active': data[str(guild.id)][channel_id]['censor']['active'],
-                    'contents': data[str(guild.id)][channel_id]['censor']['contents']
-                },
-                'sprinkle': {
-                    'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
-                    'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
-                },
-                'muffle': {
-                    'active': data[str(guild.id)][channel_id]['muffle']['active'],
-                    'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['muffle']['chance']
-                }
+        data[str(guild.id)][channel_id] = {  # Add guild specific data
+            'transformed_by': transformed_by,
+            'into': into,
+            'image_url': image_url,
+            'claim': data[str(guild.id)][channel_id]['claim'],
+            'eternal': data[str(guild.id)][channel_id]['eternal'],
+            'prefix': {
+                'active': data[str(guild.id)][channel_id]['prefix']['active'],
+                'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
+                'chance': data[str(guild.id)][channel_id]['prefix']['chance']
+            },
+            'suffix': {
+                'active': data[str(guild.id)][channel_id]['suffix']['active'],
+                'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
+                'chance': data[str(guild.id)][channel_id]['suffix']['chance']
+            },
+            'big': data[str(guild.id)][channel_id]['big'],
+            'small': data[str(guild.id)][channel_id]['small'],
+            'hush': data[str(guild.id)][channel_id]['hush'],
+            'censor': {
+                'active': data[str(guild.id)][channel_id]['censor']['active'],
+                'contents': data[str(guild.id)][channel_id]['censor']['contents']
+            },
+            'sprinkle': {
+                'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
+                'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
+                'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
+            },
+            'muffle': {
+                'active': data[str(guild.id)][channel_id]['muffle']['active'],
+                'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
+                'chance': data[str(guild.id)][channel_id]['muffle']['chance']
             }
-        else:
-            data[str(guild.id)][channel_id] = {  # Add guild specific data
-                'transformed_by': transformed_by,
-                'into': into,
-                'image_url': image_url,
-                'claim': claim_user,
-                'eternal': False if eternal is None or eternal == 0 else True,
-                'blocked_channels': [] if block_channel is None else [str(block_channel.id)],
-                'prefix': {
-                    'active': False if prefix_bool is None or prefix_bool == 0 else True,
-                    'contents': prefix,
-                    'chance': 0
-                },
-                'suffix': {
-                    'active': False if suffix_bool is None or suffix_bool == 0 else True,
-                    'contents': suffix,
-                    'chance': 0
-                },
-                'big': False if big is None or big == 0 else True,
-                'small': False if small is None or small == 0 else True,
-                'hush': False if hush is None or hush == 0 else True,
-                'censor': {
-                    'active': censor_bool,
-                    'contents': {}
-                },
-                'sprinkle': {
-                    'active': sprinkle_bool,
-                    'contents': sprinkle,
-                    'chance': 0
-                },
-                'muffle': {
-                    'active': muffle_bool,
-                    'contents': muffle,
-                    'chance': 0
-                }
-            }
+        }
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
@@ -202,10 +164,10 @@ def write_tf(user: discord.User,
             else:
                 data[str(guild.id)][channel_id]['eternal'] = True
         if block_channel is not None:
-            if block_channel.id not in data[str(guild.id)][channel_id]['blocked_channels']:
-                data[str(guild.id)][channel_id]['blocked_channels'].append(str(block_channel.id))
+            if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
+                data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
             else:
-                data[str(guild.id)][channel_id]['blocked_channels'].remove(str(block_channel.id))
+                data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
         if prefix is not None:
             if prefix != "":
                 data[str(guild.id)][channel_id]['prefix']['active'] = True
