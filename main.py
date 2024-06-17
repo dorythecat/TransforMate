@@ -794,7 +794,8 @@ async def block_channel(ctx: discord.ApplicationContext,
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext):
     embed = utils.get_embed_base("Info", "> \"Let's get transforming!\"")
-    embed.add_field(name="Creators", value="dorythecat\nipabapi")
+    embed.add_field(name="Creators", value="<@770662556456976415>\n<@250982256976330754>")
+    embed.add_field(name="Logo by", value="<@317115440180494337>")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")
     await ctx.respond(embed=embed)
