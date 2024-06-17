@@ -5,7 +5,8 @@ import random
 import discord
 
 # SETTINGS
-CLEAR_OLD_DATA = True  # If a file is from a previous version, should it be cleared out?
+CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version, should it be cleared out?
+CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
@@ -17,8 +18,9 @@ CLEAR_OLD_DATA = True  # If a file is from a previous version, should it be clea
 # VERSION 1: Base version
 CURRENT_TFEE_DATA_VERSION = 6
 
+# VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 1
+CURRENT_TRANSFORMED_DATA_VERSION = 2
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -45,25 +47,20 @@ def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
 def write_tf(user: discord.User,
              guild: discord.Guild,
              channel: discord.TextChannel = None,
+             block_channel: discord.TextChannel = None,
              transformed_by: str = None,
              into: str = None,
              image_url: str = None,
              claim_user: str = None,
              eternal: int = None,
-             block_channel: discord.TextChannel = None,
-             prefix_bool: bool = False,
              prefix: str = None,
-             suffix_bool: bool = False,
              suffix: str = None,
              big: int = None,
              small: int = None,
              hush: int = None,
-             censor_bool: bool = False,
              censor: str = None,
              censor_replacement: str = None,
-             sprinkle_bool: bool = False,
              sprinkle: str = None,
-             muffle_bool: bool = False,
              muffle: str = None,
              chance: int = None,
              mod_type: str = None) -> None:
@@ -71,8 +68,7 @@ def write_tf(user: discord.User,
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
-        print("Data loaded is from older versions! Beware of monsters!")  # Debug message, remove for production
-        if CLEAR_OLD_DATA:
+        if CLEAR_OLD_TFEE_DATA:
             data = {}  # Clear data
         data['version'] = CURRENT_TFEE_DATA_VERSION
     channel_id = 'all' if channel is None else str(channel.id)
@@ -271,14 +267,28 @@ def load_transformed(guild: discord.Guild = None) -> dict:
             return {}
 
 
-def write_transformed(user: discord.User, guild: discord.Guild) -> None:
+def write_transformed(guild: discord.Guild,
+                      user: discord.User = None,
+                      block_channel: discord.TextChannel = None) -> None:
     data = load_transformed()
     if data == {}:  # If the file is empty, we need to add the version info
-        data["version"] = CURRENT_TRANSFORMED_DATA_VERSION
+        data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
+    if data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
+        if CLEAR_OLD_TRANSFORMED_DATA:
+            data = {}
+        data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
     if str(guild.id) not in data:
-        data[str(guild.id)] = []
-    if user.name not in data[str(guild.id)]:
-        data[str(guild.id)].append(user.name)
+        data[str(guild.id)] = {
+            'blocked_channels': [],
+            'transformed_users': []
+        }
+    if user is not None and user.name not in data[str(guild.id)]['transformed_users']:
+        data[str(guild.id)]['transformed_users'].append(user.name)
+    if block_channel is not None:
+        if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
+            data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
+        else:
+            data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
     with open("cache/transformed.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
@@ -290,7 +300,8 @@ def remove_transformed(user: discord.User, guild: discord.Guild) -> None:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return user.name in load_transformed(guild)
+def is_transformed(user: discord.User, guild: discord.Guild) -> bool:
+    return user.name in load_transformed(guild)['transformed_users']
 
 
 # TEXT UTILS

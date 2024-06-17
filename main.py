@@ -27,8 +27,8 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:
         image_url = image_url.strip()[:image_url.index("?")]  # Prune url
 
-    utils.write_tf(user, ctx.guild, channel, ctx.author.name, into, image_url)
-    utils.write_transformed(user, ctx.guild)
+    utils.write_tf(user, ctx.guild, channel, None, ctx.author.name, into, image_url)
+    utils.write_transformed(ctx.guild, user)
 
 
 # Bot startup
@@ -122,7 +122,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     # I know this isn't the most efficient method, but it's really the best we have, at least for now
     # TODO: Find a better way to do this
     if str(reaction.emoji) == "❓":
-        transformed = utils.load_transformed(reaction.message.guild)
+        transformed = utils.load_transformed(reaction.message.guild)['transformed_users']
         for tfed in transformed:
             data = utils.load_tf_by_name(tfed, reaction.message.guild)
             data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
@@ -205,7 +205,7 @@ async def goback(ctx: discord.ApplicationContext,
     if not utils.is_transformed(user, ctx.guild):
         if into == "":
             return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
-        utils.write_transformed(user, ctx.guild)
+        utils.write_transformed(ctx.guild, user)
         return await ctx.respond(f"{user.mention} has been turned back to their last form!")
 
     if data['eternal'] and ctx.author.name != data['claim']:
@@ -512,6 +512,7 @@ async def censor(ctx: discord.ApplicationContext,
             return await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
         # data['censor']['contents'].remove(censor_word)
         # utils.write_tf(user, ctx.guild, censor=data['censor'])
+        # TODO: Implement
         return await ctx.respond("This feature is not yet implemented!")
 
     # If no word is provided, we can just clear the censor contents completely
@@ -677,7 +678,7 @@ async def suffixes(ctx: discord.ApplicationContext,
 
 @get_command.command(description="Get a list of transformed users")
 async def transformed(ctx: discord.ApplicationContext):
-    transformed = utils.load_transformed(ctx.guild)
+    transformed = utils.load_transformed(ctx.guild)['transformed_users']
     if not transformed:
         return await ctx.respond("No one is transformed (globally) at the moment!")
     description = ""
@@ -715,7 +716,7 @@ async def block_channel(ctx: discord.ApplicationContext,
                         channel: discord.TextChannel = None):
     if channel is None:
         channel = ctx.channel
-    utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
+    utils.write_tf(ctx.author, ctx.guild, None, channel)
     if str(channel.id) in utils.load_tf(ctx.user, ctx.guild)['blocked_channels']:
         if channel == ctx.channel:
             return await ctx.respond(f"You will now be yourself in this channel!")
