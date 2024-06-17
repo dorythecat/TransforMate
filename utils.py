@@ -381,7 +381,12 @@ def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
 
 
 def get_embed_base(title: str, desc: str = None) -> discord.Embed:
-    return discord.Embed(title=title,
-                         description=desc,
-                         color=discord.Color.blue(),
-                         author=discord.EmbedAuthor(name="TransforMate", icon_url=bot.user.avatar.url))
+    return discord.Embed(
+        title=title,
+        description=desc,
+        color=discord.Color.blue(),
+        author=discord.EmbedAuthor(
+            name="TransforMate",
+            icon_url="https://cdn.discordapp.com/avatars/967123840587141181/46a629c191f53ec9d446ed4b712fb39b.png"
+        )
+    )
