@@ -54,7 +54,8 @@ async def on_message(message: discord.Message):
     data = utils.load_tf(message.author, message.guild)
 
     # Handle blocked channels
-    if str(message.channel.id) in data['blocked_channels']:
+    if str(message.channel.id) in (data['blocked_channels'] or
+                                   utils.load_transformed(message.guild)['blocked_channels']):
         return
 
     data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
@@ -148,7 +149,8 @@ async def transform(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     channel_id = str(ctx.channel.id if not channel else channel.id)
 
-    if channel_id in data['blocked_channels']:
+    if channel_id in (data['blocked_channels'] or
+                      utils.load_transformed(ctx.guild)['blocked_channels']):
         return await ctx.respond(f"You can't transform {user.mention} in this channel!")
 
     if utils.is_transformed(user, ctx.guild):
@@ -708,6 +710,19 @@ async def killhooks(ctx: discord.ApplicationContext):
         if wh.name == WEBHOOK_NAME: # Delete only our webhooks, which all should have the same name
             await wh.delete()
     await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.")
+
+
+@admin_command.command(description="(Un)block a channel from being users being transformed in")
+@discord.default_permissions(administrator=True)
+async def block_channel(ctx: discord.ApplicationContext,
+                        channel: discord.TextChannel = None):
+    if channel is None:
+        channel = ctx.channel
+    data = utils.load_transformed(ctx.guild)['blocked_channels']
+    utils.write_transformed(ctx.guild, block_channel=channel)
+    if str(channel.id) in data:
+        return await ctx.respond(f"{channel.mention} has been unblocked!", ephemeral=True)
+    await ctx.respond(f"{channel.mention} has been blocked!", ephemeral=True)
 
 
 # Misc commands
