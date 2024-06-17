@@ -686,12 +686,20 @@ async def transformed(ctx: discord.ApplicationContext):
     await ctx.respond(embed=embed)
 
 
+# "Admin" Commands
+admin_command = bot.create_group("admin", "Admin commands for the bot")
+
+
+@admin_command.command(description="Kill all webhooks, and let the bot regenerate them")
+@discord.default_permissions(administrator=True)
+async def killhooks(ctx: discord.ApplicationContext):
+    for wh in await ctx.guild.webhooks():
+        if wh.name == WEBHOOK_NAME: # Delete only our webhooks, which all should have the same name
+            await wh.delete()
+    await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.")
+
+
 # Misc commands
-@bot.slash_command(description="Replies with the bot's latency.")
-async def ping(ctx: discord.ApplicationContext):
-    await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
-
-
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext):
     embed = discord.Embed(title="TransforMate",
@@ -704,13 +712,9 @@ async def info(ctx: discord.ApplicationContext):
     await ctx.respond(embed=embed)
 
 
-@bot.slash_command(description="Kill all webhooks, and let the bot regenerate them")
-@discord.default_permissions(administrator=True)
-async def killhooks(ctx: discord.ApplicationContext):
-    for wh in await ctx.guild.webhooks():
-        if wh.name == WEBHOOK_NAME: # Delete only our webhooks, which all should have the same name
-            await wh.delete()
-    await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.")
+@bot.slash_command(description="Replies with the bot's latency.")
+async def ping(ctx: discord.ApplicationContext):
+    await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
 
 
 # Start the bot up
