@@ -288,14 +288,14 @@ async def prefix(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None,
                  whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                             description="Add a space after the prefix (defaults true)") = True):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     if whitespace:
         prefix = prefix + " "
-    utils.write_tf(user, ctx.guild, prefix=prefix, type="prefix", chance=prefix_chance)
+    utils.write_tf(user, ctx.guild, prefix=prefix, mod_type="prefix", chance=prefix_chance)
     await ctx.respond(f"Prefix for {user.mention} set to \"*{prefix}*\"!")
 
 
@@ -308,21 +308,21 @@ async def suffix(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None,
                  whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                             description="Add a space before the suffix (defaults true)") = True):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     if whitespace:
         suffix = " " + suffix
-    utils.write_tf(user, ctx.guild, suffix=suffix, type="suffix", chance=suffix_chance)
+    utils.write_tf(user, ctx.guild, suffix=suffix, mod_type="suffix", chance=suffix_chance)
     await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix}*\"!")
 
 
 @set_command.command(description="Set the transformed user to speak in big text")
 async def big(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['big']:
@@ -336,7 +336,7 @@ async def big(ctx: discord.ApplicationContext,
 @set_command.command(description="Set the transformed user to speak in small text")
 async def small(ctx: discord.ApplicationContext,
                 user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['small']:
@@ -350,7 +350,7 @@ async def small(ctx: discord.ApplicationContext,
 @set_command.command(description="Set the transformed user to hush")
 async def hush(ctx: discord.ApplicationContext,
                user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['hush']:
@@ -364,7 +364,7 @@ async def hush(ctx: discord.ApplicationContext,
 @set_command.command(description="Set the transformed user to be eternally transformed")
 async def eternal(ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User)):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['eternal']:
@@ -382,7 +382,7 @@ async def censor(ctx: discord.ApplicationContext,
                  replacement: discord.Option(discord.SlashCommandOptionType.string,
                                              description="Word to replace with"),
                  user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
@@ -398,12 +398,12 @@ async def sprinkle(ctx: discord.ApplicationContext,
                    sprinkle_chance: discord.Option(discord.SlashCommandOptionType.integer,
                                                    description='Chance for sprinkle to go off') = 30,
                    user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-    utils.write_tf(user, ctx.guild, sprinkle=sprinkle, type="sprinkle", chance=sprinkle_chance)
+    utils.write_tf(user, ctx.guild, sprinkle=sprinkle, mod_type="sprinkle", chance=sprinkle_chance)
     await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
 
 
@@ -415,12 +415,12 @@ async def muffle(ctx: discord.ApplicationContext,
                  chance: discord.Option(discord.SlashCommandOptionType.integer,
                                         description='Chance for muffle to go off') = 30,
                  user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
         return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
-    utils.write_tf(user, ctx.guild, muffle=muffle, type="muffle", chance=chance)
+    utils.write_tf(user, ctx.guild, muffle=muffle, mod_type="muffle", chance=chance)
     await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
 
 
@@ -431,7 +431,7 @@ list_command = bot.create_group("list", "List various things about transformed u
 @list_command.command(description="List the settings for the transformed user")
 async def settings(ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     # Create embed
@@ -452,7 +452,7 @@ async def settings(ctx: discord.ApplicationContext,
 @list_command.command(description="List the censors for the transformed user")
 async def censors(ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     # Create embed
@@ -470,7 +470,7 @@ async def censors(ctx: discord.ApplicationContext,
 @list_command.command(description="List the sprinkles for the transformed user")
 async def sprinkles(ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     # Create embed
@@ -487,7 +487,7 @@ async def sprinkles(ctx: discord.ApplicationContext,
 @list_command.command(description="List the muffle for the transformed user")
 async def muffle(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     # Create embed
@@ -504,7 +504,7 @@ async def muffle(ctx: discord.ApplicationContext,
 @list_command.command(description="List the prefixes for the transformed user")
 async def prefixes(ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     # Create embed
@@ -521,7 +521,7 @@ async def prefixes(ctx: discord.ApplicationContext,
 @list_command.command(description="List the suffixes for the transformed user")
 async def suffixes(ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     # Create embed
@@ -566,7 +566,7 @@ clear_command = bot.create_group("clear", "Clear various things about transforme
 @clear_command.command(description="Clear all settings for the transformed user")
 async def all_fields(ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
@@ -590,7 +590,7 @@ async def all_fields(ctx: discord.ApplicationContext,
 @clear_command.command(description="Clear the prefix for the transformed messages")
 async def prefix(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['prefix'] is None:
@@ -604,7 +604,7 @@ async def prefix(ctx: discord.ApplicationContext,
 @clear_command.command(description="Clear the suffix for the transformed messages")
 async def suffix(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['suffix'] is None:
@@ -636,7 +636,7 @@ async def big(ctx: discord.ApplicationContext,
 @clear_command.command(description="Clear the small text setting for the transformed messages")
 async def small(ctx: discord.ApplicationContext,
                 user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if not data['small']:
@@ -650,7 +650,7 @@ async def small(ctx: discord.ApplicationContext,
 @clear_command.command(description="Clear hush setting")
 async def hush(ctx: discord.ApplicationContext,
                user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if not data['hush']:
@@ -666,7 +666,7 @@ async def censor(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None,
                  censor_word: discord.Option(discord.SlashCommandOptionType.string,
                                              description="Word to clear") = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
 
@@ -684,7 +684,7 @@ async def censor(ctx: discord.ApplicationContext,
         return await ctx.respond("This feature is not yet implemented!")
 
     # If no word is provided, we can just clear the censor contents completely
-    utils.write_tf(user, ctx.guild, censor_bool=0)
+    utils.write_tf(user, ctx.guild, censor="")
     await ctx.respond(f"{user.mention} will no longer have a censor set!")
 
 
@@ -693,7 +693,7 @@ async def sprinkle(ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None,
                    sprinkle_word: discord.Option(discord.SlashCommandOptionType.string,
                                                  description="Word to clear") = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
@@ -708,7 +708,7 @@ async def sprinkle(ctx: discord.ApplicationContext,
         data['sprinkle']['contents'].remove(sprinkle_word)
         utils.write_tf(user, ctx.guild, sprinkle=data['sprinkle'])
         return await ctx.respond(f"{user.mention} will no longer have the word \"{sprinkle_word}\" sprinkled!")
-    utils.write_tf(user, ctx.guild, sprinkle_bool=0)
+    utils.write_tf(user, ctx.guild, sprinkle="")
     await ctx.respond(f"{user.mention} will no longer have a sprinkle set!")
 
 
@@ -717,7 +717,7 @@ async def muffle(ctx: discord.ApplicationContext,
                  user: discord.Option(discord.User) = None,
                  muffle_word: discord.Option(discord.SlashCommandOptionType.string,
                                              description="Word to clear") = None):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if data['claim'] is not None and data['claim'] != ctx.author.name:
@@ -732,14 +732,14 @@ async def muffle(ctx: discord.ApplicationContext,
         data['muffle']['contents'].remove(muffle_word)
         utils.write_tf(user, ctx.guild, muffle=data['muffle'])
         return await ctx.respond(f"{user.mention} will no longer have the word \"{muffle_word}\" muffled!")
-    utils.write_tf(user, ctx.guild, muffle_bool=0)
+    utils.write_tf(user, ctx.guild, muffle="")
     await ctx.respond(f"{user.mention} will no longer have a muffle set!")
 
 
 @clear_command.command(description="Clear eternal setting")
 async def eternal(ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User)):
-    valid, data, user = await utils.logic_command(ctx, user)
+    valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
     if not data['eternal']:
@@ -756,16 +756,15 @@ async def ping(ctx: discord.ApplicationContext):
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
 
 
-# @bot.slash_command(description="Get the bot's invite link")
-
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext):
-    embed = discord.Embed(title="Transformation Bot",
-                          description="A bot that transforms users into other users, and lets them speak as them!",
-                          color=discord.Color.blue())
+    embed = discord.Embed(title="TransforMate",
+                          description="> \"Let's get transforming!\"",
+                          color=discord.Color.blue(),
+                          author=discord.EmbedAuthor(name="TransforMate")) # , icon_url=bot.user.avatar.url))
     embed.add_field(name="Creators", value="dorythecat\nipabapi")
-    embed.add_field(name="Library", value="pycord")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
+    embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")
     await ctx.respond(embed=embed)
 
 

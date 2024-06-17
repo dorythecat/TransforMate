@@ -61,13 +61,13 @@ def write_tf(user: discord.User,
              muffle_bool: bool = False,
              muffle: str = None,
              chance: int = None,
-             type: int = None,
+             mod_type: str = None,
              clear_contents: bool = None) -> None:
     data = load_tf(user)
     if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
-        print("Data loaded is from older versions! Beware of monsters!") # Debug message, remove for production
+        print("Data loaded is from older versions! Beware of monsters!")  # Debug message, remove for production
         data['version'] = CURRENT_TFEE_DATA_VERSION
     channel_id = 'all' if channel is None else str(channel.id)
     if into not in ["", None]:
@@ -109,76 +109,75 @@ def write_tf(user: discord.User,
                 }
             }
         if into not in ["", None]:
-            if into not in ["", None]:
-                data[str(guild.id)][channel_id] = {  # Add guild specific data
-                    'transformed_by': transformed_by,
-                    'into': into,
-                    'image_url': image_url,
-                    'claim': data[str(guild.id)][channel_id]['claim'],
-                    'eternal': data[str(guild.id)][channel_id]['eternal'],
-                    'prefix': {
-                        'active': data[str(guild.id)][channel_id]['prefix']['active'],
-                        'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
-                        'chance': data[str(guild.id)][channel_id]['prefix']['chance']
-                    },
-                    'suffix': {
-                        'active': data[str(guild.id)][channel_id]['suffix']['active'],
-                        'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
-                        'chance': data[str(guild.id)][channel_id]['suffix']['chance']
-                    },
-                    'big': data[str(guild.id)][channel_id]['big'],
-                    'small': data[str(guild.id)][channel_id]['small'],
-                    'hush': data[str(guild.id)][channel_id]['hush'],
-                    'censor': {
-                        'active': data[str(guild.id)][channel_id]['censor']['active'],
-                        'contents': data[str(guild.id)][channel_id]['censor']['contents']
-                    },
-                    'sprinkle': {
-                        'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
-                        'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
-                        'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
-                    },
-                    'muffle': {
-                        'active': data[str(guild.id)][channel_id]['muffle']['active'],
-                        'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
-                        'chance': data[str(guild.id)][channel_id]['muffle']['chance']
-                    }
+            data[str(guild.id)][channel_id] = {  # Add guild specific data
+                'transformed_by': transformed_by,
+                'into': into,
+                'image_url': image_url,
+                'claim': data[str(guild.id)][channel_id]['claim'],
+                'eternal': data[str(guild.id)][channel_id]['eternal'],
+                'prefix': {
+                    'active': data[str(guild.id)][channel_id]['prefix']['active'],
+                    'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['prefix']['chance']
+                },
+                'suffix': {
+                    'active': data[str(guild.id)][channel_id]['suffix']['active'],
+                    'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['suffix']['chance']
+                },
+                'big': data[str(guild.id)][channel_id]['big'],
+                'small': data[str(guild.id)][channel_id]['small'],
+                'hush': data[str(guild.id)][channel_id]['hush'],
+                'censor': {
+                    'active': data[str(guild.id)][channel_id]['censor']['active'],
+                    'contents': data[str(guild.id)][channel_id]['censor']['contents']
+                },
+                'sprinkle': {
+                    'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
+                    'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
+                },
+                'muffle': {
+                    'active': data[str(guild.id)][channel_id]['muffle']['active'],
+                    'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
+                    'chance': data[str(guild.id)][channel_id]['muffle']['chance']
                 }
-            else:
-                data[str(guild.id)][channel_id] = {  # Add guild specific data
-                    'transformed_by': transformed_by,
-                    'into': into,
-                    'image_url': image_url,
-                    'claim': claim_user,
-                    'eternal': False if eternal is None or eternal == 0 else True,
-                    'prefix': {
-                        'active': False if prefix_bool is None or prefix_bool == 0 else True,
-                        'contents': prefix,
-                        'chance': 0
-                    },
-                    'suffix': {
-                        'active': False if suffix_bool is None or suffix_bool == 0 else True,
-                        'contents': suffix,
-                        'chance': 0
-                    },
-                    'big': False if big is None or big == 0 else True,
-                    'small': False if small is None or small == 0 else True,
-                    'hush': False if hush is None or hush == 0 else True,
-                    'censor': {
-                        'active': censor_bool,
-                        'contents': {}
-                    },
-                    'sprinkle': {
-                        'active': sprinkle_bool,
-                        'contents': sprinkle,
-                        'chance': 0
-                    },
-                    'muffle': {
-                        'active': muffle_bool,
-                        'contents': muffle,
-                        'chance': 0
-                    }
+            }
+        else:
+            data[str(guild.id)][channel_id] = {  # Add guild specific data
+                'transformed_by': transformed_by,
+                'into': into,
+                'image_url': image_url,
+                'claim': claim_user,
+                'eternal': False if eternal is None or eternal == 0 else True,
+                'prefix': {
+                    'active': False if prefix_bool is None or prefix_bool == 0 else True,
+                    'contents': prefix,
+                    'chance': 0
+                },
+                'suffix': {
+                    'active': False if suffix_bool is None or suffix_bool == 0 else True,
+                    'contents': suffix,
+                    'chance': 0
+                },
+                'big': False if big is None or big == 0 else True,
+                'small': False if small is None or small == 0 else True,
+                'hush': False if hush is None or hush == 0 else True,
+                'censor': {
+                    'active': censor_bool,
+                    'contents': {}
+                },
+                'sprinkle': {
+                    'active': sprinkle_bool,
+                    'contents': sprinkle,
+                    'chance': 0
+                },
+                'muffle': {
+                    'active': muffle_bool,
+                    'contents': muffle,
+                    'chance': 0
                 }
+            }
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
@@ -254,9 +253,9 @@ def write_tf(user: discord.User,
             else:
                 data[str(guild.id)][channel_id]['muffle']['active'] = False
                 data[str(guild.id)][channel_id]['muffle']['chance'] = 0
-        if type and chance is not None:
-            if type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
-                data[str(guild.id)][channel_id][type]['chance'] = chance
+        if mod_type and chance is not None:
+            if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
+                data[str(guild.id)][channel_id][mod_type]['chance'] = chance
         if clear_contents is not None:
             data[str(guild.id)][channel_id]['prefix']['contents'] = []
             data[str(guild.id)][channel_id]['suffix']['contents'] = []
@@ -328,62 +327,64 @@ def is_transformed(user: discord.User, guild: discord.Guild) -> bool: return use
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict, original: str) -> str:
     transformed = original
-
     words = transformed.split(" ")
+
     if data["censor"]["active"]:
         # Censor will change the censored word to the word provided in the data
-        words = transformed.split(" ")
-        # force lowercase for comparison
-        # also strip punctuation
-        print(words)
         for i in range(len(words)):
-
+            # Force lowercase and strip punctuation
             word = words[i].lower().strip("*.,!?")
             if word in data["censor"]["contents"].keys():
                 to_be = words[i].lower()
                 words[i] = to_be.replace(word, data["censor"]["contents"][word])
 
         transformed = " ".join(words)
-    
+
     if data["muffle"]["active"]:
         # Muffle will overwrite a word with a word from the data array by random chance
         for i in range(len(words)):
             if random.randint(1, 100) <= data["muffle"]["chance"]:
                 words[i] = data["muffle"]["contents"][random.randint(0, len(data["muffle"]["contents"]) - 1)]
 
-
         transformed = " ".join(words)
+
     if data["sprinkle"]["active"]:
         # Sprinkle will add the sprinkled word to the message between words by random chance
-        words = transformed.split(" ")
         # for each word, if the chance is met, add a sprinkled word before it
         length = len(words)
         for i in range(length):
             if random.randint(1, 100) <= data["sprinkle"]["chance"]:
-                words[i] = data["sprinkle"]["contents"][random.randint(0, len(data["sprinkle"]["contents"]) - 1)] + " " + words[i]
-        transformed = " ".join(words) 
-        # Moving these below so text changes are applied before the prefix and suffix so they aren't affected by censors or such
+                words[i] = data["sprinkle"]["contents"][
+                               random.randint(0, len(data["sprinkle"]["contents"]) - 1)] + " " + words[i]
+        transformed = " ".join(words)
+
+    # Moving these below so text changes are applied before the prefix and suffix so they aren't affected
+    # by censors or such
     if data["prefix"]["active"]:
         # Prefix will add the prefix to the message, try the chance of adding it,
         # and then select a random prefix from the list
         if (0 <= data["prefix"]["chance"] < 100 and random.randint(1, 100) <= data["prefix"]["chance"]) or \
-                 data["prefix"]["chance"] >= 100:
+                data["prefix"]["chance"] >= 100:
             transformed = data["prefix"]["contents"][
                               random.randint(0, len(data["prefix"]["contents"]) - 1)] + " " + transformed
+
     if data["suffix"]["active"]:
         # Suffix will add the suffix to the message, try the chance of adding it,
         # and then select a random suffix from the list
         if (0 <= data["suffix"]["chance"] < 100 and random.randint(1, 100) <= data["suffix"]["chance"]) or \
-                 data["suffix"]["chance"] >= 100:
+                data["suffix"]["chance"] >= 100:
             transformed = transformed + " " + data["suffix"]["contents"][
                 random.randint(0, len(data["suffix"]["contents"]) - 1)]
+
     if data["big"]:
         transformed = "# " + transformed
+
     if data["small"]:
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
         for i in range(len(alphabet)):
             transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
+
     if data["hush"]:
         transformed = "||" + transformed + "||"
 
@@ -397,15 +398,15 @@ def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
             return wh
     return None
 
-# Obfuscate Overly Repetitive Code
-async def logic_command(ctx: discord.ApplicationContext,
-                  user: discord.User,
-):
+
+# Extract tf data
+async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User) -> [bool, dict, discord.User]:
     if user is None:
         user = ctx.author
     transformed = load_transformed(ctx.guild)
     if user.name not in transformed:
-        return [await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!"), data, user]
+        await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
+        return [False, None, None]
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
     return [True, data, user]
