@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import discord
 
 # SETTINGS
-WEBHOOK_NAME = "TransforMate Webhook" # Name to use for the webhooks
+WEBHOOK_NAME = "TransforMate Webhook"  # Name to use for the webhooks
 
 intents = discord.Intents.all()
 

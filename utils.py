@@ -4,14 +4,18 @@ import random
 
 import discord
 
+# SETTINGS
+CLEAR_OLD_DATA = True  # If a file is from a previous version, should it be cleared out?
+
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 6: Added "blocked_channels" field
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
 # VERSION 4: Reworked to work with per-channel data. - DROPPED SUPPORT FOR TRANSLATING PREVIOUS VERSIONS
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 5
+CURRENT_TFEE_DATA_VERSION = 6
 
 # VERSION 1: Base version
 CURRENT_TRANSFORMED_DATA_VERSION = 1
@@ -46,6 +50,7 @@ def write_tf(user: discord.User,
              image_url: str = None,
              claim_user: str = None,
              eternal: int = None,
+             block_channel: discord.TextChannel = None,
              prefix_bool: bool = False,
              prefix: str = None,
              suffix_bool: bool = False,
@@ -67,6 +72,8 @@ def write_tf(user: discord.User,
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
         print("Data loaded is from older versions! Beware of monsters!")  # Debug message, remove for production
+        if CLEAR_OLD_DATA:
+            data = {}  # Clear data
         data['version'] = CURRENT_TFEE_DATA_VERSION
     channel_id = 'all' if channel is None else str(channel.id)
     if into not in ["", None]:
@@ -79,6 +86,7 @@ def write_tf(user: discord.User,
                 'image_url': "",
                 'claim': None,
                 'eternal': False,
+                'blocked_channels': [],
                 'prefix': {
                     'active': False,
                     'contents': [],
@@ -114,6 +122,7 @@ def write_tf(user: discord.User,
                 'image_url': image_url,
                 'claim': data[str(guild.id)][channel_id]['claim'],
                 'eternal': data[str(guild.id)][channel_id]['eternal'],
+                'blocked_channels': data[str(guild.id)][channel_id]['blocked_channels'],
                 'prefix': {
                     'active': data[str(guild.id)][channel_id]['prefix']['active'],
                     'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
@@ -149,6 +158,7 @@ def write_tf(user: discord.User,
                 'image_url': image_url,
                 'claim': claim_user,
                 'eternal': False if eternal is None or eternal == 0 else True,
+                'blocked_channels': [] if block_channel is None else [str(block_channel.id)],
                 'prefix': {
                     'active': False if prefix_bool is None or prefix_bool == 0 else True,
                     'contents': prefix,
@@ -191,6 +201,11 @@ def write_tf(user: discord.User,
                 data[str(guild.id)][channel_id]['eternal'] = False
             else:
                 data[str(guild.id)][channel_id]['eternal'] = True
+        if block_channel is not None:
+            if block_channel.id not in data[str(guild.id)][channel_id]['blocked_channels']:
+                data[str(guild.id)][channel_id]['blocked_channels'].append(str(block_channel.id))
+            else:
+                data[str(guild.id)][channel_id]['blocked_channels'].remove(str(block_channel.id))
         if prefix is not None:
             if prefix != "":
                 data[str(guild.id)][channel_id]['prefix']['active'] = True
