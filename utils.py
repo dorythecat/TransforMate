@@ -27,18 +27,24 @@ CURRENT_TRANSFORMED_DATA_VERSION = 3
 # USER TRANSFORMATION DATA UTILS
 def load_tf_by_name(name: str, guild: discord.Guild = None) -> dict:
     if f"{name}.json" not in os.listdir("cache/people"):
-        return {}
+        return {
+            'blocked_channels': []
+        }
     with open(f"cache/people/{name}.json", "r") as f:
         contents = f.read()
         if contents.strip() == "":
-            return {}
+            return {
+                'blocked_channels': []
+            }
         data = json.loads(contents)
         if guild is None:
             return data
         else:
             if str(guild.id) in data:
                 return data[str(guild.id)]
-            return {}
+            return {
+                'blocked_channels': []
+            }
 
 
 def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
