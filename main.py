@@ -149,9 +149,10 @@ async def transform(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     channel_id = str(ctx.channel.id if not channel else channel.id)
 
-    if channel_id in (data['blocked_channels'] or
-                      utils.load_transformed(ctx.guild)['blocked_channels']):
-        return await ctx.respond(f"You can't transform {user.mention} in this channel!")
+    if channel_id in data['blocked_channels']:
+        return await ctx.respond(f"You can't transform {user.mention} in this channel! They have it blocked!")
+    if channel_id in utils.load_transformed(ctx.guild)['blocked_channels']:
+        return await ctx.respond(f"You can't transform {user.mention} in this channel! It's blocked for everyone!")
 
     if utils.is_transformed(user, ctx.guild):
         if channel_id in data:
@@ -709,7 +710,7 @@ async def killhooks(ctx: discord.ApplicationContext):
     for wh in await ctx.guild.webhooks():
         if wh.name == WEBHOOK_NAME: # Delete only our webhooks, which all should have the same name
             await wh.delete()
-    await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.")
+    await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.", ephemeral=True)
 
 
 @admin_command.command(description="(Un)block a channel from being users being transformed in")
