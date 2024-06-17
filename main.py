@@ -67,7 +67,7 @@ async def on_message(message: discord.Message):
         channel = discord.Bot.get_channel(bot, message.channel.parent.id)
         if not channel:
             return
-        webhook = utils.get_webhook_by_name(await channel.webhooks(), name)
+        webhook = utils.get_webhook_by_name(await message.channel.parent.webhooks(), name)
         if not webhook:
             webhook = await message.channel.parent.create_webhook(name=name)
             return
