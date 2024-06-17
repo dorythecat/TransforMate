@@ -10,13 +10,14 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 7: Added "bio" field
 # VERSION 6: Added "blocked_channels" field
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
 # VERSION 4: Reworked to work with per-channel data. - DROPPED SUPPORT FOR TRANSLATING PREVIOUS VERSIONS
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 6
+CURRENT_TFEE_DATA_VERSION = 7
 
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
@@ -70,7 +71,8 @@ def write_tf(user: discord.User,
              sprinkle: str = None,
              muffle: str = None,
              chance: int = None,
-             mod_type: str = None) -> None:
+             mod_type: str = None,
+             bio: str = None) -> None:
     data = load_tf(user)
     if data == {'blocked_channels': []}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
@@ -116,7 +118,8 @@ def write_tf(user: discord.User,
                     'active': False,
                     'contents': [],
                     'chance': 0
-                }
+                },
+                'bio': None
             }
         else:
             data[str(guild.id)][channel_id] = {  # Add guild specific data
@@ -152,90 +155,56 @@ def write_tf(user: discord.User,
                     'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
                     'chance': data[str(guild.id)][channel_id]['muffle']['chance']
                 },
+                'bio': data[str(guild.id)][channel_id]['bio']
             }
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
         if image_url is not None and image_url != "":
             data[str(guild.id)][channel_id]['image_url'] = image_url
-        if claim_user is not None and claim_user != "":
-            data[str(guild.id)][channel_id]['claim'] = claim_user.strip()
-        elif claim_user == "":
-            data[str(guild.id)][channel_id]['claim'] = None
+        data[str(guild.id)][channel_id]['claim'] = claim_user.strip() if claim_user is not None and claim_user != "" \
+            else None
         if eternal is not None:
-            if eternal == 0:
-                data[str(guild.id)][channel_id]['eternal'] = False
-            else:
-                data[str(guild.id)][channel_id]['eternal'] = True
+            data[str(guild.id)][channel_id]['eternal'] = False if eternal == 0 else True
         if block_channel is not None:
             if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
                 data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
             else:
                 data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
         if prefix is not None:
-            if prefix != "":
-                data[str(guild.id)][channel_id]['prefix']['active'] = True
-                data[str(guild.id)][channel_id]['prefix']['contents'] = data[str(guild.id)][channel_id]['prefix'][
-                                                                            'contents'] + [prefix.strip()]
-                data[str(guild.id)][channel_id]['prefix']['chance'] = 100
-            else:
-                data[str(guild.id)][channel_id]['prefix']['active'] = False
-                data[str(guild.id)][channel_id]['prefix']['chance'] = 0
+            data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
+            data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if prefix != "" else []
+            data[str(guild.id)][channel_id]['prefix']['chance'] = 100 if prefix != "" else 0
         if suffix is not None:
-            if suffix != "":
-                data[str(guild.id)][channel_id]['suffix']['active'] = True
-                data[str(guild.id)][channel_id]['suffix']['contents'] = data[str(guild.id)][channel_id]['suffix'][
-                                                                            'contents'] + [suffix.strip()]
-                data[str(guild.id)][channel_id]['suffix']['chance'] = 100
-            else:
-                data[str(guild.id)][channel_id]['suffix']['active'] = False
-                data[str(guild.id)][channel_id]['suffix']['chance'] = 0
+            data[str(guild.id)][channel_id]['suffix']['active'] = True if suffix != "" else False
+            data[str(guild.id)][channel_id]['suffix']['contents'] += [suffix.strip()] if suffix != "" else []
+            data[str(guild.id)][channel_id]['suffix']['chance'] = 100 if suffix != "" else 0
         if big is not None:
-            if big == 0:
-                data[str(guild.id)][channel_id]['big'] = False
-            else:
-                data[str(guild.id)][channel_id]['big'] = True
+            data[str(guild.id)][channel_id]['big'] = False if big == 0 else True
         if small is not None:
-            if small == 0:
-                data[str(guild.id)][channel_id]['small'] = False
-            else:
-                data[str(guild.id)][channel_id]['small'] = True
+            data[str(guild.id)][channel_id]['small'] = False if small == 0 else True
         if hush is not None:
-            if hush == 0:
-                data[str(guild.id)][channel_id]['hush'] = False
-            else:
-                data[str(guild.id)][channel_id]['hush'] = True
+            data[str(guild.id)][channel_id]['hush'] = False if hush == 0 else True
         if censor is not None:
+            data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
-                data[str(guild.id)][channel_id]['censor']['active'] = True
                 if censor_replacement is not None and censor_replacement != "":
                     if data[str(guild.id)][channel_id]['censor']['contents'] is None:
                         data[str(guild.id)][channel_id]['censor']['contents'] = {}
-                    data[str(guild.id)][channel_id]['censor']['contents'][
-                        censor.strip().lower()] = censor_replacement.strip()
-            else:
-                data[str(guild.id)][channel_id]['censor']['active'] = False
+                    data[str(guild.id)][channel_id]['censor']['contents'][censor.strip().lower()] = \
+                        censor_replacement.strip()
         if sprinkle is not None:
-            if sprinkle != "":
-                data[str(guild.id)][channel_id]['sprinkle']['active'] = True
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = data[str(guild.id)][channel_id]['sprinkle'][
-                                                                              'contents'] + [sprinkle.strip()]
-                data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30
-            else:
-                data[str(guild.id)][channel_id]['sprinkle']['active'] = False
-                data[str(guild.id)][channel_id]['sprinkle']['chance'] = 0
-        if muffle is not None:
-            if muffle != "":
-                data[str(guild.id)][channel_id]['muffle']['active'] = True
-                data[str(guild.id)][channel_id]['muffle']['contents'] = data[str(guild.id)][channel_id]['muffle'][
-                                                                            'contents'] + [muffle.strip()]
-                data[str(guild.id)][channel_id]['muffle']['chance'] = 30
-            else:
-                data[str(guild.id)][channel_id]['muffle']['active'] = False
-                data[str(guild.id)][channel_id]['muffle']['chance'] = 0
-        if mod_type and chance is not None:
-            if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
-                data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+            data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
+            data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if sprinkle != "" else []
+            data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30 if sprinkle != "" else 0
+        if muffle:
+            data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
+            data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if muffle != "" else []
+            data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
+        if mod_type and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
+            data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+        if bio:
+            data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
     with open(f"cache/people/{str(user.id)}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
