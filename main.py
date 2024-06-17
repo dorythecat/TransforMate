@@ -22,11 +22,12 @@ async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str,
                              image_url: str,
-                             channel: discord.TextChannel):
+                             channel: discord.TextChannel) -> bool:
     if not image_url:
         image_url = user.avatar.url
     if image_url.strip()[:4] != "http":
-        return await ctx.send("Invalid URL! Please provide a valid image URL!")
+        await ctx.send("Invalid URL! Please provide a valid image URL!")
+        return False
     if "?" in image_url:
         image_url = image_url.strip()[:image_url.index("?")]  # Prune url
 
@@ -92,7 +93,7 @@ async def on_message(message: discord.Message):
                     json=json
             ) as resp:
                 # See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for meaning of HTTP status codes
-                if resp.status != 200 and resp.status != 203 and resp.status != 204:
+                if resp.status not in [200, 203, 204]:
                     print(f"Failed to send message to webhook: {resp.status}")
                     print(f"With data:\n{json}")
         await message.delete()
@@ -191,8 +192,8 @@ async def transform(ctx: discord.ApplicationContext,
     if into:
         if len(into.strip()) <= 1:
             return await ctx.send("Please provide a name longer than 1 character!")
-        await transform_function(ctx, user, into, image_url, channel)
-        await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
+        if await transform_function(ctx, user, into, image_url, channel):
+            await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
         return
 
     await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
@@ -201,12 +202,12 @@ async def transform(ctx: discord.ApplicationContext,
         return await ctx.respond("Cancelled the transformation!")
     if len(response.content.strip()) <= 1:
         return await ctx.send("Please provide a name longer than 1 character!")
-    await transform_function(ctx,
-                             user,
-                             response.content,
-                             response.attachments[0].url if response.attachments else None,
-                             channel)
-    await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
+    if await transform_function(ctx,
+                                user,
+                                response.content,
+                                response.attachments[0].url if response.attachments else None,
+                                channel):
+        await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
 
 @bot.slash_command(description="Return someone to their previous state")
