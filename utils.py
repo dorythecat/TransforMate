@@ -25,12 +25,12 @@ CURRENT_TRANSFORMED_DATA_VERSION = 3
 
 
 # USER TRANSFORMATION DATA UTILS
-def load_tf_by_name(name: str, guild: discord.Guild = None) -> dict:
-    if f"{name}.json" not in os.listdir("cache/people"):
+def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
+    if f"{user_id}.json" not in os.listdir("cache/people"):
         return {
             'blocked_channels': []
         }
-    with open(f"cache/people/{name}.json", "r") as f:
+    with open(f"cache/people/{user_id}.json", "r") as f:
         contents = f.read()
         if contents.strip() == "":
             return {
@@ -48,7 +48,7 @@ def load_tf_by_name(name: str, guild: discord.Guild = None) -> dict:
 
 
 def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
-    return load_tf_by_name(user.name, guild)
+    return load_tf_by_id(str(user.id), guild)
 
 
 def write_tf(user: discord.User,
@@ -235,7 +235,7 @@ def write_tf(user: discord.User,
         if mod_type and chance is not None:
             if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
                 data[str(guild.id)][channel_id][mod_type]['chance'] = chance
-    with open(f"cache/people/{user.name}.json", "w+") as f:
+    with open(f"cache/people/{str(user.id)}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
@@ -249,12 +249,12 @@ def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextCha
         del data[str(guild.id)]["all"]
     else:
         del data[str(guild.id)][str(channel.id)]
-    with open(f"cache/people/{user.name}.json", "w+") as f:
+    with open(f"cache/people/{str(user.id)}.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
 def remove_all_tf(user: discord.User) -> None:
-    os.remove(f"cache/people/{user.name}.json")
+    os.remove(f"cache/people/{str(user.id)}.json")
 
 
 # TRANSFORMED DATA UTILS
@@ -291,8 +291,8 @@ def write_transformed(guild: discord.Guild,
             'blocked_channels': [],
             'transformed_users': []
         }
-    if user is not None and user.name not in data[str(guild.id)]['transformed_users']:
-        data[str(guild.id)]['transformed_users'].append(user.name)
+    if user is not None and str(user.id) not in data[str(guild.id)]['transformed_users']:
+        data[str(guild.id)]['transformed_users'].append(str(user.id))
     if block_channel is not None:
         if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
             data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
@@ -309,13 +309,13 @@ def write_transformed(guild: discord.Guild,
 
 def remove_transformed(user: discord.User, guild: discord.Guild) -> None:
     data = load_transformed()
-    data[str(guild.id)].remove(user.name)
+    data[str(guild.id)].remove(str(user.id))
     with open("cache/transformed.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
 def is_transformed(user: discord.User, guild: discord.Guild) -> bool:
-    return user.name in load_transformed(guild)['transformed_users']
+    return str(user.id) in load_transformed(guild)['transformed_users']
 
 
 # TEXT UTILS
@@ -377,7 +377,7 @@ def transform_text(data: dict, original: str) -> str:
     if data["small"]:
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
-        for i in range(26): # 26 letters in alphabet
+        for i in range(26):  # 26 letters in alphabet
             transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
 
     if data["hush"]:
@@ -387,7 +387,9 @@ def transform_text(data: dict, original: str) -> str:
 
 
 # ABSTRACTION FUNCTIONS
-async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User, get_command: bool = False) -> [bool, dict, discord.User]:
+async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User, get_command: bool = False) -> [bool,
+                                                                                                              dict,
+                                                                                                              discord.User]:
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild):

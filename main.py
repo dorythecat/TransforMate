@@ -30,7 +30,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:
         image_url = image_url.strip()[:image_url.index("?")]  # Prune url
 
-    utils.write_tf(user, ctx.guild, channel, None, ctx.author.name, into, image_url)
+    utils.write_tf(user, ctx.guild, channel, None, str(ctx.author.id), into, image_url)
     utils.write_transformed(ctx.guild, user)
 
 
@@ -129,7 +129,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     if str(reaction.emoji) == "❓":
         transformed = utils.load_transformed(reaction.message.guild)['transformed_users']
         for tfed in transformed:
-            data = utils.load_tf_by_name(tfed, reaction.message.guild)
+            data = utils.load_tf_by_id(tfed, reaction.message.guild)
             data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
             if data['into'] == reaction.message.author.name:
                 await user.send(f"*{reaction.message.author.name}* is, in fact, *{tfed}*!\n"
@@ -705,9 +705,8 @@ async def transformed(ctx: discord.ApplicationContext):
         return await ctx.respond("No one is transformed (globally) at the moment!")
     description = ""
     for user in transformed:
-        transformed_data = utils.load_tf_by_name(user, ctx.guild)
-        transformed_data = transformed_data[str(ctx.channel.id)] if str(ctx.channel.id) in transformed_data else \
-            transformed_data['all']
+        transformed_data = utils.load_tf_by_id(user, ctx.guild)
+        transformed_data = transformed_data[str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
         into = transformed_data['into']
         description += f"**{user}** -> *{into}*\n\n"
     # Take off the last two new lines
