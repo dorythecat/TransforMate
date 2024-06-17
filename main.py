@@ -8,6 +8,9 @@ import discord
 
 # SETTINGS
 WEBHOOK_NAME = "TransforMate Webhook"  # Name to use for the webhooks
+BLOCKED_USERS = [  # Users that are blocked from using the bot, for whatever reason.
+    "967123840587141181"
+]
 
 intents = discord.Intents.all()
 
@@ -150,15 +153,25 @@ async def transform(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     channel_id = str(ctx.channel.id if not channel else channel.id)
 
-    # Blocked channels
+    # Blocked channels (server)
     if channel_id in data['blocked_channels']:
         return await ctx.respond(f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
+
+    # Blocked channels (globally)
     if channel_id in utils.load_transformed(ctx.guild)['blocked_channels']:
         return await ctx.respond(f"You're blocked from using this bot on this channel!")
 
-    # Blocked users
-    if str(user.id) in utils.load_transformed(ctx.guild)['blocked_users']:
+    # Blocked users (server)
+    if str(ctx.user.id) in utils.load_transformed(ctx.guild)['blocked_users']:
         return await ctx.respond(f"You're blocked from using this bot on this server!")
+    if str(user.id) in utils.load_transformed(ctx.guild)['blocked_users']:
+        return await ctx.respond(f"You're blocked from transforming that user on this server!")
+
+    # Blocked users (globally)
+    if str(ctx.user.id) in BLOCKED_USERS:
+        return await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad...")
+    if str(user.id) in BLOCKED_USERS:
+        return await ctx.respond(f"You can't transform that user at all! They've been very naughty...")
 
     if utils.is_transformed(user, ctx.guild):
         if channel_id in data:
