@@ -817,7 +817,7 @@ async def report(ctx: discord.ApplicationContext,
     # Dev data
     embed.add_field(name="Server", value=ctx.guild.name)
     embed.add_field(name="Server Owner", value=ctx.guild.owner.mention)
-    await bot.get_channel(1252358817682030743).send(embed=embed)
+    await bot.get_channel(USER_REPORTS_CHANNEL_ID).send(embed=embed)
 
     await ctx.respond("Report sent! Thank you for helping us keep this bot safe!", ephemeral=True)
 
