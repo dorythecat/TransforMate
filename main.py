@@ -541,19 +541,14 @@ async def censor(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    # If the user is not censored, we can just return
     if not data['censor']['active']:
         return await ctx.respond(f"{user.mention} is not censored at the moment!")
-    # If a word is provided, we can check if it is in the contents array
     if censor_word is not None:
         if censor_word not in data['censor']['contents']:
             return await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
-        # data['censor']['contents'].remove(censor_word)
-        # utils.write_tf(user, ctx.guild, censor=data['censor'])
-        # TODO: Implement
+        data['censor']['contents'].remove(censor_word)
+        utils.write_tf(user, ctx.guild, censor=data['censor'])
         return await ctx.respond("This feature is not yet implemented!")
-
-    # If no word is provided, we can just clear the censor contents completely
     utils.write_tf(user, ctx.guild, censor="")
     await ctx.respond(f"{user.mention} will no longer have a censor set!")
 
