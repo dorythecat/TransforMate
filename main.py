@@ -14,7 +14,6 @@ BLOCKED_USERS = [  # Users that are blocked from using the bot, for whatever rea
 USER_REPORTS_CHANNEL_ID = 1252358817682030743  # Channel to use for the /report command
 
 intents = discord.Intents.all()
-
 bot = discord.Bot(intents=intents)
 
 
@@ -105,32 +104,36 @@ async def on_message(message: discord.Message):
     if not webhook:
         webhook = await message.channel.create_webhook(name=WEBHOOK_NAME)
 
+    if message.stickers:
+        return await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
+
+    content = ""
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
         if message.reference:
-            await webhook.send(f"**Replying to {message.reference.resolved.author.mention}:**\n",
-                               username=name, avatar_url=image_url)
+            content += f"**Replying to {message.reference.resolved.author.mention}:**\n"
             if message.reference.resolved.content:
-                await webhook.send(f">>> {message.reference.resolved.content}",
-                                   username=name, avatar_url=image_url)
-        await webhook.send(utils.transform_text(data, message.content), username=name, avatar_url=image_url)
-    for attachment in message.attachments:
-        if (attachment.url.strip()[:attachment.url.index("?")] if "?" in attachment.url
-        else attachment.url) == image_url:
-            return
-        await webhook.send(file=await attachment.to_file(), username=name, avatar_url=image_url)
-    await message.delete()
+                content += f">>> {message.reference.resolved.content}"
+                # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
+                await webhook.send(content, username=name, avatar_url=image_url)
+                content = ""
+        content += utils.transform_text(data, message.content)
 
-    if message.stickers:
-        await message.author.send("Sorry, but we don't support stickers, at the moment! :(")
+    for attachment in message.attachments:
+        attachment_url = attachment.url.strip()[:attachment.url.index("?")] if "?" in attachment.url else attachment.url
+        if image_url == attachment_url:
+            return
+        content += f"\n{attachment_url}"
+    await webhook.send(content, username=name, avatar_url=image_url)
+    await message.delete()
 
 
 # Reaction added
 @bot.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
-    # Check if reaction is reacting to a message sent by a transformed user
-    # I know this isn't the most efficient method, but it's really the best we have, at least for now
-    # TODO: Find a better way to do this
     if str(reaction.emoji) == "❓":
+        # Check if reaction is reacting to a message sent by a transformed user
+        # I know this isn't the most efficient method, but it's really the best we have, at least for now
+        # TODO: Find a better way to do this
         transformed = utils.load_transformed(reaction.message.guild)['transformed_users']
         for tfed in transformed:
             data = utils.load_tf_by_id(tfed, reaction.message.guild)
@@ -321,8 +324,7 @@ async def prefix(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if whitespace:
-        prefix = prefix + " "
+    prefix += (" " * whitespace)
     utils.write_tf(user, ctx.guild, prefix=prefix, mod_type="prefix", chance=prefix_chance)
     await ctx.respond(f"Prefix for {user.mention} set to \"*{prefix}*\"!")
 
@@ -339,8 +341,7 @@ async def suffix(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if whitespace:
-        suffix = " " + suffix
+    suffix = (" " * whitespace) + suffix
     utils.write_tf(user, ctx.guild, suffix=suffix, mod_type="suffix", chance=suffix_chance)
     await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix}*\"!")
 
@@ -825,7 +826,7 @@ async def report(ctx: discord.ApplicationContext,
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext):
     embed = utils.get_embed_base("Info", "> \"Let's get transforming!\"")
-    embed.add_field(name="Creators", value="<@770662556456976415>\n<@250982256976330754>")
+    embed.add_field(name="Original Creators", value="<@770662556456976415>\n<@250982256976330754>")
     embed.add_field(name="Logo by", value="<@317115440180494337>")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")

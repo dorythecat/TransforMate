@@ -26,6 +26,7 @@ CURRENT_TRANSFORMED_DATA_VERSION = 3
 
 
 # USER TRANSFORMATION DATA UTILS
+# TODO: Why can't we just return an empty dict???
 def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
     if f"{user_id}.json" not in os.listdir("cache/people"):
         return {
@@ -122,41 +123,9 @@ def write_tf(user: discord.User,
                 'bio': None
             }
         else:
-            data[str(guild.id)][channel_id] = {  # Add guild specific data
-                'transformed_by': transformed_by,
-                'into': into,
-                'image_url': image_url,
-                'claim': data[str(guild.id)][channel_id]['claim'],
-                'eternal': data[str(guild.id)][channel_id]['eternal'],
-                'prefix': {
-                    'active': data[str(guild.id)][channel_id]['prefix']['active'],
-                    'contents': data[str(guild.id)][channel_id]['prefix']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['prefix']['chance']
-                },
-                'suffix': {
-                    'active': data[str(guild.id)][channel_id]['suffix']['active'],
-                    'contents': data[str(guild.id)][channel_id]['suffix']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['suffix']['chance']
-                },
-                'big': data[str(guild.id)][channel_id]['big'],
-                'small': data[str(guild.id)][channel_id]['small'],
-                'hush': data[str(guild.id)][channel_id]['hush'],
-                'censor': {
-                    'active': data[str(guild.id)][channel_id]['censor']['active'],
-                    'contents': data[str(guild.id)][channel_id]['censor']['contents']
-                },
-                'sprinkle': {
-                    'active': data[str(guild.id)][channel_id]['sprinkle']['active'],
-                    'contents': data[str(guild.id)][channel_id]['sprinkle']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['sprinkle']['chance']
-                },
-                'muffle': {
-                    'active': data[str(guild.id)][channel_id]['muffle']['active'],
-                    'contents': data[str(guild.id)][channel_id]['muffle']['contents'],
-                    'chance': data[str(guild.id)][channel_id]['muffle']['chance']
-                },
-                'bio': data[str(guild.id)][channel_id]['bio']
-            }
+            data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
+            data[str(guild.id)][channel_id]['into'] = into
+            data[str(guild.id)][channel_id]['image_url'] = image_url
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
