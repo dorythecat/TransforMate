@@ -54,6 +54,7 @@ async def on_message(message: discord.Message):
     data = utils.load_tf(message.author, message.guild)
 
     # Handle blocked channels
+    # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyways
     if str(message.channel.id) in (data['blocked_channels'] or
                                    utils.load_transformed(message.guild)['blocked_channels']):
         return
@@ -149,10 +150,15 @@ async def transform(ctx: discord.ApplicationContext,
     data = utils.load_tf(user, ctx.guild)
     channel_id = str(ctx.channel.id if not channel else channel.id)
 
+    # Blocked channels
     if channel_id in data['blocked_channels']:
-        return await ctx.respond(f"You can't transform {user.mention} in this channel! They have it blocked!")
+        return await ctx.respond(f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
     if channel_id in utils.load_transformed(ctx.guild)['blocked_channels']:
-        return await ctx.respond(f"You can't transform {user.mention} in this channel! It's blocked for everyone!")
+        return await ctx.respond(f"You're blocked from using this bot on this channel!")
+
+    # Blocked users
+    if str(user.id) in utils.load_transformed(ctx.guild)['blocked_users']:
+        return await ctx.respond(f"You're blocked from using this bot on this server!")
 
     if utils.is_transformed(user, ctx.guild):
         if channel_id in data:
@@ -724,6 +730,17 @@ async def block_channel(ctx: discord.ApplicationContext,
     if str(channel.id) in data:
         return await ctx.respond(f"{channel.mention} has been blocked!", ephemeral=True)
     await ctx.respond(f"{channel.mention} has been unblocked!", ephemeral=True)
+
+
+@admin_command.command(description="(Un)block a user from being transformed in this server")
+@discord.default_permissions(administrator=True)
+async def block_user(ctx: discord.ApplicationContext,
+                     user: discord.User):
+    utils.write_transformed(ctx.guild, block_user=user)
+    data = utils.load_transformed(ctx.guild)['blocked_users']
+    if str(user.id) in data:
+        return await ctx.respond(f"{user.mention} has been blocked!", ephemeral=True)
+    await ctx.respond(f"{user.mention} has been unblocked!", ephemeral=True)
 
 
 # Misc commands
