@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 
 import discord
 
+# SETTINGS
+WEBHOOK_NAME = "TransforMate Webhook" # Name to use for the webhooks
+
 intents = discord.Intents.all()
 
 bot = discord.Bot(intents=intents)
@@ -55,15 +58,9 @@ async def on_message(message: discord.Message):
 
     if message.channel.type == discord.ChannelType.private_thread or \
             message.channel.type == discord.ChannelType.public_thread:
-        # From: https://stackoverflow.com/questions/70631696/discord-webhook-post-to-channel-thread
-        # https://discord.com/api/webhooks/${webhook.id}/${webhook.token}?thread_id=${thread.id}
-        channel = discord.Bot.get_channel(bot, message.channel.parent.id)
-        if not channel:
-            return
-        webhook = utils.get_webhook_by_name(await message.channel.parent.webhooks(), name)
+        webhook = utils.get_webhook_by_name(await message.channel.parent.webhooks(), WEBHOOK_NAME)
         if not webhook:
-            webhook = await message.channel.parent.create_webhook(name=name)
-            return
+            webhook = await message.channel.parent.create_webhook(name=WEBHOOK_NAME)
         # Prepare data to send
         json = {
             'username': name,
@@ -78,19 +75,21 @@ async def on_message(message: discord.Message):
         # Post data to the webhook using aiohttp
         async with aiohttp.ClientSession() as session:
             # TODO: Add error handling (Low priority)
+            # From: https://stackoverflow.com/questions/70631696/discord-webhook-post-to-channel-thread
             async with session.post(
                     f"https://discord.com/api/webhooks/{webhook.id}/{webhook.token}?thread_id={message.channel.id}",
-                    json=json) as resp:
+                    json=json
+            ) as resp:
                 # See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for meaning of HTTP status codes
                 if resp.status != 200 and resp.status != 203 and resp.status != 204:
                     print(f"Failed to send message to webhook: {resp.status}")
-                    print(json)
+                    print(f"With data:\n{json}")
         await message.delete()
         return
 
-    webhook = utils.get_webhook_by_name(await message.channel.webhooks(), name)
+    webhook = utils.get_webhook_by_name(await message.channel.webhooks(), WEBHOOK_NAME)
     if not webhook:
-        webhook = await message.channel.create_webhook(name=name)
+        webhook = await message.channel.create_webhook(name=WEBHOOK_NAME)
 
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
         if message.reference:
@@ -98,12 +97,12 @@ async def on_message(message: discord.Message):
                                avatar_url=image_url)
             if message.reference.resolved.content:
                 await webhook.send(f">>> {message.reference.resolved.content}",
-                                   avatar_url=image_url, wait=True)
-        await webhook.send(utils.transform_text(data, message.content), avatar_url=image_url, wait=True)
+                                   username=name, avatar_url=image_url)
+        await webhook.send(utils.transform_text(data, message.content), username=name, avatar_url=image_url)
     for attachment in message.attachments:
         if (attachment.url[:attachment.url.index("?")] if "?" in attachment.url else attachment.url) == image_url:
             return
-        await webhook.send(file=await attachment.to_file(), avatar_url=image_url)
+        await webhook.send(file=await attachment.to_file(), username=name, avatar_url=image_url)
     await message.delete()
 
     if message.stickers:
@@ -207,11 +206,6 @@ async def goback(ctx: discord.ApplicationContext,
 
     utils.remove_transformed(user, ctx.guild)
 
-    # Delete all webhooks with the same name
-    # This can lead to deleting more webhooks than we need to, but it shouldn't cause too much of a performance hit
-    for wh in await ctx.guild.webhooks():
-        if wh.name == into:
-            await wh.delete()
     await ctx.respond(f"{user.mention} has been turned back to normal!")
 
 
@@ -715,7 +709,8 @@ async def info(ctx: discord.ApplicationContext):
 @discord.default_permissions(administrator=True)
 async def killhooks(ctx: discord.ApplicationContext):
     for wh in await ctx.guild.webhooks():
-        await wh.delete()
+        if wh.name == WEBHOOK_NAME: # Delete only our webhooks, which all should have the same name
+            await wh.delete()
     await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.")
 
 
