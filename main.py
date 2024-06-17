@@ -64,17 +64,27 @@ async def on_message(message: discord.Message):
         if not webhook:
             webhook = await message.channel.parent.create_webhook(name=name)
             return
+        # Prepare data to send
+        json = {
+            'username': name,
+            'avatar_url': image_url,
+            'content': '',
+        }
+        if message.content:
+            json['content'] = utils.transform_text(data, message.content)
+        # Bit of a hack, but it works so well...
+        for attachment in message.attachments:
+            json['content'] += f"\n{attachment.url}"
         # Post data to the webhook using aiohttp
         async with aiohttp.ClientSession() as session:
-            # TODO: Add error handling and image support
+            # TODO: Add error handling (Low priority)
             async with session.post(
                     f"https://discord.com/api/webhooks/{webhook.id}/{webhook.token}?thread_id={message.channel.id}",
-                    json={
-                        "username": name,
-                        "avatar_url": image_url,
-                        "content": utils.transform_text(data, message.content)}) as resp:
-                if resp.status != 200 and resp.status != 204:
+                    json=json) as resp:
+                # See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for meaning of HTTP status codes
+                if resp.status != 200 and resp.status != 203 and resp.status != 204:
                     print(f"Failed to send message to webhook: {resp.status}")
+                    print(json)
         await message.delete()
         return
 
