@@ -32,10 +32,10 @@ def load_tf_by_name(name: str, guild: discord.Guild = None) -> dict:
         contents = f.read()
         if contents.strip() == "":
             return {}
+        data = json.loads(contents)
         if guild is None:
-            return json.loads(contents)
+            return data
         else:
-            data = json.loads(contents)
             if str(guild.id) in data:
                 return data[str(guild.id)]
             return {}
