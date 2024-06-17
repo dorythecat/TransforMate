@@ -52,7 +52,13 @@ async def on_message(message: discord.Message):
     if not utils.is_transformed(message.author, message.guild) or message.content.strip().startswith('('):
         return
     data = utils.load_tf(message.author, message.guild)
+
+    # Handle blocked channels
+    if str(message.channel.id) in data['blocked_channels']:
+        return
+
     data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
+
     name = data['into']
     image_url = data['image_url']
 
@@ -700,6 +706,21 @@ async def killhooks(ctx: discord.ApplicationContext):
 
 
 # Misc commands
+@bot.slash_command(description="Set a channel where you just wanna be youurself")
+async def block_channel(ctx: discord.ApplicationContext,
+                        channel: discord.TextChannel = None):
+    if channel is None:
+        channel = ctx.channel
+    utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
+    if str(channel.id) in utils.load_tf(ctx.user, ctx.guild)['blocked_channels']:
+        if channel == ctx.channel:
+            return await ctx.respond(f"You will now be yourself in this channel!")
+        return await ctx.respond(f"You will now be yourself in {channel.mention}!")
+    if channel == ctx.channel:
+        return await ctx.respond(f"You will now be transformed in this channel!")
+    return await ctx.respond(f"You will now be transformed in {channel.mention}!")
+
+
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext):
     embed = discord.Embed(title="TransforMate",
