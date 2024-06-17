@@ -197,7 +197,7 @@ def write_tf(user: discord.User,
                 data[str(guild.id)][channel_id]['prefix']['active'] = True
                 data[str(guild.id)][channel_id]['prefix']['contents'] = data[str(guild.id)][channel_id]['prefix'][
                                                                             'contents'] + [prefix.strip()]
-                data[str(guild.id)][channel_id]['prefix']['chance'] = 30
+                data[str(guild.id)][channel_id]['prefix']['chance'] = 100
             else:
                 data[str(guild.id)][channel_id]['prefix']['active'] = False
                 data[str(guild.id)][channel_id]['prefix']['chance'] = 0
@@ -206,7 +206,7 @@ def write_tf(user: discord.User,
                 data[str(guild.id)][channel_id]['suffix']['active'] = True
                 data[str(guild.id)][channel_id]['suffix']['contents'] = data[str(guild.id)][channel_id]['suffix'][
                                                                             'contents'] + [suffix.strip()]
-                data[str(guild.id)][channel_id]['suffix']['chance'] = 30
+                data[str(guild.id)][channel_id]['suffix']['chance'] = 100
             else:
                 data[str(guild.id)][channel_id]['suffix']['active'] = False
                 data[str(guild.id)][channel_id]['suffix']['chance'] = 0
@@ -392,15 +392,17 @@ def transform_text(data: dict, original: str) -> str:
 
 
 # ABSTRACTION FUNCTIONS
-async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User) -> [bool, dict, discord.User]:
+async def extract_tf_data(ctx: discord.ApplicationContext, user: discord.User, get_command: bool = False) -> [bool, dict, discord.User]:
     if user is None:
         user = ctx.author
-    transformed = load_transformed(ctx.guild)
-    if user.name not in transformed:
+    if not is_transformed(user, ctx.guild):
         await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
         return [False, None, None]
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
+    if not get_command and data['claim'] is not None and data['claim'] != ctx.author.name:
+        await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}, and not by you!")
+        return [False, None, None]
     return [True, data, user]
 
 

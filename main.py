@@ -46,17 +46,10 @@ async def on_message(message: discord.Message):
         return
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
-    if not utils.is_transformed(message.author, message.guild):
-        return
-    if message.content.strip().startswith('('):
+    if not utils.is_transformed(message.author, message.guild) or message.content.strip().startswith('('):
         return
     data = utils.load_tf(message.author, message.guild)
-    if str(message.channel.id) in data:
-        data = data[str(message.channel.id)]
-    elif 'all' in data:
-        data = data['all']
-    else:
-        return
+    data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
     name = data['into']
     image_url = data['image_url']
 
@@ -111,16 +104,13 @@ async def on_message(message: discord.Message):
 @bot.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     # Check if reaction is reacting to a message sent by a transformed user
+    # I know this isn't the most efficient method, but it's really the best we have, at least for now
+    # TODO: Find a better way to do this
     if str(reaction.emoji) == "❓":
         transformed = utils.load_transformed(reaction.message.guild)
         for tfed in transformed:
             data = utils.load_tf_by_name(tfed, reaction.message.guild)
-            if str(reaction.message.channel.id) in data:
-                data = data[str(reaction.message.channel.id)]
-            elif 'all' in data:
-                data = data['all']
-            else:
-                return
+            data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
             if data['into'] == reaction.message.author.name:
                 await user.send(f"*{reaction.message.author.name}* is, in fact, *{tfed}*!\n"
                                 f"(Transformed by *{data['transformed_by']}*)")
@@ -291,8 +281,6 @@ async def prefix(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     if whitespace:
         prefix = prefix + " "
     utils.write_tf(user, ctx.guild, prefix=prefix, mod_type="prefix", chance=prefix_chance)
@@ -311,8 +299,6 @@ async def suffix(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     if whitespace:
         suffix = " " + suffix
     utils.write_tf(user, ctx.guild, suffix=suffix, mod_type="suffix", chance=suffix_chance)
@@ -327,8 +313,6 @@ async def big(ctx: discord.ApplicationContext,
         return
     if data['big']:
         return await ctx.respond(f"{user.mention} is already speaking big!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, big=1)
     await ctx.respond(f"{user.mention} will now speak in big text!")
 
@@ -341,8 +325,6 @@ async def small(ctx: discord.ApplicationContext,
         return
     if data['small']:
         return await ctx.respond(f"{user.mention} is already speaking small!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, small=1)
     await ctx.respond(f"{user.mention} will now speak in small text!")
 
@@ -355,8 +337,6 @@ async def hush(ctx: discord.ApplicationContext,
         return
     if data['hush']:
         return await ctx.respond(f"{user.mention} is already hushed!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, hush=1)
     await ctx.respond(f"{user.mention} will now hush!")
 
@@ -369,8 +349,6 @@ async def eternal(ctx: discord.ApplicationContext,
         return
     if data['eternal']:
         return await ctx.respond(f"{user.mention} is already eternally transformed!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, eternal=1)
     await ctx.respond(f"{user.mention} is now eternally transformed!")
 
@@ -385,8 +363,6 @@ async def censor(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
     await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
 
@@ -401,8 +377,6 @@ async def sprinkle(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, sprinkle=sprinkle, mod_type="sprinkle", chance=sprinkle_chance)
     await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
 
@@ -418,145 +392,8 @@ async def muffle(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, muffle=muffle, mod_type="muffle", chance=chance)
     await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
-
-
-# 'List' commands
-list_command = bot.create_group("list", "List various things about transformed users")
-
-
-@list_command.command(description="List the settings for the transformed user")
-async def settings(ctx: discord.ApplicationContext,
-                   user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.extract_tf_data(ctx, user)
-    if not valid:
-        return
-    # Create embed
-    embed = discord.Embed(title=f"Settings for {user.name}",
-                          description="Here are the settings for the transformed user",
-                          color=discord.Color.blue())
-    embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
-    embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
-    embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
-    embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
-    embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
-    embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
-    embed.add_field(name="Sprinkle", value=f"{data['sprinkle']['chance']}%" if data['sprinkle'] else "None")
-    embed.add_field(name="Muffle", value=f"{data['muffle']['chance']}%" if data['muffle'] else "None")
-    await ctx.respond(embed=embed)
-
-
-@list_command.command(description="List the censors for the transformed user")
-async def censors(ctx: discord.ApplicationContext,
-                  user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.extract_tf_data(ctx, user)
-    if not valid:
-        return
-    # Create embed
-    embed = discord.Embed(title=f"Censors for {user.name}",
-                          description="Here are the censors for the transformed user",
-                          color=discord.Color.blue())
-    if data['censor']['active']:
-        for word in data['censor']['contents']:
-            embed.add_field(name=word, value=data['censor']['contents'][word])
-    else:
-        return await ctx.respond(f"{user.mention} is not censored at the moment!")
-    await ctx.respond(embed=embed)
-
-
-@list_command.command(description="List the sprinkles for the transformed user")
-async def sprinkles(ctx: discord.ApplicationContext,
-                    user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.extract_tf_data(ctx, user)
-    if not valid:
-        return
-    # Create embed
-    embed = discord.Embed(title=f"Sprinkles for {user.name}",
-                          description="Here are the sprinkles for the transformed user",
-                          color=discord.Color.blue())
-    if data['sprinkle']:
-        embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
-    else:
-        return await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
-    await ctx.respond(embed=embed)
-
-
-@list_command.command(description="List the muffle for the transformed user")
-async def muffle(ctx: discord.ApplicationContext,
-                 user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.extract_tf_data(ctx, user)
-    if not valid:
-        return
-    # Create embed
-    embed = discord.Embed(title=f"Muffle for {user.name}",
-                          description="Here are the muffles the transformed user has",
-                          color=discord.Color.blue())
-    if data['muffle']:
-        embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
-    else:
-        return await ctx.respond(f"{user.mention} has no muffles at the moment!")
-    await ctx.respond(embed=embed)
-
-
-@list_command.command(description="List the prefixes for the transformed user")
-async def prefixes(ctx: discord.ApplicationContext,
-                   user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.extract_tf_data(ctx, user)
-    if not valid:
-        return
-    # Create embed
-    embed = discord.Embed(title=f"Prefixes for {user.name}",
-                          description="Here are the prefixes for the transformed user",
-                          color=discord.Color.blue())
-    if data['prefix']:
-        embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
-    else:
-        return await ctx.respond(f"{user.mention} has no prefixes at the moment!")
-    await ctx.respond(embed=embed)
-
-
-@list_command.command(description="List the suffixes for the transformed user")
-async def suffixes(ctx: discord.ApplicationContext,
-                   user: discord.Option(discord.User) = None):
-    valid, data, user = await utils.extract_tf_data(ctx, user)
-    if not valid:
-        return
-    # Create embed
-    embed = discord.Embed(title=f"Suffixes for {user.name}",
-                          description="Here are the suffixes for the transformed user",
-                          color=discord.Color.blue())
-    if data['suffix']:
-        # Make field value all suffixes, with a new line in between
-        embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
-    else:
-        return await ctx.respond(f"{user.mention} has no suffixes at the moment!")
-    await ctx.respond(embed=embed)
-
-
-@list_command.command(description="Get a list of transformed users")
-async def transformed(ctx: discord.ApplicationContext):
-    transformed = utils.load_transformed(ctx.guild)
-    if not transformed:
-        return await ctx.respond("No one is transformed (globally) at the moment!")
-    description = ""
-    for user in transformed:
-        # get their transformed name
-        transformed_data = utils.load_tf_by_name(user, ctx.guild)
-        if 'all' in transformed_data:
-            transformed_data = transformed_data['all']
-        else:
-            transformed_data = transformed_data[str(ctx.channel.id)]
-        into = transformed_data['into']
-        description += f"**{user}** -> *{into}*\n\n"
-    # Take off the last two new lines
-    description = description[:-2]
-    embed = discord.Embed(title="Transformed Users",
-                          description=description,
-                          color=discord.Color.blue())
-    await ctx.respond(embed=embed)
 
 
 # "Clear" commands
@@ -569,8 +406,6 @@ async def all_fields(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user,
                    ctx.guild,
                    claim_user="",
@@ -595,8 +430,6 @@ async def prefix(ctx: discord.ApplicationContext,
         return
     if data['prefix'] is None:
         return await ctx.respond(f"{user.mention} doesn't have a prefix set!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, prefix="")
     await ctx.respond(f"Prefix for {user.mention} has been cleared!")
 
@@ -609,8 +442,6 @@ async def suffix(ctx: discord.ApplicationContext,
         return
     if data['suffix'] is None:
         return await ctx.respond(f"{user.mention} doesn't have a suffix set!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, suffix="")
     await ctx.respond(f"Suffix for {user.mention} has been cleared!")
 
@@ -618,17 +449,11 @@ async def suffix(ctx: discord.ApplicationContext,
 @clear_command.command(description="Clear the big text setting for the transformed messages")
 async def big(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User) = None):
-    if user is None:
-        user = ctx.author
-    transformed = utils.load_transformed(ctx.guild)
-    if user.name not in transformed:
-        return await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-    data = utils.load_tf(user, ctx.guild)
-    data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
+    valid, data, user = await utils.extract_tf_data(ctx, user)
+    if not valid:
+        return
     if not data['big']:
         return await ctx.respond(f"{user.mention} doesn't have big text set!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, big=0)
     await ctx.respond(f"{user.mention} will no longer speak in big text!")
 
@@ -641,8 +466,6 @@ async def small(ctx: discord.ApplicationContext,
         return
     if not data['small']:
         return await ctx.respond(f"{user.mention} doesn't have small text set!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, small=0)
     await ctx.respond(f"{user.mention} will no longer speak in small text!")
 
@@ -655,8 +478,6 @@ async def hush(ctx: discord.ApplicationContext,
         return
     if not data['hush']:
         return await ctx.respond(f"{user.mention} doesn't have hush set!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, hush=0)
     await ctx.respond(f"{user.mention} will no longer hush!")
 
@@ -669,11 +490,8 @@ async def censor(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     # If the user is not censored, we can just return
-    if data['censor']['active'] == 0:
+    if not data['censor']['active']:
         return await ctx.respond(f"{user.mention} is not censored at the moment!")
     # If a word is provided, we can check if it is in the contents array
     if censor_word is not None:
@@ -696,10 +514,8 @@ async def sprinkle(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     # If the user is not sprinkled, we can just return
-    if data['sprinkle']['active'] == 0:
+    if not data['sprinkle']['active']:
         return await ctx.respond(f"{user.mention} is not sprinkled at the moment!")
     # If a word is provided, we can check if it is in the contents array
     if sprinkle_word is not None:
@@ -720,10 +536,8 @@ async def muffle(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     # If the user is not muffled, we can just return
-    if data['muffle']['active'] == 0:
+    if not data['muffle']['active']:
         return await ctx.respond(f"{user.mention} is not muffled at the moment!")
     # If a word is provided, we can check if it is in the contents array
     if muffle_word is not None:
@@ -744,10 +558,129 @@ async def eternal(ctx: discord.ApplicationContext,
         return
     if not data['eternal']:
         return await ctx.respond(f"{user.mention} isn't eternally transformed!")
-    if data['claim'] is not None and data['claim'] != ctx.author.name:
-        return await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}! You can't do that!")
     utils.write_tf(user, ctx.guild, eternal=0)
     await ctx.respond(f"{user.mention} is no longer eternally transformed!")
+
+
+# 'Get' commands
+get_command = bot.create_group("get", "Get to know various things about transformed users")
+
+
+@get_command.command(description="List the settings for the transformed user")
+async def settings(ctx: discord.ApplicationContext,
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    embed = discord.Embed(title=f"Settings for {user.name}",
+                          description="Here are the settings for the transformed user:",
+                          color=discord.Color.blue())
+    embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
+    embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
+    embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
+    embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
+    embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
+    embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
+    embed.add_field(name="Sprinkle", value=f"{data['sprinkle']['chance']}%" if data['sprinkle'] else "None")
+    embed.add_field(name="Muffle", value=f"{data['muffle']['chance']}%" if data['muffle'] else "None")
+    await ctx.respond(embed=embed)
+
+
+@get_command.command(description="List the censors for the transformed user")
+async def censors(ctx: discord.ApplicationContext,
+                  user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    embed = discord.Embed(title=f"Censors for {user.name}",
+                          description="Here are the censors for the transformed user",
+                          color=discord.Color.blue())
+    if not data['censor']['active']:
+        return await ctx.respond(f"{user.mention} is not censored at the moment!")
+    for word in data['censor']['contents']:
+        embed.add_field(name=word, value=data['censor']['contents'][word])
+    await ctx.respond(embed=embed)
+
+
+@get_command.command(description="List the sprinkles for the transformed user")
+async def sprinkles(ctx: discord.ApplicationContext,
+                    user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    embed = discord.Embed(title=f"Sprinkles for {user.name}",
+                          description="Here are the sprinkles for the transformed user",
+                          color=discord.Color.blue())
+    if not data['sprinkle']:
+        return await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
+    embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
+    await ctx.respond(embed=embed)
+
+
+@get_command.command(description="List the muffle for the transformed user")
+async def muffle(ctx: discord.ApplicationContext,
+                 user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    embed = discord.Embed(title=f"Muffle for {user.name}",
+                          description="Here are the muffles the transformed user has",
+                          color=discord.Color.blue())
+    if not data['muffle']:
+        return await ctx.respond(f"{user.mention} has no muffles at the moment!")
+    embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
+    await ctx.respond(embed=embed)
+
+
+@get_command.command(description="List the prefixes for the transformed user")
+async def prefixes(ctx: discord.ApplicationContext,
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    embed = discord.Embed(title=f"Prefixes for {user.name}",
+                          description="Here are the prefixes for the transformed user",
+                          color=discord.Color.blue())
+    if not data['prefix']:
+        return await ctx.respond(f"{user.mention} has no prefixes at the moment!")
+    embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
+    await ctx.respond(embed=embed)
+
+
+@get_command.command(description="List the suffixes for the transformed user")
+async def suffixes(ctx: discord.ApplicationContext,
+                   user: discord.Option(discord.User) = None):
+    valid, data, user = await utils.extract_tf_data(ctx, user, True)
+    if not valid:
+        return
+    embed = discord.Embed(title=f"Suffixes for {user.name}",
+                          description="Here are the suffixes for the transformed user",
+                          color=discord.Color.blue())
+    if not data['suffix']:
+        return await ctx.respond(f"{user.mention} has no suffixes at the moment!")
+    embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
+    await ctx.respond(embed=embed)
+
+
+@get_command.command(description="Get a list of transformed users")
+async def transformed(ctx: discord.ApplicationContext):
+    transformed = utils.load_transformed(ctx.guild)
+    if not transformed:
+        return await ctx.respond("No one is transformed (globally) at the moment!")
+    description = ""
+    for user in transformed:
+        transformed_data = utils.load_tf_by_name(user, ctx.guild)
+        transformed_data = transformed_data[str(ctx.channel.id)] if str(ctx.channel.id) in transformed_data else \
+            transformed_data['all']
+        into = transformed_data['into']
+        description += f"**{user}** -> *{into}*\n\n"
+    # Take off the last two new lines
+    description = description[:-2]
+    embed = discord.Embed(title="Transformed Users",
+                          description=description,
+                          color=discord.Color.blue(),
+                          author=discord.EmbedAuthor(name="TransforMate"))  # , icon_url=bot.user.avatar.url))
+    await ctx.respond(embed=embed)
 
 
 # Misc commands
@@ -761,7 +694,7 @@ async def info(ctx: discord.ApplicationContext):
     embed = discord.Embed(title="TransforMate",
                           description="> \"Let's get transforming!\"",
                           color=discord.Color.blue(),
-                          author=discord.EmbedAuthor(name="TransforMate")) # , icon_url=bot.user.avatar.url))
+                          author=discord.EmbedAuthor(name="TransforMate"))  # , icon_url=bot.user.avatar.url))
     embed.add_field(name="Creators", value="dorythecat\nipabapi")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")
