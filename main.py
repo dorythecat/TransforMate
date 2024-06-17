@@ -800,6 +800,11 @@ async def info(ctx: discord.ApplicationContext):
     await ctx.respond(embed=embed)
 
 
+@bot.slash_command(description="Invite the bot to your server")
+async def invite(ctx: discord.ApplicationContext):
+    await ctx.respond("You can't invite this bot yet, since we're under development, still. :(")
+
+
 @bot.slash_command(description="Replies with the bot's latency.")
 async def ping(ctx: discord.ApplicationContext):
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
