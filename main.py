@@ -242,9 +242,10 @@ async def transform(ctx: discord.ApplicationContext,
     channel_id = str(ctx.channel.id if not channel else channel.id)
 
     # Blocked channels (user)
-    if data != {} and channel_id in data['blocked_channels']:
-        await ctx.respond(f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
-        return
+    if data != {}:
+        if channel_id in data['blocked_channels']:
+            await ctx.respond(f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
+            return
 
     if tfee_data != {}:
         # Blocked channels (server)
