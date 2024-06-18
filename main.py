@@ -50,10 +50,12 @@ async def on_ready():
 @bot.event
 async def on_message(message: discord.Message):
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
-    if message.author == bot.user:
+    if message.author == bot.user or message.author.bot:
         return
 
     if not message.guild:
+        if message.author.bot:
+            return
         return
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
