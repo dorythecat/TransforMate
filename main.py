@@ -53,6 +53,9 @@ async def on_message(message: discord.Message):
     if message.author == bot.user:
         return
 
+    if not message.guild:
+        return
+
     # Check if user is transformed, and send their messages as webhooks, deleting the original
     if not utils.is_transformed(message.author, message.guild, message.channel) or \
             message.content.strip().startswith('('):
