@@ -56,6 +56,37 @@ async def on_message(message: discord.Message):
     if not message.guild:
         if message.author.bot:
             return
+        if "report" in message.content.lower():
+            await message.author.send("Uh, oh! Do you want to report someone? If so, please provide the user ID, which"
+                                      " you can get by right-clicking on their name and selecting \"Copy ID\".")
+            user_id = await bot.wait_for('message', check=lambda m: m.author == message.author)
+            if not user_id.content.isdigit():
+                return await message.author.send("That's not a valid user ID! Please try reporting another time!")
+            user = await bot.fetch_user(int(user_id.content))
+            if not user:
+                return await message.author.send("That user does not exist! Please try reporting another time!")
+            await message.author.send("Please provide a reason for the report.")
+            reason = await bot.wait_for('message', check=lambda m: m.author == message.author)
+            if reason == "":
+                return await message.author.send("Please provide a valid reason for the report!")
+
+            await message.author.send(
+                "Are you sure you want to report this user? This will send a message to the server owner, and to "
+                "the bot developers, with the reason you provided. This action is irreversible. If we find this "
+                "is a false report, we will take action against you. Please confirm this action by typing "
+                "\"CONFIRM\"."
+            )
+            response = await bot.wait_for('message', check=lambda m: m.author == message.author)
+            if response.content.strip() != "CONFIRM":
+                return await message.author.send("Cancelled the report!")
+
+            embed = utils.get_embed_base("RECEIVED A REPORT")
+            embed.add_field(name="Reported User", value=user.mention)
+            embed.add_field(name="Reporter", value=message.author.mention)
+            embed.add_field(name="Reason", value=reason.content.strip())
+            embed.add_field(name="Reported in DMs", value="")
+            await bot.get_channel(USER_REPORTS_CHANNEL_ID).send(embed=embed)
+            await message.author.send("Thank you for your report! It has been sent to the developers, for review.")
         return
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
@@ -817,11 +848,12 @@ async def report(ctx: discord.ApplicationContext,
                  reason: discord.SlashCommandOptionType.string):
     if reason.strip() == "":
         return await ctx.respond("Please provide a valid reason for the report!")
-    await ctx.respond("Are you sure you want to report this user? This will send a message to the server owner, and to "
-                      "the bot developers, with the reason you provided. This action is irreversible. If we find this "
-                      "is a false report, we will take action against you. Please confirm this action by typing "
-                      "\"CONFIRM\".",
-                      ephemeral=True)
+    await ctx.respond(
+        "Are you sure you want to report this user? This will send a message to the server owner, and to "
+        "the bot developers, with the reason you provided. This action is irreversible. If we find this "
+        "is a false report, we will take action against you. Please confirm this action by typing "
+        "\"CONFIRM\".", ephemeral=True
+    )
     response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
     if response.content.strip() != "CONFIRM":
         return await ctx.send("Cancelled the report!")
