@@ -142,7 +142,8 @@ async def on_message(message: discord.Message) -> None:
                 # Check if the message is from the user who transformed the user
                 if not message.author == transformed_by:
                     # DM the user who transformed the user the original message
-                    await transformed_by.send(f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
+                    await transformed_by.send(
+                        f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
             json['content'] = utils.transform_text(data, message.content)
         # This method, used down below too, works well, but it's *kinda* janky,
         # especially with more than one attachment...
@@ -193,7 +194,8 @@ async def on_message(message: discord.Message) -> None:
             # Check if the message is from the user who transformed the user
             if not message.author == transformed_by:
                 # DM the user who transformed the user the original message
-                await transformed_by.send(f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
+                await transformed_by.send(
+                    f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
         content += utils.transform_text(data, message.content)
 
     for attachment in message.attachments:
