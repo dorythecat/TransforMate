@@ -260,10 +260,16 @@ def is_transformed(user: discord.User, guild: discord.Guild) -> bool:
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict, original: str) -> str:
+    # Ignore italics messsages
+    if (original.startswith("*") and original.endswith("*")) or \
+            (original.startswith("_") and original.endswith("_")):
+        return original
+
     transformed = original
     words = transformed.split(" ")
 
     if data["censor"]["active"]:
+        # Ignore italic messages
         # Censor will change the censored word to the word provided in the data
         for i in range(len(words)):
             # Force lowercase and strip punctuation
