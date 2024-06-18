@@ -6,14 +6,6 @@ version: "1.0"
 #Specify inspection profile for code analysis
 profile:
   name: qodana.starter
-#Enable inspections
-#include:
-#  - name: <SomeEnabledInspectionId>
-#Disable inspections
-#exclude:
-#  - name: <SomeDisabledInspectionId>
-#    paths:
-#      - <path/where/not/run/inspection>
 #Execute shell command before Qodana execution (Applied in CI/CD pipeline)
 bootstrap: pip install -r requirements.txt
 #Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
@@ -25,5 +17,4 @@ include:
   - name: PyAugmentAssignmentInspection
   - name: PyMissingTypeHintsInspection
   - name: PyArgumentEqualDefaultInspection
-  - name: PyUnresolvedReferencesInspection
   - name: IgnoreFileDuplicateEntry
