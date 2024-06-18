@@ -5,21 +5,24 @@ on:
   push:
     branches:
       - main
+      - 'releases/*'
 
 jobs:
   qodana:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
       pull-requests: write
       checks: write
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
           fetch-depth: 0  # a full history is required for pull request analysis
-      
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
@@ -29,8 +32,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          
+
       - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2023.3
+        uses: JetBrains/qodana-action@v2024.1
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
