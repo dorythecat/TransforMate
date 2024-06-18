@@ -130,6 +130,19 @@ async def on_message(message: discord.Message) -> None:
             'content': '',
         }
         if message.content:
+            # Check if muffles are active in data
+            if data['muffle']['active']:
+                # Send the original message to transformed_by if claim is None, otherwise to claim
+                if data['claim'] in ["", None]:
+                    # Get the user who transformed the user
+                    transformed_by = bot.get_user(int(data['transformed_by']))
+                else:
+                    # Get the user who claimed the user
+                    transformed_by = bot.get_user(int(data['claim']))
+                # Check if the message is from the user who transformed the user
+                if not message.author == transformed_by:
+                    # DM the user who transformed the user the original message
+                    await transformed_by.send(f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
             json['content'] = utils.transform_text(data, message.content)
         # This method, used down below too, works well, but it's *kinda* janky,
         # especially with more than one attachment...
@@ -168,6 +181,19 @@ async def on_message(message: discord.Message) -> None:
                 # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
                 await webhook.send(content, username=name, avatar_url=image_url)
                 content = ""
+        # Check if muffles are active in data
+        if data['muffle']['active']:
+            # Send the original message to transformed_by if claim is None, otherwise to claim
+            if data['claim'] in ["", None]:
+                # Get the user who transformed the user
+                transformed_by = bot.get_user(int(data['transformed_by']))
+            else:
+                # Get the user who claimed the user
+                transformed_by = bot.get_user(int(data['claim']))
+            # Check if the message is from the user who transformed the user
+            if not message.author == transformed_by:
+                # DM the user who transformed the user the original message
+                await transformed_by.send(f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
         content += utils.transform_text(data, message.content)
 
     for attachment in message.attachments:
