@@ -256,15 +256,12 @@ def remove_transformed(user: discord.User, guild: discord.Guild, channel: discor
 
 def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
     tfee_data = load_transformed(guild)
-    if tfee_data == {}:
+    if tfee_data == {} or str(user.id) not in tfee_data['transformed_users']:
         return False
-    if str(user.id) in tfee_data['transformed_users']:
-        if tfee_data['transformed_users'][str(user.id)] not in [[], None]:
-            if channel is not None:
-                if str(channel.id) in tfee_data['transformed_users'][str(user.id)]:
-                    return True
-            if 'all' in tfee_data['transformed_users'][str(user.id)]:
-                return True
+    if tfee_data['transformed_users'][str(user.id)] not in [[], None] and \
+            ((channel is not None and str(channel.id) in tfee_data['transformed_users'][str(user.id)]) or
+             'all' in tfee_data['transformed_users'][str(user.id)]):
+        return True
     return False
 
 
