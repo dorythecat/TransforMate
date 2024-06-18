@@ -138,11 +138,11 @@ def write_tf(user: discord.User,
         if censor is not None:
             data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
-                if censor_replacement is not None and censor_replacement != "":
+                if censor_replacement not in ["", None]:
                     if data[str(guild.id)][channel_id]['censor']['contents'] is None:
                         data[str(guild.id)][channel_id]['censor']['contents'] = {}
                     data[str(guild.id)][channel_id]['censor']['contents'][censor.strip().lower()] = \
-                        censor_replacement.strip()
+                        censor_replacement.strip().lower()
         if sprinkle is not None:
             data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
             data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if sprinkle != "" else []
@@ -221,7 +221,7 @@ def remove_transformed(user: discord.User, guild: discord.Guild, channel: discor
 
 def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
     tfee_data = load_transformed(guild)
-    if tfee_data == {} or str(user.id) not in tfee_data['transformed_users']:
+    if tfee_data in [{}, None] or str(user.id) not in tfee_data['transformed_users']:
         return False
     if tfee_data['transformed_users'][str(user.id)] not in [[], None] and \
             ((channel is not None and str(channel.id) in tfee_data['transformed_users'][str(user.id)]) or

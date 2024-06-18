@@ -32,7 +32,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:  # Prune url, if possible, to preserve space
         image_url = image_url[:image_url.index("?")]
 
-    utils.write_tf(user, ctx.guild, channel, transformed_by=str(ctx.author.id), into=into, image_url=image_url)
+    utils.write_tf(user, ctx.guild, channel, transformed_by=str(ctx.author.id), into=into.strip(), image_url=image_url)
     utils.write_transformed(ctx.guild, user, channel)
     return True
 
@@ -276,7 +276,7 @@ async def transform(ctx: discord.ApplicationContext,
             data = data['all']
         else:
             return
-        if data['claim'].strip() not in ["", None] and data['claim'] != ctx.author.name and data['eternal']:
+        if data['claim'] not in ["", None] and data['claim'] != ctx.author.name and data['eternal']:
             if ctx.author.name != user.name:
                 await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
                 return
@@ -284,7 +284,7 @@ async def transform(ctx: discord.ApplicationContext,
             return
 
     if into:
-        if len(into.strip()) <= 1:
+        if len(into) <= 1:
             await ctx.send("Please provide a name longer than 1 character!")
             return
         if await transform_function(ctx, user, into, image_url, channel):
@@ -325,7 +325,7 @@ async def goback(ctx: discord.ApplicationContext,
         return
 
     if not utils.is_transformed(user, ctx.guild, ctx.channel) and not utils.is_transformed(user, ctx.guild):
-        if data['into'].strip() in ["", None]:
+        if data['into'] in ["", None]:
             await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
             return
         utils.write_transformed(ctx.guild, user, channel)
@@ -359,7 +359,7 @@ async def claim(ctx: discord.ApplicationContext,
         channel = ctx.channel
     else:
         data = data['all']
-    if data['claim'].strip() not in ["", None] and data['claim'] != ctx.author.name:
+    if data['claim'] not in ["", None] and data['claim'] != ctx.author.name:
         await ctx.respond(f"You can't do that! {user.mention} has been claimed already by {data['claim']}!")
         return
     utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.name)
@@ -380,10 +380,10 @@ async def unclaim(ctx: discord.ApplicationContext,
         channel = ctx.channel
     else:
         data = data['all']
-    if data['claim'].strip() in ["", None]:
+    if data['claim'] in ["", None]:
         await ctx.respond(f"{user.mention} is currently not claimed by anyone!")
         return
-    if data['claim'].strip() != ctx.author.name:
+    if data['claim'] != ctx.author.name:
         await ctx.respond(f"You can't do that! {user.mention} is claimed by {data['claim']}, not you!")
         return
     utils.write_tf(user, ctx.guild, channel, claim_user="", eternal=0)
@@ -401,7 +401,7 @@ async def safeword(ctx: discord.ApplicationContext) -> None:
         data = data['all']
     # We have to check if they are claimed OR eternally transformed. If both are false, safeword does nothing.
     # If either are true, we need to keep going, otherwise we can just return.
-    if data['claim'].strip() in ["", None] and not data['eternal']:
+    if data['claim'] in ["", None] and not data['eternal']:
         await ctx.respond(f"You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
         return
     utils.write_tf(ctx.author, ctx.guild, channel, claim_user="", eternal=0)
@@ -588,7 +588,7 @@ async def prefix(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['prefix'].strip() in ["", None]:
+    if data['prefix'] in ["", None]:
         await ctx.respond(f"{user.mention} doesn't have a prefix set!")
         return
     utils.write_tf(user, ctx.guild, prefix="")
@@ -601,7 +601,7 @@ async def suffix(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['suffix'].strip() in ["", None]:
+    if data['suffix'] in ["", None]:
         await ctx.respond(f"{user.mention} doesn't have a suffix set!")
         return
     utils.write_tf(user, ctx.guild, suffix="")
@@ -658,7 +658,7 @@ async def censor(ctx: discord.ApplicationContext,
     if not data['censor']['active']:
         await ctx.respond(f"{user.mention} is not censored at the moment!")
         return
-    if censor_word.strip() not in ["", None]:
+    if censor_word not in ["", None]:
         if censor_word not in data['censor']['contents']:
             await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
             return
@@ -682,7 +682,7 @@ async def sprinkle(ctx: discord.ApplicationContext,
         await ctx.respond(f"{user.mention} is not sprinkled at the moment!")
         return
     # If a word is provided, we can check if it is in the contents array
-    if sprinkle_word.strip() not in ["", None]:
+    if sprinkle_word not in ["", None]:
         if sprinkle_word not in data['sprinkle']['contents']:
             await ctx.respond(f"{user.mention} is not sprinkled with the word \"{sprinkle_word}\"!")
             return
@@ -707,7 +707,7 @@ async def muffle(ctx: discord.ApplicationContext,
         await ctx.respond(f"{user.mention} is not muffled at the moment!")
         return
     # If a word is provided, we can check if it is in the contents array
-    if muffle_word.strip() not in ["", None]:
+    if muffle_word not in ["", None]:
         if muffle_word not in data['muffle']['contents']:
             await ctx.respond(f"{user.mention} is not muffled with the word \"{muffle_word}\"!")
             return
@@ -738,7 +738,7 @@ async def bio(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user)
     if not valid:
         return
-    if data['bio'].strip() in ["", None]:
+    if data['bio'] in ["", None]:
         await ctx.respond(f"{user.mention} doesn't have a biography set!")
         return
     utils.write_tf(user, ctx.guild, bio="")
@@ -844,7 +844,7 @@ async def bio(ctx: discord.ApplicationContext,
     valid, data, user = await utils.extract_tf_data(ctx, user, True)
     if not valid:
         return
-    if data['bio'].strip() in ["", None]:
+    if data['bio'] in ["", None]:
         await ctx.respond(f"{user.mention} has no biography set!")
         return
     embed = utils.get_embed_base(f"Biography for {user.name}")
