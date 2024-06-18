@@ -254,12 +254,18 @@ def remove_transformed(user: discord.User, guild: discord.Guild, channel: discor
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-def is_transformed(user: discord.User, guild: discord.Guild) -> bool:
+def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel) -> bool:
     tfee_data = load_transformed(guild)
     if tfee_data == {}:
         return False
-    return tfee_data['transformed_users'][str(user.id)] not in [{}, None] \
-        if str(user.id) in tfee_data['transformed_users'] else False
+    if str(user.id) in tfee_data['transformed_users']:
+        if tfee_data['transformed_users'][str(user.id)] not in [[], None]:
+            if channel is not None:
+                if str(channel.id) in tfee_data['transformed_users'][str(user.id)]:
+                    return True
+            if 'all' in tfee_data['transformed_users'][str(user.id)]:
+                return True
+    return False
 
 
 # TEXT UTILS

@@ -54,7 +54,8 @@ async def on_message(message: discord.Message):
         return
 
     # Check if user is transformed, and send their messages as webhooks, deleting the original
-    if not utils.is_transformed(message.author, message.guild) or message.content.strip().startswith('('):
+    if not utils.is_transformed(message.author, message.guild, message.channel) or \
+            message.content.strip().startswith('('):
         return
     data = utils.load_tf(message.author, message.guild)
 
@@ -230,17 +231,17 @@ async def goback(ctx: discord.ApplicationContext,
         user = ctx.author
     data = utils.load_tf(user, ctx.guild)
     channel = None
-    if str(ctx.channel.id) in utils.load_transformed(ctx.guild)['transformed_users'][str(user.id)]:
+    if str(ctx.channel.id) in data:
         data = data[str(ctx.channel.id)]
         channel = ctx.channel
-    elif 'all' in utils.load_transformed(ctx.guild)['transformed_users'][str(user.id)]:
+    elif 'all' in data:
         data = data['all']
     else:
-        return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!"
+        return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to! "
                                  f"(At least on this channel)")
     into = data['into']
 
-    if not utils.is_transformed(user, ctx.guild):
+    if not utils.is_transformed(user, ctx.guild, channel):
         if into == "":
             return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
         utils.write_transformed(ctx.guild, user, channel)
@@ -808,9 +809,9 @@ async def report(ctx: discord.ApplicationContext,
                  reason: discord.SlashCommandOptionType.string):
     if reason.strip() == "":
         return await ctx.respond("Please provide a valid reason for the report!")
-    await ctx.respond("Are you sure you want to report this user? This will send a message to the server owner, and to"
-                      "the bot developers, with the reason you provided. This action is irreversible. If we find this"
-                      "is a false report, we will take action against you. Please confirm this action by typing"
+    await ctx.respond("Are you sure you want to report this user? This will send a message to the server owner, and to "
+                      "the bot developers, with the reason you provided. This action is irreversible. If we find this "
+                      "is a false report, we will take action against you. Please confirm this action by typing "
                       "\"CONFIRM\".",
                       ephemeral=True)
     response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
