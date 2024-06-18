@@ -221,6 +221,8 @@ def remove_transformed(user: discord.User, guild: discord.Guild, channel: discor
 
 def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
     tfee_data = load_transformed(guild)
+    if tfee_data is None:
+        return False
     if tfee_data == {} or str(user.id) not in tfee_data['transformed_users']:
         return False
     if tfee_data['transformed_users'][str(user.id)] not in [[], None] and \
@@ -355,3 +357,13 @@ def get_embed_base(title: str, desc: str = None) -> discord.Embed:
             icon_url="https://cdn.discordapp.com/avatars/967123840587141181/46a629c191f53ec9d446ed4b712fb39b.png"
         )
     )
+
+
+def check_reactions(reaction) -> object:
+    tfee_data = load_transformed(reaction.message.guild)['transformed_users']
+    for tfee in tfee_data:
+        data = load_tf_by_id(tfee, reaction.message.guild)
+        data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
+        if data['into'] == reaction.message.author.name:
+            return [tfee, data]
+    return [None, None]
