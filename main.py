@@ -512,7 +512,7 @@ async def censor(ctx: discord.ApplicationContext,
     if not valid:
         return
     utils.write_tf(user, ctx.guild, censor=censor_word, censor_replacement=replacement)
-    await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
+    await ctx.respond(f"{user.mention} will now have the word \"{censor_word}\" censored to \"{replacement}\"!")
 
 
 @set_command.command(description="Set the transformed user to have specific words sprinkled in their messages")
