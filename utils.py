@@ -247,14 +247,14 @@ def write_transformed(guild: discord.Guild,
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-def remove_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel) -> None:
+def remove_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
     data = load_transformed()
     data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
     with open("cache/transformed.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel) -> bool:
+def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
     tfee_data = load_transformed(guild)
     if tfee_data == {}:
         return False

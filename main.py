@@ -241,7 +241,7 @@ async def goback(ctx: discord.ApplicationContext,
                                  f"(At least on this channel)")
     into = data['into']
 
-    if not utils.is_transformed(user, ctx.guild, channel):
+    if not utils.is_transformed(user, ctx.guild, ctx.channel) and not utils.is_transformed(user, ctx.guild):
         if into == "":
             return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
         utils.write_transformed(ctx.guild, user, channel)
@@ -253,7 +253,10 @@ async def goback(ctx: discord.ApplicationContext,
                 f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
         return await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
 
-    utils.remove_transformed(user, ctx.guild, channel)
+    if utils.is_transformed(user, ctx.guild):
+        utils.remove_transformed(user, ctx.guild)
+    else:
+        utils.remove_transformed(user, ctx.guild, ctx.channel)
 
     await ctx.respond(f"{user.mention} has been turned back to normal!")
 
