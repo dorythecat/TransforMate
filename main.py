@@ -32,7 +32,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:  # Prune url, if possible, to preserve space
         image_url = image_url[:image_url.index("?")]
 
-    utils.write_tf(user, ctx.guild, channel, None, str(ctx.author.id), into, image_url)
+    utils.write_tf(user, ctx.guild, channel, transformed_by=str(ctx.author.id), into=into, image_url=image_url)
     utils.write_transformed(ctx.guild, user, channel)
     return True
 
@@ -882,7 +882,7 @@ async def block_channel(ctx: discord.ApplicationContext,
                         channel: discord.TextChannel = None) -> None:
     if channel is None:
         channel = ctx.channel
-    utils.write_tf(ctx.author, ctx.guild, None, channel)
+    utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
     word = "yourself" if str(channel.id) in utils.load_tf(ctx.user, ctx.guild)['blocked_channels'] else "transformed"
     channel_word = "this channel" if channel == ctx.channel else channel.mention
     await ctx.respond(f"You will now be {word} in {channel_word}!")
