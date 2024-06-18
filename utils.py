@@ -19,34 +19,29 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 1: Base version
 CURRENT_TFEE_DATA_VERSION = 7
 
+# VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 3
+CURRENT_TRANSFORMED_DATA_VERSION = 4
 
 
 # USER TRANSFORMATION DATA UTILS
 # TODO: Why can't we just return an empty dict???
 def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
     if f"{user_id}.json" not in os.listdir("cache/people"):
-        return {
-            'blocked_channels': []
-        }
+        return {}
     with open(f"cache/people/{user_id}.json", "r") as f:
         contents = f.read()
         if contents.strip() == "":
-            return {
-                'blocked_channels': []
-            }
+            return {}
         data = json.loads(contents)
         if guild is None:
             return data
         else:
             if str(guild.id) in data:
                 return data[str(guild.id)]
-            return {
-                'blocked_channels': []
-            }
+            return {}
 
 
 def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
@@ -75,7 +70,7 @@ def write_tf(user: discord.User,
              mod_type: str = None,
              bio: str = None) -> None:
     data = load_tf(user)
-    if data == {'blocked_channels': []}:  # If the file is empty, we need to add the version info
+    if data == {}:  # If the file is empty, we need to add the version info
         data['version'] = CURRENT_TFEE_DATA_VERSION
     elif data['version'] != CURRENT_TFEE_DATA_VERSION:
         if CLEAR_OLD_TFEE_DATA:
@@ -215,6 +210,7 @@ def load_transformed(guild: discord.Guild = None) -> dict:
 
 def write_transformed(guild: discord.Guild,
                       user: discord.User = None,
+                      channel: discord.TextChannel = None,
                       block_channel: discord.TextChannel = None,
                       block_user: discord.User = None) -> None:
     data = load_transformed()
@@ -228,10 +224,15 @@ def write_transformed(guild: discord.Guild,
         data[str(guild.id)] = {
             'blocked_users': [],
             'blocked_channels': [],
-            'transformed_users': []
+            'transformed_users': {}
         }
-    if user is not None and str(user.id) not in data[str(guild.id)]['transformed_users']:
-        data[str(guild.id)]['transformed_users'].append(str(user.id))
+    if user is not None:
+        if str(user.id) not in data[str(guild.id)]['transformed_users']:
+            data[str(guild.id)]['transformed_users'][str(user.id)] = []
+        if channel is None:
+            data[str(guild.id)]['transformed_users'][str(user.id)].append('all')
+        else:
+            data[str(guild.id)]['transformed_users'][str(user.id)].append(str(channel.id))
     if block_channel is not None:
         if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
             data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
@@ -246,15 +247,19 @@ def write_transformed(guild: discord.Guild,
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-def remove_transformed(user: discord.User, guild: discord.Guild) -> None:
+def remove_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel) -> None:
     data = load_transformed()
-    data[str(guild.id)]['transformed_users'].remove(str(user.id))
+    data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
     with open("cache/transformed.json", "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
 def is_transformed(user: discord.User, guild: discord.Guild) -> bool:
-    return str(user.id) in load_transformed(guild)['transformed_users']
+    tfee_data = load_transformed(guild)
+    if tfee_data == {}:
+        return False
+    return tfee_data['transformed_users'][str(user.id)] not in [{}, None] \
+        if str(user.id) in tfee_data['transformed_users'] else False
 
 
 # TEXT UTILS

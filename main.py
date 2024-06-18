@@ -33,7 +33,7 @@ async def transform_function(ctx: discord.ApplicationContext,
         image_url = image_url[:image_url.index("?")]
 
     utils.write_tf(user, ctx.guild, channel, None, str(ctx.author.id), into, image_url)
-    utils.write_transformed(ctx.guild, user)
+    utils.write_transformed(ctx.guild, user, channel)
     return True
 
 
@@ -63,8 +63,13 @@ async def on_message(message: discord.Message):
     if str(message.channel.id) in (data['blocked_channels'] or
                                    utils.load_transformed(message.guild)['blocked_channels']):
         return
-
-    data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
+    if str(message.channel.id) in (data and
+                                   utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]):
+        data = data[str(message.channel.id)]
+    elif 'all' in (data and utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]):
+        data = data['all']
+    else:
+        return
 
     name = data['into']
     image_url = data['image_url']
@@ -158,21 +163,23 @@ async def transform(ctx: discord.ApplicationContext,
         user = ctx.author
 
     data = utils.load_tf(user, ctx.guild)
+    tfee_data = utils.load_transformed(ctx.guild)
     channel_id = str(ctx.channel.id if not channel else channel.id)
 
-    # Blocked channels (server)
-    if channel_id in data['blocked_channels']:
+    # Blocked channels (user)
+    if data != {} and channel_id in data['blocked_channels']:
         return await ctx.respond(f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
 
-    # Blocked channels (globally)
-    if channel_id in utils.load_transformed(ctx.guild)['blocked_channels']:
-        return await ctx.respond(f"You're blocked from using this bot on this channel!")
+    if tfee_data != {}:
+        # Blocked channels (server)
+        if channel_id in tfee_data['blocked_channels']:
+            return await ctx.respond(f"You're blocked from using this bot on this channel!")
 
-    # Blocked users (server)
-    if str(ctx.user.id) in utils.load_transformed(ctx.guild)['blocked_users']:
-        return await ctx.respond(f"You're blocked from using this bot on this server!")
-    if str(user.id) in utils.load_transformed(ctx.guild)['blocked_users']:
-        return await ctx.respond(f"You're blocked from transforming that user on this server!")
+        # Blocked users (server)
+        if str(ctx.user.id) in tfee_data['blocked_users']:
+            return await ctx.respond(f"You're blocked from using this bot on this server!")
+        if str(user.id) in tfee_data['blocked_users']:
+            return await ctx.respond(f"You're blocked from transforming that user on this server!")
 
     # Blocked users (globally)
     if str(ctx.user.id) in BLOCKED_USERS:
@@ -222,9 +229,11 @@ async def goback(ctx: discord.ApplicationContext,
     if user is None:
         user = ctx.author
     data = utils.load_tf(user, ctx.guild)
-    if str(ctx.channel.id) in data:
+    channel = None
+    if str(ctx.channel.id) in utils.load_transformed(ctx.guild)['transformed_users'][str(user.id)]:
         data = data[str(ctx.channel.id)]
-    elif 'all' in data:
+        channel = ctx.channel
+    elif 'all' in utils.load_transformed(ctx.guild)['transformed_users'][str(user.id)]:
         data = data['all']
     else:
         return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!"
@@ -234,7 +243,7 @@ async def goback(ctx: discord.ApplicationContext,
     if not utils.is_transformed(user, ctx.guild):
         if into == "":
             return await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
-        utils.write_transformed(ctx.guild, user)
+        utils.write_transformed(ctx.guild, user, channel)
         return await ctx.respond(f"{user.mention} has been turned back to their last form!")
 
     if data['eternal'] and ctx.author.name != data['claim']:
@@ -243,7 +252,7 @@ async def goback(ctx: discord.ApplicationContext,
                 f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
         return await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
 
-    utils.remove_transformed(user, ctx.guild)
+    utils.remove_transformed(user, ctx.guild, channel)
 
     await ctx.respond(f"{user.mention} has been turned back to normal!")
 
