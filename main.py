@@ -175,14 +175,14 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
     if str(reaction.emoji) == "❓":
         # Check if reaction is reacting to a message sent by a transformed user
         # I know this isn't the most efficient method, but it's really the best we have, at least for now
-        # TODO: Find a better way to do this
+        # TODO: Find a better way to do this (maybe?)
         transformed = utils.load_transformed(reaction.message.guild)['transformed_users']
         for tfed in transformed:
             data = utils.load_tf_by_id(tfed, reaction.message.guild)
             data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
             if data['into'] == reaction.message.author.name:
-                await user.send(f"*{reaction.message.author.name}* is, in fact, *{tfed}*!\n"
-                                f"(Transformed by *{data['transformed_by']}*)")
+                await user.send(f"\"{reaction.message.author.name}\" is, in fact, {bot.get_user(int(tfed)).mention}!\n"
+                                f"(Transformed by {bot.get_user(int(data['transformed_by'])).mention})")
                 await reaction.remove(user)
 
 
