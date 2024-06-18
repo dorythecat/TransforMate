@@ -322,7 +322,7 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 
 # FILE UTILS
 def load_file(filename: str, guild: discord.Guild) -> dict:
-    with open(filename, "r") as f:
+    with open(filename) as f:
         contents = f.read().strip()
         if contents == "":
             return {}
