@@ -27,21 +27,9 @@ CURRENT_TRANSFORMED_DATA_VERSION = 4
 
 
 # USER TRANSFORMATION DATA UTILS
-# TODO: Why can't we just return an empty dict???
 def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
-    if f"{user_id}.json" not in os.listdir("cache/people"):
-        return {}
-    with open(f"cache/people/{user_id}.json", "r") as f:
-        contents = f.read()
-        if contents.strip() == "":
-            return {}
-        data = json.loads(contents)
-        if guild is None:
-            return data
-        else:
-            if str(guild.id) in data:
-                return data[str(guild.id)]
-            return {}
+    return {} if f"{user_id}.json" not in os.listdir("cache/people") else \
+        load_file(f"cache/people/{user_id}.json", guild)
 
 
 def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
@@ -70,11 +58,9 @@ def write_tf(user: discord.User,
              mod_type: str = None,
              bio: str = None) -> None:
     data = load_tf(user)
-    if data == {}:  # If the file is empty, we need to add the version info
-        data['version'] = CURRENT_TFEE_DATA_VERSION
-    elif data['version'] != CURRENT_TFEE_DATA_VERSION:
+    if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
         if CLEAR_OLD_TFEE_DATA:
-            data = {}  # Clear data
+            data = {}  # Clear data if necessary
         data['version'] = CURRENT_TFEE_DATA_VERSION
     channel_id = 'all' if channel is None else str(channel.id)
     if into not in ["", None]:
@@ -169,8 +155,7 @@ def write_tf(user: discord.User,
             data[str(guild.id)][channel_id][mod_type]['chance'] = chance
         if bio is not None:
             data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
-    with open(f"cache/people/{str(user.id)}.json", "w+") as f:
-        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    write_file(f"cache/people/{str(user.id)}.json", data)
 
 
 def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
@@ -179,12 +164,8 @@ def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextCha
             (channel is not None and not str(channel.id) in data[str(guild.id)]) or \
             (channel is None and "all" not in data[str(guild.id)]):
         return
-    if channel is None:
-        del data[str(guild.id)]["all"]
-    else:
-        del data[str(guild.id)][str(channel.id)]
-    with open(f"cache/people/{str(user.id)}.json", "w+") as f:
-        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    del data[str(guild.id)]['all' if channel is None else str(channel.id)]
+    write_file(f"cache/people/{str(user.id)}.json", data)
 
 
 def remove_all_tf(user: discord.User) -> None:
@@ -193,19 +174,7 @@ def remove_all_tf(user: discord.User) -> None:
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild = None) -> dict:
-    if "transformed.json" not in os.listdir("cache"):
-        return {}
-    with open("cache/transformed.json", "r") as f:
-        contents = f.read()
-        if contents == "":
-            return {}
-        data = json.loads(contents)
-        if guild is None:
-            return data
-        else:
-            if str(guild.id) in data:
-                return data[str(guild.id)]
-            return {}
+    return {} if "transformed.json" not in os.listdir("cache") else load_file("cache/transformed.json", guild)
 
 
 def write_transformed(guild: discord.Guild,
@@ -214,11 +183,9 @@ def write_transformed(guild: discord.Guild,
                       block_channel: discord.TextChannel = None,
                       block_user: discord.User = None) -> None:
     data = load_transformed()
-    if data == {}:  # If the file is empty, we need to add the version info
-        data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
-    if data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
+    if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
         if CLEAR_OLD_TRANSFORMED_DATA:
-            data = {}
+            data = {}  # Clear data if necessary
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
     if str(guild.id) not in data:
         data[str(guild.id)] = {
@@ -243,15 +210,13 @@ def write_transformed(guild: discord.Guild,
             data[str(guild.id)]['blocked_users'].append(str(block_user.id))
         else:
             data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
-    with open("cache/transformed.json", "w+") as f:
-        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    write_file("cache/transformed.json", data)
 
 
 def remove_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
     data = load_transformed()
     data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
-    with open("cache/transformed.json", "w+") as f:
-        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    write_file("cache/transformed.json", data)
 
 
 def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
@@ -355,12 +320,29 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
     return [True, data, user]
 
 
+# FILE UTILS
+def load_file(filename: str, guild: discord.Guild) -> dict:
+    with open(filename, "r") as f:
+        contents = f.read().strip()
+        if contents == "":
+            return {}
+        data = json.loads(contents)
+        if guild is None:
+            return data
+        if str(guild.id) in data:
+            return data[str(guild.id)]
+
+
+def write_file(filename: str, data: dict) -> None:
+    with open(filename, "w+") as f:
+        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+
+
 # MISCELLANEOUS UTILS
 def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
     for wh in webhooks:
         if wh.name == name:
             return wh
-    return
 
 
 def get_embed_base(title: str, desc: str = None) -> discord.Embed:
