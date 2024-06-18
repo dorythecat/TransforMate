@@ -359,11 +359,11 @@ def get_embed_base(title: str, desc: str = None) -> discord.Embed:
     )
 
 
-def check_reactions(reaction) -> object:
+def check_reactions(reaction: discord.Reaction) -> [int, dict]:
     tfee_data = load_transformed(reaction.message.guild)['transformed_users']
     for tfee in tfee_data:
         data = load_tf_by_id(tfee, reaction.message.guild)
         data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
         if data['into'] == reaction.message.author.name:
-            return [tfee, data]
+            return [int(tfee), data]
     return [None, None]
