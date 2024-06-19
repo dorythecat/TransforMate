@@ -296,8 +296,8 @@ def transform_text(data: dict, original: str) -> str:
         transformed = "# " + transformed
 
     if data["small"]:
-        alphabet = "abcdefghijklmnopqrstuvwxyz"
-        tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ"
+        alphabet = "abcdefghijklmnopqrstuvwxyz."
+        tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·"
         for i in range(26):  # 26 letters in alphabet
             transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
 
@@ -309,7 +309,8 @@ def transform_text(data: dict, original: str) -> str:
 
 # ABSTRACTION FUNCTIONS
 async def extract_tf_data(ctx: discord.ApplicationContext,
-                          user: discord.User, get_command: bool = False) -> [bool, dict, discord.User]:
+                          user: discord.User,
+                          get_command: bool = False) -> [bool, dict, discord.User]:
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild):

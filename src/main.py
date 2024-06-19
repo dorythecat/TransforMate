@@ -189,7 +189,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         # I know this isn't the most efficient method, but it's really the best we have, at least for now
         # TODO: Find a better way to do this (maybe?)
     tfee, data = utils.check_reactions(reaction)
-    if not tfee:
+    if tfee is None:
         return
     if str(reaction.emoji) in ["❓", "❔"]:
         await user.send(f"\"{reaction.message.author.name}\" is, in fact, {bot.get_user(tfee).mention}!\n"
