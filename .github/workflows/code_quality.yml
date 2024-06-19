@@ -11,11 +11,6 @@ jobs:
   qodana:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
