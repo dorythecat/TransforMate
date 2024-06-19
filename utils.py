@@ -246,10 +246,10 @@ def transform_text(data: dict, original: str) -> str:
     if data["censor"]["active"]:
         # Ignore italic messages
         # Censor will change the censored word to the word provided in the data
-        
+
         for i in range(len(words)):
             # Force lowercase and strip punctuation
-            word = words[i].lower().strip("*.,!?\"'()[]\{\}<>:;")
+            word = words[i].lower().strip("*.,!?\"'()[]{}<>:;")
             if word in data["censor"]["contents"].keys():
                 to_be = words[i].lower()
                 words[i] = to_be.replace(word, data["censor"]["contents"][word])
