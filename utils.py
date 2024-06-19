@@ -198,8 +198,9 @@ def write_transformed(guild: discord.Guild,
         if str(user.id) not in data[str(guild.id)]['transformed_users']:
             data[str(guild.id)]['transformed_users'][str(user.id)] = []
         if channel is None:
-            data[str(guild.id)]['transformed_users'][str(user.id)].append('all')
-        else:
+            if 'all' not in data[str(guild.id)]['transformed_users'][str(user.id)]:
+                data[str(guild.id)]['transformed_users'][str(user.id)].append('all')
+        elif str(channel.id) not in data[str(guild.id)]['transformed_users'][str(user.id)]:
             data[str(guild.id)]['transformed_users'][str(user.id)].append(str(channel.id))
     if block_channel is not None:
         if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
