@@ -6,12 +6,11 @@ import utils
 
 from dotenv import load_dotenv
 
-# SETTINGS
-WEBHOOK_NAME: str = "TransforMate Webhook"  # Name to use for the webhooks
-BLOCKED_USERS: list[int] = [  # Users that are blocked from using the bot, for whatever reason.
-    967123840587141181
-]
-USER_REPORTS_CHANNEL_ID: int = 1252358817682030743  # Channel to use for the /report command
+# Get settings from .env file
+load_dotenv()
+WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")  # Name to use for the webhooks
+BLOCKED_USERS: list[int] = utils.parse_list(os.getenv("BLOCKED_USERS"))  # Users that are blocked from using the bot
+USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
 
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
@@ -481,6 +480,4 @@ async def ping(ctx: discord.ApplicationContext) -> None:
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
 
 
-# Start the bot up
-load_dotenv()
-bot.run(os.getenv("BOT_TOKEN"))
+bot.run(os.getenv("BOT_TOKEN"))  # Start the bot up

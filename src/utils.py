@@ -364,3 +364,8 @@ def clear_apple_marks(text: str) -> str:
     text = text.replace("’", "'")
     text = text.replace("“", "\"")
     return text.replace("”", "\"")
+
+
+def parse_list(string: str) -> list[int]:
+    output = string.removeprefix("[").removesuffix("]").split(",")
+    return [int(output[i].strip()) for i in range(len(output))]
