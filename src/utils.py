@@ -360,7 +360,7 @@ def get_embed_base(title: str, desc: str = None) -> discord.Embed:
     )
 
 
-def clear_apple_marks(text):
+def clear_apple_marks(text: str) -> str:
     text = text.replace("’", "'")
     text = text.replace("“", "\"")
     return text.replace("”", "\"")
