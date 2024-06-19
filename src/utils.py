@@ -29,7 +29,7 @@ CURRENT_TRANSFORMED_DATA_VERSION = 4
 # USER TRANSFORMATION DATA UTILS
 def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
     return {} if f"{user_id}.json" not in os.listdir("../cache/people") else \
-        load_file(f"cache/people/{user_id}.json", guild)
+        load_file(f"../cache/people/{user_id}.json", guild)
 
 
 def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
@@ -156,7 +156,7 @@ def write_tf(user: discord.User,
             data[str(guild.id)][channel_id][mod_type]['chance'] = chance
         if bio is not None:
             data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
-    write_file(f"cache/people/{str(user.id)}.json", data)
+    write_file(f"../cache/people/{str(user.id)}.json", data)
 
 
 def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
@@ -166,11 +166,11 @@ def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextCha
             (channel is None and "all" not in data[str(guild.id)]):
         return
     del data[str(guild.id)]['all' if channel is None else str(channel.id)]
-    write_file(f"cache/people/{str(user.id)}.json", data)
+    write_file(f"../cache/people/{str(user.id)}.json", data)
 
 
 def remove_all_tf(user: discord.User) -> None:
-    os.remove(f"cache/people/{str(user.id)}.json")
+    os.remove(f"../cache/people/{str(user.id)}.json")
 
 
 # TRANSFORMED DATA UTILS
