@@ -1,17 +1,19 @@
 import os
 import aiohttp
+import discord
+
 import utils
 
 from dotenv import load_dotenv
 
-import discord
+
 
 # SETTINGS
-WEBHOOK_NAME = "TransforMate Webhook"  # Name to use for the webhooks
-BLOCKED_USERS = [  # Users that are blocked from using the bot, for whatever reason.
-    "967123840587141181"
+WEBHOOK_NAME: str = "TransforMate Webhook"  # Name to use for the webhooks
+BLOCKED_USERS: list[int] = [  # Users that are blocked from using the bot, for whatever reason.
+    967123840587141181
 ]
-USER_REPORTS_CHANNEL_ID = 1252358817682030743  # Channel to use for the /report command
+USER_REPORTS_CHANNEL_ID: int = 1252358817682030743  # Channel to use for the /report command
 
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
@@ -262,10 +264,10 @@ async def transform(ctx: discord.ApplicationContext,
             return
 
     # Blocked users (globally)
-    if str(ctx.user.id) in BLOCKED_USERS:
+    if ctx.user.id in BLOCKED_USERS:
         await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad...")
         return
-    if str(user.id) in BLOCKED_USERS:
+    if user.id in BLOCKED_USERS:
         await ctx.respond(f"You can't transform that user at all! They've been very naughty...")
         return
 
