@@ -248,68 +248,71 @@ def transform_text(data: dict, original: str) -> str:
     transformed = clear_apple_marks(transformed)
     words = transformed.split(" ")
 
-    if data["censor"]["active"]:
+    if data['censor']['active']:
         # Ignore italic messages
-        # Censor will change the censored word to the word provided in the data
+        if (original.startswith("*") and original.endswith("*")) or \
+                (original.startswith("_") and original.endswith("_")):
+            return transformed
 
+        # Censor will change the censored word to the word provided in the data
         for i in range(len(words)):
             # Force lowercase and strip punctuation
             word = words[i].lower().strip("*.,!?\"'()[]{}<>:;")
-            if word in data["censor"]["contents"].keys():
+            if word in data['censor']['contents'].keys():
                 to_be = words[i].lower()
-                words[i] = to_be.replace(word, data["censor"]["contents"][word])
+                words[i] = to_be.replace(word, data['censor']['contents'][word])
 
         transformed = " ".join(words)
 
-    if data["muffle"]["active"]:
+    if data['muffle']['active']:
         # Muffle will overwrite a word with a word from the data array by random chance
         for i in range(len(words)):
-            if random.randint(1, 100) <= data["muffle"]["chance"]:
-                words[i] = data["muffle"]["contents"][random.randint(0, len(data["muffle"]["contents"]) - 1)]
+            if random.randint(1, 100) <= data['muffle']['chance']:
+                words[i] = data['muffle']['contents'][random.randint(0, len(data['muffle']['contents']) - 1)]
 
         transformed = " ".join(words)
 
-    if data["sprinkle"]["active"]:
+    if data['sprinkle']['active']:
         # Sprinkle will add the sprinkled word to the message between words by random chance
         # for each word, if the chance is met, add a sprinkled word before it
         length = len(words)
         for i in range(length):
-            if random.randint(1, 100) <= data["sprinkle"]["chance"]:
-                words[i] = data["sprinkle"]["contents"][
-                               random.randint(0, len(data["sprinkle"]["contents"]) - 1)] + " " + words[i]
+            if random.randint(1, 100) <= data['sprinkle']['chance']:
+                words[i] = data['sprinkle']['contents'][
+                               random.randint(0, len(data['sprinkle']['contents']) - 1)] + " " + words[i]
         transformed = " ".join(words)
 
     # Moving these below so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
-    if data["prefix"]["active"]:
+    if data['prefix']['active']:
         # Prefix will add the prefix to the message, try the chance of adding it,
         # and then select a random prefix from the list
-        if (0 <= data["prefix"]["chance"] < 100 and random.randint(1, 100) <= data["prefix"]["chance"]) or \
-                data["prefix"]["chance"] >= 100:
-            transformed = data["prefix"]["contents"][
-                              random.randint(0, len(data["prefix"]["contents"]) - 1)] + " " + transformed
+        if (0 <= data['prefix']['chance'] < 100 and random.randint(1, 100) <= data['prefix']['chance']) or \
+                data['prefix']['chance'] >= 100:
+            transformed = data['prefix']['contents'][
+                              random.randint(0, len(data['prefix']['contents']) - 1)] + " " + transformed
 
-    if data["suffix"]["active"]:
+    if data['suffix']['active']:
         # Suffix will add the suffix to the message, try the chance of adding it,
         # and then select a random suffix from the list
-        if (0 <= data["suffix"]["chance"] < 100 and random.randint(1, 100) <= data["suffix"]["chance"]) or \
-                data["suffix"]["chance"] >= 100:
-            transformed = transformed + " " + data["suffix"]["contents"][
-                random.randint(0, len(data["suffix"]["contents"]) - 1)]
+        if (0 <= data['suffix']['chance'] < 100 and random.randint(1, 100) <= data['suffix']['chance']) or \
+                data['suffix']['chance'] >= 100:
+            transformed = transformed + " " + data['suffix']['contents'][
+                random.randint(0, len(data['suffix']['contents']) - 1)]
 
-    if data["big"]:
+    if data['big']:
         transformed = "# " + transformed
 
-    if data["small"]:
+    if data['small']:
         alphabet = "abcdefghijklmnopqrstuvwxyz."
         tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·"
         for i in range(26):  # 26 letters in alphabet
             transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
 
-    if data["hush"]:
+    if data['hush']:
         transformed = "||" + transformed + "||"
 
-    if data["backwards"]:
+    if data['backwards']:
         transformed = transformed[::-1]
 
     return transformed
