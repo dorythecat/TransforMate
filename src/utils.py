@@ -28,7 +28,7 @@ CURRENT_TRANSFORMED_DATA_VERSION = 4
 
 # USER TRANSFORMATION DATA UTILS
 def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
-    return {} if f"{user_id}.json" not in os.listdir("cache/people") else \
+    return {} if f"{user_id}.json" not in os.listdir("../cache/people") else \
         load_file(f"cache/people/{user_id}.json", guild)
 
 
@@ -175,7 +175,7 @@ def remove_all_tf(user: discord.User) -> None:
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild = None) -> dict:
-    return {} if "transformed.json" not in os.listdir("cache") else load_file("cache/transformed.json", guild)
+    return {} if "transformed.json" not in os.listdir("../cache") else load_file("../cache/transformed.json", guild)
 
 
 def write_transformed(guild: discord.Guild,
@@ -212,13 +212,13 @@ def write_transformed(guild: discord.Guild,
             data[str(guild.id)]['blocked_users'].append(str(block_user.id))
         else:
             data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
-    write_file("cache/transformed.json", data)
+    write_file("../cache/transformed.json", data)
 
 
 def remove_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
     data = load_transformed()
     data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
-    write_file("cache/transformed.json", data)
+    write_file("../cache/transformed.json", data)
 
 
 def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
