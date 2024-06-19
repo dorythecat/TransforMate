@@ -9,6 +9,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 8: Added "upside_down" and "backwards" fields
 # VERSION 7: Added "bio" field
 # VERSION 6: Added "blocked_channels" field
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
@@ -16,7 +17,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 7
+CURRENT_TFEE_DATA_VERSION = 8
 
 # VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
@@ -49,6 +50,7 @@ def write_tf(user: discord.User,
              big: int = None,
              small: int = None,
              hush: int = None,
+             backwards: int = None,
              censor: str = None,
              censor_replacement: str = None,
              sprinkle: str = None,
@@ -86,6 +88,7 @@ def write_tf(user: discord.User,
                 'big': False,
                 'small': False,
                 'hush': False,
+                'backwards': False,
                 'censor': {
                     'active': False,
                     'contents': {}
@@ -134,6 +137,8 @@ def write_tf(user: discord.User,
             data[str(guild.id)][channel_id]['small'] = False if small == 0 else True
         if hush is not None:
             data[str(guild.id)][channel_id]['hush'] = False if hush == 0 else True
+        if backwards is not None:
+            data[str(guild.id)][channel_id]['backwards'] = False if backwards == 0 else True
         if censor is not None:
             data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
