@@ -57,8 +57,6 @@ def write_tf(user: discord.User,
              chance: int = None,
              mod_type: str = None,
              bio: str = None) -> None:
-    if censor is not None:
-        censor = clear_apple_marks(censor)
     data = load_tf(user)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
         if CLEAR_OLD_TFEE_DATA:
@@ -140,6 +138,7 @@ def write_tf(user: discord.User,
         if censor is not None:
             data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
+                censor = clear_apple_marks(censor)
                 if censor_replacement not in ["", None]:
                     if data[str(guild.id)][channel_id]['censor']['contents'] is None:
                         data[str(guild.id)][channel_id]['censor']['contents'] = {}
@@ -360,7 +359,8 @@ def get_embed_base(title: str, desc: str = None) -> discord.Embed:
         )
     )
 
+
 def clear_apple_marks(text):
-    text = text.replace("’","'")
+    text = text.replace("’", "'")
     text = text.replace("“", "\"")
     return text.replace("”", "\"")
