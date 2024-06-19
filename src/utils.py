@@ -309,6 +309,9 @@ def transform_text(data: dict, original: str) -> str:
     if data["hush"]:
         transformed = "||" + transformed + "||"
 
+    if data["backwards"]:
+        transformed = transformed[::-1]
+
     return transformed
 
 

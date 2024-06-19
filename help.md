@@ -60,6 +60,11 @@ Words in the user's messages will have a 50% chance of being turned into "badwor
 
 **You can set multiple muffle words for a user. That way you can have a variety of words that will be replacing the original text.**
 
+#### **/set eternal** (user)
+
+- **User**: The user you want to set the eternal for. (optional, defaults to the user who sent the command)
+
+This command will make the user's transformation eternal. If you don't provide a user, it will default to the user who sent the command. Eternals will not be reverted by the **/goback** command. Remember that you can always use **/safeword** to get out of any claims and eternals you may be in.
 
 #### **/set big** (user)
 
@@ -67,17 +72,23 @@ Words in the user's messages will have a 50% chance of being turned into "badwor
 
 This command will make every message the user sends as big text. If you don't provide a user, it will default to the user who sent the command. Big text is just '# ' in front of the message.
 
-#### **/set eternal** (user)
+#### **/set small** (user)
 
-- **User**: The user you want to set the eternal for. (optional, defaults to the user who sent the command)
+- **User**: The user you want to set the small for. (optional, defaults to the user who sent the command)
 
-This command will make the user's transformation eternal. If you don't provide a user, it will default to the user who sent the command. Eternals will not be reverted by the **/goback** command. Remember that you can always use **/safeword** to get out of any claims and eternals you may be in.
+This command will make every message the user sends as small text. If you don't provide a user, it will default to the user who sent the command. Small text are just small versions of unicode characters. It is recommended to avoid this command when in a server with visually impaired users as screen readers will have a hard time reading the text.
 
 #### **/set hush** (user)
 
 - **User**: The user you want to set the hush for. (optional, defaults to the user who sent the command)
 
-This command will surround the user's messages with '||'. If you don't provide a user, it will default to the user who sent the command. This will make the user's messages hidden until you hover over them, a good compromise for muting a user without actually muting them.
+This command will surround the user's messages with '||'. If you don't provide a user, it will default to the user who sent the command. This will make the user's messages hidden until you uncover them, a good compromise for muting a user without actually muting them.
+
+#### **/set backwards** (user)
+
+- **User**: The user you want to set the backwards for. (optional, defaults to the user who sent the command)
+
+This command will make the user's messages backwards. If you don't provide a user, it will default to the user who sent the command.
 
 #### **/set prefix** (user) (prefix) (chance)
 
@@ -90,12 +101,6 @@ This command will set the prefix for the user you provide. If you don't provide 
 The user's messages will have a 50% chance of having "prefix" added to the beginning of them.
 
 You can set multiple prefixes for a user. That way you can have a variety of prefixes that will be added to the original text.
-
-#### **/set small** (user)
-
-- **User**: The user you want to set the small for. (optional, defaults to the user who sent the command)
-
-This command will make every message the user sends as small text. If you don't provide a user, it will default to the user who sent the command. Small text are just small versions of unicode characters. It is recommended to avoid this command when in a server with visually impaired users as screen readers will have a hard time reading the text.
 
 #### **/set suffix** (user) (suffix) (chance)
 
@@ -197,23 +202,35 @@ This command will clear the censor for the user you provide. If you don't provid
 
 This command will clear the muffle for the user you provide. If you don't provide a user, it will default to the user who sent the command. If you provide a muffle word, it will clear that muffle word. If you don't provide a muffle word, it will clear all muffle words and disable the muffle.
 
-#### **/clear big** (user)
-
-- **User**: The user you want to clear the big for. (optional, defaults to the user who sent the command)
-
-This command will clear the big for the user you provide. If you don't provide a user, it will default to the user who sent the command.
-
 #### **/clear eternal** (user)
 
-- **User**: The user you want to clear the eternal for. (required)
+- **User**: The user you want to clear the eternal setting for. (required)
 
-This command will clear the eternal for the user you provide. If the user is not eternal, it will do nothing.
+This command will clear the eternal setting for the user you provide. If the user is not eternal, it will do nothing.
+
+#### **/clear big** (user)
+
+- **User**: The user you want to clear the big text setting for. (optional, defaults to the user who sent the command)
+
+This command will clear the big text setting for the user you provide. If you don't provide a user, it will default to the user who sent the command.
+
+#### **/clear small** (user)
+
+- **User**: The user you want to clear the small text setting for. (optional, defaults to the user who sent the command)
+
+This command will clear the small text setting for the user you provide. If you don't provide a user, it will default to the user who sent the command.
 
 #### **/clear hush** (user)
 
-- **User**: The user you want to clear the hush for. (optional, defaults to the user who sent the command)
+- **User**: The user you want to clear the hush text setting for. (optional, defaults to the user who sent the command)
 
-This command will clear the hush for the user you provide. If you don't provide a user, it will default to the user who sent the command.
+This command will clear the hush text setting for the user you provide. If you don't provide a user, it will default to the user who sent the command.
+
+#### **/clear backwards** (user)
+
+- **User**: The user you want to clear the backwards text setting for. (optional, defaults to the user who sent the command)
+
+This command will clear the backwards text setting for the user you provide. If you don't provide a user, it will default to the user who sent the command.
 
 #### **/clear prefix** (user) (prefix)
 
@@ -221,12 +238,6 @@ This command will clear the hush for the user you provide. If you don't provide 
 - **Prefix**: The prefix you want to clear. (optional, if not provided, clears all prefixes)
 
 This command will clear the prefix for the user you provide. If you don't provide a user, it will default to the user who sent the command. If you provide a prefix, it will clear that prefix. If you don't provide a prefix, it will clear all prefixes.
-
-#### **/clear small** (user)
-
-- **User**: The user you want to clear the small for. (optional, defaults to the user who sent the command)
-
-This command will clear the small for the user you provide. If you don't provide a user, it will default to the user who sent the command.
 
 #### **/clear suffix** (user) (suffix)
 

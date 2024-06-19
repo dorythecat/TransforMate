@@ -84,10 +84,23 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, hush=1)
         await ctx.respond(f"{user.mention} will now hush!")
 
+    @set_command.command(description="Set the transformed user to speak backwards")
+    async def backwards(self,
+                        ctx: discord.ApplicationContext,
+                        user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user)
+        if not valid:
+            return
+        if data['backwards']:
+            await ctx.respond(f"{user.mention} is already speaking backwards!")
+            return
+        utils.write_tf(user, ctx.guild, backwards=1)
+        await ctx.respond(f"{user.mention} will now speak backwards!")
+
     @set_command.command(description="Set the transformed user to be eternally transformed")
     async def eternal(self,
                       ctx: discord.ApplicationContext,
-                      user: discord.Option(discord.User)) -> None:
+                      user: discord.Option(discord.User) = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return

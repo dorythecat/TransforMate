@@ -26,6 +26,7 @@ class Clear(commands.Cog):
                        big=0,
                        small=0,
                        hush=0,
+                       backwards=0,
                        censor="",
                        sprinkle="",
                        muffle="",
@@ -92,10 +93,23 @@ class Clear(commands.Cog):
         if not valid:
             return
         if not data['hush']:
-            await ctx.respond(f"{user.mention} doesn't have hush set!")
+            await ctx.respond(f"{user.mention} doesn't have hush text set!")
             return
         utils.write_tf(user, ctx.guild, hush=0)
         await ctx.respond(f"{user.mention} will no longer hush!")
+
+    @clear_command.command(description="Clear backwards setting")
+    async def backwards(self,
+                        ctx: discord.ApplicationContext,
+                        user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user)
+        if not valid:
+            return
+        if not data['backwards']:
+            await ctx.respond(f"{user.mention} doesn't have backwards text set!")
+            return
+        utils.write_tf(user, ctx.guild, backwards=0)
+        await ctx.respond(f"{user.mention} will no longer speak backwards!")
 
     @clear_command.command(description="Clear censor setting")
     async def censor(self,
