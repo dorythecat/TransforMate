@@ -138,6 +138,7 @@ def write_tf(user: discord.User,
         if censor is not None:
             data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
+                censor = clear_apple_marks(censor)
                 if censor_replacement not in ["", None]:
                     if data[str(guild.id)][channel_id]['censor']['contents'] is None:
                         data[str(guild.id)][channel_id]['censor']['contents'] = {}
@@ -239,14 +240,16 @@ def transform_text(data: dict, original: str) -> str:
         return original
 
     transformed = original
+    transformed = clear_apple_marks(transformed)
     words = transformed.split(" ")
 
     if data["censor"]["active"]:
         # Ignore italic messages
         # Censor will change the censored word to the word provided in the data
+
         for i in range(len(words)):
             # Force lowercase and strip punctuation
-            word = words[i].lower().strip("*.,!?")
+            word = words[i].lower().strip("*.,!?\"'()[]{}<>:;")
             if word in data["censor"]["contents"].keys():
                 to_be = words[i].lower()
                 words[i] = to_be.replace(word, data["censor"]["contents"][word])
@@ -355,3 +358,9 @@ def get_embed_base(title: str, desc: str = None) -> discord.Embed:
             icon_url="https://cdn.discordapp.com/avatars/967123840587141181/46a629c191f53ec9d446ed4b712fb39b.png"
         )
     )
+
+
+def clear_apple_marks(text):
+    text = text.replace("’", "'")
+    text = text.replace("“", "\"")
+    return text.replace("”", "\"")
