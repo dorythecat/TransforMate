@@ -2,9 +2,8 @@ import discord
 from discord.ext import commands
 
 import src.utils as utils
+from src.config import WEBHOOK_NAME
 
-
-WEBHOOK_NAME: str = "TransforMate Webhook"  # Name to use for the webhooks
 
 class Admin(commands.Cog):
     def __init__(self, bot: discord.Bot) -> None:

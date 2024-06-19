@@ -1,16 +1,8 @@
-import os
 import aiohttp
 import discord
 
 import utils
-
-from dotenv import load_dotenv
-
-# Get settings from .env file
-load_dotenv()
-WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")  # Name to use for the webhooks
-BLOCKED_USERS: list[int] = utils.parse_list(os.getenv("BLOCKED_USERS"))  # Users that are blocked from using the bot
-USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
+from config import *
 
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
