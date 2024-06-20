@@ -181,63 +181,53 @@ async def on_message(message: discord.Message) -> None:
 # Reaction added
 @bot.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> None:
-    if str(reaction.emoji) not in ["❓", "❔", "🔒", "🔓", "🔐"] or not reaction.message.author.bot or \
-            reaction.message.author == bot.user:
+    if reaction.message.author == bot.user or not reaction.message.author.bot or \
+            str(reaction.emoji) not in ["❓", "❔", "✏️", "🔒", "🔓", "🔐"]:
         return
 
-        # Check if reaction is reacting to a message sent by a transformed user
-        # I know this isn't the most efficient method, but it's really the best we have, at least for now
-        # TODO: Find a better way to do this (maybe?)
     tfee, data = utils.check_reactions(reaction)
     if tfee is None:
         return
+    await reaction.remove(user)  # Remove the reaction from the message
     if str(reaction.emoji) in ["❓", "❔"]:
         await user.send(f"\"{reaction.message.author.name}\" is, in fact, {bot.get_user(tfee).mention}!\n"
                         f"(Transformed by {bot.get_user(int(data['transformed_by'])).mention})")
-        await reaction.remove(user)
+        return
         return
     data_claim = data['claim']
     if str(reaction.emoji) == "🔒":
         if data_claim not in ["", None]:
             await user.send(f"\"{reaction.message.author.name}\" is already claimed by {data_claim}!")
-            await reaction.remove(user)
             return
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user=user.name)
         await user.send(f"Successfully claimed \"{reaction.message.author.name}\" for yourself!")
         await reaction.message.channel.send(f"{user.mention} has claimed \"{reaction.message.author.name}\"!")
-        await reaction.remove(user)
     elif str(reaction.emoji) == "🔓":
         if data_claim in ["", None]:
             await user.send(f"\"{reaction.message.author.name}\" is not claimed by anyone!")
-            await reaction.remove(user)
             return
         if data_claim != user.name:
             await user.send(f"\"{reaction.message.author.name}\" is claimed by {data_claim}! You can't unclaim them!")
-            await reaction.remove(user)
             return
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user="", eternal=0)
         await user.send(f"Successfully unclaimed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has unclaimed \"{reaction.message.author.name}\"!")
-        await reaction.remove(user)
     elif str(reaction.emoji) == "🔐":
         if data['eternal']:
             if data_claim != user.name:
                 await user.send(f"\"{reaction.message.author.name}\" is eternally transformed by {data_claim}!"
                                 f"You can't free them!")
-                await reaction.remove(user)
                 return
             # Clear the eternal transformation
             utils.write_tf(bot.get_user(tfee), reaction.message.guild, eternal=0)
             await user.send(f"Successfully un-eternally transformed \"{reaction.message.author.name}\"!")
             await reaction.message.channel.send(f"{user.mention} has un-eternally transformed"
                                                 f"\"{reaction.message.author.name}\"!")
-            await reaction.remove(user)
             return
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, eternal=1, claim_user=user.name)
         await user.send(f"Successfully eternally transformed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has eternally transformed"
                                             f"\"{reaction.message.author.name}\"!")
-        await reaction.remove(user)
 
 
 bot.load_extension('cogs.transformation')  # Transformation (base) Commands
