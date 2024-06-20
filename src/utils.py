@@ -9,6 +9,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 9: Added "blocked_users" field
 # VERSION 8: Added "upside_down" and "backwards" fields
 # VERSION 7: Added "bio" field
 # VERSION 6: Added "blocked_channels" field
@@ -17,7 +18,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 8
+CURRENT_TFEE_DATA_VERSION = 9
 
 # VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
@@ -40,6 +41,7 @@ def write_tf(user: discord.User,
              guild: discord.Guild,
              channel: discord.TextChannel = None,
              block_channel: discord.TextChannel = None,
+             block_user: discord.User = None,
              transformed_by: str = None,
              into: str = None,
              image_url: str = None,
@@ -69,6 +71,7 @@ def write_tf(user: discord.User,
             data[str(guild.id)] = {}
         if channel_id not in data[str(guild.id)]:
             data[str(guild.id)]['blocked_channels'] = []
+            data[str(guild.id)]['blocked_users'] = []
             data[str(guild.id)][channel_id] = {
                 'transformed_by': transformed_by,
                 'into': into,
@@ -123,6 +126,11 @@ def write_tf(user: discord.User,
                 data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
             else:
                 data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+        if block_user is not None:
+            if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
+                data[str(guild.id)]['blocked_users'].append(str(block_user.id))
+            else:
+                data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
         if prefix is not None:
             data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
             data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if prefix != "" else []
