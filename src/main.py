@@ -193,6 +193,24 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         await user.send(f"\"{reaction.message.author.name}\" is, in fact, {bot.get_user(tfee).mention}!\n"
                         f"(Transformed by {bot.get_user(int(data['transformed_by'])).mention})")
         return
+    if str(reaction.emoji) == "✏️":
+        # Edit message
+        if user.id == tfee:
+            # Editing messages that are not the last one will cause weird behaviours, so we prevent that by checking
+            if reaction.message.channel.last_message_id != reaction.message.id:
+                await user.send("You cannot edit this message! Sorry! :(")
+                return
+            await user.send(f"You have requested to edit the following message:\n"
+                            f"\"{reaction.message.content}\"\n"
+                            f"Please provide the edited message you want to send.")
+            response = await bot.wait_for('message', check=lambda m: m.author == user)
+            # Send the message through the webhook
+            webhook = utils.get_webhook_by_name(await reaction.message.channel.webhooks(), WEBHOOK_NAME)
+            if not webhook:
+                webhook = await reaction.message.channel.create_webhook(name=WEBHOOK_NAME)
+            await webhook.send(response.content, username=data['into'], avatar_url=data['image_url'])
+            await reaction.message.delete()  # Delete original message
+            await user.send("Message edited successfully!")
         return
     data_claim = data['claim']
     if str(reaction.emoji) == "🔒":
