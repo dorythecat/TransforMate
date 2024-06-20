@@ -98,7 +98,7 @@ class Transformation(commands.Cog):
             return
 
         await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
-        response = await bot.wait_for('message', check=lambda m: m.author == ctx.author)
+        response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
         if response.content.strip() == "CANCEL":
             await ctx.respond("Cancelled the transformation!")
             return
