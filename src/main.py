@@ -253,20 +253,10 @@ bot.load_extension('cogs.set')  # "Set" Commands
 bot.load_extension('cogs.clear')  # "Clear" Commands
 bot.load_extension('cogs.get')  # "Get" Commands
 bot.load_extension('cogs.admin')  # "Admin" Commands
+bot.load_extension('cogs.block')  # "Block" Commands
 
 
 # Misc commands
-@bot.slash_command(description="Set a channel where you just wanna be yourself")
-async def block_channel(ctx: discord.ApplicationContext,
-                        channel: discord.TextChannel = None) -> None:
-    if channel is None:
-        channel = ctx.channel
-    utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
-    word = "yourself" if str(channel.id) in utils.load_tf(ctx.user, ctx.guild)['blocked_channels'] else "transformed"
-    channel_word = "this channel" if channel == ctx.channel else channel.mention
-    await ctx.respond(f"You will now be {word} in {channel_word}!")
-
-
 @bot.slash_command(description="Report a user for misuse of this bot")
 async def report(ctx: discord.ApplicationContext,
                  user: discord.User,
