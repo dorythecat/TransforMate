@@ -72,6 +72,8 @@ async def on_message(message: discord.Message) -> None:
         return
 
     data = utils.load_tf(message.author, message.guild)
+    if data == {}:
+        return
 
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
