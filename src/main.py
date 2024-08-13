@@ -159,11 +159,18 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
                             f"Please provide the edited message you want to send.")
             response = await bot.wait_for('message', check=lambda m: m.author == user)
             # Send the message through the webhook
-            webhook = utils.get_webhook_by_name(await reaction.message.channel.webhooks(), WEBHOOK_NAME)
+            is_thread = reaction.message.channel.type in [discord.ChannelType.private_thread, discord.ChannelType.public_thread]
+            channel = reaction.message.channel.parent if is_thread else reaction.message.channel
+
+            webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
             if not webhook:
-                webhook = await reaction.message.channel.create_webhook(name=WEBHOOK_NAME)
-            await webhook.send(response.content, username=data['into'], avatar_url=data['image_url'])
-            await reaction.message.delete()  # Delete original message
+                webhook = await channel.create_webhook(name=WEBHOOK_NAME)
+
+            await webhook.send(response.content,
+                               username=data['into'],
+                               avatar_url=data['image_url'],
+                               thread=(reaction.message.channel if is_thread else discord.utils.MISSING))
+            await reaction.message.delete()  # Delete the original message
             await user.send("Message edited successfully!")
         return
     data_claim = data['claim']
