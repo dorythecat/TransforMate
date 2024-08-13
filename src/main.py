@@ -1,4 +1,3 @@
-import aiohttp
 import discord
 
 import utils
@@ -121,6 +120,7 @@ async def on_message(message: discord.Message) -> None:
                 # DM the user who transformed this user the original message they sent
                 await transformed_by.send(
                     f"**{message.author.name}** said in #**{channel.name}**:\n```{message.content}```")
+
         content += utils.transform_text(data, message.content)
 
     for attachment in message.attachments:
