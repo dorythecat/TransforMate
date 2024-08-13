@@ -138,8 +138,8 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, sprinkle=sprinkle_word, mod_type="sprinkle", chance=sprinkle_chance)
         await ctx.respond(f"{user.mention} will now have the word \"{sprinkle_word}\" sprinkled in their messages!")
 
-    @set_command.command(description="Set the transformed user to have their words (or messages)"
-                                     " randomly replaced with a specific set of words")
+    @set_command.command(description="Set the transformed user to have their words/messages randomly replaced with a "
+                                     "specific set of words")
     async def muffle(self,
                      ctx: discord.ApplicationContext,
                      muffle_word: discord.Option(discord.SlashCommandOptionType.string,
