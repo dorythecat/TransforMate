@@ -138,17 +138,23 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, sprinkle=sprinkle_word, mod_type="sprinkle", chance=sprinkle_chance)
         await ctx.respond(f"{user.mention} will now have the word \"{sprinkle_word}\" sprinkled in their messages!")
 
-    @set_command.command(description="Set the transformed user to have their words randomly replaced with a specific"
-                                     "set of words")
+    @set_command.command(description="Set the transformed user to have their words (or messages)"
+                                     " randomly replaced with a specific set of words")
     async def muffle(self,
                      ctx: discord.ApplicationContext,
                      muffle_word: discord.Option(discord.SlashCommandOptionType.string,
                                                  description="Word that will replace others"),
                      chance: discord.Option(discord.SlashCommandOptionType.integer,
                                             description='Chance for muffle to go off') = 30,
+                     alt: discord.Option(discord.SlashCommandOptionType.boolean,
+                                         description="Muffle full messages, instead of a per-word muffle.") = False,
                      user: discord.Option(discord.User) = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
+            return
+        if alt:
+            utils.write_tf(user, ctx.guild, alt_muffle=muffle_word, mod_type="alt_muffle", chance=chance)
+            await ctx.respond(f"{user.mention} will now have their messages muffled with \"{muffle_word}\"!")
             return
         utils.write_tf(user, ctx.guild, muffle=muffle_word, mod_type="muffle", chance=chance)
         await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle_word}\"!")

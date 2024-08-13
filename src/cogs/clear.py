@@ -158,7 +158,7 @@ class Clear(commands.Cog):
         utils.write_tf(user, ctx.guild, sprinkle="")
         await ctx.respond(f"{user.mention} will no longer have a sprinkle set!")
 
-    @clear_command.command(description="Clear muffle setting")
+    @clear_command.command(description="Clear muffle settings")
     async def muffle(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None,
@@ -171,16 +171,22 @@ class Clear(commands.Cog):
         if not data['muffle']['active']:
             await ctx.respond(f"{user.mention} is not muffled at the moment!")
             return
-        # If a word is provided, we can check if it is in the contents array
+        # If a word is provided, we can check if it is in the contents array of both muffle and alt muffle fields
+        muffle_type = 'muffle'
         if muffle_word not in ["", None]:
             if muffle_word not in data['muffle']['contents']:
-                await ctx.respond(f"{user.mention} is not muffled with the word \"{muffle_word}\"!")
-                return
-            data['muffle']['contents'].remove(muffle_word)
-            utils.write_tf(user, ctx.guild, muffle=data['muffle'])
+                if muffle_word not in data['alt_muffle']['contents']:
+                    await ctx.respond(f"{user.mention} is not muffled with the word \"{muffle_word}\"!")
+                    return
+                muffle_type = 'alt_muffle'
+            data[muffle_type]['contents'].remove(muffle_word)
+            if muffle_type == 'muffle':
+                utils.write_tf(user, ctx.guild, muffle=data['muffle'])
+            else:
+                utils.write_tf(user, ctx.guild, alt_muffle=data['alt_muffle'])
             await ctx.respond(f"{user.mention} will no longer have the word \"{muffle_word}\" muffled!")
             return
-        utils.write_tf(user, ctx.guild, muffle="")
+        utils.write_tf(user, ctx.guild, muffle="", alt_muffle="")
         await ctx.respond(f"{user.mention} will no longer have a muffle set!")
 
     @clear_command.command(description="Clear eternal setting")
