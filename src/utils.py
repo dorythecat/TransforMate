@@ -9,6 +9,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 10: Added "alt_muffle" field
 # VERSION 9: Added "blocked_users" field
 # VERSION 8: Added "upside_down" and "backwards" fields
 # VERSION 7: Added "bio" field
@@ -57,6 +58,7 @@ def write_tf(user: discord.User,
              censor_replacement: str = None,
              sprinkle: str = None,
              muffle: str = None,
+             alt_muffle: str = None,
              chance: int = None,
              mod_type: str = None,
              bio: str = None) -> None:
@@ -102,6 +104,11 @@ def write_tf(user: discord.User,
                     'chance': 0
                 },
                 'muffle': {
+                    'active': False,
+                    'contents': [],
+                    'chance': 0
+                },
+                'alt_muffle': {
                     'active': False,
                     'contents': [],
                     'chance': 0
@@ -164,7 +171,12 @@ def write_tf(user: discord.User,
             data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
             data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if muffle != "" else []
             data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
-        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle']:
+        if alt_muffle is not None:
+            data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
+            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [alt_muffle.strip()] if alt_muffle != "" else []
+            data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
+
+        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
             data[str(guild.id)][channel_id][mod_type]['chance'] = chance
         if bio is not None:
             data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
