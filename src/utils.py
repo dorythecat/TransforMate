@@ -264,6 +264,12 @@ def transform_text(data: dict, original: str) -> str:
             (original.startswith("_") and original.endswith("_")):
         return original
 
+    if data['alt_muffle']['active']:
+        # Alternative Muffle will overwrite the entire message with a word from the data array from random chance
+        # If we apply this one transformation, that's it. Only this one. That's why it's at the top.
+        if random.randint(1, 100) <= data['alt_muffle']['chance']:
+            return data['alt_muffle']['contents'][random.randint(0, len(data['alt_muffle']['contents']) - 1)]
+
     transformed = original
     transformed = clear_apple_marks(transformed)
     words = transformed.split(" ")
