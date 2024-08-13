@@ -91,61 +91,12 @@ async def on_message(message: discord.Message) -> None:
     name = data['into']
     image_url = data['image_url']
 
-    # This is not the best solution ever, but it's what we have for threads...
-    if message.channel.type == discord.ChannelType.private_thread or \
-            message.channel.type == discord.ChannelType.public_thread:
-        webhook = utils.get_webhook_by_name(await message.channel.parent.webhooks(), WEBHOOK_NAME)
-        if not webhook:
-            webhook = await message.channel.parent.create_webhook(name=WEBHOOK_NAME)
-        # Prepare data to send
-        json = {
-            'username': name,
-            'avatar_url': image_url,
-            'content': '',
-        }
-        if message.content:
-            # Check if muffles are active in data
-            if data['muffle']['active']:
-                # Send the original message to transformed_by if claim is None, otherwise to claim
-                if data['claim'] in ["", None]:
-                    # Get the user who transformed the user
-                    transformed_by = bot.get_user(int(data['transformed_by']))
-                else:
-                    # Get the user who claimed the user
-                    transformed_by = bot.get_user(int(data['claim']))
-                # Check if the message is from the user who transformed the user
-                if not message.author == transformed_by:
-                    # DM the user who transformed the user the original message
-                    await transformed_by.send(
-                        f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
-            json['content'] = utils.transform_text(data, message.content)
-        # This method, used down below too, works well, but it's *kinda* janky,
-        # especially with more than one attachment...
-        # TODO: Find a better way to do this (Low priority)
-        for attachment in message.attachments:
-            attachment_url = attachment.url.strip()[
-                             :attachment.url.index("?")] if "?" in attachment.url else attachment.url
-            if image_url == attachment_url:
-                return
-            json['content'] += "\n" + attachment_url
-        # Post data to the webhook using aiohttp
-        async with aiohttp.ClientSession() as session:
-            # TODO: Add error handling (Low priority)
-            # From: https://stackoverflow.com/questions/70631696/discord-webhook-post-to-channel-thread
-            async with session.post(
-                    f"https://discord.com/api/webhooks/{webhook.id}/{webhook.token}?thread_id={message.channel.id}",
-                    json=json
-            ) as resp:
-                # See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes for meaning of HTTP status codes
-                if resp.status not in [200, 203, 204]:
-                    print(f"Failed to send message to webhook: {resp.status}")
-                    print(f"With data:\n{json}")
-        await message.delete()
-        return
+    is_thread = message.channel.type in [discord.ChannelType.private_thread, discord.ChannelType.public_thread]
+    channel = message.channel.parent if is_thread else message.channel
 
-    webhook = utils.get_webhook_by_name(await message.channel.webhooks(), WEBHOOK_NAME)
+    webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
     if not webhook:
-        webhook = await message.channel.create_webhook(name=WEBHOOK_NAME)
+        webhook = await channel.create_webhook(name=WEBHOOK_NAME)
 
     content = ""
     if message.reference:
@@ -153,9 +104,10 @@ async def on_message(message: discord.Message) -> None:
         if message.reference.resolved.content:
             content += f">>> {message.reference.resolved.content}"
             # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
-            await webhook.send(content, username=name, avatar_url=image_url)
+            await webhook.send(content, username=name, avatar_url=image_url, thread=(message.channel if is_thread else
+                                                                                     discord.utils.MISSING))
             content = ""
-    
+
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
         # Check if muffles are active in data
         if data['muffle']['active']:
@@ -170,7 +122,7 @@ async def on_message(message: discord.Message) -> None:
             if not message.author == transformed_by:
                 # DM the user who transformed the user the original message
                 await transformed_by.send(
-                    f"**{message.author.name}** said in #**{message.channel.name}**:\n```{message.content}```")
+                    f"**{message.author.name}** said in #**{channel.name}**:\n```{message.content}```")
         content += utils.transform_text(data, message.content)
 
     for attachment in message.attachments:
@@ -178,7 +130,8 @@ async def on_message(message: discord.Message) -> None:
         if image_url == attachment_url:
             return
         content += "\n" + attachment_url
-    await webhook.send(content, username=name, avatar_url=image_url)
+    await webhook.send(content, username=name, avatar_url=image_url, thread=(message.channel if is_thread else
+                                                                             discord.utils.MISSING))
     await message.delete()
 
 
