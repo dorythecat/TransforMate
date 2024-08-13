@@ -148,14 +148,15 @@ async def on_message(message: discord.Message) -> None:
         webhook = await message.channel.create_webhook(name=WEBHOOK_NAME)
 
     content = ""
+    if message.reference:
+        content += f"**Replying to {message.reference.resolved.author.mention}:**\n"
+        if message.reference.resolved.content:
+            content += f">>> {message.reference.resolved.content}"
+            # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
+            await webhook.send(content, username=name, avatar_url=image_url)
+            content = ""
+    
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
-        if message.reference:
-            content += f"**Replying to {message.reference.resolved.author.mention}:**\n"
-            if message.reference.resolved.content:
-                content += f">>> {message.reference.resolved.content}"
-                # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
-                await webhook.send(content, username=name, avatar_url=image_url)
-                content = ""
         # Check if muffles are active in data
         if data['muffle']['active']:
             # Send the original message to transformed_by if claim is None, otherwise to claim
