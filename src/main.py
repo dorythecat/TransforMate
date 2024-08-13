@@ -8,7 +8,6 @@ intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
 
 
-# Bot startup
 @bot.event
 async def on_ready() -> None:
     print(f'\nSuccessfully logged into Discord as "{bot.user}"\n')
@@ -17,7 +16,6 @@ async def on_ready() -> None:
                                                         name="people get transformed"))
 
 
-# Message sent
 @bot.event
 async def on_message(message: discord.Message) -> None:
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
@@ -113,14 +111,14 @@ async def on_message(message: discord.Message) -> None:
         if data['muffle']['active']:
             # Send the original message to transformed_by if claim is None, otherwise to claim
             if data['claim'] in ["", None]:
-                # Get the user who transformed the user
+                # Get the user who transformed this user
                 transformed_by = bot.get_user(int(data['transformed_by']))
             else:
                 # Get the user who claimed the user
                 transformed_by = bot.get_user(int(data['claim']))
-            # Check if the message is from the user who transformed the user
+            # Check if the message is from the user who transformed this user
             if not message.author == transformed_by:
-                # DM the user who transformed the user the original message
+                # DM the user who transformed this user the original message they sent
                 await transformed_by.send(
                     f"**{message.author.name}** said in #**{channel.name}**:\n```{message.content}```")
         content += utils.transform_text(data, message.content)
@@ -135,7 +133,6 @@ async def on_message(message: discord.Message) -> None:
     await message.delete()
 
 
-# Reaction added
 @bot.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> None:
     if reaction.message.author == bot.user or not reaction.message.author.bot or \
