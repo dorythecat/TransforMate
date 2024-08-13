@@ -91,6 +91,7 @@ async def on_message(message: discord.Message) -> None:
     name = data['into']
     image_url = data['image_url']
 
+    # This is not the best solution ever, but it's what we have for threads...
     if message.channel.type == discord.ChannelType.private_thread or \
             message.channel.type == discord.ChannelType.public_thread:
         webhook = utils.get_webhook_by_name(await message.channel.parent.webhooks(), WEBHOOK_NAME)
