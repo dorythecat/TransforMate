@@ -46,6 +46,14 @@ class Transformation(commands.Cog):
         tfee_data = utils.load_transformed(ctx.guild)
         channel_id = str(ctx.channel.id if not channel else channel.id)
 
+        # Blocked users (globally)
+        if ctx.user.id in BLOCKED_USERS:
+            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad...")
+            return
+        if user.id in BLOCKED_USERS:
+            await ctx.respond(f"You can't transform that user at all! They've been very naughty...")
+            return
+
         # Blocked channels (user)
         if data not in [None, {}]:
             if channel_id in data['blocked_channels']:
@@ -56,24 +64,16 @@ class Transformation(commands.Cog):
         if tfee_data not in [None, {}]:
             # Blocked channels (server)
             if channel_id in tfee_data['blocked_channels']:
-                await ctx.respond(f"You're blocked from using this bot on this channel!")
+                await ctx.respond(f"You can't use the bot on this channel!")
                 return
 
             # Blocked users (server)
             if str(ctx.user.id) in tfee_data['blocked_users']:
-                await ctx.respond(f"You're blocked from using this bot on this server!")
+                await ctx.respond(f"You can't use the bot on this server!")
                 return
             if str(user.id) in tfee_data['blocked_users']:
-                await ctx.respond(f"You're blocked from transforming that user on this server!")
+                await ctx.respond(f"That user can't use the bot on this server!")
                 return
-
-        # Blocked users (globally)
-        if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad...")
-            return
-        if user.id in BLOCKED_USERS:
-            await ctx.respond(f"You can't transform that user at all! They've been very naughty...")
-            return
 
         if utils.is_transformed(user, ctx.guild):
             if channel_id in data:
