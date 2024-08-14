@@ -18,7 +18,7 @@ async def on_ready() -> None:
 @bot.event
 async def on_message(message: discord.Message) -> None:
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
-    if message.author == bot.user or message.author.bot:
+    if message.author == bot.user:
         return
 
     if not message.guild:
@@ -57,6 +57,17 @@ async def on_message(message: discord.Message) -> None:
             embed.add_field(name="Reported in DMs", value="")
             await bot.get_channel(USER_REPORTS_CHANNEL_ID).send(embed=embed)
             await message.author.send("Thank you for your report! It has been sent to the developers, for review.")
+        return
+
+    # Check if the message was sent by a bot
+    if message.author.bot:
+        # Dyno bot
+        if message.author.id == 1273264155482390570:
+            if message.embeds and message.embeds[0].description.__contains__("Deleted"):
+                if utils.is_transformed(discord.utils.get(bot.get_all_members(), name=message.embeds[0].author.name),
+                                        message.guild,
+                                        message.channel):
+                    await message.delete()
         return
 
     # Check if user is transformed
