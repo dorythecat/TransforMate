@@ -67,6 +67,26 @@ class Admin(commands.Cog):
                                      color=discord.Color.red())
         await ctx.respond(embed=embed, ephemeral=True)
 
+    @admin_command.command(description="Set up log channels for the bot")
+    @discord.default_permissions(administrator=True)
+    async def setup_logs(self,
+                         ctx: discord.ApplicationContext,
+                         all: discord.Option(discord.TextChannel) = None,
+                         edit: discord.Option(discord.TextChannel) = None,
+                         delete: discord.Option(discord.TextChannel) = None,
+                         transform: discord.Option(discord.TextChannel) = None,
+                         claim: discord.Option(discord.TextChannel) = None) -> None:
+        if all is None:
+            logs = [edit.id if edit is not None else None,
+                    delete.id if delete is not None else None,
+                    transform.id if transform is not None else None,
+                    claim.id if claim is not None else None]
+        else:
+            logs = [all.id, all.id, all.id, all.id]
+        utils.write_transformed(ctx.guild, logs=logs)
+        await ctx.respond("Log channels have been set up!", ephemeral=True)
+
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Admin(bot))
