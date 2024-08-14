@@ -19,7 +19,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 9
+CURRENT_TFEE_DATA_VERSION = 10
 
 # VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
