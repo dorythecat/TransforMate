@@ -29,39 +29,41 @@ CURRENT_TRANSFORMED_DATA_VERSION = 4
 
 
 # USER TRANSFORMATION DATA UTILS
-def load_tf_by_id(user_id: str, guild: discord.Guild = None) -> dict:
+def load_tf_by_id(user_id: str,
+                  guild: discord.Guild | None = None) -> dict:
     return {} if f"{user_id}.json" not in os.listdir("../cache/people") else \
         load_file(f"../cache/people/{user_id}.json", guild)
 
 
-def load_tf(user: discord.User, guild: discord.Guild = None) -> dict:
+def load_tf(user: discord.User | discord.Member,
+            guild: discord.Guild | None = None) -> dict:
     return load_tf_by_id(str(user.id), guild)
 
 
-def write_tf(user: discord.User,
+def write_tf(user: discord.User | discord.Member,
              guild: discord.Guild,
-             channel: discord.TextChannel = None,
-             block_channel: discord.TextChannel = None,
-             block_user: discord.User = None,
-             transformed_by: str = None,
-             into: str = None,
-             image_url: str = None,
-             claim_user: str = None,
-             eternal: int = None,
-             prefix: str = None,
-             suffix: str = None,
-             big: int = None,
-             small: int = None,
-             hush: int = None,
-             backwards: int = None,
-             censor: str = None,
-             censor_replacement: str = None,
-             sprinkle: str = None,
-             muffle: str = None,
-             alt_muffle: str = None,
-             chance: int = None,
-             mod_type: str = None,
-             bio: str = None) -> None:
+             channel: discord.TextChannel | None = None,
+             block_channel: discord.TextChannel | None = None,
+             block_user: discord.User | discord.Member | None = None,
+             transformed_by: str | None = None,
+             into: str | None = None,
+             image_url: str | None = None,
+             claim_user: str | None = None,
+             eternal: int | None = None,
+             prefix: str | None = None,
+             suffix: str | None = None,
+             big: int | None = None,
+             small: int | None = None,
+             hush: int | None = None,
+             backwards: int | None = None,
+             censor: str | None = None,
+             censor_replacement: str | None = None,
+             sprinkle: str | None = None,
+             muffle: str | None = None,
+             alt_muffle: str | None = None,
+             chance: int | None = None,
+             mod_type: str | None = None,
+             bio: str | None = None) -> None:
     data = load_tf(user)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
         if CLEAR_OLD_TFEE_DATA:
@@ -183,7 +185,9 @@ def write_tf(user: discord.User,
     write_file(f"../cache/people/{str(user.id)}.json", data)
 
 
-def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
+def remove_tf(user: discord.User | discord.Member,
+              guild: discord.Guild,
+              channel: discord.TextChannel | None = None) -> None:
     data = load_tf(user)
     if not str(guild.id) in data or \
             (channel is not None and not str(channel.id) in data[str(guild.id)]) or \
@@ -193,20 +197,20 @@ def remove_tf(user: discord.User, guild: discord.Guild, channel: discord.TextCha
     write_file(f"../cache/people/{str(user.id)}.json", data)
 
 
-def remove_all_tf(user: discord.User) -> None:
+def remove_all_tf(user: discord.User | discord.Member) -> None:
     os.remove(f"../cache/people/{str(user.id)}.json")
 
 
 # TRANSFORMED DATA UTILS
-def load_transformed(guild: discord.Guild = None) -> dict:
+def load_transformed(guild: discord.Guild | None = None) -> dict:
     return {} if "transformed.json" not in os.listdir("../cache") else load_file("../cache/transformed.json", guild)
 
 
 def write_transformed(guild: discord.Guild,
-                      user: discord.User = None,
-                      channel: discord.TextChannel = None,
-                      block_channel: discord.TextChannel = None,
-                      block_user: discord.User = None) -> None:
+                      user: discord.User | discord.Member | None = None,
+                      channel: discord.TextChannel | None = None,
+                      block_channel: discord.TextChannel | None = None,
+                      block_user: discord.User | discord.Member | None = None) -> None:
     data = load_transformed()
     if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
         if CLEAR_OLD_TRANSFORMED_DATA:
@@ -239,13 +243,17 @@ def write_transformed(guild: discord.Guild,
     write_file("../cache/transformed.json", data)
 
 
-def remove_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> None:
+def remove_transformed(user: discord.User | discord.Member,
+                       guild: discord.Guild,
+                       channel: discord.TextChannel | None = None) -> None:
     data = load_transformed()
     data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
     write_file("../cache/transformed.json", data)
 
 
-def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.TextChannel = None) -> bool:
+def is_transformed(user: discord.User | discord.Member,
+                   guild: discord.Guild,
+                   channel: discord.TextChannel = None) -> bool:
     tfee_data = load_transformed(guild)
     if tfee_data in [{}, None] or str(user.id) not in tfee_data['transformed_users']:
         return False
@@ -258,7 +266,8 @@ def is_transformed(user: discord.User, guild: discord.Guild, channel: discord.Te
 
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
-def transform_text(data: dict, original: str) -> str:
+def transform_text(data: dict,
+                   original: str) -> str:
     # Ignore italics and bold messages
     if (original.startswith("*") and original.endswith("*")) or \
             (original.startswith("_") and original.endswith("_")):
@@ -341,8 +350,10 @@ def transform_text(data: dict, original: str) -> str:
 
 # ABSTRACTION FUNCTIONS
 async def extract_tf_data(ctx: discord.ApplicationContext,
-                          user: discord.User,
-                          get_command: bool = False) -> [bool, dict, discord.User]:
+                          user: discord.User | discord.Member | None,
+                          get_command: bool = False) -> [bool,
+                                                         dict | None,
+                                                         discord.User | discord.Member | None]:
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild):
@@ -357,7 +368,8 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 
 
 # FILE UTILS
-def load_file(filename: str, guild: discord.Guild) -> dict:
+def load_file(filename: str,
+              guild: discord.Guild) -> dict:
     with open(filename) as f:
         contents = f.read().strip()
         if contents == "":
@@ -369,19 +381,22 @@ def load_file(filename: str, guild: discord.Guild) -> dict:
             return data[str(guild.id)]
 
 
-def write_file(filename: str, data: dict) -> None:
+def write_file(filename: str,
+               data: dict) -> None:
     with open(filename, "w+") as f:
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
 # MISCELLANEOUS UTILS
-def get_webhook_by_name(webhooks, name) -> discord.Webhook or None:
+def get_webhook_by_name(webhooks: list[discord.Webhook],
+                        name: str) -> discord.Webhook | None:
     for wh in webhooks:
         if wh.name == name:
             return wh
 
 
-def get_embed_base(title: str, desc: str = None) -> discord.Embed:
+def get_embed_base(title: str,
+                   desc: str | None = None) -> discord.Embed:
     return discord.Embed(
         title=title,
         description=desc,
@@ -393,7 +408,8 @@ def get_embed_base(title: str, desc: str = None) -> discord.Embed:
     )
 
 
-def check_reactions(reaction: discord.Reaction) -> [int, dict]:
+def check_reactions(reaction: discord.Reaction) -> [int | None,
+                                                    dict | None]:
     tfee_data = load_transformed(reaction.message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
