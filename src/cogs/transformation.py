@@ -22,6 +22,16 @@ async def transform_function(ctx: discord.ApplicationContext,
 
     utils.write_tf(user, ctx.guild, channel, transformed_by=str(ctx.author.id), into=into.strip(), image_url=image_url)
     utils.write_transformed(ctx.guild, user, channel)
+
+    transformed_data = utils.load_transformed(ctx.guild)
+    if transformed_data['logs'][2]:
+        embed = discord.Embed(title="Transformed User", color=discord.Color.green())
+        embed.add_field(name="User", value=user.mention)
+        embed.add_field(name="Transformed By", value=ctx.author.mention)
+        embed.add_field(name="Into", value=into)
+        embed.set_image(url=image_url)
+        await ctx.guild.get_channel(transformed_data['logs'][2]).send(embed=embed)
+
     return True
 
 
@@ -136,6 +146,15 @@ class Transformation(commands.Cog):
                 return
             utils.write_transformed(ctx.guild, user, channel)
             await ctx.respond(f"{user.mention} has been turned back to their last form!")
+
+            transformed_data = utils.load_transformed(ctx.guild)
+            if transformed_data['logs'][2]:
+                embed = utils.get_embed_base(title="Transformed User", color=discord.Color.green())
+                embed.add_field(name="User", value=user.mention)
+                embed.add_field(name="Transformed By", value=ctx.author.mention)
+                embed.add_field(name="Into", value="Their last form")
+                await ctx.guild.get_channel(transformed_data['logs'][2]).send(embed=embed)
+
             return
 
         if data['eternal'] and data['claim'] != ctx.author.name:
@@ -147,6 +166,14 @@ class Transformation(commands.Cog):
 
         utils.remove_transformed(user, ctx.guild, None if utils.is_transformed(user, ctx.guild) else ctx.channel)
         await ctx.respond(f"{user.mention} has been turned back to normal!")
+
+        transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data['logs'][2]:
+            embed = utils.get_embed_base(title="Transformed User", color=discord.Color.green())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Transformed By", value=ctx.author.mention)
+            embed.add_field(name="Into", value="Their normal self")
+            await ctx.guild.get_channel(transformed_data['logs'][2]).send(embed=embed)
 
     @discord.slash_command(description="Claim a transformed user")
     async def claim(self,
@@ -170,6 +197,14 @@ class Transformation(commands.Cog):
             return
         utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.name)
         await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
+
+        transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Claimed", color=discord.Color.gold())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Claimed User", value=ctx.message.author.mention)
+            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
     @discord.slash_command(description="Unclaim a transformed user")
     async def unclaim(self,
@@ -195,6 +230,14 @@ class Transformation(commands.Cog):
         utils.write_tf(user, ctx.guild, channel, claim_user="", eternal=0)
         await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
 
+        transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Unclaimed", color=discord.Color.gold())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Unclaimed User", value=ctx.message.author.mention)
+            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
+
     @discord.slash_command(description="Safeword command. Use in case of abuse or incommodity, to unclaim yourself.")
     async def safeword(self,
                        ctx: discord.ApplicationContext) -> None:
@@ -214,6 +257,13 @@ class Transformation(commands.Cog):
         await ctx.respond(f"You have successfully activated the safeword command.\n"
                           f"Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
                           f"Use \"/goback\" to return to your normal self.")
+
+        transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Safeworded", color=discord.Color.gold())
+            embed.add_field(name="User", value=ctx.author.mention)
+            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
 
 def setup(bot: discord.Bot) -> None:

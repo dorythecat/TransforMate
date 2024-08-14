@@ -111,6 +111,14 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, eternal=1)
         await ctx.respond(f"{user.mention} is now eternally transformed!")
 
+        transformed_data = utils.load_transformed(ctx.message.guild)
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Eternally Transformed", color=discord.Color.gold())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Eternally Transformed User", value=ctx.message.author.mention)
+            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
+
     @set_command.command(description="Set the transformed user to be censored")
     async def censor(self,
                      ctx: discord.ApplicationContext,

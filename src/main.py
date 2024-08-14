@@ -187,16 +187,34 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
                                thread=(reaction.message.channel if is_thread else discord.utils.MISSING))
             await reaction.message.delete()  # Delete the original message
             await user.send("Message edited successfully!")
+
+            transformed_data = utils.load_transformed(reaction.message.guild)
+            if transformed_data['logs'][0]:
+                embed = utils.get_embed_base(title="Message Edited")
+                embed.add_field(name="User", value=user.mention)
+                embed.add_field(name="Original Message", value=reaction.message.content)
+                embed.add_field(name="Edited Message", value=response.content)
+                embed.add_field(name="Channel", value=reaction.message.channel.mention)
+                await bot.get_channel(transformed_data['logs'][0]).send(embed=embed)
         return
 
     if str(reaction.emoji) == "❌":
         if user.id == tfee:
             await reaction.message.delete()
             await user.send("Message deleted successfully!")
+
+            transformed_data = utils.load_transformed(reaction.message.guild)
+            if transformed_data['logs'][1]:
+                embed = utils.get_embed_base(title="Message Deleted", color=discord.Color.red())
+                embed.add_field(name="User", value=user.mention)
+                embed.add_field(name="Message", value=reaction.message.content)
+                embed.add_field(name="Channel", value=reaction.message.channel.mention)
+                await bot.get_channel(transformed_data['logs'][1]).send(embed=embed)
         return
 
     # Claim related reactions
     data_claim = data['claim']
+    transformed_data = utils.load_transformed(reaction.message.guild)
     if str(reaction.emoji) == "🔒":
         if data_claim not in ["", None]:
             await user.send(f"\"{reaction.message.author.name}\" is already claimed by {data_claim}!")
@@ -204,6 +222,14 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user=user.name)
         await user.send(f"Successfully claimed \"{reaction.message.author.name}\" for yourself!")
         await reaction.message.channel.send(f"{user.mention} has claimed \"{reaction.message.author.name}\"!")
+
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Claimed", color=discord.Color.gold())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Claimed User", value=reaction.message.author.mention)
+            embed.add_field(name="Channel", value=reaction.message.channel.mention)
+            await bot.get_channel(transformed_data['logs'][3]).send(embed=embed)
+
         return
 
     if str(reaction.emoji) == "🔓":
@@ -216,6 +242,14 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user="", eternal=0)
         await user.send(f"Successfully unclaimed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has unclaimed \"{reaction.message.author.name}\"!")
+
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Unclaimed", color=discord.Color.gold())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Unclaimed User", value=reaction.message.author.mention)
+            embed.add_field(name="Channel", value=reaction.message.channel.mention)
+            await bot.get_channel(transformed_data['logs'][3]).send(embed=embed)
+
         return
 
     if str(reaction.emoji) == "🔐":
@@ -234,6 +268,13 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         await user.send(f"Successfully eternally transformed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has eternally transformed"
                                             f"\"{reaction.message.author.name}\"!")
+
+        if transformed_data['logs'][3]:
+            embed = utils.get_embed_base(title="User Eternally Transformed", color=discord.Color.gold())
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Eternally Transformed User", value=reaction.message.author.mention)
+            embed.add_field(name="Channel", value=reaction.message.channel.mention)
+            await bot.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
 
 bot.load_extension('cogs.transformation')  # Transformation (base) Commands
