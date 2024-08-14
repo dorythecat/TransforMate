@@ -59,11 +59,12 @@ async def on_message(message: discord.Message) -> None:
             await message.author.send("Thank you for your report! It has been sent to the developers, for review.")
         return
 
-    # Check if user is transformed, and send their messages as webhooks, deleting the original
+    # Check if user is transformed
     if not utils.is_transformed(message.author, message.guild, message.channel) or \
             message.content.strip().startswith('('):
         return
 
+    # If the message contains stickers, we just don't process it
     if message.stickers:
         await message.author.send("Sorry, but we don't support  sending stickers, for the moment! :(")
         return
