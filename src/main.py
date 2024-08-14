@@ -148,17 +148,20 @@ async def on_message(message: discord.Message) -> None:
 @bot.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> None:
     if reaction.message.author == bot.user or not reaction.message.author.bot or \
-            str(reaction.emoji) not in ["❓", "❔", "✏️", "🔒", "🔓", "🔐"]:
+            str(reaction.emoji) not in ["❓", "❔", "✏️", "❌", "🔒", "🔓", "🔐"]:
         return
 
     tfee, data = utils.check_reactions(reaction)
     if tfee is None:
         return
     await reaction.remove(user)  # Remove the reaction from the message
+
+    # Message related reactions
     if str(reaction.emoji) in ["❓", "❔"]:
         await user.send(f"\"{reaction.message.author.name}\" is, in fact, {bot.get_user(tfee).mention}!\n"
                         f"(Transformed by {bot.get_user(int(data['transformed_by'])).mention})")
         return
+
     if str(reaction.emoji) == "✏️":
         # Edit message
         if user.id == tfee:
@@ -185,6 +188,14 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             await reaction.message.delete()  # Delete the original message
             await user.send("Message edited successfully!")
         return
+
+    if str(reaction.emoji) == "❌":
+        if user.id == tfee:
+            await reaction.message.delete()
+            await user.send("Message deleted successfully!")
+        return
+
+    # Claim related reactions
     data_claim = data['claim']
     if str(reaction.emoji) == "🔒":
         if data_claim not in ["", None]:
@@ -193,7 +204,9 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user=user.name)
         await user.send(f"Successfully claimed \"{reaction.message.author.name}\" for yourself!")
         await reaction.message.channel.send(f"{user.mention} has claimed \"{reaction.message.author.name}\"!")
-    elif str(reaction.emoji) == "🔓":
+        return
+
+    if str(reaction.emoji) == "🔓":
         if data_claim in ["", None]:
             await user.send(f"\"{reaction.message.author.name}\" is not claimed by anyone!")
             return
@@ -203,7 +216,9 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user="", eternal=0)
         await user.send(f"Successfully unclaimed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has unclaimed \"{reaction.message.author.name}\"!")
-    elif str(reaction.emoji) == "🔐":
+        return
+
+    if str(reaction.emoji) == "🔐":
         if data['eternal']:
             if data_claim != user.name:
                 await user.send(f"\"{reaction.message.author.name}\" is eternally transformed by {data_claim}!"
