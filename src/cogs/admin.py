@@ -25,7 +25,7 @@ class Admin(commands.Cog):
     @discord.default_permissions(administrator=True)
     async def block_channel(self,
                             ctx: discord.ApplicationContext,
-                            channel: discord.TextChannel = None) -> None:
+                            channel: discord.Option(discord.TextChannel) = None) -> None:
         if channel is None:
             channel = ctx.channel
         utils.write_transformed(ctx.guild, block_channel=channel)
@@ -37,7 +37,7 @@ class Admin(commands.Cog):
     @discord.default_permissions(administrator=True)
     async def block_user(self,
                          ctx: discord.ApplicationContext,
-                         user: discord.User) -> None:
+                         user: discord.Option(discord.User)) -> None:
         utils.write_transformed(ctx.guild, block_user=user)
         data = utils.load_transformed(ctx.guild)['blocked_users']
         word = "blocked" if str(user.id) in data else "unblocked"
