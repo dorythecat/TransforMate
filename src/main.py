@@ -60,7 +60,8 @@ async def on_message(message: discord.Message) -> None:
         return
 
     # Check if the message was sent by a bot
-    if message.author.bot:
+    # We use this to delete logs made by other bots, if this setting is enabled
+    if message.author.bot and utils.load_transformed(message.guild)['clear_other_logs']:
         if message.author.id == 1273264155482390570:  # Dyno bot
             if message.embeds and message.embeds[0].description.__contains__("Deleted"):
                 if utils.is_transformed(discord.utils.get(bot.get_all_members(), name=message.embeds[0].author.name),
