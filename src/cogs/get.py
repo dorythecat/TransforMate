@@ -17,7 +17,7 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
-        embed = utils.get_embed_base(f"Settings for {user.name}")
+        embed = utils.get_embed_base(title=f"Settings for {user.name}")
         embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
         embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
         embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
@@ -38,7 +38,7 @@ class Get(commands.Cog):
         if not data['censor']['active']:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
-        embed = utils.get_embed_base(f"Censors for {user.name}")
+        embed = utils.get_embed_base(title=f"Censors for {user.name}")
         for word in data['censor']['contents']:
             embed.add_field(name=word, value=data['censor']['contents'][word])
         await ctx.respond(embed=embed)
@@ -53,7 +53,7 @@ class Get(commands.Cog):
         if not data['sprinkle']:
             await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
             return
-        embed = utils.get_embed_base(f"Sprinkles for {user.name}")
+        embed = utils.get_embed_base(title=f"Sprinkles for {user.name}")
         embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
         await ctx.respond(embed=embed)
 
@@ -67,7 +67,7 @@ class Get(commands.Cog):
         if not data['muffle']:
             await ctx.respond(f"{user.mention} has no muffles at the moment!")
             return
-        embed = utils.get_embed_base(f"Muffle for {user.name}")
+        embed = utils.get_embed_base(title=f"Muffle for {user.name}")
         embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
         await ctx.respond(embed=embed)
 
@@ -81,7 +81,7 @@ class Get(commands.Cog):
         if not data['prefix']:
             await ctx.respond(f"{user.mention} has no prefixes at the moment!")
             return
-        embed = utils.get_embed_base(f"Prefixes for {user.name}")
+        embed = utils.get_embed_base(title=f"Prefixes for {user.name}")
         embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
         await ctx.respond(embed=embed)
 
@@ -95,7 +95,7 @@ class Get(commands.Cog):
         if not data['suffix']:
             await ctx.respond(f"{user.mention} has no suffixes at the moment!")
             return
-        embed = utils.get_embed_base(f"Suffixes for {user.name}")
+        embed = utils.get_embed_base(title=f"Suffixes for {user.name}")
         embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
         await ctx.respond(embed=embed)
 
@@ -109,7 +109,7 @@ class Get(commands.Cog):
         if data['bio'] in ["", None]:
             await ctx.respond(f"{user.mention} has no biography set!")
             return
-        embed = utils.get_embed_base(f"Biography for {user.name}")
+        embed = utils.get_embed_base(title=f"Biography for {user.name}")
         embed.add_field(name="", value=data['bio'])
         await ctx.respond(embed=embed)
 
@@ -129,7 +129,7 @@ class Get(commands.Cog):
             description += f"**{tfee}** -> *{into}*\n\n"
         # Take off the last two new lines
         description = description[:-2]
-        await ctx.respond(embed=utils.get_embed_base("Transformed Users", description))
+        await ctx.respond(embed=utils.get_embed_base(title="Transformed Users", desc=description))
 
 
 def setup(bot: discord.Bot) -> None:

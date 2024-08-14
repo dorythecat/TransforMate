@@ -50,7 +50,7 @@ async def on_message(message: discord.Message) -> None:
                 await message.author.send("Cancelled the report!")
                 return
 
-            embed = utils.get_embed_base("RECEIVED A REPORT")
+            embed = utils.get_embed_base(title="RECEIVED A REPORT", color=discord.Color.dark_red())
             embed.add_field(name="Reported User", value=user.mention)
             embed.add_field(name="Reporter", value=message.author.mention)
             embed.add_field(name="Reason", value=reason.content.strip())
@@ -61,8 +61,7 @@ async def on_message(message: discord.Message) -> None:
 
     # Check if the message was sent by a bot
     if message.author.bot:
-        # Dyno bot
-        if message.author.id == 1273264155482390570:
+        if message.author.id == 1273264155482390570:  # Dyno bot
             if message.embeds and message.embeds[0].description.__contains__("Deleted"):
                 if utils.is_transformed(discord.utils.get(bot.get_all_members(), name=message.embeds[0].author.name),
                                         message.guild,
@@ -264,7 +263,7 @@ async def report(ctx: discord.ApplicationContext,
         return
     await ctx.channel.delete_messages([response])  # Delete confirmation message, for privacy
 
-    embed = utils.get_embed_base("RECEIVED A REPORT")
+    embed = utils.get_embed_base(title="RECEIVED A REPORT", color=discord.Color.dark_red())
     embed.add_field(name="Reported User", value=user.mention)
     embed.add_field(name="Reporter", value=ctx.author.mention)
     embed.add_field(name="Reason", value=reason)
@@ -280,7 +279,7 @@ async def report(ctx: discord.ApplicationContext,
 
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext) -> None:
-    embed = utils.get_embed_base("Info", "> \"Let's get transforming!\"")
+    embed = utils.get_embed_base(title="Info", desc="> \"Let's get transforming!\"")
     embed.add_field(name="Original Creators", value="<@770662556456976415>\n<@250982256976330754>")
     embed.add_field(name="Logo by", value="<@317115440180494337>")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
