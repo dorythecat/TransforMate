@@ -174,7 +174,8 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
                             f"Please provide the edited message you want to send.")
             response = await bot.wait_for('message', check=lambda m: m.author == user)
             # Send the message through the webhook
-            is_thread = reaction.message.channel.type in [discord.ChannelType.private_thread, discord.ChannelType.public_thread]
+            is_thread = reaction.message.channel.type in [discord.ChannelType.private_thread,
+                                                          discord.ChannelType.public_thread]
             channel = reaction.message.channel.parent if is_thread else reaction.message.channel
 
             webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
