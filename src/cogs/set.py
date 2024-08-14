@@ -19,7 +19,8 @@ class Set(commands.Cog):
                                                    description="Chance for prefix to go off") = 30,
                      user: discord.Option(discord.User) = None,
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                description="Add a space after the prefix (defaults true)") = True) -> None:
+                                                description="Add a space after the prefix "
+                                                            "(defaults true)") = True) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
