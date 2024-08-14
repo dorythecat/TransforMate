@@ -47,13 +47,13 @@ class Transformation(commands.Cog):
         channel_id = str(ctx.channel.id if not channel else channel.id)
 
         # Blocked channels (user)
-        if data != {}:
+        if data not in [None, {}]:
             if channel_id in data['blocked_channels']:
                 await ctx.respond(
                     f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
                 return
 
-        if tfee_data != {}:
+        if tfee_data not in [None, {}]:
             # Blocked channels (server)
             if channel_id in tfee_data['blocked_channels']:
                 await ctx.respond(f"You're blocked from using this bot on this channel!")
