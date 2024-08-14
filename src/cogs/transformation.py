@@ -43,7 +43,7 @@ class Transformation(commands.Cog):
             user = ctx.author
 
         data = utils.load_tf(user, ctx.guild)
-        tfee_data = utils.load_transformed(ctx.guild)
+        transformed_data = utils.load_transformed(ctx.guild)
         channel_id = str(ctx.channel.id if not channel else channel.id)
 
         # Blocked users (globally)
@@ -61,17 +61,17 @@ class Transformation(commands.Cog):
                     f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
                 return
 
-        if tfee_data not in [None, {}]:
+        if transformed_data not in [None, {}]:
             # Blocked channels (server)
-            if channel_id in tfee_data['blocked_channels']:
+            if channel_id in transformed_data['blocked_channels']:
                 await ctx.respond(f"You can't use the bot on this channel!")
                 return
 
             # Blocked users (server)
-            if str(ctx.user.id) in tfee_data['blocked_users']:
+            if str(ctx.user.id) in transformed_data['blocked_users']:
                 await ctx.respond(f"You can't use the bot on this server!")
                 return
-            if str(user.id) in tfee_data['blocked_users']:
+            if str(user.id) in transformed_data['blocked_users']:
                 await ctx.respond(f"That user can't use the bot on this server!")
                 return
 
