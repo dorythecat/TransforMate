@@ -43,6 +43,30 @@ class Admin(commands.Cog):
         word = "blocked" if str(user.id) in data else "unblocked"
         await ctx.respond(f"{user.mention} has been {word}!", ephemeral=True)
 
+    @admin_command.command(description="List all blocked channels")
+    @discord.default_permissions(administrator=True)
+    async def list_blocked_channels(self,
+                                    ctx: discord.ApplicationContext) -> None:
+        data = utils.load_transformed(ctx.guild)
+        blocked_channels = [ctx.guild.get_channel(int(channel)).mention for channel in data['blocked_channels']]
+
+        embed = utils.get_embed_base(title="Blocked Channels",
+                                     desc="\n".join(blocked_channels) if blocked_channels else "No blocked channels",
+                                     color=discord.Color.red())
+        await ctx.respond(embed=embed, ephemeral=True)
+
+    @admin_command.command(description="List all blocked users")
+    @discord.default_permissions(administrator=True)
+    async def list_blocked_users(self,
+                                 ctx: discord.ApplicationContext) -> None:
+        data = utils.load_transformed(ctx.guild)
+        blocked_users = [ctx.guild.get_member(int(user)).mention for user in data['blocked_users']]
+
+        embed = utils.get_embed_base(title="Blocked Users",
+                                     desc="\n".join(blocked_users) if blocked_users else "No blocked users",
+                                     color=discord.Color.red())
+        await ctx.respond(embed=embed, ephemeral=True)
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Admin(bot))
