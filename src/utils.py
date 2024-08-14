@@ -214,7 +214,7 @@ def write_transformed(guild: discord.Guild,
                       block_user: discord.User | discord.Member | None = None,
                       block_channel: discord.TextChannel | None = None,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
-                      clear_other_logs: bool = False) -> None:
+                      clear_other_logs: bool | None = None) -> None:
     data = load_transformed()
     if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
         if CLEAR_OLD_TRANSFORMED_DATA:
@@ -254,8 +254,8 @@ def write_transformed(guild: discord.Guild,
     if logs is not None:
         data[str(guild.id)]['logs'] = logs
 
-    if clear_other_logs:
-        data[str(guild.id)]['clear_other_logs'] = True
+    if clear_other_logs is not None:
+        data[str(guild.id)]['clear_other_logs'] = clear_other_logs
 
     write_file("../cache/transformed.json", data)
 
