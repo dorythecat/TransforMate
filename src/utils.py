@@ -21,11 +21,12 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 1: Base version
 CURRENT_TFEE_DATA_VERSION = 10
 
+# VERSION 5: Added "logs" and "clear_other_logs" fields
 # VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 4
+CURRENT_TRANSFORMED_DATA_VERSION = 5
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -175,7 +176,8 @@ def write_tf(user: discord.User | discord.Member,
             data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
         if alt_muffle is not None:
             data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
-            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [alt_muffle.strip()] if alt_muffle != "" else []
+            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [
+                alt_muffle.strip()] if alt_muffle != "" else []
             data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
 
         if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
@@ -209,19 +211,25 @@ def load_transformed(guild: discord.Guild | None = None) -> dict:
 def write_transformed(guild: discord.Guild,
                       user: discord.User | discord.Member | None = None,
                       channel: discord.TextChannel | None = None,
+                      block_user: discord.User | discord.Member | None = None,
                       block_channel: discord.TextChannel | None = None,
-                      block_user: discord.User | discord.Member | None = None) -> None:
+                      logs: list[int | None] | None = None,  # [edit, del, tf, claim]
+                      clear_other_logs: bool = False) -> None:
     data = load_transformed()
     if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
         if CLEAR_OLD_TRANSFORMED_DATA:
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
+
     if str(guild.id) not in data:
         data[str(guild.id)] = {
             'blocked_users': [],
             'blocked_channels': [],
+            'logs': [None, None, None, None],
+            'clear_other_logs': False,
             'transformed_users': {}
         }
+
     if user is not None:
         if str(user.id) not in data[str(guild.id)]['transformed_users']:
             data[str(guild.id)]['transformed_users'][str(user.id)] = []
@@ -230,16 +238,27 @@ def write_transformed(guild: discord.Guild,
                 data[str(guild.id)]['transformed_users'][str(user.id)].append('all')
         elif str(channel.id) not in data[str(guild.id)]['transformed_users'][str(user.id)]:
             data[str(guild.id)]['transformed_users'][str(user.id)].append(str(channel.id))
+
     if block_channel is not None:
         if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
             data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
         else:
             data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+
     if block_user is not None:
         if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
             data[str(guild.id)]['blocked_users'].append(str(block_user.id))
         else:
             data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
+
+    if logs is not None:
+        for log in logs:
+            data[str(guild.id)]['logs'][logs.index(log)] = (log if log is not None else
+                                                            data[str(guild.id)]['logs'][logs.index])
+
+    if clear_other_logs:
+        data[str(guild.id)]['clear_other_logs'] = True
+
     write_file("../cache/transformed.json", data)
 
 
@@ -253,7 +272,7 @@ def remove_transformed(user: discord.User | discord.Member,
 
 def is_transformed(user: discord.User | discord.Member,
                    guild: discord.Guild,
-                   channel: discord.TextChannel = None) -> bool:
+                   channel: discord.TextChannel | None = None) -> bool:
     tfee_data = load_transformed(guild)
     if tfee_data in [{}, None] or str(user.id) not in tfee_data['transformed_users']:
         return False
