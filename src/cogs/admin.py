@@ -86,6 +86,16 @@ class Admin(commands.Cog):
         utils.write_transformed(ctx.guild, logs=logs)
         await ctx.respond("Log channels have been set up!", ephemeral=True)
 
+    @admin_command.command(description="Update the bot's settings")
+    @discord.default_permissions(administrator=True)
+    async def update_settings(self,
+                              ctx: discord.ApplicationContext,
+                              clean_logs: discord.Option(discord.SlashCommandOptionType.boolean,
+                                                         description="Should the bot clean up the logs"
+                                                                     "made by other bots?") = False) -> None:
+        utils.write_transformed(ctx.guild, clear_other_logs=clean_logs)
+        await ctx.respond("Bot settings have been updated!", ephemeral=True)
+
 
 
 def setup(bot: discord.Bot) -> None:
