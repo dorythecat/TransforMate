@@ -252,9 +252,7 @@ def write_transformed(guild: discord.Guild,
             data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
 
     if logs is not None:
-        for log in logs:
-            data[str(guild.id)]['logs'][logs.index(log)] = (log if log is not None else
-                                                            data[str(guild.id)]['logs'][logs.index])
+        data[str(guild.id)]['logs'] = logs
 
     if clear_other_logs:
         data[str(guild.id)]['clear_other_logs'] = True
