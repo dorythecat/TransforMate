@@ -410,10 +410,10 @@ def get_embed_base(title: str,
 
 def check_reactions(reaction: discord.Reaction) -> [int | None,
                                                     dict | None]:
-    tfee_data = load_transformed(reaction.message.guild)['transformed_users']
+    transformed_data = load_transformed(reaction.message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
-    for tfee in tfee_data:
+    for tfee in transformed_data:
         data = load_tf_by_id(tfee, reaction.message.guild)
         data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
         if data['into'] == reaction.message.author.name:
