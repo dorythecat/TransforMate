@@ -113,8 +113,10 @@ async def on_message(message: discord.Message) -> None:
         if message.reference.resolved.content:
             content += f">>> {message.reference.resolved.content}"
             # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
-            await webhook.send(content, username=name, avatar_url=image_url, thread=(message.channel if is_thread else
-                                                                                     discord.utils.MISSING))
+            await webhook.send(content,
+                               username=name,
+                               avatar_url=image_url,
+                               thread=message.channel if is_thread else discord.utils.MISSING)
             content = ""
 
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
@@ -135,13 +137,16 @@ async def on_message(message: discord.Message) -> None:
 
         content += utils.transform_text(data, message.content)
 
+    attachments = []
     for attachment in message.attachments:
-        attachment_url = attachment.url.strip()[:attachment.url.index("?")] if "?" in attachment.url else attachment.url
-        if image_url == attachment_url:
-            return
-        content += "\n" + attachment_url
-    await webhook.send(content, username=name, avatar_url=image_url, thread=(message.channel if is_thread else
-                                                                             discord.utils.MISSING))
+        attachment_file = await attachment.to_file()
+        attachments.append(attachment_file)
+
+    await webhook.send(content,
+                       username=name,
+                       avatar_url=image_url,
+                       files=attachments,
+                       thread=message.channel if is_thread else discord.utils.MISSING)
     await message.delete()
 
 
