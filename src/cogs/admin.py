@@ -92,8 +92,11 @@ class Admin(commands.Cog):
                               ctx: discord.ApplicationContext,
                               clean_logs: discord.Option(discord.SlashCommandOptionType.boolean,
                                                          description="Should the bot clean up the logs"
-                                                                     "made by other bots?") = False) -> None:
-        utils.write_transformed(ctx.guild, clear_other_logs=clean_logs)
+                                                                     "made by other bots?") = False,
+                              brackets: discord.Option(discord.SlashCommandOptionType.boolean,
+                                                       description="Do we use brackets for"
+                                                                   "transformations?") = False) -> None:
+        utils.write_transformed(ctx.guild, clear_other_logs=clean_logs, affixes=brackets)
         await ctx.respond("Bot settings have been updated!", ephemeral=True)
 
 

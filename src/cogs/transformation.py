@@ -10,7 +10,8 @@ async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str,
                              image_url: str,
-                             channel: discord.TextChannel) -> bool:
+                             channel: discord.TextChannel,
+                             brackets: list[str]) -> bool:
     if not image_url:
         image_url = user.avatar.url
     image_url = image_url.strip()
@@ -20,7 +21,14 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:  # Prune url, if possible, to preserve space
         image_url = image_url[:image_url.index("?")]
 
-    utils.write_tf(user, ctx.guild, channel, transformed_by=str(ctx.author.id), into=into.strip(), image_url=image_url)
+    utils.write_tf(user,
+                   ctx.guild,
+                   channel,
+                   transformed_by=str(ctx.author.id),
+                   into=into.strip(),
+                   image_url=image_url,
+                   proxy_prefix=brackets[0] if brackets else None,
+                   proxy_suffix=brackets[1] if brackets else None)
     utils.write_transformed(ctx.guild, user, channel)
 
     transformed_data = utils.load_transformed(ctx.guild)
@@ -48,7 +56,11 @@ class Transformation(commands.Cog):
                         image_url: discord.Option(discord.SlashCommandOptionType.string,
                                                   description="Image URL to use") = None,
                         channel: discord.Option(discord.TextChannel,
-                                                description="Transform the user only on this channel") = None) -> None:
+                                                description="Transform the user only on this channel") = None,
+                        brackets: discord.Option(discord.SlashCommandOptionType.string,
+                                                 description="What brackets to use for this proxy."
+                                                             "Ex: \"text\", Abc:text, etc."
+                                                             "(Only available in certain servers)") = None) -> None:
         if not user:
             user = ctx.author
 
@@ -65,13 +77,13 @@ class Transformation(commands.Cog):
             return
 
         # Blocked channels (user)
-        if data not in [None, {}]:
+        if data != {}:
             if channel_id in data['blocked_channels']:
                 await ctx.respond(
                     f"You can't transform {user.mention} in this channel! They have blocked the bot here!")
                 return
 
-        if transformed_data not in [None, {}]:
+        if transformed_data != {}:
             # Blocked channels (server)
             if channel_id in transformed_data['blocked_channels']:
                 await ctx.respond(f"You can't use the bot on this channel!")
@@ -99,11 +111,21 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
 
+        if transformed_data['affixes']:
+            if not brackets:
+                await ctx.respond(f"Please provide brackets for this transformation!")
+                return
+            brackets.split("text")
+        else:
+            if brackets is not None:
+                await ctx.respond(f"This server does not allow brackets for transformations!")
+                return
+
         if into:
             if len(into) <= 1:
                 await ctx.send("Please provide a name longer than 1 character!")
                 return
-            if await transform_function(ctx, user, into, image_url, channel):
+            if await transform_function(ctx, user, into, image_url, channel, brackets):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
@@ -119,7 +141,8 @@ class Transformation(commands.Cog):
                                     user,
                                     response.content,
                                     response.attachments[0].url if response.attachments else None,
-                                    channel):
+                                    channel,
+                                    brackets):
             await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
     @discord.slash_command(description="Return someone to their previous state")
