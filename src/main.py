@@ -119,7 +119,7 @@ async def on_message(message: discord.Message) -> None:
                                thread=message.channel if is_thread else discord.utils.MISSING)
             content = ""
 
-    if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
+    if message.content:
         # Check if censor, muffles, alt muffle, or sprinkles are active in data
         if (
                 data['censor']['active'] or
@@ -147,6 +147,8 @@ async def on_message(message: discord.Message) -> None:
         attachment_file = await attachment.to_file()
         attachments.append(attachment_file)
 
+    # The message needs to either havbe content or attachments (or both) to be sent,
+    # so we don't need to worry about sending empty messages and triggering 400 errors
     await webhook.send(content,
                        username=name,
                        avatar_url=image_url,
