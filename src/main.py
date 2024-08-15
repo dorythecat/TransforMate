@@ -120,7 +120,7 @@ async def on_message(message: discord.Message) -> None:
             content = ""
 
     if message.content:  # If there's no content, and we try to send it, it will trigger a 400 error
-        # Check if censor, muffles, or sprinkles are active in data
+        # Check if censor, muffles, alt muffle, or sprinkles are active in data
         if (
                 data['censor']['active'] or
                 data['muffle']['active'] or
