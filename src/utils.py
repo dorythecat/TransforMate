@@ -9,6 +9,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 11: Added "proxy_prefix" and "proxy_suffix" fields
 # VERSION 10: Added "alt_muffle" field
 # VERSION 9: Added "blocked_users" field
 # VERSION 8: Added "upside_down" and "backwards" fields
@@ -19,7 +20,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 10
+CURRENT_TFEE_DATA_VERSION = 11
 
 # VERSION 5: Added "logs" and "clear_other_logs" fields
 # VERSION 4: Each user now stores the channels they're transformed on
@@ -64,6 +65,8 @@ def write_tf(user: discord.User | discord.Member,
              alt_muffle: str | None = None,
              chance: int | None = None,
              mod_type: str | None = None,
+             proxy_prefix: str | None = None,
+             proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
     data = load_tf(user)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
@@ -116,6 +119,8 @@ def write_tf(user: discord.User | discord.Member,
                     'contents': [],
                     'chance': 0
                 },
+                'proxy_prefix': None,
+                'proxy_suffix': None,
                 'bio': None
             }
         else:
@@ -182,6 +187,12 @@ def write_tf(user: discord.User | discord.Member,
 
         if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
             data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+
+        if proxy_prefix is not None:
+            data[str(guild.id)][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
+        if proxy_suffix is not None:
+            data[str(guild.id)][channel_id]['proxy_suffix'] = None if proxy_suffix == "" else proxy_suffix
+
         if bio is not None:
             data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
     write_file(f"../cache/people/{str(user.id)}.json", data)
