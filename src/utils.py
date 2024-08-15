@@ -351,10 +351,13 @@ def transform_text(data: dict,
         transformed = "# " + transformed
 
     if data['small']:
-        alphabet = "abcdefghijklmnopqrstuvwxyz."
-        tiny_alphabet = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·"
-        for i in range(26):  # 26 letters in alphabet
-            transformed = transformed.lower().replace(alphabet[i], tiny_alphabet[i])
+        trans_table = str.maketrans("abcdefghijklmnopqrstuvwxyz.0123456789+-=()",
+                                    "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
+
+        transformed_list = transformed.lower().translate(trans_table).splitlines()
+        transformed = "\n"
+        for text in transformed_list:
+            transformed += "-# " + text.strip() + "\n"
 
     if data['hush']:
         transformed = "||" + transformed + "||"
