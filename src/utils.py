@@ -22,12 +22,13 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 1: Base version
 CURRENT_TFEE_DATA_VERSION = 11
 
+# VERSION 6: Added "affixes" field
 # VERSION 5: Added "logs" and "clear_other_logs" fields
 # VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 5
+CURRENT_TRANSFORMED_DATA_VERSION = 6
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -225,7 +226,8 @@ def write_transformed(guild: discord.Guild,
                       block_user: discord.User | discord.Member | None = None,
                       block_channel: discord.TextChannel | None = None,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
-                      clear_other_logs: bool | None = None) -> None:
+                      clear_other_logs: bool | None = None,
+                      affixes: bool | None = None) -> None:
     data = load_transformed()
     if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
         if CLEAR_OLD_TRANSFORMED_DATA:
@@ -238,6 +240,7 @@ def write_transformed(guild: discord.Guild,
             'blocked_channels': [],
             'logs': [None, None, None, None],
             'clear_other_logs': False,
+            'affixes': False,
             'transformed_users': {}
         }
 
@@ -267,6 +270,8 @@ def write_transformed(guild: discord.Guild,
 
     if clear_other_logs is not None:
         data[str(guild.id)]['clear_other_logs'] = clear_other_logs
+    if affixes is not None:
+        data[str(guild.id)]['affixes'] = affixes
 
     write_file("../cache/transformed.json", data)
 
