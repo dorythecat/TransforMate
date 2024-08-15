@@ -21,7 +21,7 @@ async def on_message(message: discord.Message) -> None:
     if message.author == bot.user:
         return
 
-    if not message.guild:
+    if not message.guild:  # DMs
         if "report" in message.content.lower():
             await message.author.send("Uh, oh! Do you want to report someone? If so, please provide the user ID, which"
                                       " you can get by right-clicking on their name and selecting \"Copy ID\".")
@@ -82,7 +82,7 @@ async def on_message(message: discord.Message) -> None:
         return
 
     data = utils.load_tf(message.author, message.guild)
-    if data == {}:
+    if data == {}:  # User isn't transformed
         return
 
     # Handle blocked channels
@@ -109,7 +109,7 @@ async def on_message(message: discord.Message) -> None:
         webhook = await channel.create_webhook(name=WEBHOOK_NAME)
 
     content = ""
-    if message.reference:
+    if message.reference:  # Check if the message is a reply
         content += f"**Replying to {message.reference.resolved.author.mention}:**\n"
         if message.reference.resolved.content:
             content += f">>> {message.reference.resolved.content}"
