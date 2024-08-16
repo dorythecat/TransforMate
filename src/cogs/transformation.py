@@ -11,7 +11,7 @@ async def transform_function(ctx: discord.ApplicationContext,
                              into: str,
                              image_url: str,
                              channel: discord.TextChannel,
-                             brackets: list[str]) -> bool:
+                             brackets: list[str] | None) -> bool:
     if not image_url:
         image_url = user.avatar.url
     image_url = image_url.strip()
@@ -27,8 +27,8 @@ async def transform_function(ctx: discord.ApplicationContext,
                    transformed_by=str(ctx.author.id),
                    into=into.strip(),
                    image_url=image_url,
-                   proxy_prefix=brackets[0] if brackets else None,
-                   proxy_suffix=brackets[1] if brackets else None)
+                   proxy_prefix=brackets[0] if brackets is not None else None,
+                   proxy_suffix=brackets[1] if brackets is not None else None)
     utils.write_transformed(ctx.guild, user, channel)
 
     transformed_data = utils.load_transformed(ctx.guild)
@@ -37,6 +37,8 @@ async def transform_function(ctx: discord.ApplicationContext,
         embed.add_field(name="User", value=user.mention)
         embed.add_field(name="Transformed By", value=ctx.author.mention)
         embed.add_field(name="Into", value=into)
+        if brackets is not None:
+            embed.add_field(name="Brackets", value=f"{brackets[0]}text{brackets[1]}")
         embed.set_image(url=image_url)
         await ctx.guild.get_channel(transformed_data['logs'][2]).send(embed=embed)
 
