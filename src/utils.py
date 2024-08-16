@@ -407,7 +407,7 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 
 # FILE UTILS
 def load_file(filename: str,
-              guild: discord.Guild) -> dict:
+              guild: discord.Guild | None = None) -> dict:
     with open(filename) as f:
         contents = f.read().strip()
         if contents == "":
@@ -417,6 +417,7 @@ def load_file(filename: str,
             return data
         if str(guild.id) in data:
             return data[str(guild.id)]
+        return {}
 
 
 def write_file(filename: str,
