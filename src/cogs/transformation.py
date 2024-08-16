@@ -115,7 +115,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
 
-        if transformed_data['affixes']:
+        if transformed_data != {} and transformed_data['affixes']:
             if not brackets:
                 await ctx.respond(f"Please provide brackets for this transformation!")
                 return
