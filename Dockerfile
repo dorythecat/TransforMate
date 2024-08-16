@@ -13,5 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code to the working directory
 COPY . .
 
+RUN mkdir -p /app/cache/people
+
 # Specify the command to run the application
 CMD ["python", "src/main.py"]
