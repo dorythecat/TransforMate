@@ -107,6 +107,7 @@ class Transformation(commands.Cog):
             elif 'all' in data:
                 data = data['all']
             else:
+                await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return
             if data['claim'] not in ["", None] and data['claim'] != ctx.author.name and data['eternal']:
                 if ctx.author.name != user.name:
