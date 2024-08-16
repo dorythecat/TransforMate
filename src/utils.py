@@ -120,14 +120,16 @@ def write_tf(user: discord.User | discord.Member,
                     'contents': [],
                     'chance': 0
                 },
-                'proxy_prefix': None,
-                'proxy_suffix': None,
+                'proxy_prefix': proxy_prefix,
+                'proxy_suffix': proxy_suffix,
                 'bio': None
             }
         else:
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
             data[str(guild.id)][channel_id]['into'] = into
             data[str(guild.id)][channel_id]['image_url'] = image_url
+            data[str(guild.id)][channel_id]['proxy_prefix'] = proxy_prefix
+            data[str(guild.id)][channel_id]['proxy_suffix'] = proxy_suffix
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
