@@ -26,9 +26,9 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
-          push: true
           tags: dorycraft/transformate:latest
           add_git_labels: true
           tag_with_ref: false
           tag_with_sha: true
-          platform: linux/arm
+          platform: linux/amd64,linux/arm
+          push: true
