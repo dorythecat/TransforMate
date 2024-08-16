@@ -9,6 +9,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
 # VERSION 11: Added "proxy_prefix" and "proxy_suffix" fields
 # VERSION 10: Added "alt_muffle" field
 # VERSION 9: Added "blocked_users" field
@@ -20,15 +21,16 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 11
+CURRENT_TFEE_DATA_VERSION = 12
 
+# VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
 # VERSION 5: Added "logs" and "clear_other_logs" fields
 # VERSION 4: Each user now stores the channels they're transformed on
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 6
+CURRENT_TRANSFORMED_DATA_VERSION = 7
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -70,11 +72,15 @@ def write_tf(user: discord.User | discord.Member,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
     data = load_tf(user)
+    transformed_data = load_transformed(guild)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
         if CLEAR_OLD_TFEE_DATA:
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TFEE_DATA_VERSION
-    channel_id = 'all' if channel is None else str(channel.id)
+    if transformed_data['affixes']:
+        channel_id = proxy_prefix + " " + proxy_suffix
+    else:
+        channel_id = 'all' if channel is None else str(channel.id)
     if into not in ["", None]:
         if str(guild.id) not in data:
             data[str(guild.id)] = {}

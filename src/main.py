@@ -87,30 +87,38 @@ async def on_message(message: discord.Message) -> None:
 
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
-    if str(message.channel.id) in (data['blocked_channels'] or
-                                   utils.load_transformed(message.guild)['blocked_channels']):
+    if str(message.channel.id) in data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']:
         return
 
-    tfed_channels = utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]
-    if str(message.channel.id) in data and tfed_channels:
-        data = data[str(message.channel.id)]
-    elif 'all' in data and tfed_channels:
-        data = data['all']
-    else:
-        return
-
-    # Check if affixes are enabled, and if they are, check if the message contains them
+    found = False
     if transformed_data['affixes']:
-        if data['proxy_prefix'] != "":
-            if message.content.startswith(data['proxy_prefix']):
-                message.content = message.content[len(data['proxy_prefix']):]
-            else:
-                return
-        if data['proxy_suffix'] != "":
-            if message.content.endswith(data['proxy_suffix']):
-                message.content = message.content[:-len(data['proxy_suffix'])]
-            else:
-                return
+        for d in data:
+            if d in ['blocked_channels', 'blocked_users']:
+                continue
+            original_d = d
+            d = d.split(' ')
+            if d[0] != "":
+                if not message.content.startswith(d[0]):
+                    continue
+                message.content = message.content[len(d[0]):]
+            if d[1] != "":
+                if not message.content.endswith(d[1]):
+                    continue
+                message.content = message.content[:-len(d[1])]
+            data = data[original_d]
+            found = True
+            break
+
+    # This means we either don't have affixes on, or that the message didn't contain them,
+    # so we can do the "usual" checks now
+    if not found:
+        tfed_channels = utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]
+        if str(message.channel.id) in data and tfed_channels:
+            data = data[str(message.channel.id)]
+        elif 'all' in data and tfed_channels:
+            data = data['all']
+        else:
+            return
 
     name = data['into']
     image_url = data['image_url']
