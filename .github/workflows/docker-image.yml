@@ -27,8 +27,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           tags: dorycraft/transformate:latest
-          add_git_labels: true
-          tag_with_ref: false
-          tag_with_sha: true
           platforms: linux/amd64,linux/arm
           push: true
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
