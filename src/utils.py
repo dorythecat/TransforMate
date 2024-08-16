@@ -78,9 +78,9 @@ def write_tf(user: discord.User | discord.Member,
     if into not in ["", None]:
         if str(guild.id) not in data:
             data[str(guild.id)] = {}
-        if channel_id not in data[str(guild.id)]:
             data[str(guild.id)]['blocked_channels'] = []
             data[str(guild.id)]['blocked_users'] = []
+        if channel_id not in data[str(guild.id)]:
             data[str(guild.id)][channel_id] = {
                 'transformed_by': transformed_by,
                 'into': into,
