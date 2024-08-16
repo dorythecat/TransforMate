@@ -13,7 +13,7 @@ async def transform_function(ctx: discord.ApplicationContext,
                              channel: discord.TextChannel,
                              brackets: list[str] | None) -> bool:
     if not image_url:
-        image_url = user.avatar.url
+        image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
     image_url = image_url.strip()
     if image_url[:4] != "http":
         await ctx.send("Invalid Image URL! Please provide a valid image URL!")
