@@ -119,7 +119,7 @@ class Transformation(commands.Cog):
             if not brackets:
                 await ctx.respond(f"Please provide brackets for this transformation!")
                 return
-            brackets.split("text")
+            brackets = brackets.split("text")
         else:
             if brackets is not None:
                 await ctx.respond(f"This server does not allow brackets for transformations!")
