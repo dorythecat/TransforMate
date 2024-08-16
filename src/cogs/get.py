@@ -118,7 +118,7 @@ class Get(commands.Cog):
                           ctx: discord.ApplicationContext) -> None:
         tfee_data = utils.load_transformed(ctx.guild)['transformed_users']
         if not tfee_data:
-            await ctx.respond("No one is transformed (globally) at the moment!")
+            await ctx.respond("No one is transformed in this server, at the moment!")
             return
         description = ""
         for tfee in tfee_data:
@@ -126,7 +126,7 @@ class Get(commands.Cog):
             transformed_data = transformed_data[
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
-            description += f"**{tfee}** -> *{into}*\n\n"
+            description += f"{ctx.guild.get_member(int(tfee)).mention} is \"{into}\"\n\n"
         # Take off the last two new lines
         description = description[:-2]
         await ctx.respond(embed=utils.get_embed_base(title="Transformed Users", desc=description))
