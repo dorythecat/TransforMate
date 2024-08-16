@@ -106,6 +106,8 @@ class Transformation(commands.Cog):
                 data = data[channel_id]
             elif 'all' in data:
                 data = data['all']
+            elif transformed_data != {} and transformed_data['affixes']:
+                data = {'claim': None} # Empty data so we can do multiple tfs
             else:
                 await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return
@@ -121,7 +123,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Please provide brackets for this transformation!")
                 return
             brackets = brackets.split("text")
-            if len(brackets) != 2:
+            if len(brackets) > 2:
                 await ctx.respond(f"Invalid brackets! Please provide valid brackets for this transformation!")
                 return
         else:
