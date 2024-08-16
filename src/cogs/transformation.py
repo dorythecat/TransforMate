@@ -162,16 +162,19 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
         data = utils.load_tf(user, ctx.guild)
+        transformed_data = utils.load_transformed(ctx.guild)
         channel = None
         if str(ctx.channel.id) in data:
             data = data[str(ctx.channel.id)]
             channel = ctx.channel
         elif 'all' in data:
             data = data['all']
-        else:
+        elif transformed_data != {} and not transformed_data['affixes']:
             await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to! "
                               f"(At least on this channel)")
             return
+        else:
+            data = {'claim': None, 'eternal': None, 'into': 'all'}  # Empty data so we can do multiple tfs
 
         if not utils.is_transformed(user, ctx.guild, ctx.channel) and not utils.is_transformed(user, ctx.guild):
             if data['into'] in ["", None]:
