@@ -28,3 +28,6 @@ jobs:
         with:
           push: true
           tags: dorycraft/transformate:latest
+          add_git_labels: true
+          tag_with_ref: false
+          tag_with_sha: true
