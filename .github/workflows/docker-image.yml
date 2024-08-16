@@ -31,4 +31,4 @@ jobs:
           add_git_labels: true
           tag_with_ref: false
           tag_with_sha: true
-          platform: linux/amd64,linux/arm64/,linux/arm/v8
+          platform: linux/arm64/v8
