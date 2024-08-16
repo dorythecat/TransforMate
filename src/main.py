@@ -100,7 +100,7 @@ async def on_message(message: discord.Message) -> None:
 
     # Check if affixes are enabled, and if they are, check if the message contains them
     if transformed_data['affixes']:
-        if message.content.startswith(data['proxy_prefix']) or message.content.endswith(data['proxy_suffix']):
+        if message.content.startswith(data['proxy_prefix']) and message.content.endswith(data['proxy_suffix']):
             # Remove prefix and suffix from message
             message.content = message.content[len(data['proxy_prefix']):-len(data['proxy_suffix'])]
         else:
