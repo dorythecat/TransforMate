@@ -90,10 +90,11 @@ async def on_message(message: discord.Message) -> None:
     if str(message.channel.id) in (data['blocked_channels'] or
                                    utils.load_transformed(message.guild)['blocked_channels']):
         return
-    if str(message.channel.id) in (data and
-                                   utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]):
+
+    tfed_channels = utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]
+    if str(message.channel.id) in data and tfed_channels:
         data = data[str(message.channel.id)]
-    elif 'all' in (data and utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]):
+    elif 'all' in data and tfed_channels:
         data = data['all']
     else:
         return
