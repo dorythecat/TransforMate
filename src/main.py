@@ -1,7 +1,7 @@
 import discord
 
-import utils
-from config import *
+import src.utils as utils
+from src.config import *
 
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
@@ -313,12 +313,12 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             await bot.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
 
-bot.load_extension('cogs.transformation')  # Transformation (base) Commands
-bot.load_extension('cogs.set')  # "Set" Commands
-bot.load_extension('cogs.clear')  # "Clear" Commands
-bot.load_extension('cogs.get')  # "Get" Commands
-bot.load_extension('cogs.admin')  # "Admin" Commands
-bot.load_extension('cogs.block')  # "Block" Commands
+bot.load_extension('.cogs.transformation', package='src')  # Transformation (base) Commands
+bot.load_extension('.cogs.set', package='src')  # "Set" Commands
+bot.load_extension('.cogs.clear', package='src')  # "Clear" Commands
+bot.load_extension('.cogs.get', package='src')  # "Get" Commands
+bot.load_extension('.cogs.admin', package='src')  # "Admin" Commands
+bot.load_extension('.cogs.block', package='src')  # "Block" Commands
 
 
 # Misc commands
