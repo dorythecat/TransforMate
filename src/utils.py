@@ -78,7 +78,8 @@ def write_tf(user: discord.User | discord.Member,
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TFEE_DATA_VERSION
     if transformed_data == {}:
-        write_transformed(guild) # Write some blank data if there's nothing to read here
+        # Write some blank data if there's nothing to read here, and then read it
+        transformed_data = write_transformed(guild)
     if transformed_data['affixes']:
         channel_id = proxy_prefix + " " + proxy_suffix
     else:
@@ -237,7 +238,7 @@ def write_transformed(guild: discord.Guild,
                       block_channel: discord.TextChannel | None = None,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
                       clear_other_logs: bool | None = None,
-                      affixes: bool | None = None) -> None:
+                      affixes: bool | None = None) -> dict:
     data = load_transformed()
     if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
         if CLEAR_OLD_TRANSFORMED_DATA:
@@ -284,6 +285,7 @@ def write_transformed(guild: discord.Guild,
         data[str(guild.id)]['affixes'] = affixes
 
     write_file("cache/transformed.json", data)
+    return data
 
 
 def remove_transformed(user: discord.User | discord.Member,
