@@ -4,7 +4,7 @@ import src.utils as utils
 from src.config import *
 
 intents = discord.Intents.default()
-intents += discord.Intents.message_content()
+intents.message_content = True
 
 bot = discord.Bot(intents=intents)
 
