@@ -4,8 +4,7 @@ import src.utils as utils
 from src.config import *
 
 intents = discord.Intents.default()
-intents.message_content()
-intents.presences()
+intents += discord.Intents.message_content()
 
 bot = discord.Bot(intents=intents)
 
@@ -16,6 +15,10 @@ async def on_ready() -> None:
     await bot.change_presence(status=discord.Status.online,
                               activity=discord.Activity(type=discord.ActivityType.watching,
                                                         name="people get transformed"))
+
+
+# TODO: When the bot joins a server, we should check if it has the proper permissions, and then warn the owner of
+# features that might be disabled.
 
 
 @bot.event
