@@ -77,6 +77,8 @@ def write_tf(user: discord.User | discord.Member,
         if CLEAR_OLD_TFEE_DATA:
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TFEE_DATA_VERSION
+    if transformed_data == {}:
+        write_transformed(guild) # Write some blank data if there's nothing to read here
     if transformed_data['affixes']:
         channel_id = proxy_prefix + " " + proxy_suffix
     else:
