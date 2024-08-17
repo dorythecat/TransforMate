@@ -52,9 +52,10 @@ class Transformation(commands.Cog):
     @discord.slash_command(description="Transform someone")
     async def transform(self,
                         ctx: discord.ApplicationContext,
-                        user: discord.Option(discord.User) = None,
-                        into: discord.Option(discord.SlashCommandOptionType.string,
+                        user: discord.Option(discord.User,
                                              description="Who to transform") = None,
+                        into: discord.Option(discord.SlashCommandOptionType.string,
+                                             description="What to trasnform them into") = None,
                         image_url: discord.Option(discord.SlashCommandOptionType.string,
                                                   description="Image URL to use") = None,
                         channel: discord.Option(discord.TextChannel,
