@@ -3,7 +3,7 @@ import os
 import random
 import discord
 
-from config import CACHE_PATH
+from src.config import CACHE_PATH
 
 # SETTINGS
 CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version, should it be cleared out?
