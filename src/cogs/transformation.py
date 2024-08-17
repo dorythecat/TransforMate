@@ -134,7 +134,7 @@ class Transformation(commands.Cog):
 
         if into:
             if len(into) <= 1:
-                await ctx.send("Please provide a name longer than 1 character!")
+                await ctx.respond("Please provide a name longer than 1 character!")
                 return
             if await transform_function(ctx, user, into, image_url, channel, brackets):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
