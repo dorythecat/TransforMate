@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 # Helper function to parse a string into a list of integers
 def parse_list(string: str | None) -> list[int]:
-    if string is None or string.strip() == "":
+    if string is None or string.strip() in ["", "[]"]:
         return []
     output = string.removeprefix("[").removesuffix("]").split(",")
     return [int(output[i].strip()) for i in range(len(output))]
