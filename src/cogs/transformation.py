@@ -145,7 +145,7 @@ class Transformation(commands.Cog):
             await ctx.respond("Cancelled the transformation!")
             return
         if len(response.content.strip()) <= 1:
-            await ctx.send("Please provide a name longer than 1 character!")
+            await ctx.respond("Please provide a name longer than 1 character!")
             return
         if await transform_function(ctx,
                                     user,
