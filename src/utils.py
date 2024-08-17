@@ -10,7 +10,7 @@ CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version, should it be
 CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
-# REMEMBER TO REGENERATE ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
 # VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
 # VERSION 11: Added "proxy_prefix" and "proxy_suffix" fields
 # VERSION 10: Added "alt_muffle" field
@@ -76,6 +76,7 @@ def write_tf(user: discord.User | discord.Member,
     data = load_tf(user)
     transformed_data = load_transformed(guild)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
+        # TODO: Add a way to update (at least) previous version data to newest version
         if CLEAR_OLD_TFEE_DATA:
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TFEE_DATA_VERSION
