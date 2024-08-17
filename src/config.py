@@ -29,3 +29,7 @@ BLOCKED_USERS: list[int] = parse_list(os.getenv("BLOCKED_USERS"))  # Users that 
 if os.getenv("USER_REPORTS_CHANNEL_ID") is None:
     raise Exception("USER_REPORTS_CHANNEL_ID hasn't been provided! Check your .env! Aborting")
 USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
+
+if os.getenv("CACHE_PATH") is None:
+    raise Exception("CACHE_PATH hasn't been provided! Check your .env! Aborting")
+CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder? (In relationship to the utils.py file)

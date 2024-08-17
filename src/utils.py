@@ -3,6 +3,8 @@ import os
 import random
 import discord
 
+from config import CACHE_PATH
+
 # SETTINGS
 CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version, should it be cleared out?
 CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
@@ -36,8 +38,8 @@ CURRENT_TRANSFORMED_DATA_VERSION = 7
 # USER TRANSFORMATION DATA UTILS
 def load_tf_by_id(user_id: str,
                   guild: discord.Guild | None = None) -> dict:
-    return {} if f"{user_id}.json" not in os.listdir("cache/people") else \
-        load_file(f"cache/people/{user_id}.json", guild)
+    return {} if f'{user_id}.json' not in os.listdir(f'{CACHE_PATH}/people') else \
+        load_file(f'{CACHE_PATH}/people/{user_id}.json', guild)
 
 
 def load_tf(user: discord.User | discord.Member,
@@ -207,7 +209,7 @@ def write_tf(user: discord.User | discord.Member,
 
         if bio is not None:
             data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
-    write_file(f"cache/people/{str(user.id)}.json", data)
+    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
 
 
 def remove_tf(user: discord.User | discord.Member,
@@ -219,16 +221,16 @@ def remove_tf(user: discord.User | discord.Member,
             (channel is None and "all" not in data[str(guild.id)]):
         return
     del data[str(guild.id)]['all' if channel is None else str(channel.id)]
-    write_file(f"cache/people/{str(user.id)}.json", data)
+    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
 
 
 def remove_all_tf(user: discord.User | discord.Member) -> None:
-    os.remove(f"cache/people/{str(user.id)}.json")
+    os.remove(f'{CACHE_PATH}/people/{str(user.id)}.json')
 
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild | None = None) -> dict:
-    return {} if "transformed.json" not in os.listdir("cache") else load_file("cache/transformed.json", guild)
+    return {} if 'transformed.json' not in os.listdir(CACHE_PATH) else load_file(f'{CACHE_PATH}/transformed.json', guild)
 
 
 def write_transformed(guild: discord.Guild,
@@ -284,7 +286,7 @@ def write_transformed(guild: discord.Guild,
     if affixes is not None:
         data[str(guild.id)]['affixes'] = affixes
 
-    write_file("cache/transformed.json", data)
+    write_file(f'{CACHE_PATH}/transformed.json', data)
     return data
 
 
@@ -293,7 +295,7 @@ def remove_transformed(user: discord.User | discord.Member,
                        channel: discord.TextChannel | None = None) -> None:
     data = load_transformed()
     data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
-    write_file("cache/transformed.json", data)
+    write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
 def is_transformed(user: discord.User | discord.Member,

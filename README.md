@@ -53,6 +53,7 @@ BOT_TOKEN=your_token_here
 WEBHOOK_NAME=webhook_name
 BLOCKED_USERS="[user_id1, user_id2, ...]"
 USER_REPORTS_CHANNEL_ID=your_channel_id
+CACHE_PATH="../cache"
 ```
 
 For more information or help, don't hesitate to ask in our Discord server!
