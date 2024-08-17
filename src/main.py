@@ -3,7 +3,10 @@ import discord
 import src.utils as utils
 from src.config import *
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.message_content()
+intents.presences()
+
 bot = discord.Bot(intents=intents)
 
 
