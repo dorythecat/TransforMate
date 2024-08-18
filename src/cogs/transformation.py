@@ -112,10 +112,10 @@ class Transformation(commands.Cog):
             else:
                 await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return
-            if data['claim'] is not None and data['claim'] != ctx.author.id and data['eternal']:
+            if data['claim'] is not None and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
-                                      f"{ctx.guild.get_member(data['claim']).mention}!")
+                                      f"{ctx.guild.get_member(int(data['claim'])).mention}!")
                     return
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
@@ -195,10 +195,10 @@ class Transformation(commands.Cog):
 
             return
 
-        if data['eternal'] and data['claim'] != ctx.author.id:
+        if data['eternal'] and int(data['claim']) != ctx.author.id:
             if ctx.author.name != user.name:
                 await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
-                                  f"{ctx.guild.get_member(data['claim']).mention}!")
+                                  f"{ctx.guild.get_member(int(data['claim'])).mention}!")
                 return
             await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
             return
@@ -221,7 +221,7 @@ class Transformation(commands.Cog):
         if user == ctx.author:
             await ctx.respond(f"You can't claim yourself!")
             return
-        if not utils.is_transformed(user, ctx.guild):
+        if not utils.is_transformed(user, ctx.guild, ctx.channel):
             await ctx.respond(f"{user.mention} is not transformed at the moment, you can't claim them!")
             return
         data = utils.load_tf(user, ctx.guild)
@@ -231,9 +231,9 @@ class Transformation(commands.Cog):
             channel = ctx.channel
         else:
             data = data['all']
-        if data['claim'] is not None and data['claim'] != ctx.author.id:
+        if data['claim'] is not None and int(data['claim']) != ctx.author.id:
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
-                              f"{ctx.guild.get_member(data['claim']).mention}!")
+                              f"{ctx.guild.get_member(int(data['claim'])).mention}!")
             return
         utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.id)
         await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
@@ -264,9 +264,9 @@ class Transformation(commands.Cog):
         if data['claim'] is None:
             await ctx.respond(f"{user.mention} is currently not claimed by anyone (yet)!")
             return
-        if data['claim'] != ctx.author.id:
+        if int(data['claim']) != ctx.author.id:
             await ctx.respond(f"You can't do that! {user.mention} is claimed by "
-                              f"{ctx.guild.get_member(data['claim']).mention}, not you!")
+                              f"{ctx.guild.get_member(int(data['claim'])).mention}, not you!")
             return
         utils.write_tf(user, ctx.guild, channel, claim_user=None, eternal=0)
         await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
