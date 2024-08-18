@@ -301,14 +301,6 @@ def write_transformed(guild: discord.Guild,
     return data
 
 
-def remove_transformed(user: discord.User | discord.Member,
-                       guild: discord.Guild,
-                       channel: discord.TextChannel | None = None) -> None:
-    data = load_transformed()
-    data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
-    write_file(f'{CACHE_PATH}/transformed.json', data)
-
-
 def is_transformed(user: discord.User | discord.Member,
                    guild: discord.Guild,
                    channel: discord.TextChannel | None = None) -> bool:
@@ -320,6 +312,16 @@ def is_transformed(user: discord.User | discord.Member,
              'all' in data['transformed_users'][str(user.id)]):
         return True
     return False
+
+
+def remove_transformed(user: discord.User | discord.Member,
+                       guild: discord.Guild,
+                       channel: discord.TextChannel | None = None) -> None:
+    data = load_transformed()
+    if not is_transformed(user, guild, channel):
+        return
+    data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
+    write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
 # TEXT UTILS
