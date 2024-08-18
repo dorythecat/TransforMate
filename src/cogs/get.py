@@ -123,6 +123,8 @@ class Get(commands.Cog):
         description = ""
         for tfee in tfee_data:
             transformed_data = utils.load_tf_by_id(tfee, ctx.guild)
+            if transformed_data == {}:
+                continue
             transformed_data = transformed_data[
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
