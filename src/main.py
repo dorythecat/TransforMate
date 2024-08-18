@@ -19,7 +19,15 @@ async def on_ready() -> None:
 
 # TODO: When the bot joins a server, we should check if it has the proper permissions, and then warn the owner of
 # features that might be disabled.
-
+@bot.event
+async def on_guild_join(guild: discord.Guild) -> None:
+    await guild.owner.send("# Thanks for adding the TransforMate bot to your server!\n"
+                           "By having the bot on your server, you agree to our [Terms of Service]"
+                           "(https://docs.google.com/document/d/1S9yDP6tI2tHs-FhqjGF9AsBZAFnHrYFyxnsIK042fvk), "
+                           "and to our [Privacy Policy]"
+                           "(https://docs.google.com/document/d/18cg4aW2XW6CE21X17SqOCFOie-fmXR6xkjDQ0LcCUqE).\n\n"
+                           "We hope you enjoy this bot and all of its functions, and remember to always use it "
+                           "with respect and consent from other users, and never for nefarious purposes!")
 
 @bot.event
 async def on_message(message: discord.Message) -> None:
