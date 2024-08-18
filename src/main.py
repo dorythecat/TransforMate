@@ -220,7 +220,12 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             if not webhook:
                 webhook = await channel.create_webhook(name=WEBHOOK_NAME)
 
-            await webhook.edit_message(reaction.message.id, content=response.content)
+            attachments = []
+            for attachment in response.attachments:
+                attachment_file = await attachment.to_file()
+                attachments.append(attachment_file)
+
+            await webhook.edit_message(reaction.message.id, content=response.content, files=attachments)
             await user.send("Message edited successfully!")
 
             transformed_data = utils.load_transformed(reaction.message.guild)
