@@ -108,13 +108,14 @@ class Transformation(commands.Cog):
             elif 'all' in data:
                 data = data['all']
             elif transformed_data != {} and transformed_data['affixes']:
-                data = {'claim': None} # Empty data so we can do multiple tfs
+                data = {'claim': None}  # Empty data so we can do multiple tfs
             else:
                 await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return
-            if data['claim'] not in ["", None] and data['claim'] != ctx.author.name and data['eternal']:
+            if data['claim'] is not None and data['claim'] != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
-                    await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
+                    await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
+                                      f"{ctx.guild.get_member(data['claim']).mention}!")
                     return
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
@@ -194,9 +195,10 @@ class Transformation(commands.Cog):
 
             return
 
-        if data['eternal'] and data['claim'] != ctx.author.name:
+        if data['eternal'] and data['claim'] != ctx.author.id:
             if ctx.author.name != user.name:
-                await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by {data['claim']}!")
+                await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
+                                  f"{ctx.guild.get_member(data['claim']).mention}!")
                 return
             await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
             return
@@ -229,10 +231,11 @@ class Transformation(commands.Cog):
             channel = ctx.channel
         else:
             data = data['all']
-        if data['claim'] not in ["", None] and data['claim'] != ctx.author.name:
-            await ctx.respond(f"You can't do that! {user.mention} has been claimed already by {data['claim']}!")
+        if data['claim'] is not None and data['claim'] != ctx.author.id:
+            await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
+                              f"{ctx.guild.get_member(data['claim']).mention}!")
             return
-        utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.name)
+        utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.id)
         await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
 
         transformed_data = utils.load_transformed(ctx.guild)
@@ -258,13 +261,14 @@ class Transformation(commands.Cog):
             channel = ctx.channel
         else:
             data = data['all']
-        if data['claim'] in ["", None]:
-            await ctx.respond(f"{user.mention} is currently not claimed by anyone!")
+        if data['claim'] is None:
+            await ctx.respond(f"{user.mention} is currently not claimed by anyone (yet)!")
             return
-        if data['claim'] != ctx.author.name:
-            await ctx.respond(f"You can't do that! {user.mention} is claimed by {data['claim']}, not you!")
+        if data['claim'] != ctx.author.id:
+            await ctx.respond(f"You can't do that! {user.mention} is claimed by "
+                              f"{ctx.guild.get_member(data['claim']).mention}, not you!")
             return
-        utils.write_tf(user, ctx.guild, channel, claim_user="", eternal=0)
+        utils.write_tf(user, ctx.guild, channel, claim_user=None, eternal=0)
         await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
 
         transformed_data = utils.load_transformed(ctx.guild)
@@ -287,10 +291,10 @@ class Transformation(commands.Cog):
             data = data['all']
         # We have to check if they are claimed OR eternally transformed. If both are false, safeword does nothing.
         # If either are true, we need to keep going, otherwise we can just return.
-        if data['claim'] in ["", None] and not data['eternal']:
+        if data['claim'] is not None and not data['eternal']:
             await ctx.respond(f"You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
             return
-        utils.write_tf(ctx.author, ctx.guild, channel, claim_user="", eternal=0)
+        utils.write_tf(ctx.author, ctx.guild, channel, claim_user=None, eternal=0)
         await ctx.respond(f"You have successfully activated the safeword command.\n"
                           f"Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
                           f"Use \"/goback\" to return to your normal self.")

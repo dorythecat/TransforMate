@@ -39,7 +39,7 @@ class Get(commands.Cog):
         if data['claim'] is None:
             await ctx.respond(f"{user.mention} hasn't been claimed by anyone (yet)!")
             return
-        await ctx.respond(f"{user.mention} is claimed by {ctx.guild.get_member_named(data['claim']).mention}!")
+        await ctx.respond(f"{user.mention} is claimed by {ctx.guild.get_member(data['claim']).mention}!")
 
     @get_command.command(description="List the censors for the transformed user")
     async def censors(self,

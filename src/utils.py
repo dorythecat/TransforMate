@@ -11,6 +11,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 13: Made "claim" field be an integer, instead of a string
 # VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
 # VERSION 11: Added "proxy_prefix" and "proxy_suffix" fields
 # VERSION 10: Added "alt_muffle" field
@@ -23,7 +24,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 12
+CURRENT_TFEE_DATA_VERSION = 13
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -55,7 +56,7 @@ def write_tf(user: discord.User | discord.Member,
              transformed_by: str | None = None,
              into: str | None = None,
              image_url: str | None = None,
-             claim_user: str | None = None,
+             claim_user: int | None = None,
              eternal: int | None = None,
              prefix: str | None = None,
              suffix: str | None = None,
@@ -147,8 +148,7 @@ def write_tf(user: discord.User | discord.Member,
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
         if image_url is not None and image_url != "":
             data[str(guild.id)][channel_id]['image_url'] = image_url
-        data[str(guild.id)][channel_id]['claim'] = claim_user.strip() if claim_user is not None and claim_user != "" \
-            else None
+        data[str(guild.id)][channel_id]['claim'] = claim_user
         if eternal is not None:
             data[str(guild.id)][channel_id]['eternal'] = False if eternal == 0 else True
         if block_channel is not None:
@@ -413,8 +413,9 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
         return [False, None, None]
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
-    if not get_command and data['claim'] is not None and data['claim'] != ctx.author.name:
-        await ctx.respond(f"You can't do that! {user.mention} is owned by {data['claim']}, and not by you!")
+    if not get_command and data['claim'] is not None and data['claim'] != ctx.author.id:
+        await ctx.respond(f"You can't do that! {user.mention} is owned by"
+                          f"{ctx.guild.get_member(data['claim']).mention}, and not by you!")
         return [False, None, None]
     return [True, data, user]
 

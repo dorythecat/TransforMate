@@ -19,7 +19,7 @@ class Clear(commands.Cog):
             return
         utils.write_tf(user,
                        ctx.guild,
-                       claim_user="",
+                       claim_user=None,
                        eternal=0,
                        prefix="",
                        suffix="",
