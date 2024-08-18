@@ -231,7 +231,8 @@ def remove_all_tf(user: discord.User | discord.Member) -> None:
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild | None = None) -> dict:
-    return {} if 'transformed.json' not in os.listdir(CACHE_PATH) else load_file(f'{CACHE_PATH}/transformed.json', guild)
+    return {} if 'transformed.json' not in os.listdir(CACHE_PATH) else \
+        load_file(f'{CACHE_PATH}/transformed.json', guild)
 
 
 def write_transformed(guild: discord.Guild,
