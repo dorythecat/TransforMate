@@ -28,6 +28,19 @@ class Get(commands.Cog):
         embed.add_field(name="Muffle", value=f"{data['muffle']['chance']}%" if data['muffle'] else "None")
         await ctx.respond(embed=embed)
 
+
+    @get_command.command(description="Get who has claimed this transformed user")
+    async def claim(self,
+                    ctx: discord.ApplicationContext,
+                    user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        if not valid:
+            return
+        if data['claim'] is None:
+            await ctx.respond(f"{user.mention} hasn't been claimed by anyone (yet)!")
+            return
+        await ctx.respond(f"{user.mention} is claimed by {ctx.guild.get_member_named(data['claim']).mention}!")
+
     @get_command.command(description="List the censors for the transformed user")
     async def censors(self,
                       ctx: discord.ApplicationContext,
