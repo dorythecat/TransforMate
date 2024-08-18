@@ -14,7 +14,7 @@ class Get(commands.Cog):
     async def settings(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         embed = utils.get_embed_base(title=f"Settings for {user.name}")
@@ -33,7 +33,7 @@ class Get(commands.Cog):
     async def claim(self,
                     ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if data['claim'] is None:
@@ -45,7 +45,7 @@ class Get(commands.Cog):
     async def censors(self,
                       ctx: discord.ApplicationContext,
                       user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if not data['censor']['active']:
@@ -60,7 +60,7 @@ class Get(commands.Cog):
     async def sprinkles(self,
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if not data['sprinkle']:
@@ -74,7 +74,7 @@ class Get(commands.Cog):
     async def muffle(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if not data['muffle']:
@@ -88,7 +88,7 @@ class Get(commands.Cog):
     async def prefixes(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if not data['prefix']:
@@ -102,7 +102,7 @@ class Get(commands.Cog):
     async def suffixes(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if not data['suffix']:
@@ -116,7 +116,7 @@ class Get(commands.Cog):
     async def bio(self,
                   ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
         if data['bio'] in ["", None]:

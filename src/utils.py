@@ -420,12 +420,13 @@ def transform_text(data: dict,
 # ABSTRACTION FUNCTIONS
 async def extract_tf_data(ctx: discord.ApplicationContext,
                           user: discord.User | discord.Member | None,
-                          get_command: bool = False) -> [bool,
+                          get_command: bool = False,
+                          channel: discord.TextChannel | None = None) -> [bool,
                                                          dict | None,
                                                          discord.User | discord.Member | None]:
     if user is None:
         user = ctx.author
-    if not is_transformed(user, ctx.guild):
+    if not is_transformed(user, ctx.guild, channel):
         await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
         return [False, None, None]
     data = load_tf(user, ctx.guild)
