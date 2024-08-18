@@ -225,6 +225,15 @@ def remove_tf(user: discord.User | discord.Member,
     write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
 
 
+def remove_all_server_tf(user: discord.User | discord.Member,
+                         guild: discord.Guild) -> None:
+    data = load_tf(user)
+    if not str(guild.id) in data:
+        return
+    del data[str(guild.id)]
+    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+
+
 def remove_all_tf(user: discord.User | discord.Member) -> None:
     os.remove(f'{CACHE_PATH}/people/{str(user.id)}.json')
 
