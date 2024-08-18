@@ -324,6 +324,12 @@ def remove_transformed(user: discord.User | discord.Member,
     write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
+def remove_server_from_transformed(guild: discord.Guild):
+    data = load_transformed()
+    del data[str(guild.id)]
+    write_file(f'{CACHE_PATH}/transformed.json', data)
+
+
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict,
