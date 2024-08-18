@@ -104,11 +104,19 @@ class Admin(commands.Cog):
 
     @admin_command.command(description="Regenerate all files for this server")
     @discord.default_permissions(administrator=True)
-    async def regen_server_files(self,
-                                 ctx: discord.ApplicationContext):
+    async def regen_server_tfs(self,
+                                 ctx: discord.ApplicationContext,
+                                 sure: bool = False,
+                                 really_sure: bool = False,
+                                 really_really_sure: bool = False,
+                                 fully_sure: bool = False):
         # TODO: Add a maximum member count for this command, that can be changed on the .env
+        if not (sure and really_sure and really_really_sure and fully_sure):
+            await ctx.respond("You haven't verified that you're *actually* sure about doing this! Please try again!")
+            return
         for user in ctx.guild.members:
             utils.remove_all_server_tf(user, ctx.guild)
+        await ctx.respond("Server TFs have been regenerated!")
 
 
 
