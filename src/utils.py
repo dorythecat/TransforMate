@@ -217,7 +217,7 @@ def remove_tf(user: discord.User | discord.Member,
               guild: discord.Guild,
               channel: discord.TextChannel | None = None) -> None:
     data = load_tf(user)
-    if not str(guild.id) in data or \
+    if data == {} or not str(guild.id) in data or \
             (channel is not None and not str(channel.id) in data[str(guild.id)]) or \
             (channel is None and "all" not in data[str(guild.id)]):
         return
@@ -228,7 +228,7 @@ def remove_tf(user: discord.User | discord.Member,
 def remove_all_server_tf(user: discord.User | discord.Member,
                          guild: discord.Guild) -> None:
     data = load_tf(user)
-    if not str(guild.id) in data:
+    if data == {} or not str(guild.id) in data:
         return
     del data[str(guild.id)]
     write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
