@@ -105,6 +105,8 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
+        if data['claim'] is None:
+            await ctx.respond(f"{user.mention} isn't owned by you! Claim them to eternally transform them!")
         if data['eternal']:
             await ctx.respond(f"{user.mention} is already eternally transformed!")
             return
