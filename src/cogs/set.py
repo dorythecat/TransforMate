@@ -107,6 +107,7 @@ class Set(commands.Cog):
             return
         if data['claim'] is None:
             await ctx.respond(f"{user.mention} isn't owned by anyone! Claim them to eternally transform them!")
+            return
         if data['eternal']:
             await ctx.respond(f"{user.mention} is already eternally transformed!")
             return
