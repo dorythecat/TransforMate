@@ -97,7 +97,18 @@ class Admin(commands.Cog):
                                                        description="Do we use brackets for"
                                                                    "transformations?") = False) -> None:
         utils.write_transformed(ctx.guild, clear_other_logs=clean_logs, affixes=brackets)
-        await ctx.respond("Bot settings have been updated!", ephemeral=True)
+        await ctx.respond("Bot settings have been updated!\n-# We recommend running /admin regen_server_files after "
+                          "updating your settings, but BE CAREFUL, since this command REMOVES ALL TRANSFORMED USERS "
+                          "DATA IN YOUR SERVER.", ephemeral=True)
+
+
+    @admin_command.command(description="Regenerate all files for this server")
+    @discord.default_permissions(administrator=True)
+    async def regen_server_files(self,
+                                 ctx: discord.ApplicationContext):
+        # TODO: Add a maximum member count for this command, that can be changed on the .env
+        for user in ctx.guild.members:
+            utils.remove_all_server_tf(user, ctx.guild)
 
 
 
