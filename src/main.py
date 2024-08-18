@@ -207,9 +207,6 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         # Edit message
         if user.id == tfee:
             # Editing messages that are not the last one will cause weird behaviours, so we prevent that by checking
-            if reaction.message.channel.last_message_id != reaction.message.id:
-                await user.send("You cannot edit this message! Sorry! :(")
-                return
             await user.send(f"You have requested to edit the following message:\n"
                             f"\"{reaction.message.content}\"\n"
                             f"Please provide the edited message you want to send.")
@@ -223,11 +220,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             if not webhook:
                 webhook = await channel.create_webhook(name=WEBHOOK_NAME)
 
-            await webhook.send(response.content,
-                               username=data['into'],
-                               avatar_url=data['image_url'],
-                               thread=(reaction.message.channel if is_thread else discord.utils.MISSING))
-            await reaction.message.delete()  # Delete the original message
+            await webhook.edit_message(reaction.message.id, content=response.content)
             await user.send("Message edited successfully!")
 
             transformed_data = utils.load_transformed(reaction.message.guild)
