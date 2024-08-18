@@ -165,14 +165,15 @@ async def on_message(message: discord.Message) -> None:
                 data['sprinkle']['active']
         ):
             # Send the original message to transformed_by if claim is None, otherwise to claim
-            if data['claim'] in ["", None]:
+            if data['claim'] is None:
                 # Get the user who transformed this user
                 transformed_by = bot.get_user(int(data['transformed_by']))
             else:
                 # Get the user who claimed the user
-                transformed_by = bot.get_user(data['claim'])
+                transformed_by = bot.get_user(int(data['claim']))
+
             # Check if the message is from the user who transformed this user
-            if not message.author == transformed_by:
+            if transformed_by is not None and not message.author == transformed_by:
                 # DM the user who transformed this user the original message they sent
                 await transformed_by.send(
                     f"**{message.author.name}** said in #**{channel.name}**:\n```{message.content}```")
