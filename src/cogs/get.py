@@ -117,7 +117,7 @@ class Get(commands.Cog):
     async def transformed(self,
                           ctx: discord.ApplicationContext) -> None:
         tfee_data = utils.load_transformed(ctx.guild)['transformed_users']
-        if not tfee_data:
+        if tfee_data == {}:
             await ctx.respond("No one is transformed in this server, at the moment!")
             return
         description = ""
