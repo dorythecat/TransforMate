@@ -30,6 +30,7 @@ async def on_guild_join(guild: discord.Guild) -> None:
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
 
+
 @bot.event
 async def on_message(message: discord.Message) -> None:
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
@@ -186,7 +187,7 @@ async def on_message(message: discord.Message) -> None:
         attachment_file = await attachment.to_file()
         attachments.append(attachment_file)
 
-    # The message needs to either havbe content or attachments (or both) to be sent,
+    # The message needs to either have content or attachments (or both) to be sent,
     # so we don't need to worry about sending empty messages and triggering 400 errors
     await webhook.send(content,
                        username=name,
