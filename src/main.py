@@ -148,7 +148,8 @@ async def on_message(message: discord.Message) -> None:
 
     content = ""
     if message.reference:  # Check if the message is a reply
-        content += f"**Replying to {message.reference.resolved.author.mention}:**\n"
+        content += (f"***Replying to {message.reference.resolved.author.mention} on "
+                    f"{message.reference.resolved.jump_url}:***\n")
         if message.reference.resolved.content:
             content += f">>> {message.reference.resolved.content}"
             # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
