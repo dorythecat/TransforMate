@@ -1,4 +1,5 @@
 [![Qodana](https://github.com/dorythecat/TransforMate/actions/workflows/code_quality.yml/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/code_quality.yml)
+[![CodeQL](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql)
 
 # TransforMate (WIP)
 > A bot to Trasform your Mates
@@ -43,7 +44,13 @@ transforming your friends and family? Well, look no further! With TransforMate, 
 - And more fun stuff!!!
 
 ## Inviting TransforMate
-TransforMate is not *yet* open to the public. Come back later!
+To invite TransforMate to your server, you can use [this link](https://discord.com/oauth2/authorize?client_id=1274436972621987881).
+You can either use it as is, or, if you have any security concerns with giving the bot the Administrator permission, you
+can also disable it and just keep the other permissions active, though this may need additional setup, and may be prone
+to unusual behaviours.
+
+By adding TransforMate to your server, you agree to our [Terms of Service](https://docs.google.com/document/d/1S9yDP6tI2tHs-FhqjGF9AsBZAFnHrYFyxnsIK042fvk),
+and to our [Privacy Policy](https://docs.google.com/document/d/18cg4aW2XW6CE21X17SqOCFOie-fmXR6xkjDQ0LcCUqE).
 
 ## Hosting TransforMate
 To host your own TransforMate isntance, you'll just need to clone this repo, install the requirements,

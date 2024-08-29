@@ -146,6 +146,12 @@ class Transformation(commands.Cog):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
+        # This avoids a bug with avatar images (See https://github.com/dorythecat/TransforMate/issues/16)
+        # TODO: Find a better fix, perhaps?
+        if utils.is_transformed(ctx.author, ctx.guild):
+            await ctx.respond(f"You can't transform someone (using this method) whilst you're transformed yourself!")
+            return
+
         await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
         response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
         if response.content.strip() == "CANCEL":
