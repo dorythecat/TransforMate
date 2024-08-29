@@ -21,6 +21,11 @@ async def transform_function(ctx: discord.ApplicationContext,
     if "?" in image_url:  # Prune url, if possible, to preserve space
         image_url = image_url[:image_url.index("?")]
 
+    # Webhook username cannot contain "discord", or it will return a 400 error
+    # TODO: Find a better fix, perhaps?
+    if into.lower().__contains__("discord"):
+        into = into.lower().replace("discord", "Disc0rd")
+
     utils.write_tf(user,
                    ctx.guild,
                    channel,
