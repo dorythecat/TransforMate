@@ -30,6 +30,7 @@ async def on_guild_join(guild: discord.Guild) -> None:
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
 
+
 @bot.event
 async def on_message(message: discord.Message) -> None:
     # Check if the message is sent by the bot, we don't want an endless loop that ends on an error/crash, do we?
@@ -147,15 +148,28 @@ async def on_message(message: discord.Message) -> None:
 
     content = ""
     if message.reference:  # Check if the message is a reply
-        content += f"**Replying to {message.reference.resolved.author.mention}:**\n"
+        content += (f"***Replying to {message.reference.resolved.author.mention} on "
+                    f"{message.reference.resolved.jump_url}:***\n")
         if message.reference.resolved.content:
-            content += f">>> {message.reference.resolved.content}"
-            # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
-            await webhook.send(content,
-                               username=name,
-                               avatar_url=image_url,
-                               thread=message.channel if is_thread else discord.utils.MISSING)
-            content = ""
+            to_send = message.reference.resolved.content
+            if message.reference.resolved.mentions:
+                for mention in message.reference.resolved.mentions:
+                    # This avoids people abusing mentions found in messages they are replying to
+                    to_send = to_send.replace(mention.mention, f"@{mention.name}")
+            to_send = to_send.split('\n')
+            if to_send[0].startswith('***Replying to'):
+                for line in to_send[1:]:
+                    if line.startswith('> '):
+                        continue
+                    to_send = to_send[(to_send.index(line) + 1):] #  We add one to account for the blank line
+                    break
+            for line in to_send:
+                if line.startswith('> '):
+                    line = line[2:]
+                elif line.startswith('>>> '):
+                    line = line[4:]
+                content += f"> {line}\n"
+            content += "\n"
 
     if message.content:
         # Check if censor, muffles, alt muffle, or sprinkles are active in data
@@ -186,7 +200,7 @@ async def on_message(message: discord.Message) -> None:
         attachment_file = await attachment.to_file()
         attachments.append(attachment_file)
 
-    # The message needs to either havbe content or attachments (or both) to be sent,
+    # The message needs to either have content or attachments (or both) to be sent,
     # so we don't need to worry about sending empty messages and triggering 400 errors
     await webhook.send(content,
                        username=name,

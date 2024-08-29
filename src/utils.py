@@ -93,56 +93,49 @@ def write_tf(user: discord.User | discord.Member,
             data[str(guild.id)] = {}
             data[str(guild.id)]['blocked_channels'] = []
             data[str(guild.id)]['blocked_users'] = []
-        if channel_id not in data[str(guild.id)]:
-            data[str(guild.id)][channel_id] = {
-                'transformed_by': transformed_by,
-                'into': into,
-                'image_url': image_url,
-                'claim': None,
-                'eternal': False,
-                'prefix': {
-                    'active': False,
-                    'contents': [],
-                    'chance': 0
-                },
-                'suffix': {
-                    'active': False,
-                    'contents': [],
-                    'chance': 0
-                },
-                'big': False,
-                'small': False,
-                'hush': False,
-                'backwards': False,
-                'censor': {
-                    'active': False,
-                    'contents': {}
-                },
-                'sprinkle': {
-                    'active': False,
-                    'contents': [],
-                    'chance': 0
-                },
-                'muffle': {
-                    'active': False,
-                    'contents': [],
-                    'chance': 0
-                },
-                'alt_muffle': {
-                    'active': False,
-                    'contents': [],
-                    'chance': 0
-                },
-                'proxy_prefix': proxy_prefix,
-                'proxy_suffix': proxy_suffix,
-                'bio': None
-            }
-        else:
-            data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
-            data[str(guild.id)][channel_id]['into'] = into
-            data[str(guild.id)][channel_id]['image_url'] = image_url
-            data[str(guild.id)][channel_id]['proxy_prefix'] = proxy_prefix
-            data[str(guild.id)][channel_id]['proxy_suffix'] = proxy_suffix
+        data[str(guild.id)][channel_id] = {
+            'transformed_by': transformed_by,
+            'into': into,
+            'image_url': image_url,
+            'claim': None,
+            'eternal': False,
+            'prefix': {
+                'active': False,
+                'contents': [],
+                'chance': 0
+            },
+            'suffix': {
+                'active': False,
+                'contents': [],
+                'chance': 0
+            },
+            'big': False,
+            'small': False,
+            'hush': False,
+            'backwards': False,
+            'censor': {
+                'active': False,
+                'contents': {}
+            },
+            'sprinkle': {
+                'active': False,
+                'contents': [],
+                'chance': 0
+            },
+            'muffle': {
+                'active': False,
+                'contents': [],
+                'chance': 0
+            },
+            'alt_muffle': {
+                'active': False,
+                'contents': [],
+                'chance': 0
+            },
+            'proxy_prefix': proxy_prefix,
+            'proxy_suffix': proxy_suffix,
+            'bio': None
+        }
     else:
         if transformed_by is not None and transformed_by != "":
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
