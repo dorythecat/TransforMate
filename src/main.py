@@ -164,6 +164,10 @@ async def on_message(message: discord.Message) -> None:
                     to_send = to_send[(to_send.index(line) + 1):] #  We add one to account for the blank line
                     break
             for line in to_send:
+                if line.startswith('> '):
+                    line = line[2:]
+                elif line.startswith('>>> '):
+                    line = line[4:]
                 content += f"> {line}\n"
             content += "\n"
 
