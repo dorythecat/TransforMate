@@ -151,18 +151,21 @@ async def on_message(message: discord.Message) -> None:
         content += (f"***Replying to {message.reference.resolved.author.mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
         if message.reference.resolved.content:
+            to_send = message.reference.resolved.content
             if message.reference.resolved.mentions:
                 for mention in message.reference.resolved.mentions:
                     # This avoids people abusing mentions found in messages they are replying to
-                    message.reference.resolved.content = message.reference.resolved.content.replace(mention.mention,
-                                                                                                    f"@{mention.name}")
-            content += f">>> {message.reference.resolved.content}"
-            # If we don't send this by itself, we'll get fucked over by the multi-line quote, sorry everyone :(
-            await webhook.send(content,
-                               username=name,
-                               avatar_url=image_url,
-                               thread=message.channel if is_thread else discord.utils.MISSING)
-            content = ""
+                    to_send = to_send.replace(mention.mention, f"@{mention.name}")
+            to_send = to_send.split('\n')
+            if to_send[0].startswith('***Replying to'):
+                for line in to_send[1:]:
+                    if line.startswith('> '):
+                        continue
+                    to_send = to_send[(to_send.index(line) + 1):] #  We add one to account for the blank line
+                    break
+            for line in to_send:
+                content += f"> {line}\n"
+            content += "\n"
 
     if message.content:
         # Check if censor, muffles, alt muffle, or sprinkles are active in data
