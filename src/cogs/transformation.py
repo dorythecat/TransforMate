@@ -16,7 +16,7 @@ async def transform_function(ctx: discord.ApplicationContext,
         image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
     image_url = image_url.strip()
     if image_url[:4] != "http":
-        await ctx.send("Invalid Image URL! Please provide a valid image URL!")
+        await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
         return False
     if "?" in image_url:  # Prune url, if possible, to preserve space
         image_url = image_url[:image_url.index("?")]
