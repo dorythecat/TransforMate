@@ -141,7 +141,8 @@ def write_tf(user: discord.User | discord.Member,
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
         if image_url is not None and image_url != "":
             data[str(guild.id)][channel_id]['image_url'] = image_url
-        data[str(guild.id)][channel_id]['claim'] = claim_user
+        if claim_user is not None and claim_user != 0:
+            data[str(guild.id)][channel_id]['claim'] = claim_user
         if eternal is not None:
             data[str(guild.id)][channel_id]['eternal'] = False if eternal == 0 else True
         if block_channel is not None:
