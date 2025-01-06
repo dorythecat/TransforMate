@@ -2,6 +2,7 @@
 [![CodeQL](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql)
 
 # TransforMate (WIP)
+# **WARNING: WE WILL NO LONGER BE PROVIDING OFFICIAL SUPPORT FOR THIS BOT**
 > A bot to Trasform your Mates
 
 ## Who's this bot for?
