@@ -171,6 +171,18 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, muffle=muffle_word, mod_type="muffle", chance=chance)
         await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle_word}\"!")
 
+    @set_command.command(description="Set the transformed user to stutter on random words, with a certain chance")
+    async def stutter(self,
+                      ctx: discord.ApplicationContext,
+                      chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                             description="Chance to stutter") = 30,
+                      user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        if not valid:
+            return
+        utils.write_tf(user, ctx.guild, stutter=chance)
+        await ctx.respond(f"{user.mention} will now stutter when talking!")
+
     @set_command.command(description="Set a biography for the transformed user")
     async def bio(self,
                   ctx: discord.ApplicationContext,
