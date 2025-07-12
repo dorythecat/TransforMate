@@ -161,6 +161,8 @@ class Transformation(commands.Cog):
 
         # This avoids a bug with avatar images (See https://github.com/dorythecat/TransforMate/issues/16)
         # TODO: Find a better fix, perhaps?
+        # IDEA: Make the bot use a "buffer channel", where it sends the image before the transformation is done.
+        # This might be a horrible idea, or a great one, idk!
         if utils.is_transformed(ctx.author, ctx.guild):
             await ctx.respond(f"You can't transform someone (using this method) whilst you're transformed yourself!")
             return

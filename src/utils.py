@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import time
 import discord
 
 from src.config import CACHE_PATH
@@ -24,7 +23,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
 # VERSION 4: Reworked to work with per-channel data. - DROPPED SUPPORT FOR TRANSLATING PREVIOUS VERSIONS
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
-# VERSION 2: Added guild specific data
+# VERSION 2: Added guild-specific data
 # VERSION 1: Base version
 CURRENT_TFEE_DATA_VERSION = 14
 
@@ -412,7 +411,7 @@ def transform_text(data: dict,
                 words[i] = words[i][0] + "-" + words[i]
     transformed = " ".join(words)
 
-    # Moving these below so text changes are applied before the prefix and suffix so they aren't affected
+    # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
     if data['prefix']['active']:
         # Prefix will add the prefix to the message, try the chance of adding it,
@@ -499,6 +498,7 @@ def get_webhook_by_name(webhooks: list[discord.Webhook],
     for wh in webhooks:
         if wh.name == name:
             return wh
+    return None
 
 
 def get_embed_base(title: str,
