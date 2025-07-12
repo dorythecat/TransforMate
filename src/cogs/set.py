@@ -180,7 +180,7 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        utils.write_tf(user, ctx.guild, stutter=chance)
+        utils.write_tf(user, ctx.guild, stutter=chance, mod_type="stutter", chance=chance)
         await ctx.respond(f"{user.mention} will now stutter when talking!")
 
     @set_command.command(description="Set a biography for the transformed user")
