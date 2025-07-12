@@ -253,12 +253,14 @@ class Transformation(commands.Cog):
             return
         data = utils.load_tf(user, ctx.guild)
         channel = None
-        print(data)
         if str(ctx.channel) in data:
             data = data[str(ctx.channel)]
             channel = ctx.channel
         elif 'all' in data:
             data = data['all']
+        else:
+            await ctx.respond("This user isn't transformed in thsi channel! Please try again in the proper channel!")
+            return
         if data['claim'] is not None and int(data['claim']) != ctx.author.id:
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
                               f"{ctx.guild.get_member(int(data['claim'])).mention}!")
