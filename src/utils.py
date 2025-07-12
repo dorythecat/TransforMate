@@ -158,11 +158,13 @@ def write_tf(user: discord.User | discord.Member,
                 data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
         if prefix is not None:
             data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
-            data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if prefix != "" else []
+            data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if (prefix != "" and
+                prefix not in data[str(guild.id)][channel_id]['prefix']['contents']) else []
             data[str(guild.id)][channel_id]['prefix']['chance'] = 100 if prefix != "" else 0
         if suffix is not None:
             data[str(guild.id)][channel_id]['suffix']['active'] = True if suffix != "" else False
-            data[str(guild.id)][channel_id]['suffix']['contents'] += [suffix.strip()] if suffix != "" else []
+            data[str(guild.id)][channel_id]['suffix']['contents'] += [suffix.strip()] if (suffix != "" and
+                suffix not in data[str(guild.id)][channel_id]['suffix']['contents']) else []
             data[str(guild.id)][channel_id]['suffix']['chance'] = 100 if suffix != "" else 0
         if big is not None:
             data[str(guild.id)][channel_id]['big'] = False if big == 0 else True
@@ -183,16 +185,18 @@ def write_tf(user: discord.User | discord.Member,
                         censor_replacement.strip().lower()
         if sprinkle is not None:
             data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
-            data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if sprinkle != "" else []
+            data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if (sprinkle != "" and
+                sprinkle not in data[str(guild.id)][channel_id]['sprinkle']['contents']) else []
             data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30 if sprinkle != "" else 0
         if muffle is not None:
             data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
-            data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if muffle != "" else []
+            data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if (muffle != "" and
+                muffle not in data[str(guild.id)][channel_id]['muffle']['contents']) else []
             data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
         if alt_muffle is not None:
             data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
-            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [
-                alt_muffle.strip()] if alt_muffle != "" else []
+            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [alt_muffle.strip()] if (alt_muffle != "" and
+                alt_muffle not in data[str(guild.id)][channel_id]['alt_muffle']['contents']) else []
             data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
 
         if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
