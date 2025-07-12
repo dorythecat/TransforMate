@@ -156,7 +156,7 @@ class Transformation(commands.Cog):
             if not utils.is_transformed(copy, ctx.guild):
                 await ctx.respond("You can't do that! That user isn't transformed right now!", ephemeral=True)
             elif await transform_function(ctx, user, copy, image_url, channel, brackets, copy):
-                await ctx.respond(f'You have transformed {user.mention} into "{copy}"!')
+                await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.name}"!')
             return
 
         # This avoids a bug with avatar images (See https://github.com/dorythecat/TransforMate/issues/16)
