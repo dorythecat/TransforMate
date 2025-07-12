@@ -220,9 +220,11 @@ def write_tf(user: discord.User | discord.Member,
         if stutter is not None:
             data[str(guild.id)][channel_id]['stutter'] = 30 if stutter != "" else 0
 
-        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle',
-                                                            'stutter']:
-            data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+        if mod_type is not None and chance:
+            if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
+                data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+            elif mod_type in ['stutter']:
+                data[str(guild.id)][channel_id][mod_type] = chance
 
         if proxy_prefix is not None:
             data[str(guild.id)][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
