@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import time
 import discord
 
 from src.config import CACHE_PATH
@@ -292,7 +293,7 @@ def write_transformed(guild: discord.Guild,
         data[str(guild.id)]['affixes'] = affixes
 
     write_file(f'{CACHE_PATH}/transformed.json', data)
-    return data
+    return data[str(guild.id)]
 
 
 def is_transformed(user: discord.User | discord.Member,
