@@ -253,6 +253,7 @@ class Transformation(commands.Cog):
             return
         data = utils.load_tf(user, ctx.guild)
         channel = None
+        print(data)
         if str(ctx.channel) in data:
             data = data[str(ctx.channel)]
             channel = ctx.channel
