@@ -343,34 +343,36 @@ def transform_text(data: dict,
     transformed = clear_apple_marks(transformed)
     words = transformed.split(" ")
 
-    if data['censor']['active']:
-        # Censor will change the censored word to the word provided in the data
-        for i in range(len(words)):
-            # Force lowercase and strip punctuation
-            word = words[i].lower().strip("*.,!?\"'()[]{}<>:;")
+    for i in range(len(words)):
+        # Force lowercase and strip punctuation
+
+        # Censor will change a word for another, "censoring" it
+        if data['censor']['active']:
+            raw_word = words[i].lower()
+            word = raw_word.strip("*.,!?\"'()[]{}<>:;")
+
             if word in data['censor']['contents'].keys():
-                to_be = words[i].lower()
-                words[i] = to_be.replace(word, data['censor']['contents'][word])
+                words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
+                continue
 
-        transformed = " ".join(words)
+            if raw_word in data['censor']['contents'].keys():
+                words[i] = data['censor']['contents'][raw_word] # The entire word should be replaced
+                continue
 
-    if data['muffle']['active']:
         # Muffle will overwrite a word with a word from the data array by random chance
-        for i in range(len(words)):
+        if data['muffle']['active']:
             if random.randint(1, 100) <= data['muffle']['chance']:
                 words[i] = data['muffle']['contents'][random.randint(0, len(data['muffle']['contents']) - 1)]
+                continue
 
-        transformed = " ".join(words)
-
+    # Sprinkle will add the sprinkled word to the message between words by random chance
+    # for each word, if the chance is met, add a sprinkled word before it
     if data['sprinkle']['active']:
-        # Sprinkle will add the sprinkled word to the message between words by random chance
-        # for each word, if the chance is met, add a sprinkled word before it
-        length = len(words)
-        for i in range(length):
+        for i in range(len(words)):
             if random.randint(1, 100) <= data['sprinkle']['chance']:
                 words[i] = data['sprinkle']['contents'][
                                random.randint(0, len(data['sprinkle']['contents']) - 1)] + " " + words[i]
-        transformed = " ".join(words)
+    transformed = " ".join(words)
 
     # Moving these below so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
