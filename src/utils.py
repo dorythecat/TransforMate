@@ -52,6 +52,7 @@ def load_tf(user: discord.User | discord.Member,
 def write_tf(user: discord.User | discord.Member,
              guild: discord.Guild,
              channel: discord.TextChannel | None = None,
+             new_data: dict | None = None,
              block_channel: discord.TextChannel | None = None,
              block_user: discord.User | discord.Member | None = None,
              transformed_by: str | None = None,
@@ -76,6 +77,10 @@ def write_tf(user: discord.User | discord.Member,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
     data = load_tf(user)
+    if new_data is not None:
+        data[str(guild.id)] = new_data
+        write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+        return
     transformed_data = load_transformed(guild)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
         # TODO: Add a way to update (at least) previous version data to newest version

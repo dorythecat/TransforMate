@@ -11,7 +11,12 @@ async def transform_function(ctx: discord.ApplicationContext,
                              into: str,
                              image_url: str,
                              channel: discord.TextChannel,
-                             brackets: list[str] | None) -> bool:
+                             brackets: list[str] | None,
+                             copy: discord.User | None) -> bool:
+    if copy is not None:
+        utils.write_tf(user, ctx.guild, new_data=utils.load_tf(copy, ctx.guild))
+        utils.write_transformed(ctx.guild, user, channel)
+        return True
     if not image_url:
         image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
     image_url = image_url.strip()
@@ -68,7 +73,9 @@ class Transformation(commands.Cog):
                         brackets: discord.Option(discord.SlashCommandOptionType.string,
                                                  description="What brackets to use for this proxy."
                                                              "Ex: \"text\", Abc:text, etc."
-                                                             "(Only available in certain servers)") = None) -> None:
+                                                             "(Only available in certain servers)") = None,
+                        copy: discord.Option(discord.User,
+                                             description="Copy another user") = None) -> None:
         if not user:
             user = ctx.author
 
@@ -141,9 +148,15 @@ class Transformation(commands.Cog):
         if into:
             if len(into) <= 1:
                 await ctx.respond("Please provide a name longer than 1 character!")
-                return
-            if await transform_function(ctx, user, into, image_url, channel, brackets):
+            elif await transform_function(ctx, user, into, image_url, channel, brackets, None):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
+            return
+
+        if copy:
+            if not utils.is_transformed(copy, ctx.guild):
+                await ctx.respond("You can't do that! That user isn't transformed right now!", ephemeral=True)
+            elif await transform_function(ctx, user, copy, image_url, channel, brackets, copy):
+                await ctx.respond(f'You have transformed {user.mention} into "{copy}"!')
             return
 
         # This avoids a bug with avatar images (See https://github.com/dorythecat/TransforMate/issues/16)
@@ -165,7 +178,8 @@ class Transformation(commands.Cog):
                                     response.content,
                                     response.attachments[0].url if response.attachments else None,
                                     channel,
-                                    brackets):
+                                    brackets,
+                                    None):
             await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
     @discord.slash_command(description="Return someone to their previous state")
