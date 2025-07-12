@@ -404,6 +404,8 @@ def transform_text(data: dict,
 
     if data['stutter'] > 0:
         for i in range(len(words)):
+            if words[i][4] == "http":
+                continue
             if random.randint(1, 100) <= data['stutter']:
                 words[i] = words[i][0] + "-" + words[i]
     transformed = " ".join(words)
