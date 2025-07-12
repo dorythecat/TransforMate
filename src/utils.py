@@ -390,6 +390,8 @@ def transform_text(data: dict,
 
         # Muffle will overwrite a word with a word from the data array by random chance
         if data['muffle']['active']:
+            if raw_word[4] == "http":
+                continue
             if random.randint(1, 100) <= data['muffle']['chance']:
                 words[i] = data['muffle']['contents'][random.randint(0, len(data['muffle']['contents']) - 1)]
                 continue
