@@ -256,7 +256,7 @@ class Transformation(commands.Cog):
         if str(ctx.channel) in data:
             data = data[str(ctx.channel)]
             channel = ctx.channel
-        else:
+        elif 'all' in data:
             data = data['all']
         if data['claim'] is not None and int(data['claim']) != ctx.author.id:
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
