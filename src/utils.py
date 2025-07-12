@@ -12,6 +12,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
 # VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
 # VERSION 11: Added "proxy_prefix" and "proxy_suffix" fields
@@ -25,7 +26,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 13
+CURRENT_TFEE_DATA_VERSION = 14
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -71,6 +72,7 @@ def write_tf(user: discord.User | discord.Member,
              sprinkle: str | None = None,
              muffle: str | None = None,
              alt_muffle: str | None = None,
+             stutter: int | None = None,
              chance: int | None = None,
              mod_type: str | None = None,
              proxy_prefix: str | None = None,
@@ -138,6 +140,7 @@ def write_tf(user: discord.User | discord.Member,
                 'contents': [],
                 'chance': 0
             },
+            'stutter': 0,
             'proxy_prefix': proxy_prefix,
             'proxy_suffix': proxy_suffix,
             'bio': None
@@ -214,7 +217,11 @@ def write_tf(user: discord.User | discord.Member,
                 data[str(guild.id)][channel_id]['alt_muffle']['contents'] = []
             data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
 
-        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
+        if stutter is not None:
+            data[str(guild.id)][channel_id]['stutter'] = 30 if stutter != "" else 0
+
+        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle',
+                                                            'stutter']:
             data[str(guild.id)][channel_id][mod_type]['chance'] = chance
 
         if proxy_prefix is not None:
@@ -392,6 +399,11 @@ def transform_text(data: dict,
             if random.randint(1, 100) <= data['sprinkle']['chance']:
                 words[i] = data['sprinkle']['contents'][
                                random.randint(0, len(data['sprinkle']['contents']) - 1)] + " " + words[i]
+
+    if data['stutter'] > 0:
+        for i in range(len(words)):
+            if random.randint(1, 100) <= data['stutter']:
+                words[i] = words[i][0] + "-" + words[i]
     transformed = " ".join(words)
 
     # Moving these below so text changes are applied before the prefix and suffix so they aren't affected
