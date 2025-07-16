@@ -116,6 +116,19 @@ class Admin(commands.Cog):
             utils.remove_all_server_tf(user, ctx.guild)
         await ctx.respond("Server TFs have been regenerated!")
 
+    @admin_command.command(description="Regenerate a user's tf for this server")
+    @discord.default_permissions(administrator=True)
+    async def regen_user_tfs(self,
+                             ctx: discord.ApplicationContext,
+                             user: discord.Member,
+                             sure: bool = False,
+                             really_sure: bool = False) -> None:
+        if not (sure and really_sure):
+            await ctx.respond("You haven't verified that you're *actually* sure about doing this! Please try again!")
+            return
+        utils.remove_all_server_tf(user, ctx.guild)
+        await ctx.respond(f"Server TFs have been regenerated for {user.mention}!")
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Admin(bot))
