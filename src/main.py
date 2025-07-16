@@ -154,6 +154,8 @@ async def on_message(message: discord.Message) -> None:
             mention = bot.get_user(tfee).mention
         content += (f"***Replying to {mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
+        # TODO: Make this an option for server owners
+        '''
         if message.reference.resolved.content:
             to_send = message.reference.resolved.content
             if message.reference.resolved.mentions:
@@ -174,6 +176,7 @@ async def on_message(message: discord.Message) -> None:
                     line = line[4:]
                 content += f"> {line}\n"
             content += "\n"
+        '''
 
     if message.content:
         # Check if censor, muffles, alt muffle, or sprinkles are active in data
