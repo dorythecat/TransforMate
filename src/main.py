@@ -1,5 +1,7 @@
 import discord
 
+from pathlib import Path
+
 import src.utils as utils
 from src.config import *
 
@@ -16,6 +18,9 @@ async def on_ready() -> None:
     await bot.change_presence(status=discord.Status.online,
                               activity=discord.Activity(type=discord.ActivityType.watching,
                                                         name="people get transformed"))
+
+    # Generate the cache/people dirs so we don't have to worry about them further down the line
+    Path("../cache/people").mkdir(parents=True, exist_ok=True)
 
 
 # TODO: When the bot joins a server, we should check if it has the proper permissions, and then warn the owner of
