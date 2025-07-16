@@ -515,19 +515,23 @@ def get_embed_base(title: str,
     )
 
 
-def check_reactions(reaction: discord.Reaction) -> [int | None,
-                                                    dict | None]:
-    transformed_data = load_transformed(reaction.message.guild)['transformed_users']
+def check_message(message: discord.Message) -> [int | None,
+                                                dict | None]:
+    transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
-        data = load_tf_by_id(tfee, reaction.message.guild)
+        data = load_tf_by_id(tfee, message.guild)
         if data == {}:
             continue
-        data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
-        if data['into'] == reaction.message.author.name:
+        data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
+        if data['into'] == message.author.name:
             return [int(tfee), data]
     return [None, None]
+
+def check_reactions(reaction: discord.Reaction) -> [int | None,
+                                                    dict | None]:
+    return check_message(reaction.message)
 
 
 def clear_apple_marks(text: str) -> str:
