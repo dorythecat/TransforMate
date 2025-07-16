@@ -94,7 +94,7 @@ async def on_message(message: discord.Message) -> None:
 
     # If the message contains stickers, we just don't process it
     if message.stickers:
-        await message.author.send("Sorry, but we don't support  sending stickers, for the moment! :(")
+        await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
         return
 
     data = utils.load_tf(message.author, message.guild)
