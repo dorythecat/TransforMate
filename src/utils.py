@@ -217,7 +217,7 @@ def write_tf(user: discord.User | discord.Member,
             data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
 
         if stutter is not None:
-            data[str(guild.id)][channel_id]['stutter'] = 30 if stutter != "" else 0
+            data[str(guild.id)][channel_id]['stutter'] = stutter
 
         if mod_type is not None and chance:
             if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
