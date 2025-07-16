@@ -148,7 +148,11 @@ async def on_message(message: discord.Message) -> None:
 
     content = ""
     if message.reference:  # Check if the message is a reply
-        content += (f"***Replying to {message.reference.resolved.author.mention} on "
+        mention = message.reference.resolved.author.mention
+        if message.reference.resolved.webhook_id:
+            tfee, data = utils.check_message(message.reference.resolved)
+            mention = bot.get_user(tfee).mention
+        content += (f"***Replying to {mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
         if message.reference.resolved.content:
             to_send = message.reference.resolved.content
