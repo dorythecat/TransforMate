@@ -515,8 +515,7 @@ def get_embed_base(title: str,
     )
 
 
-def check_message(message: discord.Message) -> [int | None,
-                                                dict | None]:
+def check_message(message: discord.Message) -> [int | None, dict | None]:
     transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
@@ -529,8 +528,7 @@ def check_message(message: discord.Message) -> [int | None,
             return [int(tfee), data]
     return [None, None]
 
-def check_reactions(reaction: discord.Reaction) -> [int | None,
-                                                    dict | None]:
+def check_reactions(reaction: discord.Reaction) -> [int | None, dict | None]:
     return check_message(reaction.message)
 
 

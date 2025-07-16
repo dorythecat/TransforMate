@@ -185,19 +185,12 @@ async def on_message(message: discord.Message) -> None:
 
     if message.content:
         # Check if censor, muffles, alt muffle, or sprinkles are active in data
-        if (
-                data['censor']['active'] or
-                data['muffle']['active'] or
-                data['alt_muffle']['active'] or
-                data['sprinkle']['active']
-        ):
+        if (data['censor']['active'] or
+            data['muffle']['active'] or
+            data['alt_muffle']['active'] or
+            data['sprinkle']['active']):
             # Send the original message to transformed_by if claim is None, otherwise to claim
-            if data['claim'] is None:
-                # Get the user who transformed this user
-                transformed_by = bot.get_user(int(data['transformed_by']))
-            else:
-                # Get the user who claimed the user
-                transformed_by = bot.get_user(int(data['claim']))
+            transformed_by = bot.get_user(int(data['transformed_by'] if data['claim'] is None else data['claim']))
 
             # Check if the message is from the user who transformed this user
             if transformed_by is not None and not message.author == transformed_by:
