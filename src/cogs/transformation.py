@@ -262,7 +262,7 @@ class Transformation(commands.Cog):
         elif 'all' in data:
             data = data['all']
         else:
-            await ctx.respond("This user isn't transformed in thsi channel! Please try again in the proper channel!")
+            await ctx.respond("This user isn't transformed in this channel! Please try again in the proper channel!")
             return
         if data['claim'] is not None and int(data['claim']) != ctx.author.id:
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
