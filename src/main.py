@@ -103,7 +103,7 @@ async def on_message(message: discord.Message) -> None:
 
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
-    if str(message.channel.id) in data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']:
+    if str(message.channel.id) in (data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']):
         return
 
     found = False
