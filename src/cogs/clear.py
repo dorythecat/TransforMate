@@ -202,6 +202,19 @@ class Clear(commands.Cog):
         utils.write_tf(user, ctx.guild, eternal=0)
         await ctx.respond(f"{user.mention} is no longer eternally transformed!")
 
+    @clear_command.command(description="Clear a user's stutter")
+    async def stutter(self,
+                      ctx: discord.ApplicationContext,
+                      user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        if not valid:
+            return
+        if data['stutter'] == 0:
+            await ctx.respond(f"{user.mention} isn't stuttering at the moment!")
+            return
+        utils.write_tf(user, ctx.guild, stutter=0)
+        await ctx.respond(f"{user.mention} will no longer stutter!")
+
     @clear_command.command(description="Clear a user's biography")
     async def bio(self,
                   ctx: discord.ApplicationContext,
