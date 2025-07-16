@@ -157,7 +157,8 @@ class Transformation(commands.Cog):
 
         if copy:
             if not utils.is_transformed(copy, ctx.guild):
-                await ctx.respond("You can't do that! That user isn't transformed right now!", ephemeral=True)
+                if await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel, brackets, None):
+                    await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
             elif await transform_function(ctx, user, copy, image_url, channel, brackets, copy):
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.name}"!')
             return
