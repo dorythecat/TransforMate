@@ -522,6 +522,8 @@ def check_reactions(reaction: discord.Reaction) -> [int | None,
     # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
         data = load_tf_by_id(tfee, reaction.message.guild)
+        if data == {}:
+            continue
         data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
         if data['into'] == reaction.message.author.name:
             return [int(tfee), data]
