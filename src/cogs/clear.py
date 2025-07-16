@@ -30,6 +30,7 @@ class Clear(commands.Cog):
                        censor="",
                        sprinkle="",
                        muffle="",
+                       stutter=0,
                        bio="")
         await ctx.respond(f"{user.mention} has been cleared of all settings!")
 
