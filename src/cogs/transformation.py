@@ -342,7 +342,7 @@ class Transformation(commands.Cog):
 
     # TF EXPORTING/IMPORTING
     @discord.slash_command(description="Export your transformation to a shareable file or text string")
-    async def export(self,
+    async def export_tf(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None,
                      file: discord.Option(discord.SlashCommandOptionType.boolean,
