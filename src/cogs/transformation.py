@@ -341,12 +341,12 @@ class Transformation(commands.Cog):
             await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
     # TF EXPORTING/IMPORTING
-    @discord.slash_command(description="Export your transformation to a shareable text string")
+    @discord.slash_command(description="Export your transformation to a shareable file or text string")
     async def export(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None,
-                     compressed: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                description="Whether to compress the output string") = True) -> None:
+                     file: discord.Option(discord.SlashCommandOptionType.boolean,
+                                          description="Whether the output is a .tf file or a string") = True) -> None:
         if user is None:
             user = ctx.author
 
