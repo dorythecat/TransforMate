@@ -340,6 +340,221 @@ class Transformation(commands.Cog):
             embed.add_field(name="Channel", value=ctx.message.channel.mention)
             await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
+    # TF EXPORTING/IMPORTING
+    @discord.slash_command(description="Export your transformation to a shareable file or text string")
+    async def export_tf(self,
+                     ctx: discord.ApplicationContext,
+                     user: discord.Option(discord.User) = None,
+                     file: discord.Option(discord.SlashCommandOptionType.boolean,
+                                          description="Whether the output is a .tf file or a string") = True) -> None:
+        if user is None:
+            user = ctx.author
+
+        # Blocked users (globally)
+        if ctx.user.id in BLOCKED_USERS:
+            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
+                                f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
+                                f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+            return
+        if user.id in BLOCKED_USERS:
+            await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
+            return
+
+        data = utils.load_tf(user, ctx.guild)
+        transformed_data = utils.load_transformed(ctx.guild)
+
+        # Blocked channels (user)
+        if data != {}:
+            if str(ctx.channel.id) in data['blocked_channels']:
+                await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                                    f"They have blocked the bot here!", ephemeral=True)
+                return
+
+            if transformed_data != {}:
+                # Blocked channels (server)
+                if str(ctx.channel.id) in transformed_data['blocked_channels']:
+                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+                    return
+
+                # Blocked users (server)
+                if str(ctx.user.id) in transformed_data['blocked_users']:
+                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                    return
+                if str(user.id) in transformed_data['blocked_users']:
+                    await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                    return
+
+        data = utils.load_tf(user, ctx.guild)
+        channel = None
+        if str(ctx.channel) in data:
+            data = data[str(ctx.channel)]
+            channel = ctx.channel
+        else:
+            data = data['all']
+
+        # Basic stuff
+        output = data['into'] + ";"
+        output += data['image_url'] + ";"
+
+        # Booleans
+        output += "1;" if data['big'] else "0;"
+        output += "1;" if data['small'] else "0;"
+        output += "1;" if data['hush'] else "0;"
+        output += "1;" if data['backwards'] else "0;"
+
+        # "Easy Stuff"
+        output += str(data['stutter']) + ";"
+        output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
+        output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
+        output += (data['bio'] if data['bio'] else "") + ";"
+
+        # Prefix
+        output += "1;" if data['prefix']['active'] else "0;"
+        output += (",".join(data['prefix']['contents']) if data['prefix']['active'] else "") + ";"
+        output += (str(data['prefix']['chance']) if data['prefix']['active'] else "") + ";"
+
+        # Suffix
+        output += "1;" if data['suffix']['active'] else "0;"
+        output += (",".join(data['suffix']['contents']) if data['suffix']['active'] else "") + ";"
+        output += (str(data['suffix']['chance']) if data['suffix']['active'] else "") + ";"
+
+        # Sprinkle
+        output += "1;" if data['sprinkle']['active'] else "0;"
+        output += (",".join(data['sprinkle']['contents']) if data['sprinkle']['active'] else "") + ";"
+        output += (str(data['sprinkle']['chance']) if data['sprinkle']['active'] else "") + ";"
+
+        # Muffle
+        output += "1;" if data['muffle']['active'] else "0;"
+        output += (",".join(data['muffle']['contents']) if data['muffle']['active'] else "") + ";"
+        output += (str(data['muffle']['chance']) if data['muffle']['active'] else "") + ";"
+
+        # Alt Muffle
+        output += "1;" if data['alt_muffle']['active'] else "0;"
+        output += (",".join(data['alt_muffle']['contents']) if data['alt_muffle']['active'] else "") + ";"
+        output += (str(data['alt_muffle']['chance']) if data['alt_muffle']['active'] else "") + ";"
+
+        # Censor
+        output += "1;" if data['censor']['active'] else "0;"
+        output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
+                                                                 if data['censor']['active'] else "")
+
+        await ctx.respond(output)
+
+    @discord.slash_command(description="Import your saved transformations")
+    async def import_tf(self,
+                     ctx: discord.ApplicationContext,
+                     user: discord.Option(discord.User) = None) -> None:
+        if user is None:
+            user = ctx.author
+
+        # Blocked users (globally)
+        if ctx.user.id in BLOCKED_USERS:
+            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
+                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
+                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+            return
+        if user.id in BLOCKED_USERS:
+            await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
+            return
+
+        data = utils.load_tf(user, ctx.guild)
+        transformed_data = utils.load_transformed(ctx.guild)
+
+        # Blocked channels (user)
+        if data != {}:
+            if str(ctx.channel.id) in data['blocked_channels']:
+                await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                                  f"They have blocked the bot here!", ephemeral=True)
+                return
+
+            if transformed_data != {}:
+                # Blocked channels (server)
+                if str(ctx.channel.id) in transformed_data['blocked_channels']:
+                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+                    return
+
+                # Blocked users (server)
+                if str(ctx.user.id) in transformed_data['blocked_users']:
+                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                    return
+                if str(user.id) in transformed_data['blocked_users']:
+                    await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                    return
+
+        await ctx.respond(f"Please send the saved transformation you want to apply to {user.mention}?"
+                          f"(Send CANCEL to cancel)")
+        response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
+        if response.content.strip() == "CANCEL":
+            await ctx.respond("Cancelled the transformation!")
+            return
+
+        if response.attachments:
+            await ctx.respond("File transfomation data not supported! (yet)")
+            return
+
+        data = response.content.split(";")
+        if len(data) != 27:
+            await ctx.send("Invalid transformation data!")
+            return
+
+        # Basic stuff
+        await transform_function(ctx, user, data[0], data[1])
+
+        utils.write_tf(user,
+                       ctx.guild,
+                       big=int(data[2]),
+                       small=int(data[3]),
+                       hush=int(data[4]),
+                       backwards=int(data[5]),
+                       stutter=int(data[6]),
+                       proxy_prefix=data[7],
+                       proxy_suffix=data[8],
+                       bio=data[9])
+
+        # Prefix
+        if data[10] == "1":
+            prefixes = data[11].split(",")
+            for prefix in prefixes:
+                utils.write_tf(user, ctx.guild, prefix=prefix)
+            utils.write_tf(user, ctx.guild, mod_type="prefix", chance=int(data[12]))
+
+        # Suffix
+        if data[13] == "1":
+            suffixes = data[14].split(",")
+            for suffix in suffixes:
+                utils.write_tf(user, ctx.guild, suffix=suffix)
+            utils.write_tf(user, ctx.guild, mod_type="suffix", chance=int(data[15]))
+
+        # Sprinkle
+        if data[16] == "1":
+            sprinkles = data[17].split(",")
+            for sprinkle in sprinkles:
+                utils.write_tf(user, ctx.guild, sprinkle=sprinkle)
+            utils.write_tf(user, ctx.guild, mod_type="sprinkle", chance=int(data[18]))
+
+        # Muffle
+        if data[19] == "1":
+            muffles = data[20].split(",")
+            for muffle in muffles:
+                utils.write_tf(user, ctx.guild, muffle=muffle)
+            utils.write_tf(user, ctx.guild, mod_type="muffle", chance=int(data[21]))
+
+        # Alt Muffle
+        if data[22] == "1":
+            alt_muffles = data[23].split(",")
+            for alt_muffle in alt_muffles:
+                utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle)
+            utils.write_tf(user, ctx.guild, mod_type="alt_muffle", chance=int(data[24]))
+
+        # Censor
+        if data[25] == "1":
+            censors = data[26].split(",")
+            for censor in censors:
+                censor = censor.split("|")
+                utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
+
+        await ctx.send(f"Transformed {user.mention} successfully into {data[0]}!")
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Transformation(bot))
