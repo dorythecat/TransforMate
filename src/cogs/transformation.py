@@ -10,9 +10,9 @@ async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str,
                              image_url: str,
-                             channel: discord.TextChannel,
-                             brackets: list[str] | None,
-                             copy: discord.User | None) -> bool:
+                             channel: discord.TextChannel | None = None,
+                             brackets: list[str] | None = None,
+                             copy: discord.User | None = None) -> bool:
     if copy is not None:
         utils.write_tf(user, ctx.guild, new_data=utils.load_tf(copy, ctx.guild))
         utils.write_transformed(ctx.guild, user, channel)
