@@ -358,10 +358,21 @@ class Transformation(commands.Cog):
         else:
             data = data['all']
 
+        # Basic stuff
         output = data['into'] + ";"
         output += data['image_url'] + ";"
-        output += (data['claim'] if data['claim'] else "0") + ";"
-        output += "1;" if data['eternal'] else "0;"
+
+        # Booleans
+        output += "1;" if data['big'] else "0;"
+        output += "1;" if data['small'] else "0;"
+        output += "1;" if data['hush'] else "0;"
+        output += "1;" if data['backwards'] else "0;"
+
+        # "Easy Stuff"
+        output += str(data['stutter']) + ";"
+        output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
+        output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
+        output += data['bio'] if data['bio'] else ""
 
         # Prefix
         output += "1;" if data['prefix']['active'] else "0;"
@@ -372,16 +383,6 @@ class Transformation(commands.Cog):
         output += "1;" if data['suffix']['active'] else "0;"
         output += (",".join(data['suffix']['contents']) if data['prefix']['active'] else "") + ";"
         output += (str(data['suffix']['chance']) if data['prefix']['active'] else "") + ";"
-
-        output += "1;" if data['big'] else "0;"
-        output += "1;" if data['small'] else "0;"
-        output += "1;" if data['hush'] else "0;"
-        output += "1;" if data['backwards'] else "0;"
-
-        # Censor
-        output += "1;" if data['censor']['active'] else "0;"
-        output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
-                   if data['censor']['active'] else "") + ";"
 
         # Sprinkle
         output += "1;" if data['sprinkle']['active'] else "0;"
@@ -398,11 +399,12 @@ class Transformation(commands.Cog):
         output += (",".join(data['alt_muffle']['contents']) if data['alt_muffle']['active'] else "") + ";"
         output += (str(data['alt_muffle']['chance']) if data['alt_muffle']['active'] else "") + ";"
 
-        output += str(data['stutter']) + ";"
-        output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
-        output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
-        output += data['bio'] if data['bio'] else ""
-        await ctx.respond("```" + output + "```")
+        # Censor
+        output += "1;" if data['censor']['active'] else "0;"
+        output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
+                   if data['censor']['active'] else "") + ";"
+
+        await ctx.respond(output)
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Transformation(bot))
