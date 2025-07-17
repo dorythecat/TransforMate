@@ -415,8 +415,8 @@ class Transformation(commands.Cog):
 
         # Suffix
         output += "1;" if data['suffix']['active'] else "0;"
-        output += (",".join(data['suffix']['contents']) if data['prefix']['active'] else "") + ";"
-        output += (str(data['suffix']['chance']) if data['prefix']['active'] else "") + ";"
+        output += (",".join(data['suffix']['contents']) if data['suffix']['active'] else "") + ";"
+        output += (str(data['suffix']['chance']) if data['suffix']['active'] else "") + ";"
 
         # Sprinkle
         output += "1;" if data['sprinkle']['active'] else "0;"
