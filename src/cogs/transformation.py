@@ -372,7 +372,7 @@ class Transformation(commands.Cog):
         output += str(data['stutter']) + ";"
         output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
         output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
-        output += data['bio'] if data['bio'] else ""
+        output += (data['bio'] if data['bio'] else "") + ";"
 
         # Prefix
         output += "1;" if data['prefix']['active'] else "0;"
@@ -402,7 +402,7 @@ class Transformation(commands.Cog):
         # Censor
         output += "1;" if data['censor']['active'] else "0;"
         output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
-                   if data['censor']['active'] else "") + ";"
+                                                                 if data['censor']['active'] else "")
 
         await ctx.respond(output)
 
