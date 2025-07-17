@@ -9,7 +9,7 @@ from src.config import BLOCKED_USERS
 async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str,
-                             image_url: str,
+                             image_url: str | None = None,
                              channel: discord.TextChannel | None = None,
                              brackets: list[str] | None = None,
                              copy: discord.User | None = None) -> bool:
