@@ -340,6 +340,69 @@ class Transformation(commands.Cog):
             embed.add_field(name="Channel", value=ctx.message.channel.mention)
             await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
+    # TF EXPORTING/IMPORTING
+    @discord.slash_command(description="Export your transformation to a shareable text string")
+    async def export(self,
+                     ctx: discord.ApplicationContext,
+                     user: discord.Option(discord.User) = None,
+                     compressed: discord.Option(discord.SlashCommandOptionType.boolean,
+                                                description="Whether to compress the output string") = True) -> None:
+        if user is None:
+            user = ctx.author
+
+        data = utils.load_tf(user, ctx.guild)
+        channel = None
+        if str(ctx.channel) in data:
+            data = data[str(ctx.channel)]
+            channel = ctx.channel
+        else:
+            data = data['all']
+
+        output = data['into'] + ";"
+        output += data['image_url'] + ";"
+        output += (data['claim'] if data['claim'] else "0") + ";"
+        output += "1;" if data['eternal'] else "0;"
+
+        # Prefix
+        output += "1;" if data['prefix']['active'] else "0;"
+        output += (",".join(data['prefix']['contents']) if data['prefix']['active'] else "") + ";"
+        output += (str(data['prefix']['chance']) if data['prefix']['active'] else "") + ";"
+
+        # Suffix
+        output += "1;" if data['suffix']['active'] else "0;"
+        output += (",".join(data['suffix']['contents']) if data['prefix']['active'] else "") + ";"
+        output += (str(data['suffix']['chance']) if data['prefix']['active'] else "") + ";"
+
+        output += "1;" if data['big'] else "0;"
+        output += "1;" if data['small'] else "0;"
+        output += "1;" if data['hush'] else "0;"
+        output += "1;" if data['backwards'] else "0;"
+
+        # Censor
+        output += "1;" if data['censor']['active'] else "0;"
+        output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
+                   if data['censor']['active'] else "") + ";"
+
+        # Sprinkle
+        output += "1;" if data['sprinkle']['active'] else "0;"
+        output += (",".join(data['sprinkle']['contents']) if data['sprinkle']['active'] else "") + ";"
+        output += (str(data['sprinkle']['chance']) if data['sprinkle']['active'] else "") + ";"
+
+        # Muffle
+        output += "1;" if data['muffle']['active'] else "0;"
+        output += (",".join(data['muffle']['contents']) if data['muffle']['active'] else "") + ";"
+        output += (str(data['muffle']['chance']) if data['muffle']['active'] else "") + ";"
+
+        # Alt Muffle
+        output += "1;" if data['alt_muffle']['active'] else "0;"
+        output += (",".join(data['alt_muffle']['contents']) if data['alt_muffle']['active'] else "") + ";"
+        output += (str(data['alt_muffle']['chance']) if data['alt_muffle']['active'] else "") + ";"
+
+        output += str(data['stutter']) + ";"
+        output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
+        output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
+        output += data['bio'] if data['bio'] else ""
+        await ctx.respond("```" + output + "```")
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Transformation(bot))
