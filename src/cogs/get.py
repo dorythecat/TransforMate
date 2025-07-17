@@ -141,9 +141,7 @@ class Get(commands.Cog):
             transformed_data = transformed_data[
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
-            if ctx.guild.get_member(int(tfee)) is None:
-                continue
-            description += f"<@{tfee}> ({ctx.guild.get_member(int(tfee)).name}) is \"{into}\"\n\n"
+            description += f"<@{tfee}> ({discord.Bot.get_user(self, int(tfee)).name}) is \"{into}\"\n\n"
         # Take off the last two new lines
         description = description[:-2]
         await ctx.respond(embed=utils.get_embed_base(title="Transformed Users", desc=description))
