@@ -492,49 +492,6 @@ def write_file(filename: str,
         f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
 
 
-# COMPRESSION
-def encode_url(url: str) -> str:
-    header = 1 if not url.find("https://") else 0  # 0: http:// 1: https://
-    output = str(header)
-    url = url[(7 + header):]
-    if url[:27] == "cdn.discordapp.com/avatars/":
-        output += "0"
-        url = url[27:]  # 0: cdn.discordapp.com/avatars/
-    elif url[:33] == "media.discordapp.net/attachments/":
-        output += "1"  # 1: media.discordapp.net/attachments/
-        url = url[33:]
-    elif url[:37] == "images-ext-1.discordapp.net/external/":
-        output += "2"  # 2: images-ext-1.discordapp.net/external/
-        url = url[37:]
-
-    if url.rfind(".png") == len(url) - 4: url = url[:url.rfind(".png")] + "0"  # 0: .png
-    elif url.rfind(".jpg") == len(url) - 4: url = url[:url.rfind(".jpg")] + "1"  # 1: .jpg
-    elif url.rfind(".webp") == len(url) - 5: url = url[:url.rfind(".webp")] + "2"  # 2: .webp
-    elif url.rfind(".jpeg") == len(url) - 5: url = url[:url.rfind(".jpeg")] + "3"  # 3: .jpeg
-    elif url.rfind(".gif") == len(url) - 4: url = url[:url.rfind(".gif")] + "4"  # 4: .gif
-
-    return output + url
-
-
-def decode_url(encoded: str) -> str:
-    # Check encode_url for the expected association of values
-    url = "https://" if encoded[0] else "http://"
-
-    if encoded[1] == "0": url += "cdn.discordapp.com/avatars/"
-    elif encoded[1] == "1": url += "media.discordapp.net/attachments/"
-    elif encoded[1] == "2": url += "images-ext-1.discordapp.net/external/"
-
-    url += encoded[2:(len(encoded) - 1)]
-
-    match encoded[len(encoded) - 1]:
-        case "0": url += ".png"
-        case "1": url += ".jpg"
-        case "2": url += ".webp"
-        case "3": url += ".jpeg"
-        case "4": url += ".gif"
-    return url
-
-
 # MISCELLANEOUS UTILS
 def get_webhook_by_name(webhooks: list[discord.Webhook],
                         name: str) -> discord.Webhook | None:

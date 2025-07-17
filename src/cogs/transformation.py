@@ -443,7 +443,6 @@ class Transformation(commands.Cog):
         if file:
             # Encode the URL
             output = output.split(";")
-            output[1] = utils.encode_url(output[1])
             output = ";".join(output)
 
             with open("tf_cache.tf", "w") as f:
@@ -508,7 +507,6 @@ class Transformation(commands.Cog):
             with open("tf_cache.tf") as f:
                 data = f.read().split(";")
             os.remove("tf_cache.tf")
-            data[1] = utils.decode_url(data[1])
         else:
             data = response.content.split(";")
 
