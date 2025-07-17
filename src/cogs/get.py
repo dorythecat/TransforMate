@@ -135,6 +135,8 @@ class Get(commands.Cog):
             return
         description = ""
         for tfee in tfee_data:
+            if ctx.guild.get_member(int(tfee)) is None:
+                continue
             transformed_data = utils.load_tf_by_id(tfee, ctx.guild)
             if transformed_data == {}:
                 continue
