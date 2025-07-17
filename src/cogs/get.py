@@ -141,6 +141,8 @@ class Get(commands.Cog):
             transformed_data = transformed_data[
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
+            if ctx.guild.get_member(int(tfee)) is None:
+                continue
             description += f"{ctx.guild.get_member(int(tfee)).mention} is \"{into}\"\n\n"
         # Take off the last two new lines
         description = description[:-2]
