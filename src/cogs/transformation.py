@@ -1,3 +1,5 @@
+import os
+
 import discord
 from discord.ext import commands
 
@@ -438,6 +440,19 @@ class Transformation(commands.Cog):
         output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
                                                                  if data['censor']['active'] else "")
 
+        if file:
+            # Encode the URL
+            output = output.split(";")
+            output[1] = utils.encode_url(output[1])
+            output = ";".join(output)
+
+            with open("tf_cache.tf", "w") as f:
+                f.write(output)
+
+            await ctx.respond(file=discord.File("tf_cache.tf", f"{data['into']}.tf"))
+            os.remove("tf_cache.tf")
+            return
+
         await ctx.respond(output)
 
     @discord.slash_command(description="Import your saved transformations")
@@ -489,10 +504,14 @@ class Transformation(commands.Cog):
             return
 
         if response.attachments:
-            await ctx.respond("File transfomation data not supported! (yet)")
-            return
+            await response.attachments[0].save(f"tf_cache.tf")
+            with open("tf_cache.tf") as f:
+                data = f.read().split(";")
+            os.remove("tf_cache.tf")
+            data[1] = utils.decode_url(data[1])
+        else:
+            data = response.content.split(";")
 
-        data = response.content.split(";")
         if len(data) != 27:
             await ctx.send("Invalid transformation data!")
             return
@@ -500,6 +519,7 @@ class Transformation(commands.Cog):
         # Basic stuff
         await transform_function(ctx, user, data[0], data[1])
 
+        # More-or-less-basic stuff
         utils.write_tf(user,
                        ctx.guild,
                        big=int(data[2]),
