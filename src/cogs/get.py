@@ -27,7 +27,7 @@ class Get(commands.Cog):
         embed.add_field(name="Sprinkle", value="Yes" if data['sprinkle']['active'] else "No")
         embed.add_field(name="Muffle", value="Yes" if data['muffle']['active'] else "No")
         embed.add_field(name="Alt Muffle", value="Yes" if data['alt_muffle']['active'] else "No")
-        embed.add_field(name="Stutter", value="Yes" if data['stutter']['active'] else "No")
+        embed.add_field(name="Stutter", value=f"{data['stutter']}%")
         await ctx.respond(embed=embed)
 
 
