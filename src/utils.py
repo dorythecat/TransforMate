@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import math
 import discord
 
 from src.config import CACHE_PATH
@@ -418,7 +419,7 @@ def transform_text(data: dict,
                 continue
 
             if random.randint(0, 100) <= data['stutter']:
-                words[i] = words[i][0] + "-" + words[i]
+                words[i] = words[i][:random.randint(1, 1 + math.floor(len(words[i]) * data['stutter'] / 200))] + "-" + words[i]
     transformed = " ".join(words)
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
