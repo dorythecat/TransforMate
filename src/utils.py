@@ -212,7 +212,6 @@ def write_tf(user: discord.User | discord.Member,
                     data[str(guild.id)][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
             else:
                 data[str(guild.id)][channel_id]['muffle']['contents'] = {}
-            data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
         if alt_muffle is not None:
             data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
             if alt_muffle != "":
