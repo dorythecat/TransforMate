@@ -30,6 +30,7 @@ class Clear(commands.Cog):
                        censor="",
                        sprinkle="",
                        muffle="",
+                       alt_muffle="",
                        bio="")
         await ctx.respond(f"{user.mention} has been cleared of all settings!")
 
@@ -168,7 +169,7 @@ class Clear(commands.Cog):
         if not valid:
             return
         # If the user is not muffled, we can just return
-        if not data['muffle']['active']:
+        if not (data['muffle']['active'] or data['alt_muffle']['active']):
             await ctx.respond(f"{user.mention} is not muffled at the moment!")
             return
         # If a word is provided, we can check if it is in the contents array of both muffle and alt muffle fields
