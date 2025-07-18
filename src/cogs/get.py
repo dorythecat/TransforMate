@@ -17,15 +17,17 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-        embed = utils.get_embed_base(title=f"Settings for {user.name}")
-        embed.add_field(name="Prefix", value=f"{data['prefix']['chance']}%" if data['prefix'] else "None")
-        embed.add_field(name="Suffix", value=f"{data['suffix']['chance']}%" if data['suffix'] else "None")
+        embed = utils.get_embed_base(f"Settings for {user.name}")
+        embed.add_field(name="Prefix", value="Yes" if data['prefix']['active'] else "No")
+        embed.add_field(name="Suffix", value="Yes" if data['suffix']['active'] else "No")
         embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
         embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
         embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
         embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
-        embed.add_field(name="Sprinkle", value=f"{data['sprinkle']['chance']}%" if data['sprinkle'] else "None")
-        embed.add_field(name="Muffle", value=f"{data['muffle']['chance']}%" if data['muffle'] else "None")
+        embed.add_field(name="Sprinkle", value="Yes" if data['sprinkle']['active'] else "No")
+        embed.add_field(name="Muffle", value="Yes" if data['muffle']['active'] else "No")
+        embed.add_field(name="Alt Muffle", value="Yes" if data['alt_muffle']['active'] else "No")
+        embed.add_field(name="Stutter", value="Yes" if data['stutter']['active'] else "No")
         await ctx.respond(embed=embed)
 
 
