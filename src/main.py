@@ -390,6 +390,7 @@ async def info(ctx: discord.ApplicationContext) -> None:
     embed.add_field(name="Logo by", value="<@317115440180494337>")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")
+    embed.add_field(name="Support the project!", value="[Patreon](https://www.patreon.com/dorythecat)")
     await ctx.respond(embed=embed)
 
 
