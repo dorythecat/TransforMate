@@ -37,27 +37,47 @@ class Clear(commands.Cog):
     @clear_command.command(description="Clear the prefix for the transformed messages")
     async def prefix(self,
                      ctx: discord.ApplicationContext,
-                     user: discord.Option(discord.User) = None) -> None:
+                     user: discord.Option(discord.User) = None,
+                     prefix: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Prefix to remove") = "") -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
         if not data['prefix']['active']:
             await ctx.respond(f"{user.mention} doesn't have a prefix set!")
             return
-        utils.write_tf(user, ctx.guild, prefix="")
+        if prefix != "":
+            if not prefix in data['prefix']['contents']:
+                if prefix + " " in data['prefix']['contents']:
+                    prefix += " "
+                else:
+                    await ctx.respond(f"{user.mention} doesn't have that prefix set!")
+                    return
+            prefix = "$/-" + prefix
+        utils.write_tf(user, ctx.guild, prefix=prefix)
         await ctx.respond(f"Prefix for {user.mention} has been cleared!")
 
     @clear_command.command(description="Clear the suffix for the transformed messages")
     async def suffix(self,
                      ctx: discord.ApplicationContext,
-                     user: discord.Option(discord.User) = None) -> None:
+                     user: discord.Option(discord.User) = None,
+                     suffix: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Suffix to remove") = "") -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
         if not data['suffix']['active']:
             await ctx.respond(f"{user.mention} doesn't have a suffix set!")
             return
-        utils.write_tf(user, ctx.guild, suffix="")
+        if suffix != "":
+            if not suffix in data['suffix']['contents']:
+                if " " + suffix in data['suffix']['contents']:
+                    suffix = " " + suffix
+                else:
+                    await ctx.respond(f"{user.mention} doesn't have that suffix set!")
+                    return
+            suffix = "$/-" + suffix
+        utils.write_tf(user, ctx.guild, suffix=suffix)
         await ctx.respond(f"Suffix for {user.mention} has been cleared!")
 
     @clear_command.command(description="Clear the big text setting for the transformed messages")
@@ -138,8 +158,8 @@ class Clear(commands.Cog):
     async def sprinkle(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None,
-                       sprinkle_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                     description="Word to clear") = None) -> None:
+                       sprinkle: discord.Option(discord.SlashCommandOptionType.string,
+                                                description="Sprinkle to clear") = "") -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
@@ -147,24 +167,20 @@ class Clear(commands.Cog):
         if not data['sprinkle']['active']:
             await ctx.respond(f"{user.mention} is not sprinkled at the moment!")
             return
-        # If a word is provided, we can check if it is in the contents array
-        if sprinkle_word not in ["", None]:
-            if sprinkle_word not in data['sprinkle']['contents']:
-                await ctx.respond(f"{user.mention} is not sprinkled with the word \"{sprinkle_word}\"!")
+        if sprinkle != "":
+            if not sprinkle in data['sprinkle']['contents']:
+                await ctx.respond(f"{user.mention} doesn't have that sprinkle set!")
                 return
-            data['sprinkle']['contents'].remove(sprinkle_word)
-            utils.write_tf(user, ctx.guild, sprinkle=data['sprinkle'])
-            await ctx.respond(f"{user.mention} will no longer have the word \"{sprinkle_word}\" sprinkled!")
-            return
-        utils.write_tf(user, ctx.guild, sprinkle="")
+            sprinkle = "$/-" + sprinkle
+        utils.write_tf(user, ctx.guild, sprinkle=sprinkle)
         await ctx.respond(f"{user.mention} will no longer have a sprinkle set!")
 
     @clear_command.command(description="Clear muffle settings")
     async def muffle(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None,
-                     muffle_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Word to clear") = None) -> None:
+                     muffle: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Muffle to clear") = "") -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
@@ -172,22 +188,19 @@ class Clear(commands.Cog):
         if not (data['muffle']['active'] or data['alt_muffle']['active']):
             await ctx.respond(f"{user.mention} is not muffled at the moment!")
             return
-        # If a word is provided, we can check if it is in the contents array of both muffle and alt muffle fields
-        muffle_type = 'muffle'
-        if muffle_word not in ["", None]:
-            if muffle_word not in data['muffle']['contents']:
-                if muffle_word not in data['alt_muffle']['contents']:
-                    await ctx.respond(f"{user.mention} is not muffled with the word \"{muffle_word}\"!")
+        if muffle != "":
+            if not muffle in data['muffle']['contents']:
+                if muffle in data['alt_muffle']['contents']:
+                    muffle = "$/-" + muffle
+                    utils.write_tf(user, ctx.guild, alt_muffle=muffle)
+                    await ctx.respond(f"{user.mention} will no longer have a muffle set!")
                     return
-                muffle_type = 'alt_muffle'
-            data[muffle_type]['contents'].remove(muffle_word)
-            if muffle_type == 'muffle':
-                utils.write_tf(user, ctx.guild, muffle=data['muffle'])
-            else:
-                utils.write_tf(user, ctx.guild, alt_muffle=data['alt_muffle'])
-            await ctx.respond(f"{user.mention} will no longer have the word \"{muffle_word}\" muffled!")
-            return
-        utils.write_tf(user, ctx.guild, muffle="", alt_muffle="")
+                await ctx.respond(f"{user.mention} doesn't have that muffle set!")
+                return
+            muffle = "$/-" + muffle
+        utils.write_tf(user, ctx.guild, muffle=muffle)
+        if muffle == "":
+            utils.write_tf(user, ctx.guild, alt_muffle="")
         await ctx.respond(f"{user.mention} will no longer have a muffle set!")
 
     @clear_command.command(description="Clear eternal setting")
