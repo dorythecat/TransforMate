@@ -17,7 +17,7 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-        embed = utils.get_embed_base(f"Settings for {user.name}")
+        embed = utils.get_embed_base(f"Settings for {user.name}:")
         embed.add_field(name="Prefix", value="Yes" if data['prefix']['active'] else "No")
         embed.add_field(name="Suffix", value="Yes" if data['suffix']['active'] else "No")
         embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
@@ -53,10 +53,11 @@ class Get(commands.Cog):
         if not data['censor']['active']:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
-        embed = utils.get_embed_base(title=f"Censors for {user.name}")
-        for word in data['censor']['contents']:
-            embed.add_field(name=word, value=data['censor']['contents'][word])
-        await ctx.respond(embed=embed)
+
+        desc = ""
+        for censor in data['censor']['contents']:
+            desc += f"**{censor}**: {data['censor']['contents'][censor]}\n\n"
+        await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the sprinkles for the transformed user")
     async def sprinkles(self,
@@ -68,9 +69,11 @@ class Get(commands.Cog):
         if not data['sprinkle']:
             await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
             return
-        embed = utils.get_embed_base(title=f"Sprinkles for {user.name}")
-        embed.add_field(name='Sprinkle(s)', value=data['sprinkle']['contents'])
-        await ctx.respond(embed=embed)
+
+        desc = ""
+        for sprinkle in data['sprinkle']['contents']:
+            desc += f"**{sprinkle}**: {data['sprinkle']['contents'][sprinkle]}%\n\n"
+        await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the muffle for the transformed user")
     async def muffle(self,
@@ -82,9 +85,11 @@ class Get(commands.Cog):
         if not data['muffle']:
             await ctx.respond(f"{user.mention} has no muffles at the moment!")
             return
-        embed = utils.get_embed_base(title=f"Muffle for {user.name}")
-        embed.add_field(name='Muffle(s)', value=data['muffle']['contents'])
-        await ctx.respond(embed=embed)
+
+        desc = ""
+        for muffle in data['muffle']['contents']:
+            desc += f"**{muffle}**: {data['muffle']['contents'][muffle]}%\n\n"
+        await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the prefixes for the transformed user")
     async def prefixes(self,
@@ -96,9 +101,11 @@ class Get(commands.Cog):
         if not data['prefix']:
             await ctx.respond(f"{user.mention} has no prefixes at the moment!")
             return
-        embed = utils.get_embed_base(title=f"Prefixes for {user.name}")
-        embed.add_field(name='Prefix', value='\n'.join(data['prefix']['contents']))
-        await ctx.respond(embed=embed)
+
+        desc = ""
+        for prefix in data['prefix']['contents']:
+            desc += f"**{prefix}**: {data['prefix']['contents'][prefix]}%\n\n"
+        await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the suffixes for the transformed user")
     async def suffixes(self,
@@ -110,9 +117,11 @@ class Get(commands.Cog):
         if not data['suffix']:
             await ctx.respond(f"{user.mention} has no suffixes at the moment!")
             return
-        embed = utils.get_embed_base(title=f"Suffixes for {user.name}")
-        embed.add_field(name='Suffix', value='\n'.join(data['suffix']['contents']))
-        await ctx.respond(embed=embed)
+
+        desc = ""
+        for suffix in data['suffix']['contents']:
+            desc += f"**{suffix}**: {data['suffix']['contents'][suffix]}%\n\n"
+        await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc[:-2]))
 
     @get_command.command(description="Get the biography of a transformed user")
     async def bio(self,
@@ -124,9 +133,8 @@ class Get(commands.Cog):
         if data['bio'] in ["", None]:
             await ctx.respond(f"{user.mention} has no biography set!")
             return
-        embed = utils.get_embed_base(title=f"Biography for {user.name}")
-        embed.add_field(name="", value=data['bio'])
-        await ctx.respond(embed=embed)
+
+        await ctx.respond(embed=utils.get_embed_base(f"Biography for {user.name}:", data['bio']))
 
     @get_command.command(description="Get a list of transformed users")
     async def transformed(self,
@@ -135,7 +143,8 @@ class Get(commands.Cog):
         if tfee_data == {}:
             await ctx.respond("No one is transformed in this server, at the moment!")
             return
-        description = ""
+
+        desc = ""
         for tfee in tfee_data:
             transformed_data = utils.load_tf_by_id(tfee, ctx.guild)
             if transformed_data == {}:
@@ -143,10 +152,8 @@ class Get(commands.Cog):
             transformed_data = transformed_data[
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
-            description += f"<@{tfee}> is \"{into}\"\n\n"
-        # Take off the last two new lines
-        description = description[:-2]
-        await ctx.respond(embed=utils.get_embed_base(title="Transformed Users", desc=description))
+            desc += f"<@{tfee}> is \"{into}\"\n\n"
+        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc[:-2]))
 
     @get_command.command(description="Get the profile image of a transformed user")
     async def image(self,
@@ -155,6 +162,7 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
+
         await ctx.respond(f"{user.mention}'s image for [{data['into']}]({data['image_url']})")
 
 
