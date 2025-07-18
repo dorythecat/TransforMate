@@ -146,6 +146,15 @@ class Get(commands.Cog):
         description = description[:-2]
         await ctx.respond(embed=utils.get_embed_base(title="Transformed Users", desc=description))
 
+    @get_command.command(description="Get the profile image of a transformed user")
+    async def image(self,
+                    ctx: discord.ApplicationContext,
+                    user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        if not valid:
+            return
+        await ctx.respond(f"{user.mention}'s image for [{data['into']}]({data['image_url']})")
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Get(bot))
