@@ -434,6 +434,10 @@ def transform_text(data: dict,
             if random.randint(0, 100) <= data['suffix']['contents'][suffix]:
                 transformed += suffix
 
+    # We need to do this now to avoid https://github.com/dorythecat/TransforMate/issues/48
+    if data['backwards']:
+        transformed = transformed[::-1]
+
     if data['big']:
         transformed = "# " + transformed
 
@@ -448,9 +452,6 @@ def transform_text(data: dict,
 
     if data['hush']:
         transformed = "||" + transformed + "||"
-
-    if data['backwards']:
-        transformed = transformed[::-1]
 
     return transformed
 
