@@ -41,7 +41,7 @@ class Clear(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if data['prefix'] in ["", None]:
+        if not data['prefix']['active']:
             await ctx.respond(f"{user.mention} doesn't have a prefix set!")
             return
         utils.write_tf(user, ctx.guild, prefix="")
@@ -54,7 +54,7 @@ class Clear(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if data['suffix'] in ["", None]:
+        if not data['suffix']['active']:
             await ctx.respond(f"{user.mention} doesn't have a suffix set!")
             return
         utils.write_tf(user, ctx.guild, suffix="")
