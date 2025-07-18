@@ -25,7 +25,7 @@ class Set(commands.Cog):
         if not valid:
             return
         prefix_word += (" " * whitespace)
-        utils.write_tf(user, ctx.guild, prefix=prefix_word, mod_type="prefix", chance=prefix_chance)
+        utils.write_tf(user, ctx.guild, prefix=prefix_word, chance=prefix_chance)
         await ctx.respond(f"Prefix for {user.mention} set to \"{prefix_word.strip()}\"!")
 
     @set_command.command(description="Set a suffix for the transformed messages")
@@ -43,7 +43,7 @@ class Set(commands.Cog):
         if not valid:
             return
         suffix_word = (" " * whitespace) + suffix_word
-        utils.write_tf(user, ctx.guild, suffix=suffix_word, mod_type="suffix", chance=suffix_chance)
+        utils.write_tf(user, ctx.guild, suffix=suffix_word, chance=suffix_chance)
         await ctx.respond(f"Suffix for {user.mention} set to \"{suffix_word.strip()}\"!")
 
     @set_command.command(description="Set the transformed user to speak in big text")
@@ -147,7 +147,7 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        utils.write_tf(user, ctx.guild, sprinkle=sprinkle_word, mod_type="sprinkle", chance=sprinkle_chance)
+        utils.write_tf(user, ctx.guild, sprinkle=sprinkle_word, chance=sprinkle_chance)
         await ctx.respond(f"{user.mention} will now have the word \"{sprinkle_word}\" sprinkled in their messages!")
 
     @set_command.command(description="Set the transformed user to have their words/messages randomly replaced with a "
@@ -165,7 +165,7 @@ class Set(commands.Cog):
         if not valid:
             return
         if alt:
-            utils.write_tf(user, ctx.guild, alt_muffle=muffle_word, mod_type="alt_muffle", chance=chance)
+            utils.write_tf(user, ctx.guild, alt_muffle=muffle_word, chance=chance)
             await ctx.respond(f"{user.mention} will now have their messages muffled with \"{muffle_word}\"!")
             return
         utils.write_tf(user, ctx.guild, muffle=muffle_word, mod_type="muffle", chance=chance)
@@ -180,7 +180,7 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        utils.write_tf(user, ctx.guild, stutter=chance, mod_type="stutter", chance=chance)
+        utils.write_tf(user, ctx.guild, stutter=chance)
         await ctx.respond(f"{user.mention} will now stutter when talking!")
 
     @set_command.command(description="Set a biography for the transformed user")
