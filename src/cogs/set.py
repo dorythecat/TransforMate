@@ -168,7 +168,7 @@ class Set(commands.Cog):
             utils.write_tf(user, ctx.guild, alt_muffle=muffle_word, chance=chance)
             await ctx.respond(f"{user.mention} will now have their messages muffled with \"{muffle_word}\"!")
             return
-        utils.write_tf(user, ctx.guild, muffle=muffle_word, mod_type="muffle", chance=chance)
+        utils.write_tf(user, ctx.guild, muffle=muffle_word, chance=chance)
         await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle_word}\"!")
 
     @set_command.command(description="Set the transformed user to stutter on random words, with a certain chance")
