@@ -6,11 +6,12 @@ import discord
 from src.config import CACHE_PATH
 
 # SETTINGS
-CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version, should it be cleared out?
+CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version that we can't translate, should it be cleared out?
 CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 15: Added individual chances to all modifiers
 # VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
 # VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
@@ -25,7 +26,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 14
+CURRENT_TFEE_DATA_VERSION = 15
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -73,7 +74,6 @@ def write_tf(user: discord.User | discord.Member,
              alt_muffle: str | None = None,
              stutter: int | None = None,
              chance: int | None = None,
-             mod_type: str | None = None,
              proxy_prefix: str | None = None,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
@@ -108,13 +108,11 @@ def write_tf(user: discord.User | discord.Member,
             'eternal': False,
             'prefix': {
                 'active': False,
-                'contents': [],
-                'chance': 0
+                'contents': {}
             },
             'suffix': {
                 'active': False,
-                'contents': [],
-                'chance': 0
+                'contents': {}
             },
             'big': False,
             'small': False,
@@ -126,18 +124,15 @@ def write_tf(user: discord.User | discord.Member,
             },
             'sprinkle': {
                 'active': False,
-                'contents': [],
-                'chance': 0
+                'contents': {}
             },
             'muffle': {
                 'active': False,
-                'contents': [],
-                'chance': 0
+                'contents': {}
             },
             'alt_muffle': {
                 'active': False,
-                'contents': [],
-                'chance': 0
+                'contents': {}
             },
             'stutter': 0,
             'proxy_prefix': proxy_prefix,
@@ -165,18 +160,22 @@ def write_tf(user: discord.User | discord.Member,
                 data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
         if prefix is not None:
             data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
-            data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if (prefix not in
-                data[str(guild.id)][channel_id]['prefix']['contents']) else []
-            if prefix == "":
-                data[str(guild.id)][channel_id]['prefix']['contents'] = []
-            data[str(guild.id)][channel_id]['prefix']['chance'] = 100 if prefix != "" else 0
+            if prefix != "":
+                if prefix.startswith("$/-"):
+                    data[str(guild.id)][channel_id]['prefix']['contents'].pop(prefix[3:])
+                else:
+                    data[str(guild.id)][channel_id]['prefix']['contents'][prefix] = chance if chance else 30
+            else:
+                data[str(guild.id)][channel_id]['prefix']['contents'] = {}
         if suffix is not None:
             data[str(guild.id)][channel_id]['suffix']['active'] = True if suffix != "" else False
-            data[str(guild.id)][channel_id]['suffix']['contents'] += [suffix.strip()] if (suffix not in
-                data[str(guild.id)][channel_id]['suffix']['contents']) else []
-            if suffix == "":
-                data[str(guild.id)][channel_id]['suffix']['contents'] = []
-            data[str(guild.id)][channel_id]['suffix']['chance'] = 100 if suffix != "" else 0
+            if suffix != "":
+                if suffix.startswith("$/-"):
+                    data[str(guild.id)][channel_id]['suffix']['contents'].pop(suffix[3:])
+                else:
+                    data[str(guild.id)][channel_id]['suffix']['contents'][suffix] = chance if chance else 30
+            else:
+                data[str(guild.id)][channel_id]['suffix']['contents'] = {}
         if big is not None:
             data[str(guild.id)][channel_id]['big'] = False if big == 0 else True
         if small is not None:
@@ -188,42 +187,44 @@ def write_tf(user: discord.User | discord.Member,
         if censor is not None:
             data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
-                censor = clear_apple_marks(censor)
-                if censor_replacement not in ["", None]:
+                if censor.startswith("$/-"):
+                    data[str(guild.id)][channel_id]['censor']['contents'].pop(censor[3:])
+                elif censor_replacement not in ["", None]:
                     if data[str(guild.id)][channel_id]['censor']['contents'] is None:
                         data[str(guild.id)][channel_id]['censor']['contents'] = {}
-                    data[str(guild.id)][channel_id]['censor']['contents'][censor.strip().lower()] = \
-                        censor_replacement.strip().lower()
+                    data[str(guild.id)][channel_id]['censor']['contents'][censor.lower()] = \
+                        censor_replacement.lower()
         if sprinkle is not None:
             data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
-            data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if (sprinkle not in
-                data[str(guild.id)][channel_id]['sprinkle']['contents']) else []
-            if sprinkle == "":
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = []
-            data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30 if sprinkle != "" else 0
+            if sprinkle != "":
+                if sprinkle.startswith("$/-"):
+                    data[str(guild.id)][channel_id]['sprinkle']['contents'].pop(sprinkle[3:])
+                else:
+                    data[str(guild.id)][channel_id]['sprinkle']['contents'][sprinkle] = chance if chance else 30
+            else:
+                data[str(guild.id)][channel_id]['sprinkle']['contents'] = {}
         if muffle is not None:
             data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
-            data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if (muffle not in
-                data[str(guild.id)][channel_id]['muffle']['contents']) else []
-            if muffle == "":
-                data[str(guild.id)][channel_id]['muffle']['contents'] = []
+            if muffle != "":
+                if muffle.startswith("$/-"):
+                    data[str(guild.id)][channel_id]['muffle']['contents'].pop(muffle[3:])
+                else:
+                    data[str(guild.id)][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
+            else:
+                data[str(guild.id)][channel_id]['muffle']['contents'] = {}
             data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
         if alt_muffle is not None:
             data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
-            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [alt_muffle.strip()] if (alt_muffle not in
-                data[str(guild.id)][channel_id]['alt_muffle']['contents']) else []
-            if alt_muffle == "":
-                data[str(guild.id)][channel_id]['alt_muffle']['contents'] = []
-            data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
+            if alt_muffle != "":
+                if alt_muffle.startswith("$/-"):
+                    data[str(guild.id)][channel_id]['alt_muffle']['contents'].pop(alt_muffle[3:])
+                else:
+                    data[str(guild.id)][channel_id]['alt_muffle']['contents'][alt_muffle] = chance if chance else 30
+            else:
+                data[str(guild.id)][channel_id]['alt_muffle']['contents'] = {}
 
         if stutter is not None:
             data[str(guild.id)][channel_id]['stutter'] = stutter
-
-        if mod_type is not None and chance:
-            if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
-                data[str(guild.id)][channel_id][mod_type]['chance'] = chance
-            elif mod_type in ['stutter']:
-                data[str(guild.id)][channel_id][mod_type] = chance
 
         if proxy_prefix is not None:
             data[str(guild.id)][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
@@ -368,8 +369,12 @@ def transform_text(data: dict,
     if data['alt_muffle']['active']:
         # Alternative Muffle will overwrite the entire message with a word from the data array from random chance
         # If we apply this one transformation, that's it. Only this one. That's why it's at the top.
-        if random.randint(1, 100) <= data['alt_muffle']['chance']:
-            return data['alt_muffle']['contents'][random.randint(0, len(data['alt_muffle']['contents']) - 1)]
+        if original in data['alt_muffle']['contents']:
+            return original
+
+        for alt_muffle in data['alt_muffle']['contents']:
+            if random.randint(0, 100) <= data['alt_muffle']['contents'][alt_muffle]:
+                return alt_muffle
 
     transformed = original
     transformed = clear_apple_marks(transformed)
@@ -383,11 +388,11 @@ def transform_text(data: dict,
             raw_word = words[i].lower()
             word = raw_word.strip("*.,!?\"'()[]{}<>:;")
 
-            if word in data['censor']['contents'].keys():
+            if word in data['censor']['contents']:
                 words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
                 continue
 
-            if raw_word in data['censor']['contents'].keys():
+            if raw_word in data['censor']['contents']:
                 words[i] = data['censor']['contents'][raw_word] # The entire word should be replaced
                 continue
 
@@ -395,43 +400,39 @@ def transform_text(data: dict,
         if data['muffle']['active']:
             if words[i].startswith("http"):
                 continue
-            if random.randint(1, 100) <= data['muffle']['chance']:
-                words[i] = data['muffle']['contents'][random.randint(0, len(data['muffle']['contents']) - 1)]
-                continue
+
+            for muffle in data['muffle']['contents']:
+                if random.randint(0, 100) <= data['muffle']['contents'][muffle]:
+                    words[i] = muffle
 
     # Sprinkle will add the sprinkled word to the message between words by random chance
     # for each word, if the chance is met, add a sprinkled word before it
     if data['sprinkle']['active']:
         for i in range(len(words)):
-            if random.randint(1, 100) <= data['sprinkle']['chance']:
-                words[i] = data['sprinkle']['contents'][
-                               random.randint(0, len(data['sprinkle']['contents']) - 1)] + " " + words[i]
+            for sprinkle in data['sprinkle']['contents']:
+                if random.randint(0, 100) <= data['sprinkle']['contents'][sprinkle]:
+                    words[i] = sprinkle + " " + words[i]
 
     if data['stutter'] > 0:
         for i in range(len(words)):
             if words[i].startswith("http"):
                 continue
-            if random.randint(1, 100) <= data['stutter']:
+
+            if random.randint(0, 100) <= data['stutter']:
                 words[i] = words[i][0] + "-" + words[i]
     transformed = " ".join(words)
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
     if data['prefix']['active']:
-        # Prefix will add the prefix to the message, try the chance of adding it,
-        # and then select a random prefix from the list
-        if (0 <= data['prefix']['chance'] < 100 and random.randint(1, 100) <= data['prefix']['chance']) or \
-                data['prefix']['chance'] >= 100:
-            transformed = data['prefix']['contents'][
-                              random.randint(0, len(data['prefix']['contents']) - 1)] + " " + transformed
+        for prefix in data['prefix']['contents']:
+            if random.randint(0, 100) <= data['prefix']['contents'][prefix]:
+                transformed = prefix + transformed
 
     if data['suffix']['active']:
-        # Suffix will add the suffix to the message, try the chance of adding it,
-        # and then select a random suffix from the list
-        if (0 <= data['suffix']['chance'] < 100 and random.randint(1, 100) <= data['suffix']['chance']) or \
-                data['suffix']['chance'] >= 100:
-            transformed = transformed + " " + data['suffix']['contents'][
-                random.randint(0, len(data['suffix']['contents']) - 1)]
+        for suffix in data['suffix']['contents']:
+            if random.randint(0, 100) <= data['suffix']['contents'][suffix]:
+                transformed += suffix
 
     if data['big']:
         transformed = "# " + transformed
