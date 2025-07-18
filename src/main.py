@@ -30,6 +30,11 @@ async def on_guild_join(guild: discord.Guild) -> None:
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
 
+# We use on_raw_member_remove instead of on_member_remove because only the first will ALWAYS trigger
+# See https://docs.pycord.dev/en/stable/api/events.html#discord.on_member_remove
+@bot.event
+async def on_raw_member_remove(payload: discord.RawMemberRemoveEvent) -> None:
+    utils.remove_all_server_tf(payload.user, bot.get_guild(payload.guild_id))
 
 @bot.event
 async def on_message(message: discord.Message) -> None:
