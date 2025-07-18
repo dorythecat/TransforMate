@@ -195,11 +195,14 @@ async def on_message(message: discord.Message) -> None:
         '''
 
     if message.content:
-        # Check if censor, muffles, alt muffle, or sprinkles are active in data
+        tfed_content = utils.transform_text(data, message.content)
+
+        # Check if censor, muffles, alt muffle, or sprinkles are active in data, and if the message is different from
+        # the original, to send it to the author of the transformation
         if (data['censor']['active'] or
             data['muffle']['active'] or
             data['alt_muffle']['active'] or
-            data['sprinkle']['active']):
+            data['sprinkle']['active']) and tfed_content != message.content:
             # Send the original message to transformed_by if claim is None, otherwise to claim
             transformed_by = bot.get_user(int(data['transformed_by'] if data['claim'] is None else data['claim']))
 
@@ -209,7 +212,7 @@ async def on_message(message: discord.Message) -> None:
                 await transformed_by.send(
                     f"**{message.author.name}** said in #**{channel.name}**:\n```{message.content}```")
 
-        content += utils.transform_text(data, message.content)
+        content += tfed_content
 
     attachments = []
     for attachment in message.attachments:
