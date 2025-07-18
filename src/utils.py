@@ -11,6 +11,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
 # VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
 # VERSION 11: Added "proxy_prefix" and "proxy_suffix" fields
@@ -22,9 +23,9 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 5: Fixing the fields to accept multiple values as well as a percentage chance for each field.
 # VERSION 4: Reworked to work with per-channel data. - DROPPED SUPPORT FOR TRANSLATING PREVIOUS VERSIONS
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
-# VERSION 2: Added guild specific data
+# VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 13
+CURRENT_TFEE_DATA_VERSION = 14
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -51,6 +52,7 @@ def load_tf(user: discord.User | discord.Member,
 def write_tf(user: discord.User | discord.Member,
              guild: discord.Guild,
              channel: discord.TextChannel | None = None,
+             new_data: dict | None = None,
              block_channel: discord.TextChannel | None = None,
              block_user: discord.User | discord.Member | None = None,
              transformed_by: str | None = None,
@@ -69,12 +71,17 @@ def write_tf(user: discord.User | discord.Member,
              sprinkle: str | None = None,
              muffle: str | None = None,
              alt_muffle: str | None = None,
+             stutter: int | None = None,
              chance: int | None = None,
              mod_type: str | None = None,
              proxy_prefix: str | None = None,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
     data = load_tf(user)
+    if new_data is not None:
+        data[str(guild.id)] = new_data
+        write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+        return
     transformed_data = load_transformed(guild)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
         # TODO: Add a way to update (at least) previous version data to newest version
@@ -132,6 +139,7 @@ def write_tf(user: discord.User | discord.Member,
                 'contents': [],
                 'chance': 0
             },
+            'stutter': 0,
             'proxy_prefix': proxy_prefix,
             'proxy_suffix': proxy_suffix,
             'bio': None
@@ -141,7 +149,8 @@ def write_tf(user: discord.User | discord.Member,
             data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
         if image_url is not None and image_url != "":
             data[str(guild.id)][channel_id]['image_url'] = image_url
-        data[str(guild.id)][channel_id]['claim'] = claim_user
+        if claim_user is not None and claim_user != 0:
+            data[str(guild.id)][channel_id]['claim'] = claim_user
         if eternal is not None:
             data[str(guild.id)][channel_id]['eternal'] = False if eternal == 0 else True
         if block_channel is not None:
@@ -156,11 +165,17 @@ def write_tf(user: discord.User | discord.Member,
                 data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
         if prefix is not None:
             data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
-            data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if prefix != "" else []
+            data[str(guild.id)][channel_id]['prefix']['contents'] += [prefix.strip()] if (prefix not in
+                data[str(guild.id)][channel_id]['prefix']['contents']) else []
+            if prefix == "":
+                data[str(guild.id)][channel_id]['prefix']['contents'] = []
             data[str(guild.id)][channel_id]['prefix']['chance'] = 100 if prefix != "" else 0
         if suffix is not None:
             data[str(guild.id)][channel_id]['suffix']['active'] = True if suffix != "" else False
-            data[str(guild.id)][channel_id]['suffix']['contents'] += [suffix.strip()] if suffix != "" else []
+            data[str(guild.id)][channel_id]['suffix']['contents'] += [suffix.strip()] if (suffix not in
+                data[str(guild.id)][channel_id]['suffix']['contents']) else []
+            if suffix == "":
+                data[str(guild.id)][channel_id]['suffix']['contents'] = []
             data[str(guild.id)][channel_id]['suffix']['chance'] = 100 if suffix != "" else 0
         if big is not None:
             data[str(guild.id)][channel_id]['big'] = False if big == 0 else True
@@ -181,20 +196,34 @@ def write_tf(user: discord.User | discord.Member,
                         censor_replacement.strip().lower()
         if sprinkle is not None:
             data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
-            data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if sprinkle != "" else []
+            data[str(guild.id)][channel_id]['sprinkle']['contents'] += [sprinkle.strip()] if (sprinkle not in
+                data[str(guild.id)][channel_id]['sprinkle']['contents']) else []
+            if sprinkle == "":
+                data[str(guild.id)][channel_id]['sprinkle']['contents'] = []
             data[str(guild.id)][channel_id]['sprinkle']['chance'] = 30 if sprinkle != "" else 0
         if muffle is not None:
             data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
-            data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if muffle != "" else []
+            data[str(guild.id)][channel_id]['muffle']['contents'] += [muffle.strip()] if (muffle not in
+                data[str(guild.id)][channel_id]['muffle']['contents']) else []
+            if muffle == "":
+                data[str(guild.id)][channel_id]['muffle']['contents'] = []
             data[str(guild.id)][channel_id]['muffle']['chance'] = 30 if muffle != "" else 0
         if alt_muffle is not None:
             data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
-            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [
-                alt_muffle.strip()] if alt_muffle != "" else []
+            data[str(guild.id)][channel_id]['alt_muffle']['contents'] += [alt_muffle.strip()] if (alt_muffle not in
+                data[str(guild.id)][channel_id]['alt_muffle']['contents']) else []
+            if alt_muffle == "":
+                data[str(guild.id)][channel_id]['alt_muffle']['contents'] = []
             data[str(guild.id)][channel_id]['alt_muffle']['chance'] = 30 if alt_muffle != "" else 0
 
-        if mod_type is not None and chance and mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
-            data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+        if stutter is not None:
+            data[str(guild.id)][channel_id]['stutter'] = stutter
+
+        if mod_type is not None and chance:
+            if mod_type in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle']:
+                data[str(guild.id)][channel_id][mod_type]['chance'] = chance
+            elif mod_type in ['stutter']:
+                data[str(guild.id)][channel_id][mod_type] = chance
 
         if proxy_prefix is not None:
             data[str(guild.id)][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
@@ -291,7 +320,7 @@ def write_transformed(guild: discord.Guild,
         data[str(guild.id)]['affixes'] = affixes
 
     write_file(f'{CACHE_PATH}/transformed.json', data)
-    return data
+    return data[str(guild.id)]
 
 
 def is_transformed(user: discord.User | discord.Member,
@@ -342,36 +371,47 @@ def transform_text(data: dict,
     transformed = clear_apple_marks(transformed)
     words = transformed.split(" ")
 
-    if data['censor']['active']:
-        # Censor will change the censored word to the word provided in the data
-        for i in range(len(words)):
-            # Force lowercase and strip punctuation
-            word = words[i].lower().strip("*.,!?\"'()[]{}<>:;")
+    for i in range(len(words)):
+        # Force lowercase and strip punctuation
+
+        # Censor will change a word for another, "censoring" it
+        if data['censor']['active']:
+            raw_word = words[i].lower()
+            word = raw_word.strip("*.,!?\"'()[]{}<>:;")
+
             if word in data['censor']['contents'].keys():
-                to_be = words[i].lower()
-                words[i] = to_be.replace(word, data['censor']['contents'][word])
+                words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
+                continue
 
-        transformed = " ".join(words)
+            if raw_word in data['censor']['contents'].keys():
+                words[i] = data['censor']['contents'][raw_word] # The entire word should be replaced
+                continue
 
-    if data['muffle']['active']:
         # Muffle will overwrite a word with a word from the data array by random chance
-        for i in range(len(words)):
+        if data['muffle']['active']:
+            if words[i].startswith("http"):
+                continue
             if random.randint(1, 100) <= data['muffle']['chance']:
                 words[i] = data['muffle']['contents'][random.randint(0, len(data['muffle']['contents']) - 1)]
+                continue
 
-        transformed = " ".join(words)
-
+    # Sprinkle will add the sprinkled word to the message between words by random chance
+    # for each word, if the chance is met, add a sprinkled word before it
     if data['sprinkle']['active']:
-        # Sprinkle will add the sprinkled word to the message between words by random chance
-        # for each word, if the chance is met, add a sprinkled word before it
-        length = len(words)
-        for i in range(length):
+        for i in range(len(words)):
             if random.randint(1, 100) <= data['sprinkle']['chance']:
                 words[i] = data['sprinkle']['contents'][
                                random.randint(0, len(data['sprinkle']['contents']) - 1)] + " " + words[i]
-        transformed = " ".join(words)
 
-    # Moving these below so text changes are applied before the prefix and suffix so they aren't affected
+    if data['stutter'] > 0:
+        for i in range(len(words)):
+            if words[i].startswith("http"):
+                continue
+            if random.randint(1, 100) <= data['stutter']:
+                words[i] = words[i][0] + "-" + words[i]
+    transformed = " ".join(words)
+
+    # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
     if data['prefix']['active']:
         # Prefix will add the prefix to the message, try the chance of adding it,
@@ -458,6 +498,7 @@ def get_webhook_by_name(webhooks: list[discord.Webhook],
     for wh in webhooks:
         if wh.name == name:
             return wh
+    return None
 
 
 def get_embed_base(title: str,
@@ -474,17 +515,21 @@ def get_embed_base(title: str,
     )
 
 
-def check_reactions(reaction: discord.Reaction) -> [int | None,
-                                                    dict | None]:
-    transformed_data = load_transformed(reaction.message.guild)['transformed_users']
+def check_message(message: discord.Message) -> [int | None, dict | None]:
+    transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
-        data = load_tf_by_id(tfee, reaction.message.guild)
-        data = data[str(reaction.message.channel.id)] if str(reaction.message.channel.id) in data else data['all']
-        if data['into'] == reaction.message.author.name:
+        data = load_tf_by_id(tfee, message.guild)
+        if data == {}:
+            continue
+        data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
+        if data['into'] == message.author.name:
             return [int(tfee), data]
     return [None, None]
+
+def check_reactions(reaction: discord.Reaction) -> [int | None, dict | None]:
+    return check_message(reaction.message)
 
 
 def clear_apple_marks(text: str) -> str:

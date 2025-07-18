@@ -1,5 +1,7 @@
 import discord
 
+from pathlib import Path
+
 import src.utils as utils
 from src.config import *
 
@@ -17,16 +19,19 @@ async def on_ready() -> None:
                               activity=discord.Activity(type=discord.ActivityType.watching,
                                                         name="people get transformed"))
 
+    # Generate the cache/people dirs so we don't have to worry about them further down the line
+    Path("../cache/people").mkdir(parents=True, exist_ok=True)
+
 
 # TODO: When the bot joins a server, we should check if it has the proper permissions, and then warn the owner of
 # features that might be disabled.
 @bot.event
 async def on_guild_join(guild: discord.Guild) -> None:
     await guild.owner.send("# Thanks for adding the TransforMate bot to your server!\n"
-                           "By having the bot on your server, you agree to our [Terms of Service]"
-                           "(https://docs.google.com/document/d/1S9yDP6tI2tHs-FhqjGF9AsBZAFnHrYFyxnsIK042fvk), "
-                           "and to our [Privacy Policy]"
-                           "(https://docs.google.com/document/d/18cg4aW2XW6CE21X17SqOCFOie-fmXR6xkjDQ0LcCUqE).\n\n"
+                           #"By having the bot on your server, you agree to our [Terms of Service]"
+                           #"(https://docs.google.com/document/d/1S9yDP6tI2tHs-FhqjGF9AsBZAFnHrYFyxnsIK042fvk), "
+                           #"and to our [Privacy Policy]"
+                           #"(https://docs.google.com/document/d/18cg4aW2XW6CE21X17SqOCFOie-fmXR6xkjDQ0LcCUqE).\n\n"
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
 
@@ -99,7 +104,7 @@ async def on_message(message: discord.Message) -> None:
 
     # If the message contains stickers, we just don't process it
     if message.stickers:
-        await message.author.send("Sorry, but we don't support  sending stickers, for the moment! :(")
+        await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
         return
 
     data = utils.load_tf(message.author, message.guild)
@@ -108,7 +113,7 @@ async def on_message(message: discord.Message) -> None:
 
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
-    if str(message.channel.id) in data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']:
+    if str(message.channel.id) in (data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']):
         return
 
     found = False
@@ -153,8 +158,14 @@ async def on_message(message: discord.Message) -> None:
 
     content = ""
     if message.reference:  # Check if the message is a reply
-        content += (f"***Replying to {message.reference.resolved.author.mention} on "
+        mention = message.reference.resolved.author.mention
+        if message.reference.resolved.webhook_id:
+            tfee, data_replied = utils.check_message(message.reference.resolved)
+            mention = bot.get_user(tfee).mention
+        content += (f"***Replying to {mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
+        # TODO: Make this an option for server owners
+        '''
         if message.reference.resolved.content:
             to_send = message.reference.resolved.content
             if message.reference.resolved.mentions:
@@ -175,22 +186,16 @@ async def on_message(message: discord.Message) -> None:
                     line = line[4:]
                 content += f"> {line}\n"
             content += "\n"
+        '''
 
     if message.content:
         # Check if censor, muffles, alt muffle, or sprinkles are active in data
-        if (
-                data['censor']['active'] or
-                data['muffle']['active'] or
-                data['alt_muffle']['active'] or
-                data['sprinkle']['active']
-        ):
+        if (data['censor']['active'] or
+            data['muffle']['active'] or
+            data['alt_muffle']['active'] or
+            data['sprinkle']['active']):
             # Send the original message to transformed_by if claim is None, otherwise to claim
-            if data['claim'] is None:
-                # Get the user who transformed this user
-                transformed_by = bot.get_user(int(data['transformed_by']))
-            else:
-                # Get the user who claimed the user
-                transformed_by = bot.get_user(int(data['claim']))
+            transformed_by = bot.get_user(int(data['transformed_by'] if data['claim'] is None else data['claim']))
 
             # Check if the message is from the user who transformed this user
             if transformed_by is not None and not message.author == transformed_by:

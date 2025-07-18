@@ -60,8 +60,10 @@ BOT_TOKEN=your_token_here
 WEBHOOK_NAME=webhook_name
 BLOCKED_USERS="[user_id1, user_id2, ...]"
 USER_REPORTS_CHANNEL_ID=your_channel_id
-CACHE_PATH="../cache"
+CACHE_PATH="cache"
 ```
+
+You should also install all he requirements from `requirements.txt` and create the cache directory and a `people` directory inside it, with, for example, `mkdir cache/people`.
 
 For more information or help, don't hesitate to ask in our Discord server!
 

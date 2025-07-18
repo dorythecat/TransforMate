@@ -26,7 +26,7 @@ class Set(commands.Cog):
             return
         prefix_word += (" " * whitespace)
         utils.write_tf(user, ctx.guild, prefix=prefix_word, mod_type="prefix", chance=prefix_chance)
-        await ctx.respond(f"Prefix for {user.mention} set to \"*{prefix_word}*\"!")
+        await ctx.respond(f"Prefix for {user.mention} set to \"{prefix_word.strip()}\"!")
 
     @set_command.command(description="Set a suffix for the transformed messages")
     async def suffix(self,
@@ -44,7 +44,7 @@ class Set(commands.Cog):
             return
         suffix_word = (" " * whitespace) + suffix_word
         utils.write_tf(user, ctx.guild, suffix=suffix_word, mod_type="suffix", chance=suffix_chance)
-        await ctx.respond(f"Suffix for {user.mention} set to \"*{suffix_word}*\"!")
+        await ctx.respond(f"Suffix for {user.mention} set to \"{suffix_word.strip()}\"!")
 
     @set_command.command(description="Set the transformed user to speak in big text")
     async def big(self,
@@ -170,6 +170,18 @@ class Set(commands.Cog):
             return
         utils.write_tf(user, ctx.guild, muffle=muffle_word, mod_type="muffle", chance=chance)
         await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle_word}\"!")
+
+    @set_command.command(description="Set the transformed user to stutter on random words, with a certain chance")
+    async def stutter(self,
+                      ctx: discord.ApplicationContext,
+                      chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                             description="Chance to stutter") = 30,
+                      user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        if not valid:
+            return
+        utils.write_tf(user, ctx.guild, stutter=chance, mod_type="stutter", chance=chance)
+        await ctx.respond(f"{user.mention} will now stutter when talking!")
 
     @set_command.command(description="Set a biography for the transformed user")
     async def bio(self,
