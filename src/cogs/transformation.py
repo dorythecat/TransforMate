@@ -510,9 +510,16 @@ class Transformation(commands.Cog):
         else:
             data = response.content.split(";")
 
-        if len(data) != 27:
+        version = 14
+        if len(data) not in [27, 28]:
             await ctx.send("Invalid transformation data!")
             return
+        if len(data) == 28:
+            version = data[0]
+            data = data[0:]
+
+        if version != 14:
+            await ctx.send("The version of this file isn't supported! Please contact support for more information!")
 
         # Basic stuff
         await transform_function(ctx, user, data[0], data[1])
@@ -531,38 +538,38 @@ class Transformation(commands.Cog):
 
         # Prefix
         if data[10] == "1":
-            prefixes = data[11].split(",")
-            for prefix in prefixes:
-                utils.write_tf(user, ctx.guild, prefix=prefix)
-            utils.write_tf(user, ctx.guild, mod_type="prefix", chance=int(data[12]))
+            if version == 14:
+                prefixes = data[11].split(",")
+                for prefix in prefixes:
+                    utils.write_tf(user, ctx.guild, prefix=prefix, chance=int(data[12]))
 
         # Suffix
         if data[13] == "1":
-            suffixes = data[14].split(",")
-            for suffix in suffixes:
-                utils.write_tf(user, ctx.guild, suffix=suffix)
-            utils.write_tf(user, ctx.guild, mod_type="suffix", chance=int(data[15]))
+            if version == 14:
+                suffixes = data[14].split(",")
+                for suffix in suffixes:
+                    utils.write_tf(user, ctx.guild, suffix=suffix, chance=int(data[15]))
 
         # Sprinkle
         if data[16] == "1":
-            sprinkles = data[17].split(",")
-            for sprinkle in sprinkles:
-                utils.write_tf(user, ctx.guild, sprinkle=sprinkle)
-            utils.write_tf(user, ctx.guild, mod_type="sprinkle", chance=int(data[18]))
+            if version == 14:
+                sprinkles = data[17].split(",")
+                for sprinkle in sprinkles:
+                    utils.write_tf(user, ctx.guild, sprinkle=sprinkle, chance=int(data[18]))
 
         # Muffle
         if data[19] == "1":
-            muffles = data[20].split(",")
-            for muffle in muffles:
-                utils.write_tf(user, ctx.guild, muffle=muffle)
-            utils.write_tf(user, ctx.guild, mod_type="muffle", chance=int(data[21]))
+            if version == 14:
+                muffles = data[20].split(",")
+                for muffle in muffles:
+                    utils.write_tf(user, ctx.guild, muffle=muffle, chance=int(data[21]))
 
         # Alt Muffle
         if data[22] == "1":
-            alt_muffles = data[23].split(",")
-            for alt_muffle in alt_muffles:
-                utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle)
-            utils.write_tf(user, ctx.guild, mod_type="alt_muffle", chance=int(data[24]))
+            if version == 14:
+                alt_muffles = data[23].split(",")
+                for alt_muffle in alt_muffles:
+                    utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle, chance=int(data[24]))
 
         # Censor
         if data[25] == "1":
