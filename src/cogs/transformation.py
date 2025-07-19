@@ -387,6 +387,7 @@ class Transformation(commands.Cog):
                     return
 
         data = utils.load_tf(user, ctx.guild)
+        version = utils.get_data_version(user)
         channel = None
         if str(ctx.channel) in data:
             data = data[str(ctx.channel)]
@@ -395,7 +396,8 @@ class Transformation(commands.Cog):
             data = data['all']
 
         # Basic stuff
-        output = data['into'] + ";"
+        output = str(version) + ";"
+        output += data['into'] + ";"
         output += data['image_url'] + ";"
 
         # Booleans
@@ -412,28 +414,53 @@ class Transformation(commands.Cog):
 
         # Prefix
         output += "1;" if data['prefix']['active'] else "0;"
-        output += (",".join(data['prefix']['contents']) if data['prefix']['active'] else "") + ";"
-        output += (str(data['prefix']['chance']) if data['prefix']['active'] else "") + ";"
+        match version:
+            case 14:
+                output += (",".join(data['prefix']['contents']) if data['prefix']['active'] else "") + ";"
+                output += (str(data['prefix']['chance']) if data['prefix']['active'] else "") + ";"
+            case 15:
+                output += (",".join([key + "|" + str(value) for key, value in data['prefix']['contents'].items()])
+                           if data['prefix']['active'] else "") + ";"
 
         # Suffix
         output += "1;" if data['suffix']['active'] else "0;"
-        output += (",".join(data['suffix']['contents']) if data['suffix']['active'] else "") + ";"
-        output += (str(data['suffix']['chance']) if data['suffix']['active'] else "") + ";"
+        match version:
+            case 14:
+                output += (",".join(data['suffix']['contents']) if data['suffix']['active'] else "") + ";"
+                output += (str(data['suffix']['chance']) if data['suffix']['active'] else "") + ";"
+            case 15:
+                output += (",".join([key + "|" + str(value) for key, value in data['suffix']['contents'].items()])
+                           if data['suffix']['active'] else "") + ";"
 
         # Sprinkle
         output += "1;" if data['sprinkle']['active'] else "0;"
-        output += (",".join(data['sprinkle']['contents']) if data['sprinkle']['active'] else "") + ";"
-        output += (str(data['sprinkle']['chance']) if data['sprinkle']['active'] else "") + ";"
+        match version:
+            case 14:
+                output += (",".join(data['sprinkle']['contents']) if data['sprinkle']['active'] else "") + ";"
+                output += (str(data['sprinkle']['chance']) if data['sprinkle']['active'] else "") + ";"
+            case 15:
+                output += (",".join([key + "|" + str(value) for key, value in data['sprinkle']['contents'].items()])
+                           if data['sprinkle']['active'] else "") + ";"
 
         # Muffle
         output += "1;" if data['muffle']['active'] else "0;"
-        output += (",".join(data['muffle']['contents']) if data['muffle']['active'] else "") + ";"
-        output += (str(data['muffle']['chance']) if data['muffle']['active'] else "") + ";"
+        match version:
+            case 14:
+                output += (",".join(data['muffle']['contents']) if data['muffle']['active'] else "") + ";"
+                output += (str(data['muffle']['chance']) if data['muffle']['active'] else "") + ";"
+            case 15:
+                output += (",".join([key + "|" + str(value) for key, value in data['muffle']['contents'].items()])
+                           if data['muffle']['active'] else "") + ";"
 
         # Alt Muffle
         output += "1;" if data['alt_muffle']['active'] else "0;"
-        output += (",".join(data['alt_muffle']['contents']) if data['alt_muffle']['active'] else "") + ";"
-        output += (str(data['alt_muffle']['chance']) if data['alt_muffle']['active'] else "") + ";"
+        match version:
+            case 14:
+                output += (",".join(data['alt_muffle']['contents']) if data['alt_muffle']['active'] else "") + ";"
+                output += (str(data['alt_muffle']['chance']) if data['alt_muffle']['active'] else "") + ";"
+            case 15:
+                output += (",".join([key + "|" + str(value) for key, value in data['alt_muffle']['contents'].items()])
+                           if data['alt_muffle']['active'] else "") + ";"
 
         # Censor
         output += "1;" if data['censor']['active'] else "0;"
@@ -576,6 +603,7 @@ class Transformation(commands.Cog):
             censors = data[26].split(",")
             for censor in censors:
                 censor = censor.split("|")
+                print(censor)
                 utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
 
         await ctx.send(f"Transformed {user.mention} successfully into {data[0]}!")
