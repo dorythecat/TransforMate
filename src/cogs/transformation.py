@@ -510,7 +510,7 @@ class Transformation(commands.Cog):
         else:
             data = response.content.split(";")
 
-        version = 14
+        version = 14 # Version where files where added, but it didn't originally have the version identifier so
         if len(data) not in [27, 28]:
             await ctx.send("Invalid transformation data!")
             return
