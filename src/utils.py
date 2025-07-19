@@ -41,8 +41,7 @@ CURRENT_TRANSFORMED_DATA_VERSION = 7
 
 # USER TRANSFORMATION DATA UTILS
 def load_tf_by_id(user_id: str, guild: discord.Guild | None = None) -> dict:
-    return {} if f'{user_id}.json' not in os.listdir(f'{CACHE_PATH}/people') else \
-        load_file(f'{CACHE_PATH}/people/{user_id}.json', guild)
+    return load_file(f'{CACHE_PATH}/people/{user_id}.json', guild)
 
 
 def load_tf(user: discord.User | discord.Member, guild: discord.Guild | None = None) -> dict:
@@ -265,8 +264,7 @@ def remove_all_tf(user: discord.User | discord.Member) -> None:
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild | None = None) -> dict:
-    return {} if 'transformed.json' not in os.listdir(CACHE_PATH) else \
-        load_file(f'{CACHE_PATH}/transformed.json', guild)
+    return load_file(f'{CACHE_PATH}/transformed.json', guild)
 
 
 def write_transformed(guild: discord.Guild,
@@ -478,7 +476,10 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 # FILE UTILS
 def load_file(filename: str,
               guild: discord.Guild | None = None) -> dict:
-    with open(filename) as f:
+    filename = filename.split("/")
+    if filename[-1] not in os.listdir("/".join(filename[:-1])):
+        return {}
+    with open("/".join(filename)) as f:
         contents = f.read().strip()
         if contents == "":
             return {}
