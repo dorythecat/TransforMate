@@ -372,7 +372,7 @@ def transform_text(data: dict,
             return original
 
         for alt_muffle in data['alt_muffle']['contents']:
-            if random.randint(0, 100) <= data['alt_muffle']['contents'][alt_muffle]:
+            if random.randint(0, 100) <= int(data['alt_muffle']['contents'][alt_muffle]):
                 return alt_muffle
 
     transformed = original
@@ -403,7 +403,7 @@ def transform_text(data: dict,
             muffles = list(data['muffle']['contents'].keys())
             random.shuffle(muffles)
             for muffle in muffles:
-                if random.randint(0, 100) <= data['muffle']['contents'][muffle]:
+                if random.randint(0, 100) <= int(data['muffle']['contents'][muffle]):
                     words[i] = muffle
 
     # Sprinkle will add the sprinkled word to the message between words by random chance
@@ -413,7 +413,7 @@ def transform_text(data: dict,
         for i in range(len(words)):
             random.shuffle(sprinkles)
             for sprinkle in sprinkles:
-                if random.randint(0, 100) <= data['sprinkle']['contents'][sprinkle]:
+                if random.randint(0, 100) <= int(data['sprinkle']['contents'][sprinkle]):
                     words[i] = sprinkle + " " + words[i]
 
     if data['stutter'] > 0:
@@ -421,8 +421,8 @@ def transform_text(data: dict,
             if words[i].startswith("http"):
                 continue
 
-            if random.randint(0, 100) <= data['stutter']:
-                words[i] = words[i][:random.randint(1, 1 + math.floor(len(words[i]) * data['stutter'] / 200))] + "-" + words[i]
+            if random.randint(0, 100) <= int(data['stutter']):
+                words[i] = words[i][:random.randint(1, 1 + math.floor(len(words[i]) * int(data['stutter']) / 200))] + "-" + words[i]
     transformed = " ".join(words)
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
@@ -431,14 +431,14 @@ def transform_text(data: dict,
         prefixes = list(data['prefix']['contents'].keys())
         random.shuffle(prefixes)
         for prefix in prefixes:
-            if random.randint(0, 100) <= data['prefix']['contents'][prefix]:
+            if random.randint(0, 100) <= int(data['prefix']['contents'][prefix]):
                 transformed = prefix + transformed
 
     if data['suffix']['active']:
         suffixes = list(data['suffix']['contents'].keys())
         random.shuffle(suffixes)
         for suffix in suffixes:
-            if random.randint(0, 100) <= data['suffix']['contents'][suffix]:
+            if random.randint(0, 100) <= int(data['suffix']['contents'][suffix]):
                 transformed += suffix
 
     # We need to do this now to avoid https://github.com/dorythecat/TransforMate/issues/48
