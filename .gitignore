@@ -4,3 +4,4 @@ __pycache__
 cache
 *.sh
 .bashrc
+src/tf_cache.tf
