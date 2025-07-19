@@ -40,14 +40,12 @@ CURRENT_TRANSFORMED_DATA_VERSION = 7
 
 
 # USER TRANSFORMATION DATA UTILS
-def load_tf_by_id(user_id: str,
-                  guild: discord.Guild | None = None) -> dict:
+def load_tf_by_id(user_id: str, guild: discord.Guild | None = None) -> dict:
     return {} if f'{user_id}.json' not in os.listdir(f'{CACHE_PATH}/people') else \
         load_file(f'{CACHE_PATH}/people/{user_id}.json', guild)
 
 
-def load_tf(user: discord.User | discord.Member,
-            guild: discord.Guild | None = None) -> dict:
+def load_tf(user: discord.User | discord.Member, guild: discord.Guild | None = None) -> dict:
     return load_tf_by_id(str(user.id), guild)
 
 
