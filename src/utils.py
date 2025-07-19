@@ -400,15 +400,19 @@ def transform_text(data: dict,
             if words[i].startswith("http"):
                 continue
 
-            for muffle in data['muffle']['contents']:
+            muffles = list(data['muffle']['contents'].keys())
+            random.shuffle(muffles)
+            for muffle in muffles:
                 if random.randint(0, 100) <= data['muffle']['contents'][muffle]:
                     words[i] = muffle
 
     # Sprinkle will add the sprinkled word to the message between words by random chance
     # for each word, if the chance is met, add a sprinkled word before it
     if data['sprinkle']['active']:
+        sprinkles = list(data['sprinkle']['contents'].keys())
         for i in range(len(words)):
-            for sprinkle in data['sprinkle']['contents']:
+            random.shuffle(sprinkles)
+            for sprinkle in sprinkles:
                 if random.randint(0, 100) <= data['sprinkle']['contents'][sprinkle]:
                     words[i] = sprinkle + " " + words[i]
 
@@ -424,12 +428,16 @@ def transform_text(data: dict,
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
     if data['prefix']['active']:
-        for prefix in data['prefix']['contents']:
+        prefixes = list(data['prefix']['contents'].keys())
+        random.shuffle(prefixes)
+        for prefix in prefixes:
             if random.randint(0, 100) <= data['prefix']['contents'][prefix]:
                 transformed = prefix + transformed
 
     if data['suffix']['active']:
-        for suffix in data['suffix']['contents']:
+        suffixes = list(data['suffix']['contents'].keys())
+        random.shuffle(suffixes)
+        for suffix in suffixes:
             if random.randint(0, 100) <= data['suffix']['contents'][suffix]:
                 transformed += suffix
 
