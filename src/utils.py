@@ -47,6 +47,9 @@ def load_tf_by_id(user_id: str, guild: discord.Guild | None = None) -> dict:
 def load_tf(user: discord.User | discord.Member, guild: discord.Guild | None = None) -> dict:
     return load_tf_by_id(str(user.id), guild)
 
+def get_data_version(user: discord.User | discord.Member) -> int:
+    return int(load_file(f'{CACHE_PATH}/people/{str(user.id)}.json')['version'])
+
 
 def write_tf(user: discord.User | discord.Member,
              guild: discord.Guild,
