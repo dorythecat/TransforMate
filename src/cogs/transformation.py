@@ -538,14 +538,14 @@ class Transformation(commands.Cog):
             data = response.content.split(";")
 
         version = 14 # Version where files where added, but it didn't originally have the version identifier so
-        if len(data) not in [27, 28]:
+        if len(data) not in [23, 27]:
             await ctx.send("Invalid transformation data!")
             return
-        if len(data) == 28:
-            version = data[0]
-            data = data[0:]
+        if len(data) == 23: # Version 15 and above
+            version = int(data[0])
+            data = data[1:]
 
-        if version != 14:
+        if version not in [14, 15]:
             await ctx.send("The version of this file isn't supported! Please contact support for more information!")
 
         # Basic stuff
@@ -565,46 +565,86 @@ class Transformation(commands.Cog):
 
         # Prefix
         if data[10] == "1":
-            if version == 14:
-                prefixes = data[11].split(",")
-                for prefix in prefixes:
-                    utils.write_tf(user, ctx.guild, prefix=prefix, chance=int(data[12]))
+            prefixes = data[11].split(",")
+            match version:
+                case 14:
+                    for prefix in prefixes:
+                        utils.write_tf(user, ctx.guild, prefix=prefix, chance=int(data[12]))
+                case 15:
+                    for prefix in prefixes:
+                        prefix = prefix.split("|")
+                        utils.write_tf(user, ctx.guild, prefix=prefix[0], chance=int(prefix[1]))
 
         # Suffix
-        if data[13] == "1":
-            if version == 14:
-                suffixes = data[14].split(",")
-                for suffix in suffixes:
-                    utils.write_tf(user, ctx.guild, suffix=suffix, chance=int(data[15]))
+        match version:
+            case 14:
+                if data[13] == "1":
+                    suffixes = data[14].split(",")
+                    for suffix in suffixes:
+                        utils.write_tf(user, ctx.guild, suffix=suffix, chance=int(data[15]))
+            case 15:
+                if data[12] == "1":
+                    suffixes = data[13].split(",")
+                    for suffix in suffixes:
+                        suffix = suffix.split("|")
+                        utils.write_tf(user, ctx.guild, suffix=suffix[0], chance=int(suffix[1]))
 
         # Sprinkle
-        if data[16] == "1":
-            if version == 14:
-                sprinkles = data[17].split(",")
-                for sprinkle in sprinkles:
-                    utils.write_tf(user, ctx.guild, sprinkle=sprinkle, chance=int(data[18]))
+        match version:
+            case 14:
+                if data[16] == "1":
+                    sprinkles = data[17].split(",")
+                    for sprinkle in sprinkles:
+                        utils.write_tf(user, ctx.guild, sprinkle=sprinkle, chance=int(data[18]))
+            case 15:
+                if data[14] == "1":
+                    sprinkles = data[15].split(",")
+                    for sprinkle in sprinkles:
+                        sprinkle = sprinkle.split("|")
+                        utils.write_tf(user, ctx.guild, sprinkle=sprinkle[0], chance=int(sprinkle[1]))
 
         # Muffle
-        if data[19] == "1":
-            if version == 14:
-                muffles = data[20].split(",")
-                for muffle in muffles:
-                    utils.write_tf(user, ctx.guild, muffle=muffle, chance=int(data[21]))
+        match version:
+            case 14:
+                if data[19] == "1":
+                    muffles = data[20].split(",")
+                    for muffle in muffles:
+                        utils.write_tf(user, ctx.guild, muffle=muffle, chance=int(data[21]))
+            case 15:
+                if data[16] == "1":
+                    muffles = data[17].split(",")
+                    for muffle in muffles:
+                        muffle = muffle.split("|")
+                        utils.write_tf(user, ctx.guild, muffle=muffle[0], chance=int(muffle[1]))
 
         # Alt Muffle
-        if data[22] == "1":
-            if version == 14:
-                alt_muffles = data[23].split(",")
-                for alt_muffle in alt_muffles:
-                    utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle, chance=int(data[24]))
+        match version:
+            case 14:
+                if data[22] == "1":
+                    alt_muffles = data[23].split(",")
+                    for alt_muffle in alt_muffles:
+                        utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle, chance=int(data[24]))
+            case 15:
+                if data[18] == "1":
+                    alt_muffles = data[19].split(",")
+                    for alt_muffle in alt_muffles:
+                        alt_muffle = alt_muffle.split("|")
+                        utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle[0], chance=int(alt_mufffle[1]))
 
         # Censor
-        if data[25] == "1":
-            censors = data[26].split(",")
-            for censor in censors:
-                censor = censor.split("|")
-                print(censor)
-                utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
+        match version:
+            case 14:
+                if data[25] == "1":
+                    censors = data[26].split(",")
+                    for censor in censors:
+                        censor = censor.split("|")
+                        utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
+            case 15:
+                if data[20] == "1":
+                    censors = data[21].split(",")
+                    for censor in censors:
+                        censor = censor.split("|")
+                        utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
 
         await ctx.send(f"Transformed {user.mention} successfully into {data[0]}!")
 
