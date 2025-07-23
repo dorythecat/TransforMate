@@ -31,7 +31,8 @@ async def on_guild_join(guild: discord.Guild) -> None:
                            "By having the bot on your server, you agree to our [Terms of Service]"
                            "(https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md), "
                            "and to our [Privacy Policy]"
-                           "(https://github.com/dorythecat/TransforMate/blob/main/legal/PRIVACY_POLICY.md).\n\n"
+                           "(https://github.com/dorythecat/TransforMate/blob/main/legal/PRIVACY_POLICY.md).\n"
+                           "Check them anytime with the /legal command\n\n"
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
 
