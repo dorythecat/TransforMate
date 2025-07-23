@@ -412,6 +412,13 @@ async def info(ctx: discord.ApplicationContext) -> None:
     embed.add_field(name="Support the project!", value="[Patreon](https://www.patreon.com/dorythecat)")
     await ctx.respond(embed=embed)
 
+@bot.slash_command(description="Legal stuff, so fun!")
+async def legal(ctx: discord.ApplicationContext) -> None:
+    desc = "By using this bot you agree to our "
+    desc += "[Terms of Service](https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md) and "
+    desc += "[Privacy Policy](https://github.com/dorythecat/TransforMate/blob/main/legal/PRIVACY_POLICY.md)"
+    embed = utils.get_embed_base(title="Legal Stuff",desc=desc)
+    await ctx.respond(embed=embed)
 
 @bot.slash_command(description="Invite the bot to your server")
 async def invite(ctx: discord.ApplicationContext) -> None:
