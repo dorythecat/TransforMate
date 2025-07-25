@@ -4,7 +4,7 @@ import random
 import math
 import discord
 
-from src.config import CACHE_PATH
+from config import CACHE_PATH
 
 # SETTINGS
 CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version that we can't translate, should it be cleared out?

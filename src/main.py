@@ -2,8 +2,8 @@ import discord
 
 from pathlib import Path
 
-import src.utils as utils
-from src.config import *
+import utils as utils
+from config import *
 
 intents = discord.Intents.default()
 intents.message_content = True
