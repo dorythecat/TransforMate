@@ -4,3 +4,5 @@ python-dotenv==1.0.1
 # API requirements
 fastapi~=0.116.1
 pydantic~=2.11.7
+PyJWT~=2.10.1
+passlib~=1.7.4
