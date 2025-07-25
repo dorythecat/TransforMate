@@ -2,6 +2,9 @@ import json
 import os
 import random
 import math
+
+from types import NoneType
+
 import discord
 
 from config import CACHE_PATH
@@ -41,7 +44,8 @@ CURRENT_TRANSFORMED_DATA_VERSION = 7
 
 # USER TRANSFORMATION DATA UTILS
 def load_tf_by_id(user_id: str, guild: discord.Guild | int | None = None) -> dict:
-    return load_file(f'{CACHE_PATH}/people/{user_id}.json', guild if type(guild) in [int, None] else guild.id)
+    return load_file(f'{CACHE_PATH}/people/{user_id}.json',
+                     guild if type(guild) in [int, NoneType] else guild.id)
 
 
 def load_tf(user: discord.User | discord.Member, guild: discord.Guild | int | None = None) -> dict:
@@ -266,8 +270,8 @@ def remove_all_tf(user: discord.User | discord.Member) -> None:
 
 
 # TRANSFORMED DATA UTILS
-def load_transformed(guild: discord.Guild | None = None) -> dict:
-    return load_file(f'{CACHE_PATH}/transformed.json', guild.id if guild else None)
+def load_transformed(guild: discord.Guild | int | None = None) -> dict:
+    return load_file(f'{CACHE_PATH}/transformed.json', guild if type(guild) in [int, NoneType] else guild.id)
 
 
 def write_transformed(guild: discord.Guild,
