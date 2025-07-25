@@ -1,4 +1,10 @@
 import discord
+import os
+
+# Make sure we're on the proper working directory
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir("/".join(dname.split("/")[:-1]))
 
 from pathlib import Path
 
@@ -10,7 +16,6 @@ intents.message_content = True
 intents.members = True
 
 bot = discord.Bot(intents=intents)
-
 
 @bot.event
 async def on_ready() -> None:
