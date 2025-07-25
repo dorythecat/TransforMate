@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
-import src.utils as utils
-from src.config import WEBHOOK_NAME
+import utils
+from config import WEBHOOK_NAME
 
 
 class Admin(commands.Cog):

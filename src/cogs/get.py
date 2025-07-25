@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-import src.utils as utils
+import utils
 
 
 class Get(commands.Cog):

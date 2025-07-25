@@ -3,8 +3,8 @@ import os
 import discord
 from discord.ext import commands
 
-import src.utils as utils
-from src.config import BLOCKED_USERS
+import utils
+from config import BLOCKED_USERS
 
 
 # Helper function

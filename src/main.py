@@ -366,12 +366,12 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             await bot.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
 
-bot.load_extension('.cogs.transformation', package='src')  # Transformation (base) Commands
-bot.load_extension('.cogs.set', package='src')  # "Set" Commands
-bot.load_extension('.cogs.clear', package='src')  # "Clear" Commands
-bot.load_extension('.cogs.get', package='src')  # "Get" Commands
-bot.load_extension('.cogs.admin', package='src')  # "Admin" Commands
-bot.load_extension('.cogs.block', package='src')  # "Block" Commands
+bot.load_extension('.transformation', package='cogs')  # Transformation (base) Commands
+bot.load_extension('.set', package='cogs')  # "Set" Commands
+bot.load_extension('.clear', package='cogs')  # "Clear" Commands
+bot.load_extension('.get', package='cogs')  # "Get" Commands
+bot.load_extension('.admin', package='cogs')  # "Admin" Commands
+bot.load_extension('.block', package='cogs')  # "Block" Commands
 
 
 # Misc commands
