@@ -1,2 +1,6 @@
 py-cord[speed]==2.5.0
 python-dotenv==1.0.1
+
+# API requirements
+fastapi~=0.116.1
+pydantic~=2.11.7
