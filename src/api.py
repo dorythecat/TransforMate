@@ -45,10 +45,10 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
-    email: str | None = None
+    email: str
     linked_id: int
     in_servers: list[int]
-    admin_servers: list[int] | None = None
+    admin_servers: list[int]
 
 
 class UserInDB(User):
@@ -107,6 +107,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
 
+# Login
 @app.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     """Login to an account"""
@@ -121,7 +122,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return Token(access_token=access_token, token_type="bearer")
 
-
+# Get info
 @app.get("/get/{server_id}")
 def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
                server_id: int) -> dict:
@@ -141,8 +142,7 @@ def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    return {
-        "server_id": server_id,
+    return server if server_id in current_user.admin_servers else {
         "blocked_users": server['blocked_users'],
         "blocked_channels": server['blocked_channels'],
         "affixes": server['affixes']
@@ -176,8 +176,9 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    return {"server_id": server_id, "user_id": user_id, "tf": tf}
+    return tf
 
+# User-related features
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
     """Return the current user's stored information"""
