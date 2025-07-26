@@ -88,7 +88,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials!",
-        headers={"WWW-Authenticate": "Bearer"},
+        headers={"WWW-Authenticate": "Bearer"}
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -107,23 +107,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
 
-@app.get("/get/{server_id}/{user_id}")
-def get_tfed_user(server_id: int, user_id: int) -> dict:
-    """Returns the transformed data for a given user in a server"""
-    tf = utils.load_tf_by_id(str(user_id), server_id)
-    return {"server_id": server_id, "user_id": user_id, "tf": tf}
-
-@app.get("/get/{server_id}")
-def get_server(server_id: int) -> dict:
-    """Returns the setings for a given server"""
-    tf = utils.load_transformed(server_id)
-    return {
-        "server_id": server_id,
-        "blocked_users": tf['blocked_users'],
-        "blocked_channels": tf['blocked_channels'],
-        "affixes": tf['affixes']
-    }
-
 @app.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     """Login to an account"""
@@ -132,12 +115,68 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password!",
-            headers={"WWW-Authenticate": "Bearer"},
+            headers={"WWW-Authenticate": "Bearer"}
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return Token(access_token=access_token, token_type="bearer")
 
+
+@app.get("/get/{server_id}")
+def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
+               server_id: int) -> dict:
+    """Returns the settings for a given server"""
+    if server_id not in current_user.in_servers:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not in this server!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    server = utils.load_transformed(server_id)
+    if str(current_user.linked_id) in server['blocked_users']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This server has blocked you!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    return {
+        "server_id": server_id,
+        "blocked_users": server['blocked_users'],
+        "blocked_channels": server['blocked_channels'],
+        "affixes": server['affixes']
+    }
+
+@app.get("/get/{server_id}/{user_id}")
+def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)],
+                  server_id: int,
+                  user_id: int) -> dict:
+    """Returns the transformed data for a given user in a server"""
+    if server_id not in current_user.in_servers:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not in this server!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    server = utils.load_transformed(server_id)
+    if str(current_user.linked_id) in server['blocked_users']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This server has blocked you!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    tf = utils.load_tf_by_id(str(user_id), server_id)
+    if str(current_user.linked_id) in tf['blocked_users']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This user has blocked you!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    return {"server_id": server_id, "user_id": user_id, "tf": tf}
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
