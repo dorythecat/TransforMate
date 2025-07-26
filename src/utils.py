@@ -331,15 +331,15 @@ def write_transformed(guild: discord.Guild,
     return data[str(guild.id)]
 
 
-def is_transformed(user: discord.User | discord.Member,
-                   guild: discord.Guild,
-                   channel: discord.TextChannel | None = None) -> bool:
+def is_transformed(user: discord.User | discord.Member | int,
+                   guild: discord.Guild | int,
+                   channel: discord.TextChannel | int | None = None) -> bool:
     data = load_transformed(guild)
-    if data == {} or str(user.id) not in data['transformed_users']:
+    user_id = str(user if type(user) is int else user.id)
+    channel_id = 'all' if channel is None else str(channel if type(channel) in int else channel.id)
+    if data == {} or user_id not in data['transformed_users']:
         return False
-    if data['transformed_users'][str(user.id)] not in [[], None] and \
-            ((channel is not None and str(channel.id) in data['transformed_users'][str(user.id)]) or
-             'all' in data['transformed_users'][str(user.id)]):
+    if data['transformed_users'][user_id] not in [[], None] and channel_id in data['transformed_users'][user_id]:
         return True
     return False
 
