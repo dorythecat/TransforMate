@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 import utils
-from config import CACHE_PATH, SECRET_KEY
+from config import BLOCKED_USERS, CACHE_PATH, SECRET_KEY
 
 # Setting some basic things up
 app = FastAPI()
@@ -117,6 +117,12 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    if user.linked_id in BLOCKED_USERS:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are blocked from using this bot!",
             headers={"WWW-Authenticate": "Bearer"}
         )
     access_token_expires = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
