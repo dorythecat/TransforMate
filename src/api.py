@@ -110,7 +110,7 @@ async def get_current_active_user(current_user: Annotated[User, Depends(get_curr
 # Login
 @app.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
-    """Login to an account"""
+    """Login to an account."""
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -126,7 +126,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 @app.get("/get/{server_id}")
 def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
                server_id: int) -> dict:
-    """Returns the settings for a given server"""
+    """Returns the settings for a given server. If you're an administrator, you'll get the full file for said server."""
     if server_id not in current_user.in_servers:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -152,7 +152,7 @@ def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
 def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)],
                   server_id: int,
                   user_id: int) -> dict:
-    """Returns the transformed data for a given user in a server"""
+    """Returns the transformed data for a given user in a server."""
     if server_id not in current_user.in_servers:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -181,10 +181,10 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
 # User-related features
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
-    """Return the current user's stored information"""
+    """Return the current user's stored information."""
     return current_user
 
 @app.get("/users/me/file")
 async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
-    """Returns the current user's complete file"""
+    """Returns the current user's complete file."""
     return utils.load_tf_by_id(str(current_user.linked_id))
