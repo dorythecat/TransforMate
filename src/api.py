@@ -16,28 +16,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@app.get("/")
-def read_root() -> dict:
-    return {"Hello": "World"}
-
-@app.get("/get/{server_id}/{user_id}")
-def get_tfed_user(server_id: int, user_id: int) -> dict:
-    """Returns the transformed data for a given user in a server"""
-    tf = utils.load_tf_by_id(str(user_id), server_id)
-    return {"server_id": server_id, "user_id": user_id, "tf": tf}
-
-@app.get("/get/{server_id}")
-def get_server(server_id: int) -> dict:
-    """Returns the setings for a given server"""
-    tf = utils.load_transformed(server_id)
-    return {
-        "server_id": server_id,
-        "blocked_users": tf['blocked_users'],
-        "blocked_channels": tf['blocked_channels'],
-        "affixes": tf['affixes']
-    }
-
-
 # to get a string like this run:
 # openssl rand -hex 32
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
@@ -126,9 +104,26 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
 
+@app.get("/get/{server_id}/{user_id}")
+def get_tfed_user(server_id: int, user_id: int) -> dict:
+    """Returns the transformed data for a given user in a server"""
+    tf = utils.load_tf_by_id(str(user_id), server_id)
+    return {"server_id": server_id, "user_id": user_id, "tf": tf}
+
+@app.get("/get/{server_id}")
+def get_server(server_id: int) -> dict:
+    """Returns the setings for a given server"""
+    tf = utils.load_transformed(server_id)
+    return {
+        "server_id": server_id,
+        "blocked_users": tf['blocked_users'],
+        "blocked_channels": tf['blocked_channels'],
+        "affixes": tf['affixes']
+    }
 
 @app.post("/token")
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+    """Login to an account"""
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -143,9 +138,10 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
+    """Return the current user's stored information"""
     return current_user
 
-
-@app.get("/users/me/items/")
-async def read_own_items(current_user: Annotated[User, Depends(get_current_active_user)]) -> list:
-    return [{"item_id": "Foo", "owner": current_user.username}]
+@app.get("/users/me/file")
+async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
+    """Returns the current user's complete file"""
+    return utils.load_tf_by_id(str(current_user.linked_id))
