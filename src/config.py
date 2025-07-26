@@ -33,3 +33,7 @@ USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Chan
 if os.getenv("CACHE_PATH") is None:
     raise Exception("CACHE_PATH hasn't been provided! Check your .env! Aborting")
 CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder? (In relationship to the utils.py file)
+
+if os.getenv("SECRET_KEY") is None:
+    raise Exception("SECRET_KEY has not been provided! Check your .env! Aborting")
+SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others

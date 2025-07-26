@@ -61,11 +61,20 @@ WEBHOOK_NAME=webhook_name
 BLOCKED_USERS="[user_id1, user_id2, ...]"
 USER_REPORTS_CHANNEL_ID=your_channel_id
 CACHE_PATH="cache"
+SECRET_KEY=(see "Secret Key" below)
 ```
 
-You should also install all he requirements from `requirements.txt` and create the cache directory and a `people` directory inside it, with, for example, `mkdir cache/people`.
+You should also install all the requirements from `requirements.txt` and create the
+cache directory and a `people` directory inside it, with, for example,
+`mkdir cache/people`.
 
 For more information or help, don't hesitate to ask in our Discord server!
+
+### Secret Key
+The Secret Key is required to encode user passwords using passlib. You can leave
+this field empty if you aren't going to use the API features. Otherwise, to
+populate it, run the command `openssl rand -hex 32` in your terminal to get a
+randomly generated secret key. Do not share this key with anyone.
 
 ## Collaborating with the project
 If you've had a cool idea, found a bug, or wanted to add some of your own code, 
