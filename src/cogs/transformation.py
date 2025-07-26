@@ -10,15 +10,36 @@ from config import BLOCKED_USERS
 # Helper function
 async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
-                             into: str,
+                             into: str | None = None,
                              image_url: str | None = None,
                              channel: discord.TextChannel | None = None,
                              brackets: list[str] | None = None,
-                             copy: discord.User | None = None) -> bool:
+                             copy: discord.User | None = None,
+                             merge: bool | None = None) -> bool:
     if copy is not None:
-        utils.write_tf(user, ctx.guild, new_data=utils.load_tf(copy, ctx.guild))
+        new_data = utils.load_tf(copy, ctx.guild)
+        if merge in [False, None]:
+            new_data['all']['into'] += "឵឵ᅟ"
+        if into:
+            # Webhook username cannot contain "discord", or it will return a 400 error
+            # TODO: Find a better fix, perhaps?
+            if into.lower().__contains__("discord"):
+                into = into.lower().replace("discord", "Disc0rd")
+            new_data['all']['into'] = into
+        if image_url:
+            image_url = image_url.strip()
+            if image_url[:4] != "http":
+                await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
+                return False
+            if "?" in image_url:  # Prune url, if possible, to preserve space
+                image_url = image_url[:image_url.index("?")]
+            new_data['all']['image_url'] = image_url
+        utils.write_tf(user, ctx.guild, new_data=new_data)
         utils.write_transformed(ctx.guild, user, channel)
         return True
+    if not into:
+        await ctx.send("Please specify a name!")
+        return False
     if not image_url:
         image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
     image_url = image_url.strip()
@@ -77,7 +98,10 @@ class Transformation(commands.Cog):
                                                              "Ex: \"text\", Abc:text, etc."
                                                              "(Only available in certain servers)") = None,
                         copy: discord.Option(discord.User,
-                                             description="Copy another user") = None) -> None:
+                                             description="Copy another user") = None,
+                        merge: discord.Option(discord.SlashCommandOptionType.boolean,
+                                              description="Whether to merge or not the user's messages to the"
+                                                          "original transformed user's when copying") = None) -> None:
         if not user:
             user = ctx.author
 
@@ -159,9 +183,9 @@ class Transformation(commands.Cog):
 
         if copy:
             if not utils.is_transformed(copy, ctx.guild):
-                if await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel, brackets, None):
+                if await transform_function(ctx, user, into, image_url, channel, brackets, None, merge):
                     await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
-            elif await transform_function(ctx, user, copy, image_url, channel, brackets, copy):
+            elif await transform_function(ctx, user, into, image_url, channel, brackets, copy, merge):
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.name}"!')
             return
 
