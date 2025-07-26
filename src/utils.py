@@ -55,12 +55,12 @@ def get_data_version(user: discord.User | discord.Member) -> int:
     return int(load_file(f'{CACHE_PATH}/people/{str(user.id)}.json')['version'])
 
 
-def write_tf(user: discord.User | discord.Member,
-             guild: discord.Guild,
-             channel: discord.TextChannel | None = None,
+def write_tf(user: discord.User | discord.Member | int,
+             guild: discord.Guild | int,
+             channel: discord.TextChannel | int | None = None,
              new_data: dict | None = None,
-             block_channel: discord.TextChannel | None = None,
-             block_user: discord.User | discord.Member | None = None,
+             block_channel: discord.TextChannel | int | None = None,
+             block_user: discord.User | discord.Member | int | None = None,
              transformed_by: str | None = None,
              into: str | None = None,
              image_url: str | None = None,
@@ -83,9 +83,11 @@ def write_tf(user: discord.User | discord.Member,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
     data = load_tf(user)
+    user_id = str(user if type(user) is int else user.id)
+    guild_id = str(guild if type(guild) is int else guild.id)
     if new_data is not None:
-        data[str(guild.id)] = new_data
-        write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+        data[guild_id] = new_data
+        write_file(f'{CACHE_PATH}/people/{str(user_id)}.json', data)
         return
     transformed_data = load_transformed(guild)
     if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
@@ -99,13 +101,13 @@ def write_tf(user: discord.User | discord.Member,
     if transformed_data['affixes']:
         channel_id = proxy_prefix + " " + proxy_suffix
     else:
-        channel_id = 'all' if channel is None else str(channel.id)
+        channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
     if into not in ["", None]:
-        if str(guild.id) not in data:
-            data[str(guild.id)] = {}
-            data[str(guild.id)]['blocked_channels'] = []
-            data[str(guild.id)]['blocked_users'] = []
-        data[str(guild.id)][channel_id] = {
+        if guild_id not in data:
+            data[guild_id] = {}
+            data[guild_id]['blocked_channels'] = []
+            data[guild_id]['blocked_users'] = []
+        data[guild_id][channel_id] = {
             'transformed_by': transformed_by,
             'into': into,
             'image_url': image_url,
@@ -146,98 +148,100 @@ def write_tf(user: discord.User | discord.Member,
         }
     else:
         if transformed_by is not None and transformed_by != "":
-            data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
+            data[guild_id][channel_id]['transformed_by'] = transformed_by
         if image_url is not None and image_url != "":
-            data[str(guild.id)][channel_id]['image_url'] = image_url
+            data[guild_id][channel_id]['image_url'] = image_url
         if claim_user is not None and claim_user != 0:
-            data[str(guild.id)][channel_id]['claim'] = claim_user
+            data[guild_id][channel_id]['claim'] = claim_user
         if eternal is not None:
-            data[str(guild.id)][channel_id]['eternal'] = False if eternal == 0 else True
+            data[guild_id][channel_id]['eternal'] = False if eternal == 0 else True
         if block_channel is not None:
-            if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
-                data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
+            block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
+            if block_channel not in data[guild_id]['blocked_channels']:
+                data[guild_id]['blocked_channels'].append(block_channel)
             else:
-                data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+                data[guild_id]['blocked_channels'].remove(block_channel)
         if block_user is not None:
-            if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
-                data[str(guild.id)]['blocked_users'].append(str(block_user.id))
+            block_user = str(block_user if type(block_user) is int else block_user.id)
+            if block_user not in data[guild_id]['blocked_users']:
+                data[guild_id]['blocked_users'].append(block_user)
             else:
-                data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
+                data[guild_id]['blocked_users'].remove(block_user)
         if prefix is not None:
-            data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
+            data[guild_id][channel_id]['prefix']['active'] = True if prefix != "" else False
             if prefix != "":
                 if prefix.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['prefix']['contents'].pop(prefix[3:])
+                    data[guild_id][channel_id]['prefix']['contents'].pop(prefix[3:])
                 else:
-                    data[str(guild.id)][channel_id]['prefix']['contents'][prefix] = chance if chance else 30
+                    data[guild_id][channel_id]['prefix']['contents'][prefix] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['prefix']['contents'] = {}
+                data[guild_id][channel_id]['prefix']['contents'] = {}
         if suffix is not None:
-            data[str(guild.id)][channel_id]['suffix']['active'] = True if suffix != "" else False
+            data[guild_id][channel_id]['suffix']['active'] = True if suffix != "" else False
             if suffix != "":
                 if suffix.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['suffix']['contents'].pop(suffix[3:])
+                    data[guild_id][channel_id]['suffix']['contents'].pop(suffix[3:])
                 else:
-                    data[str(guild.id)][channel_id]['suffix']['contents'][suffix] = chance if chance else 30
+                    data[guild_id][channel_id]['suffix']['contents'][suffix] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['suffix']['contents'] = {}
+                data[guild_id][channel_id]['suffix']['contents'] = {}
         if big is not None:
-            data[str(guild.id)][channel_id]['big'] = False if big == 0 else True
+            data[guild_id][channel_id]['big'] = False if big == 0 else True
         if small is not None:
-            data[str(guild.id)][channel_id]['small'] = False if small == 0 else True
+            data[guild_id][channel_id]['small'] = False if small == 0 else True
         if hush is not None:
-            data[str(guild.id)][channel_id]['hush'] = False if hush == 0 else True
+            data[guild_id][channel_id]['hush'] = False if hush == 0 else True
         if backwards is not None:
-            data[str(guild.id)][channel_id]['backwards'] = False if backwards == 0 else True
+            data[guild_id][channel_id]['backwards'] = False if backwards == 0 else True
         if censor is not None:
-            data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
+            data[guild_id][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
                 if censor.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['censor']['contents'].pop(censor[3:])
+                    data[guild_id][channel_id]['censor']['contents'].pop(censor[3:])
                 elif censor_replacement not in ["", None]:
-                    if data[str(guild.id)][channel_id]['censor']['contents'] is None:
-                        data[str(guild.id)][channel_id]['censor']['contents'] = {}
-                    data[str(guild.id)][channel_id]['censor']['contents'][censor.lower()] = \
+                    if data[guild_id][channel_id]['censor']['contents'] is None:
+                        data[guild_id][channel_id]['censor']['contents'] = {}
+                    data[guild_id][channel_id]['censor']['contents'][censor.lower()] = \
                         censor_replacement.lower()
         if sprinkle is not None:
-            data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
+            data[guild_id][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
             if sprinkle != "":
                 if sprinkle.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['sprinkle']['contents'].pop(sprinkle[3:])
+                    data[guild_id][channel_id]['sprinkle']['contents'].pop(sprinkle[3:])
                 else:
-                    data[str(guild.id)][channel_id]['sprinkle']['contents'][sprinkle] = chance if chance else 30
+                    data[guild_id][channel_id]['sprinkle']['contents'][sprinkle] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = {}
+                data[guild_id][channel_id]['sprinkle']['contents'] = {}
         if muffle is not None:
-            data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
+            data[guild_id][channel_id]['muffle']['active'] = True if muffle != "" else False
             if muffle != "":
                 if muffle.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['muffle']['contents'].pop(muffle[3:])
+                    data[guild_id][channel_id]['muffle']['contents'].pop(muffle[3:])
                 else:
-                    data[str(guild.id)][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
+                    data[guild_id][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['muffle']['contents'] = {}
+                data[guild_id][channel_id]['muffle']['contents'] = {}
         if alt_muffle is not None:
-            data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
+            data[guild_id][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
             if alt_muffle != "":
                 if alt_muffle.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['alt_muffle']['contents'].pop(alt_muffle[3:])
+                    data[guild_id][channel_id]['alt_muffle']['contents'].pop(alt_muffle[3:])
                 else:
-                    data[str(guild.id)][channel_id]['alt_muffle']['contents'][alt_muffle] = chance if chance else 30
+                    data[guild_id][channel_id]['alt_muffle']['contents'][alt_muffle] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['alt_muffle']['contents'] = {}
+                data[guild_id][channel_id]['alt_muffle']['contents'] = {}
 
         if stutter is not None:
-            data[str(guild.id)][channel_id]['stutter'] = stutter
+            data[guild_id][channel_id]['stutter'] = stutter
 
         if proxy_prefix is not None:
-            data[str(guild.id)][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
+            data[guild_id][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
         if proxy_suffix is not None:
-            data[str(guild.id)][channel_id]['proxy_suffix'] = None if proxy_suffix == "" else proxy_suffix
+            data[guild_id][channel_id]['proxy_suffix'] = None if proxy_suffix == "" else proxy_suffix
 
         if bio is not None:
-            data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
-    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+            data[guild_id][channel_id]['bio'] = None if bio == "" else bio
+    write_file(f'{CACHE_PATH}/people/{user_id}.json', data)
 
 
 def remove_tf(user: discord.User | discord.Member,
