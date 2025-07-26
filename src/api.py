@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
@@ -10,7 +11,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 import utils
-from config import SECRET_KEY
+from config import CACHE_PATH, SECRET_KEY
 
 app = FastAPI()
 
@@ -21,11 +22,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 ACCESS_TOKEN_EXPIRE_HOURS = 2 # After how many hours does the access token expire automatically
 
-with open("cache/accounts.json") as f:
-    contents = f.read().strip()
-    if contents == "":
-        raise Exception("No cache")
-    fake_users_db = json.loads(contents)
+def load_db(db_path: str) -> dict:
+    db_path = db_path.split("/")
+    if db_path[-1] not in os.listdir("/".join(db_path[:-1])):
+        return {}
+    with open("/".join(db_path)) as f:
+        contents = f.read().strip()
+        if contents == "":
+            return {}
+        return json.loads(contents)
+
+fake_users_db = load_db(f"{CACHE_PATH}/accounts.json")
 
 class Token(BaseModel):
     access_token: str
