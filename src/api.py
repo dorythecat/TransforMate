@@ -13,15 +13,15 @@ from pydantic import BaseModel
 import utils
 from config import CACHE_PATH, SECRET_KEY
 
+# Setting some basic things up
 app = FastAPI()
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 ACCESS_TOKEN_EXPIRE_HOURS = 2 # After how many hours does the access token expire automatically
 
+# DB stuff
 def load_db(db_path: str) -> dict:
     db_path = db_path.split("/")
     if db_path[-1] not in os.listdir("/".join(db_path[:-1])):
@@ -34,6 +34,7 @@ def load_db(db_path: str) -> dict:
 
 fake_users_db = load_db(f"{CACHE_PATH}/accounts.json")
 
+# Various utilities
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -179,7 +180,7 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
     return tf
 
 # User-related features
-@app.get("/users/me/", response_model=User)
+@app.get("/users/me", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
     """Return the current user's stored information."""
     return current_user
