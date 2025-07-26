@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
@@ -20,17 +21,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 ACCESS_TOKEN_EXPIRE_HOURS = 2 # After how many hours does the access token expire automatically
 
-
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "email": "johndoe@example.com",
-        "linked_id": "770662556456976415",
-        "in_servers": ["1270819474571923517"],
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
-    }
-}
-
+with open("cache/accounts.json") as f:
+    contents = f.read().strip()
+    if contents == "":
+        raise Exception("No cache")
+    fake_users_db = json.loads(contents)
 
 class Token(BaseModel):
     access_token: str
