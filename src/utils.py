@@ -278,11 +278,11 @@ def load_transformed(guild: discord.Guild | int | None = None) -> dict:
     return load_file(f'{CACHE_PATH}/transformed.json', guild if type(guild) in [int, NoneType] else guild.id)
 
 
-def write_transformed(guild: discord.Guild,
-                      user: discord.User | discord.Member | None = None,
-                      channel: discord.TextChannel | None = None,
-                      block_user: discord.User | discord.Member | None = None,
-                      block_channel: discord.TextChannel | None = None,
+def write_transformed(guild: discord.Guild | int,
+                      user: discord.User | discord.Member | int | None = None,
+                      channel: discord.TextChannel | int | None = None,
+                      block_user: discord.User | discord.Member | int | None = None,
+                      block_channel: discord.TextChannel | int | None = None,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
                       clear_other_logs: bool | None = None,
                       affixes: bool | None = None) -> dict:
@@ -292,8 +292,9 @@ def write_transformed(guild: discord.Guild,
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
 
-    if str(guild.id) not in data:
-        data[str(guild.id)] = {
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if guild_id not in data:
+        data[guild_id] = {
             'blocked_users': [],
             'blocked_channels': [],
             'logs': [None, None, None, None],
@@ -303,36 +304,40 @@ def write_transformed(guild: discord.Guild,
         }
 
     if user is not None:
-        if str(user.id) not in data[str(guild.id)]['transformed_users']:
-            data[str(guild.id)]['transformed_users'][str(user.id)] = []
+        user_id = str(user if type(user) is int else user.id)
+        channel_id = str(channel if type(channel) is int else channel.id)
+        if user_id not in data[guild_id]['transformed_users']:
+            data[guild_id]['transformed_users'][user_id] = []
         if channel is None:
-            if 'all' not in data[str(guild.id)]['transformed_users'][str(user.id)]:
-                data[str(guild.id)]['transformed_users'][str(user.id)].append('all')
-        elif str(channel.id) not in data[str(guild.id)]['transformed_users'][str(user.id)]:
-            data[str(guild.id)]['transformed_users'][str(user.id)].append(str(channel.id))
+            if 'all' not in data[guild_id]['transformed_users'][user_id]:
+                data[guild_id]['transformed_users'][user_id].append('all')
+        elif channel_id not in data[guild_id]['transformed_users'][user_id]:
+            data[guild_id]['transformed_users'][user_id].append(channel_id)
 
     if block_channel is not None:
-        if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
-            data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
+        block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
+        if block_channel not in data[guild_id]['blocked_channels']:
+            data[guild_id]['blocked_channels'].append(block_channel)
         else:
-            data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+            data[guild_id]['blocked_channels'].remove(block_channel)
 
     if block_user is not None:
-        if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
-            data[str(guild.id)]['blocked_users'].append(str(block_user.id))
+        block_user = str(block_user if type(block_user) is int else block_user.id)
+        if block_user not in data[guild_id]['blocked_users']:
+            data[guild_id]['blocked_users'].append(block_user)
         else:
-            data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
+            data[guild_id]['blocked_users'].remove(block_user)
 
     if logs is not None:
-        data[str(guild.id)]['logs'] = logs
+        data[guild_id]['logs'] = logs
 
     if clear_other_logs is not None:
-        data[str(guild.id)]['clear_other_logs'] = clear_other_logs
+        data[guild_id]['clear_other_logs'] = clear_other_logs
     if affixes is not None:
-        data[str(guild.id)]['affixes'] = affixes
+        data[guild_id]['affixes'] = affixes
 
     write_file(f'{CACHE_PATH}/transformed.json', data)
-    return data[str(guild.id)]
+    return data[guild_id]
 
 
 def is_transformed(user: discord.User | discord.Member | int,
