@@ -168,7 +168,7 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
         )
 
     server = utils.load_transformed(server_id)
-    if str(current_user.linked_id) in server['blocked_users']:
+    if server != {} and str(current_user.linked_id) in server['blocked_users']:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This server has blocked you!",
