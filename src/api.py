@@ -170,7 +170,7 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
         )
 
     tf = utils.load_tf_by_id(str(user_id), server_id)
-    if str(current_user.linked_id) in tf['blocked_users']:
+    if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="This user has blocked you!",
