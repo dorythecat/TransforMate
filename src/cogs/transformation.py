@@ -98,7 +98,10 @@ class Transformation(commands.Cog):
                                                              "Ex: \"text\", Abc:text, etc."
                                                              "(Only available in certain servers)") = None,
                         copy: discord.Option(discord.User,
-                                             description="Copy another user") = None) -> None:
+                                             description="Copy another user") = None,
+                        merge: discord.Option(discord.SlashCommandOptionType.boolean,
+                                              description="Whether to merge or not the user's messages to the"
+                                                          "original transformed user's when copying") = None) -> None:
         if not user:
             user = ctx.author
 
@@ -180,9 +183,9 @@ class Transformation(commands.Cog):
 
         if copy:
             if not utils.is_transformed(copy, ctx.guild):
-                if await transform_function(ctx, user, into, image_url, channel, brackets, None):
+                if await transform_function(ctx, user, into, image_url, channel, brackets, None, merge):
                     await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
-            elif await transform_function(ctx, user, into, image_url, channel, brackets, copy):
+            elif await transform_function(ctx, user, into, image_url, channel, brackets, copy, merge):
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.name}"!')
             return
 
