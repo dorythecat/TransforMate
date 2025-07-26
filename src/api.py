@@ -28,6 +28,7 @@ fake_users_db = {
         "username": "johndoe",
         "email": "johndoe@example.com",
         "linked_id": "770662556456976415",
+        "in_servers": ["1270819474571923517"],
         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
     }
 }
@@ -44,8 +45,10 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: str
-    linked_id: int
     email: str | None = None
+    linked_id: int
+    in_servers: list[int]
+    admin_servers: list[int] | None = None
 
 
 class UserInDB(User):
