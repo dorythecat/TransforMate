@@ -82,7 +82,7 @@ def write_tf(user: discord.User | discord.Member | int,
              proxy_prefix: str | None = None,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
-    data = load_tf(user)
+    data = load_tf_by_id(user) if type(user) is int else load_tf(user)
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if new_data is not None:
@@ -305,7 +305,7 @@ def write_transformed(guild: discord.Guild | int,
 
     if user is not None:
         user_id = str(user if type(user) is int else user.id)
-        channel_id = str(channel if type(channel) is int else channel.id)
+        channel_id = str(channel if type(channel) in int else channel.id) if channel else 'all'
         if user_id not in data[guild_id]['transformed_users']:
             data[guild_id]['transformed_users'][user_id] = []
         if channel is None:
