@@ -18,6 +18,9 @@ async def transform_function(ctx: discord.ApplicationContext,
                              merge: bool | None = None) -> bool:
     if copy is not None:
         new_data = utils.load_tf(copy, ctx.guild)
+        if new_data == {} or new_data['all'] == {}:
+            await ctx.respond("That user can't be copied, since hey don't have any transformation available!")
+            return False
         if merge in [False, None]:
             new_data['all']['into'] += "឵឵ᅟ"
         if into:
