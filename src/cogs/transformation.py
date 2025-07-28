@@ -152,7 +152,7 @@ class Transformation(commands.Cog):
                 data = {'claim': None}  # Empty data so we can do multiple tfs
             elif data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = {'claim': None}
+                data = { 'claim': None }
             else:
                 await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return

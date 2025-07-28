@@ -293,7 +293,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
             tf = {'claim': None}  # Empty data so we can do multiple tfs
         elif tf == {}:
             # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-            tf = {'claim': None}
+            tf = { 'claim': None }
         else:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -479,7 +479,7 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
             tf = {'claim': None}  # Empty data so we can do multiple tfs
         elif tf == {}:
             # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-            tf = {'claim': None}
+            tf = { 'claim': None }
         else:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
