@@ -15,7 +15,46 @@ from config import BLOCKED_USERS, CACHE_PATH, SECRET_KEY
 from cogs.transformation import transform_function
 
 # Setting some basic things up
-app = FastAPI()
+app = FastAPI(
+    title="TransforMate API",
+    summary="A versatile API for the TransforMate Discord bot.",
+    description="""
+        The API for the TransforMate Discord bot allows you to do stuff like:
+        - Transform users
+        - Get information about users or servers
+        - Modify a user's settings
+        - See your own information
+        All of this with proper security and more to come!
+    """,
+    version="1.5.5",
+    terms_of_service="https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md",
+    contact={
+        "name": "Official TransforMate Discord Server",
+        "url": "https://discord.gg/uGjWk2SRf6"
+    },
+    license_info={
+        "name": "GNU Affero General Public License v3.0 or later",
+        "identifier": "AGPL-3.0-or-later"
+    },
+    openapi_tags=[
+        {
+            "name": "Security",
+            "description": "Security-related actions"
+        },
+        {
+            "name": "Get",
+            "description": "Get information about a user or server"
+        },
+        {
+            "name": "Transformation",
+            "description": "Transformation and modification"
+        },
+        {
+            "name": "Your User",
+            "description": "Get information about the current logged-in user"
+        }
+    ]
+)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -110,7 +149,7 @@ async def get_current_active_user(current_user: Annotated[User, Depends(get_curr
     return current_user
 
 # Login
-@app.post("/token")
+@app.post("/token", tags=["Security"])
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     """Login to an account."""
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
@@ -131,7 +170,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     return Token(access_token=access_token, token_type="bearer")
 
 # Get info
-@app.get("/get/{server_id}")
+@app.get("/get/{server_id}", tags=["Get"])
 def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
                server_id: int) -> dict:
     """Returns the settings for a given server. If you're an administrator, you'll get the full file for said server."""
@@ -156,7 +195,7 @@ def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
         "affixes": server['affixes']
     }
 
-@app.get("/get/{server_id}/{user_id}")
+@app.get("/get/{server_id}/{user_id}", tags=["Get"])
 def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)],
                   server_id: int,
                   user_id: int) -> dict:
@@ -195,7 +234,7 @@ class TransformationData(BaseModel):
     copy_id: int | None = None
     merge: bool = False
 
-@app.put("/tf/{server_id}/{user_id}")
+@app.put("/tf/{server_id}/{user_id}", tags=["Transformation"])
 def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
             server_id: int,
             user_id: int,
@@ -381,7 +420,7 @@ class ModData(BaseModel):
     bio: str | None = None
     chance: int | None = None
 
-@app.put("/mod/{server_id}/{user_id}")
+@app.put("/mod/{server_id}/{user_id}", tags=["Transformation"])
 def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)],
                   server_id: int,
                   user_id: int,
@@ -413,12 +452,12 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
                            censor_replacement=mod_data.censor[censor])
 
 # User-related features
-@app.get("/users/me", response_model=User)
+@app.get("/users/me", response_model=User, tags=["Your User"])
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
     """Return the current user's stored information."""
     return current_user
 
-@app.get("/users/me/file")
+@app.get("/users/me/file", tags=["Your User"])
 async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
     """Returns the current user's complete file."""
     return utils.load_tf_by_id(str(current_user.linked_id))
