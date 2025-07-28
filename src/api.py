@@ -290,7 +290,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
         elif 'all' in tf:
             tf = tf['all']
         elif server != {} and server['affixes']:
-            tf = {'claim': None}  # Empty data so we can do multiple tfs
+            tf = { 'claim': None }  # Empty data so we can do multiple tfs
         elif tf == {}:
             # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
             tf = { 'claim': None }
@@ -476,7 +476,7 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
         elif 'all' in tf:
             tf = tf['all']
         elif server != {} and server['affixes']:
-            tf = {'claim': None}  # Empty data so we can do multiple tfs
+            tf = { 'claim': None }  # Empty data so we can do multiple tfs
         elif tf == {}:
             # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
             tf = { 'claim': None }

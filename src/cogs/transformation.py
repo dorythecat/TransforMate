@@ -149,7 +149,7 @@ class Transformation(commands.Cog):
             elif 'all' in data:
                 data = data['all']
             elif transformed_data != {} and transformed_data['affixes']:
-                data = {'claim': None}  # Empty data so we can do multiple tfs
+                data = { 'claim': None }  # Empty data so we can do multiple tfs
             elif data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
                 data = { 'claim': None }
