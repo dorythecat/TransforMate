@@ -362,6 +362,56 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
 
     return utils.load_tf_by_id(str(user_id), server_id)
 
+# Mod-related features
+class ModData(BaseModel):
+    channel_id: int | None = None
+    claim: int | None = None
+    eternal: bool | None = None
+    prefix: str | None = None
+    suffix: str | None = None
+    big: bool | None = None
+    small: bool | None = None
+    hush: bool | None = None
+    backwards: bool | None = None
+    censor: dict | None = None
+    sprinkle: dict | None = None
+    muffle: dict | None = None
+    alt_muffle: dict | None = None
+    stutter: int | None = None
+    bio: str | None = None
+    chance: int | None = None
+
+@app.put("/mod/{server_id}/{user_id}")
+def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)],
+                  server_id: int,
+                  user_id: int,
+                  mod_data: Annotated[ModData, Depends()]):
+    utils.write_tf(user_id,
+                   server_id,
+                   mod_data.channel_id,
+                   claim_user=mod_data.claim,
+                   eternal=mod_data.eternal,
+                   prefix=mod_data.prefix,
+                   suffix=mod_data.suffix,
+                   big=mod_data.big,
+                   small=mod_data.small,
+                   hush=mod_data.hush,
+                   backwards=mod_data.backwards,
+                   sprinkle=mod_data.sprinkle,
+                   muffle=mod_data.muffle,
+                   alt_muffle=mod_data.alt_muffle,
+                   stutter=mod_data.stutter,
+                   bio=mod_data.bio,
+                   chance=mod_data.chance)
+
+    if mod_data.censor:
+        for censor in mod_data.censor:
+            utils.write_tf(user_id,
+                           server_id,
+                           mod_data.channel_id,
+                           censor=censor,
+                           censor_replacement=mod_data.censor[censor])
+
 # User-related features
 @app.get("/users/me", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
