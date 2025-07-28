@@ -425,6 +425,80 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
                   server_id: int,
                   user_id: int,
                   mod_data: Annotated[ModData, Depends()]):
+    if server_id not in current_user.in_servers:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not in this server!",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    server = utils.load_transformed(server_id)
+    if server != {}:
+        if str(current_user.linked_id) in server['blocked_users']:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This server has blocked you!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        if str(user_id) in server['blocked_users']:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This server has blocked the user!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        if str(mod_data.channel_id) in server['blocked_channels']:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This server has blocked this channel!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+    tf = utils.load_tf_by_id(str(user_id), server_id)
+    if tf != {}:
+        if str(current_user.linked_id) in tf['blocked_users']:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This user has blocked you!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        if str(user_id) in tf['blocked_users']:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This user has blocked you!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+    if utils.is_transformed(user_id, server_id):
+        if str(mod_data.channel_id) in tf:
+            tf = tf[str(mod_data.channel_id)]
+        elif 'all' in tf:
+            tf = tf['all']
+        elif server != {} and server['affixes']:
+            tf = {'claim': None}  # Empty data so we can do multiple tfs
+        elif tf == {}:
+            # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+            tf = {'claim': None}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This user is already transformed on this server!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        if tf['claim'] is not None and int(tf['claim']) != current_user.linked_id and tf['eternal']:
+            if current_user.linked_id != user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="This user is claimed, and you aren't their owner!",
+                    headers={"WWW-Authenticate": "Bearer"}
+                )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="You are claimed, and can't transform yourself!",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
     utils.write_tf(user_id,
                    server_id,
                    mod_data.channel_id,
