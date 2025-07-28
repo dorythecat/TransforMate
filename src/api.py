@@ -1,11 +1,12 @@
 import json
 import os
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, NamedTuple, Union
 
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -148,85 +149,185 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
 
+class ErrorMessage(BaseModel):
+    message: str
+
 # Login
-@app.post("/token", tags=["Security"])
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+@app.post("/token",
+          tags=["Security"],
+          response_model=Token,
+          responses={
+              403: { 'model': ErrorMessage }
+          })
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token | JSONResponse:
     """Login to an account."""
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'Incorrect username or password' })
     if user.linked_id in BLOCKED_USERS:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are blocked from using this bot!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'Blocked user' })
     access_token_expires = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return Token(access_token=access_token, token_type="bearer")
 
 # Get info
-@app.get("/get/{server_id}", tags=["Get"])
+class ServerDataBasic(BaseModel):
+    blocked_users: list[int] = []
+    blocked_channels: list[int] = []
+    affixes: bool = False
+
+class ServerLogChannels(NamedTuple):
+    edit_logs: int | None = None
+    delete_logs: int | None = None
+    transform_logs: int | None = None
+    claim_logs: int | None = None
+
+class ServerData(BaseModel):
+    blocked_users: list[int] = []
+    blocked_channels: list[int] = []
+    logs_channels: ServerLogChannels = ServerLogChannels()
+    clear_other_logs: bool = False
+    affixes: bool = False
+    transformed_users: dict[str, list[str]] = {}
+
+@app.get("/get/{server_id}",
+         tags=["Get"],
+         response_model=Union[ServerDataBasic, ServerData],
+         responses={
+             403: { 'model': ErrorMessage }
+         })
 def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
-               server_id: int) -> dict:
+               server_id: int) -> ServerDataBasic | ServerData | JSONResponse:
     """Returns the settings for a given server. If you're an administrator, you'll get the full file for said server."""
     if server_id not in current_user.in_servers:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not in this server!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'Current user is not on that server' })
 
     server = utils.load_transformed(server_id)
     if str(current_user.linked_id) in server['blocked_users']:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This server has blocked you!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This server has blocked the current user' })
 
-    return server if server_id in current_user.admin_servers else {
-        "blocked_users": server['blocked_users'],
-        "blocked_channels": server['blocked_channels'],
-        "affixes": server['affixes']
-    }
+    return ServerData(
+        blocked_users=server['blocked_users'],
+        blocked_channels=server['blocked_channels'],
+        logs_channels=server['logs'],
+        clear_other_logs=server['clear_other_logs'],
+        affixes=server['affixes'],
+        transformed_users=server['transformed_users']
+    ) if server_id in current_user.admin_servers else ServerDataBasic(
+        blocked_users=server['blocked_users'],
+        blocked_channels=server['blocked_channels'],
+        affixes=server['affixes']
+    )
 
-@app.get("/get/{server_id}/{user_id}", tags=["Get"])
+class Modifier(NamedTuple):
+    active: bool = False
+    contents: dict = {}
+
+class UserTransformationData(BaseModel):
+    transformed_by: int = 0
+    into: str = ""
+    image_url: str = ""
+    claim: int | None = None
+    eternal: bool = False
+    prefix: Modifier = Modifier()
+    suffix: Modifier = Modifier()
+    big: bool = False
+    small: bool = False
+    hush: bool = False
+    backwards: bool = False
+    censor: Modifier = Modifier()
+    sprinkle: Modifier = Modifier()
+    muffle: Modifier = Modifier()
+    alt_muffle: Modifier = Modifier()
+    stutter: int = 0
+    proxy_prefix: str | None = None
+    proxy_suffix: str | None = None
+    bio: str | None = None
+
+class UserData(BaseModel):
+    blocked_channels: list[int] = []
+    blocked_users: list[int] = []
+    all: UserTransformationData = UserTransformationData()
+
+@app.get("/get/{server_id}/{user_id}",
+         tags=["Get"],
+         response_model=UserData,
+         responses={
+             403: { 'model': ErrorMessage }
+         })
 def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)],
                   server_id: int,
-                  user_id: int) -> dict:
+                  user_id: int) -> UserData | JSONResponse:
     """Returns the transformed data for a given user in a server."""
     if server_id not in current_user.in_servers:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not in this server!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'Current user is not on that server' })
 
     server = utils.load_transformed(server_id)
-    if server != {} and str(current_user.linked_id) in server['blocked_users']:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This server has blocked you!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+    if server != {}:
+        if str(current_user.linked_id) in server['blocked_users']:
+            return JSONResponse(status_code=403,
+                                content={ 'detail': 'This server has blocked the current user' })
+
+        if str(user_id) in server['blocked_users']:
+            return JSONResponse(status_code=403,
+                                content={ 'detail': 'This server has blocked that user' })
 
     tf = utils.load_tf_by_id(str(user_id), server_id)
     if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This user has blocked you!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This user has blocked the current user' })
 
-    return tf
+    return UserData(
+        blocked_users=tf['blocked_users'],
+        blocked_channels=tf['blocked_channels'],
+        all=UserTransformationData(
+            transformed_by=tf['all']['transformed_by'],
+            into=tf['all']['into'],
+            image_url=tf['all']['image_url'],
+            claim=tf['all']['claim'],
+            eternal=tf['all']['eternal'],
+            prefix=Modifier(
+                tf['all']['prefix']['active'],
+                tf['all']['prefix']['contents']
+            ),
+            suffix=Modifier(
+                tf['all']['prefix']['active'],
+                tf['all']['prefix']['contents'],
+            ),
+            big=tf['all']['big'],
+            small=tf['all']['small'],
+            hush=tf['all']['hush'],
+            backwards=tf['all']['backwards'],
+            censor=Modifier(
+                tf['all']['censor']['active'],
+                tf['all']['censor']['contents']
+            ),
+            sprinkle=Modifier(
+                tf['all']['sprinkle']['active'],
+                tf['all']['sprinkle']['contents']
+            ),
+            muffle=Modifier(
+                tf['all']['muffle']['active'],
+                tf['all']['muffle']['contents']
+            ),
+            alt_muffle=Modifier(
+                tf['all']['alt_muffle']['active'],
+                tf['all']['alt_muffle']['contents']
+            ),
+            stutter=tf['all']['stutter'],
+            proxy_prefix=tf['all']['proxy_prefix'],
+            proxy_suffix=tf['all']['proxy_suffix'],
+            bio=tf['all']['bio']
+        )
+    )
 
 # Transform other users
-class TransformationData(BaseModel):
+class TransformData(BaseModel):
     into: str | None = None
     image_url: str | None = None
     channel_id: int | None = None
@@ -234,55 +335,40 @@ class TransformationData(BaseModel):
     copy_id: int | None = None
     merge: bool = False
 
-@app.put("/tf/{server_id}/{user_id}", tags=["Transformation"])
+@app.put("/tf/{server_id}/{user_id}",
+         tags=["Transformation"],
+         response_model=UserTransformationData,
+         responses={
+             400: { 'model': ErrorMessage },
+             403: { 'model': ErrorMessage },
+             409: { 'model': ErrorMessage }
+         })
 def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
             server_id: int,
             user_id: int,
-            tf_data: Annotated[TransformationData, Depends()]) -> dict:
+            tf_data: Annotated[TransformData, Depends()]) -> UserTransformationData | JSONResponse:
     if server_id not in current_user.in_servers:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not in this server!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'Current user is not on that server' })
 
     server = utils.load_transformed(server_id)
     if server != {}:
         if str(current_user.linked_id) in server['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This server has blocked you!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=403,
+                                content={ 'detail': 'This server has blocked the current user' })
 
         if str(user_id) in server['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This server has blocked the user!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=403,
+                                content={ 'detail': 'This server has blocked that user' })
 
         if str(tf_data.channel_id) in server['blocked_channels']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This server has blocked this channel!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=403,
+                                content={ 'detail': 'This server has blocked that channel' })
 
     tf = utils.load_tf_by_id(str(user_id), server_id)
-    if tf != {}:
-        if str(current_user.linked_id) in tf['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This user has blocked you!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        if str(user_id) in tf['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This user has blocked you!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+    if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'That user has blocked the current user' })
 
     if utils.is_transformed(user_id, server_id):
         if str(tf_data.channel_id) in tf:
@@ -295,53 +381,33 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
             # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
             tf = { 'claim': None }
         else:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="This user is already transformed on this server!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=409,
+                                content={ 'detail': 'That user is already transformed on this server' })
+
         if tf['claim'] is not None and int(tf['claim']) != current_user.linked_id and tf['eternal']:
             if current_user.linked_id != user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail="This user is claimed, and you aren't their owner!",
-                    headers={"WWW-Authenticate": "Bearer"}
-                )
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="You are claimed, and can't transform yourself!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+                return JSONResponse(status_code=409,
+                                    content={ 'detail': 'That user is claimed, and you are not their owner' })
+            return JSONResponse(status_code=409,
+                                content={'detail': 'You are claimed, and can not transform yourself' })
 
     if server != {} and server['affixes']:
         if not tf_data.brackets:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="You need to provide brackets in this server!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=400,
+                                content={ 'detail': 'You need to provide brackets on this server' })
         if len(tf_data.brackets) > 2:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Provided brackets are improperly formed!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=400,
+                                content={ 'detail': 'The provided brackets are improperly formed' })
     else:
         if tf_data.brackets is not None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="You can't provide brackets on this server!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=400,
+                                content={ 'detail': 'You must not provide brackets on this server' })
 
-    if tf_data.copy_id is not None:
+    if tf_data.copy_id:
         new_data = utils.load_tf_by_id(str(tf_data.copy_id), server_id)
         if new_data == {} or new_data['all'] == {}:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="This user is no transformed on this server!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=409,
+                                content={ 'detail': 'That user is not transformed on this server' })
         if tf_data.merge in [False, None]:
             new_data['all']['into'] += "឵឵ᅟ"
         if tf_data.into:
@@ -353,34 +419,28 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
         if tf_data.image_url:
             tf_data.image_url = tf_data.image_url.strip()
             if tf_data.image_url[:4] != "http":
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Image URL must start with http!",
-                    headers={"WWW-Authenticate": "Bearer"}
-                )
+                return JSONResponse(status_code=400,
+                                    content={ 'detail': 'The image URL must start with "http"' })
             if "?" in tf_data.image_url:  # Prune url, if possible, to preserve space
                 tf_data.image_url = tf_data.image_url[:tf_data.image_url.index("?")]
             new_data['all']['image_url'] = tf_data.image_url
-        utils.write_tf(user_id, server_id, new_data=new_data)
-        utils.write_transformed(server_id, user_id)
-        return utils.load_tf_by_id(str(user_id), server_id)
+        utils.write_tf(user_id,
+                       server_id,
+                       tf_data.channel_id,
+                       transformed_by=str(current_user.linked_id),
+                       new_data=new_data)
 
-    if tf_data.into:
+    elif tf_data.into:
         if len(tf_data.into) <= 1:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Name needs to be at least wo characters long!",
-            )
+            return JSONResponse(status_code=400,
+                                content={ 'detail': 'Name must be at least two characters long' })
         if not tf_data.image_url:
             tf_data.image_url = "https://cdn.discordapp.com/embed/avatars/1.png"
         else:
             tf_data.image_url = tf_data.image_url.strip()
             if tf_data.image_url[:4] != "http":
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Invalid Image URL! Please provide a valid image URL!",
-                    headers={"WWW-Authenticate": "Bearer"}
-                )
+                return JSONResponse(status_code=400,
+                                    content={ 'detail': 'The image URL must start with "http"' })
             if "?" in tf_data.image_url:  # Prune url, if possible, to preserve space
                 tf_data.image_url = tf_data.image_url[:tf_data.image_url.index("?")]
 
@@ -397,9 +457,50 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
                        image_url=tf_data.image_url,
                        proxy_prefix=tf_data.brackets[0] if tf_data.brackets is not None else None,
                        proxy_suffix=tf_data.brackets[1] if tf_data.brackets is not None else None)
-        utils.write_transformed(server_id, user_id, tf_data.channel_id)
 
-    return utils.load_tf_by_id(str(user_id), server_id)
+    utils.write_transformed(server_id, user_id, tf_data.channel_id)
+    tf = utils.load_tf_by_id(str(user_id), server_id)
+    channel_id = tf_data.channel_id if tf_data.channel_id else 'all'
+    return UserTransformationData(
+        transformed_by=tf[channel_id]['transformed_by'],
+        into=tf[channel_id]['into'],
+        image_url=tf[channel_id]['image_url'],
+        claim=tf[channel_id]['claim'],
+        eternal=tf[channel_id]['eternal'],
+        prefix=Modifier(
+            tf[channel_id]['prefix']['active'],
+            tf[channel_id]['prefix']['contents']
+        ),
+        suffix=Modifier(
+            tf[channel_id]['prefix']['active'],
+            tf[channel_id]['prefix']['contents'],
+        ),
+        big=tf[channel_id]['big'],
+        small=tf[channel_id]['small'],
+        hush=tf[channel_id]['hush'],
+        backwards=tf[channel_id]['backwards'],
+        censor=Modifier(
+            tf[channel_id]['censor']['active'],
+            tf[channel_id]['censor']['contents']
+        ),
+        sprinkle=Modifier(
+            tf[channel_id]['sprinkle']['active'],
+            tf[channel_id]['sprinkle']['contents']
+        ),
+        muffle=Modifier(
+            tf['all']['muffle']['active'],
+            tf['all']['muffle']['contents']
+        ),
+        alt_muffle=Modifier(
+            tf[channel_id]['alt_muffle']['active'],
+            tf[channel_id]['alt_muffle']['contents']
+        ),
+        stutter=tf[channel_id]['stutter'],
+        proxy_prefix=tf[channel_id]['proxy_prefix'],
+        proxy_suffix=tf[channel_id]['proxy_suffix'],
+        bio=tf[channel_id]['bio']
+    )
+
 
 # Mod-related features
 class ModData(BaseModel):
@@ -420,55 +521,40 @@ class ModData(BaseModel):
     bio: str | None = None
     chance: int | None = None
 
-@app.put("/mod/{server_id}/{user_id}", tags=["Transformation"])
+@app.put("/mod/{server_id}/{user_id}",
+         tags=["Transformation"],
+         response_model=UserTransformationData,
+         responses={
+             400: { 'model': ErrorMessage },
+             403: { 'model': ErrorMessage },
+             409: { 'model': ErrorMessage }
+         })
 def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)],
                   server_id: int,
                   user_id: int,
-                  mod_data: Annotated[ModData, Depends()]):
+                  mod_data: Annotated[ModData, Depends()]) -> UserTransformationData | JSONResponse:
     if server_id not in current_user.in_servers:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not in this server!",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        return JSONResponse(status_code=403,
+                            content={'detail': 'Current user is not on that server'})
 
     server = utils.load_transformed(server_id)
     if server != {}:
         if str(current_user.linked_id) in server['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This server has blocked you!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=403,
+                                content={'detail': 'This server has blocked the current user'})
 
         if str(user_id) in server['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This server has blocked the user!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=403,
+                                content={'detail': 'This server has blocked that user'})
 
         if str(mod_data.channel_id) in server['blocked_channels']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This server has blocked this channel!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=403,
+                                content={'detail': 'This server has blocked that channel'})
 
     tf = utils.load_tf_by_id(str(user_id), server_id)
-    if tf != {}:
-        if str(current_user.linked_id) in tf['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This user has blocked you!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        if str(user_id) in tf['blocked_users']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This user has blocked you!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+    if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
+            return JSONResponse(status_code=403,
+                                content={'detail': 'That user has blocked the current user'})
 
     if utils.is_transformed(user_id, server_id):
         if str(mod_data.channel_id) in tf:
@@ -481,23 +567,15 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
             # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
             tf = { 'claim': None }
         else:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="This user is already transformed on this server!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return JSONResponse(status_code=409,
+                                content={'detail': 'That user is already transformed on this server'})
+
         if tf['claim'] is not None and int(tf['claim']) != current_user.linked_id and tf['eternal']:
             if current_user.linked_id != user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail="This user is claimed, and you aren't their owner!",
-                    headers={"WWW-Authenticate": "Bearer"}
-                )
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="You are claimed, and can't transform yourself!",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+                return JSONResponse(status_code=409,
+                                    content={'detail': 'That user is claimed, and you are not their owner'})
+            return JSONResponse(status_code=409,
+                                content={'detail': 'You are claimed, and can not transform yourself'})
 
     utils.write_tf(user_id,
                    server_id,
@@ -525,13 +603,59 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
                            censor=censor,
                            censor_replacement=mod_data.censor[censor])
 
+    tf = utils.load_tf_by_id(str(user_id), server_id)
+    channel_id = mod_data.channel_id if mod_data.channel_id else 'all'
+    return UserTransformationData(
+        transformed_by=tf[channel_id]['transformed_by'],
+        into=tf[channel_id]['into'],
+        image_url=tf[channel_id]['image_url'],
+        claim=tf[channel_id]['claim'],
+        eternal=tf[channel_id]['eternal'],
+        prefix=Modifier(
+            tf[channel_id]['prefix']['active'],
+            tf[channel_id]['prefix']['contents']
+        ),
+        suffix=Modifier(
+            tf[channel_id]['prefix']['active'],
+            tf[channel_id]['prefix']['contents'],
+        ),
+        big=tf[channel_id]['big'],
+        small=tf[channel_id]['small'],
+        hush=tf[channel_id]['hush'],
+        backwards=tf[channel_id]['backwards'],
+        censor=Modifier(
+            tf[channel_id]['censor']['active'],
+            tf[channel_id]['censor']['contents']
+        ),
+        sprinkle=Modifier(
+            tf[channel_id]['sprinkle']['active'],
+            tf[channel_id]['sprinkle']['contents']
+        ),
+        muffle=Modifier(
+            tf['all']['muffle']['active'],
+            tf['all']['muffle']['contents']
+        ),
+        alt_muffle=Modifier(
+            tf[channel_id]['alt_muffle']['active'],
+            tf[channel_id]['alt_muffle']['contents']
+        ),
+        stutter=tf[channel_id]['stutter'],
+        proxy_prefix=tf[channel_id]['proxy_prefix'],
+        proxy_suffix=tf[channel_id]['proxy_suffix'],
+        bio=tf[channel_id]['bio']
+    )
+
 # User-related features
-@app.get("/users/me", response_model=User, tags=["Your User"])
+@app.get("/users/me",
+         tags=["Your User"],
+         response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
     """Return the current user's stored information."""
     return current_user
 
-@app.get("/users/me/file", tags=["Your User"])
+@app.get("/users/me/file",
+         tags=["Your User"],
+         response_model=dict)
 async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
     """Returns the current user's complete file."""
     return utils.load_tf_by_id(str(current_user.linked_id))
