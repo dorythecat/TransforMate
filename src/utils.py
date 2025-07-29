@@ -43,13 +43,9 @@ CURRENT_TRANSFORMED_DATA_VERSION = 7
 
 
 # USER TRANSFORMATION DATA UTILS
-def load_tf_by_id(user_id: str, guild: discord.Guild | int | None = None) -> dict:
-    return load_file(f'{CACHE_PATH}/people/{user_id}.json',
+def load_tf(user: discord.User | discord.Member | int, guild: discord.Guild | int | None = None) -> dict:
+    return load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
-
-
-def load_tf(user: discord.User | discord.Member, guild: discord.Guild | int | None = None) -> dict:
-    return load_tf_by_id(str(user.id), guild)
 
 def get_data_version(user: discord.User | discord.Member) -> int:
     return int(load_file(f'{CACHE_PATH}/people/{str(user.id)}.json')['version'])
@@ -82,7 +78,7 @@ def write_tf(user: discord.User | discord.Member | int,
              proxy_prefix: str | None = None,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
-    data = load_tf_by_id(user) if type(user) is int else load_tf(user)
+    data = load_tf(user) if type(user) is int else load_tf(user)
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if new_data is not None:
@@ -275,7 +271,8 @@ def remove_all_tf(user: discord.User | discord.Member) -> None:
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild | int | None = None) -> dict:
-    return load_file(f'{CACHE_PATH}/transformed.json', guild if type(guild) in [int, NoneType] else guild.id)
+    return load_file(f'{CACHE_PATH}/transformed.json',
+                     guild if type(guild) in [int, NoneType] else guild.id)
 
 
 def write_transformed(guild: discord.Guild | int,
@@ -363,7 +360,7 @@ def remove_transformed(user: discord.User | discord.Member,
     write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
-def remove_server_from_transformed(guild: discord.Guild):
+def remove_server_from_transformed(guild: discord.Guild) -> None:
     data = load_transformed()
     del data[str(guild.id)]
     write_file(f'{CACHE_PATH}/transformed.json', data)
@@ -480,21 +477,21 @@ def transform_text(data: dict,
 async def extract_tf_data(ctx: discord.ApplicationContext,
                           user: discord.User | discord.Member | None,
                           get_command: bool = False,
-                          channel: discord.TextChannel | None = None) -> [bool,
-                                                         dict | None,
-                                                         discord.User | discord.Member | None]:
+                          channel: discord.TextChannel | None = None) -> tuple[bool,
+                                                                               dict | None,
+                                                                               discord.User | discord.Member | None]:
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild, channel):
         await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-        return [False, None, None]
+        return False, None, None
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
     if not get_command and data['claim'] is not None and data['claim'] != ctx.author.id:
         await ctx.respond(f"You can't do that! {user.mention} is owned by"
                           f"{ctx.guild.get_member(data['claim']).mention}, and not by you!")
-        return [False, None, None]
-    return [True, data, user]
+        return False, None, None
+    return True, data, user
 
 
 # FILE UTILS
@@ -544,21 +541,18 @@ def get_embed_base(title: str,
     )
 
 
-def check_message(message: discord.Message) -> [int | None, dict | None]:
+def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
     transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
-        data = load_tf_by_id(tfee, message.guild)
+        data = load_tf(tfee, message.guild)
         if data == {}:
             continue
         data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
         if data['into'] == message.author.name:
-            return [int(tfee), data]
-    return [None, None]
-
-def check_reactions(reaction: discord.Reaction) -> [int | None, dict | None]:
-    return check_message(reaction.message)
+            return int(tfee), data
+    return None, None
 
 
 def clear_apple_marks(text: str) -> str:

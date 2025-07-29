@@ -241,7 +241,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             str(reaction.emoji) not in ["❓", "❔", "✏️", "❌", "🔒", "🔓", "🔐"]:
         return
 
-    tfee, data = utils.check_reactions(reaction)
+    tfee, data = utils.check_message(reaction.message)
     if tfee is None:
         return
     await reaction.remove(user)  # Remove the reaction from the message

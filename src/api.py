@@ -281,7 +281,7 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
             return JSONResponse(status_code=403,
                                 content={ 'detail': 'This server has blocked that user' })
 
-    tf = utils.load_tf_by_id(str(user_id), server_id)
+    tf = utils.load_tf(user_id, server_id)
     if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'This user has blocked the current user' })
@@ -373,7 +373,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
             return JSONResponse(status_code=403,
                                 content={ 'detail': 'This server has blocked that channel' })
 
-    tf = utils.load_tf_by_id(str(user_id), server_id)
+    tf = utils.load_tf(user_id, server_id)
     if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'That user has blocked the current user' })
@@ -412,7 +412,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
                                 content={ 'detail': 'You must not provide brackets on this server' })
 
     if tf_data.copy_id:
-        new_data = utils.load_tf_by_id(str(tf_data.copy_id), server_id)
+        new_data = utils.load_tf(tf_data.copy_id, server_id)
         if new_data == {} or new_data['all'] == {}:
             return JSONResponse(status_code=409,
                                 content={ 'detail': 'That user is not transformed on this server' })
@@ -467,7 +467,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
                        proxy_suffix=tf_data.brackets[1] if tf_data.brackets is not None else None)
 
     utils.write_transformed(server_id, user_id, tf_data.channel_id)
-    tf = utils.load_tf_by_id(str(user_id), server_id)
+    tf = utils.load_tf(user_id, server_id)
     channel_id = tf_data.channel_id if tf_data.channel_id else 'all'
     return UserTransformationData(
         transformed_by=tf[channel_id]['transformed_by'],
@@ -563,7 +563,7 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
             return JSONResponse(status_code=403,
                                 content={'detail': 'This server has blocked that channel'})
 
-    tf = utils.load_tf_by_id(str(user_id), server_id)
+    tf = utils.load_tf(user_id, server_id)
     if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
             return JSONResponse(status_code=403,
                                 content={'detail': 'That user has blocked the current user'})
@@ -615,7 +615,7 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
                            censor=censor,
                            censor_replacement=mod_data.censor[censor])
 
-    tf = utils.load_tf_by_id(str(user_id), server_id)
+    tf = utils.load_tf(user_id, server_id)
     channel_id = mod_data.channel_id if mod_data.channel_id else 'all'
     return UserTransformationData(
         transformed_by=tf[channel_id]['transformed_by'],
@@ -670,4 +670,4 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_active
          response_model=dict)
 async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
     """Returns the current user's complete file."""
-    return utils.load_tf_by_id(str(current_user.linked_id))
+    return utils.load_tf(current_user.linked_id)
