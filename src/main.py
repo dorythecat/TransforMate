@@ -428,7 +428,9 @@ async def legal(ctx: discord.ApplicationContext) -> None:
 
 @bot.slash_command(description="Invite the bot to your server")
 async def invite(ctx: discord.ApplicationContext) -> None:
-    await ctx.respond("You can't invite this bot yet, since we're under development, still. :(")
+    await ctx.respond("To invite the bot to a server you own, use"
+                      "[this link](https://discord.com/oauth2/authorize?client_id=1274436972621987881)!\n\n"
+                      "Feel free to share it around with anyone! <3")
 
 
 @bot.slash_command(description="Replies with the bot's latency.")
