@@ -167,7 +167,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
                             content={ 'detail': 'Incorrect username or password' })
     if user.linked_id in BLOCKED_USERS:
         return JSONResponse(status_code=403,
-                            content={ 'detail': 'Blocked user' })
+                            content={ 'detail': 'You are blocked from using the bot' })
     access_token_expires = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return Token(access_token=access_token, token_type="bearer")
@@ -267,6 +267,10 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
         return JSONResponse(status_code=403,
                             content={ 'detail': 'Current user is not on that server' })
 
+    if user_id in BLOCKED_USERS:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'That user is blocked from using the bot' })
+
     server = utils.load_transformed(server_id)
     if server != {}:
         if str(current_user.linked_id) in server['blocked_users']:
@@ -350,6 +354,10 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
     if server_id not in current_user.in_servers:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'Current user is not on that server' })
+
+    if user_id in BLOCKED_USERS:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'That user is blocked from using the bot' })
 
     server = utils.load_transformed(server_id)
     if server != {}:
@@ -536,6 +544,10 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
     if server_id not in current_user.in_servers:
         return JSONResponse(status_code=403,
                             content={'detail': 'Current user is not on that server'})
+
+    if user_id in BLOCKED_USERS:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'That user is blocked from using the bot' })
 
     server = utils.load_transformed(server_id)
     if server != {}:
