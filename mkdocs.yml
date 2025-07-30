@@ -6,6 +6,12 @@ theme:
   logo: img/logo.png
 nav:
   - Home: index.md
+  - Commands:
+      - Summary: commands/summary.md
   - About: about.md
 plugins:
   - search
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
