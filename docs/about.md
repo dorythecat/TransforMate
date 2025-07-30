@@ -38,3 +38,24 @@ I will forever be thankful for our community, my Patreon supporters, and all the
 awesome people who help keep this project up and running. Without them, I probably
 would have taken this bot down a long time ago. Thanks for your support, guys.
 Love y'all! <3
+
+## How can I help?
+TransforMate is mostly a passion project. Development, documenting, hosting, and
+maintenance, all fall under me at the moment. I am a single person, and, whilst I'm
+not going to lie and say I have bills to cover, monetary motivation is really great.
+I am thankful for even the smallest little help you can give me. You can do so over
+at my [Patreon](https://www.patreon.com/dorythecat), which also gives you some extra
+perks, like early access to some of my written works, as well as priority feature
+requests.
+
+If you don't want, or can't help monetarily, it's competely fine. You can help the
+bot as easy as sharing it with friends, being active in the community, reporting
+bugs and bad actors, and suggesting new features.
+
+If you have any kind of code-related knowledge, I'm always thankful for some help
+with the coding part of the bot. It's always great to have some other folks having
+a look around and helping improve the code this little project is made up of.
+
+If you have any other ideas on how to help, like wanting to contribute with the
+community, infrastructure, or other aspects of the bot, please feel free to
+contact me, I'm always open to new ideas and helping hands!
