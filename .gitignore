@@ -5,3 +5,4 @@ cache
 *.sh
 .bashrc
 src/tf_cache.tf
+site/
