@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: TransforMate Bot Docs
+theme: material
+nav:
+  - Home: index.md
+  - About: about.md
+plugins:
+  - search
