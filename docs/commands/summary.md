@@ -7,6 +7,11 @@ in each of the categories, with an example usage listed. For a full description 
 the usage and inner workings of a command, click on it to be redirected to its
 specific page, with full details.
 
+Remember, command parameters are named in the documentation as they are present in
+the code. `<parameter>` means the parameter is optional, and doesn't have to be
+provided for all uses. `[parameter]` denotes a parameter that is required, and the
+command won't work without it.
+
 - ## [Transformation](transformation/index.md)
   > These commands allow us to transform ourselves and others, and pay around with
     those transformations, without altering any modifiers. This also includes the
