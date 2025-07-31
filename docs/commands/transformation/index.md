@@ -2,7 +2,7 @@ The commands in this category should be the easiest to use, at least at a basic
 level. They allow users to transform themselves and others, and are the barrier
 of entry to 95% of the many other functions the bot has at your disposal. We
 recommend checking out the [Basic TransforMate Tutorial]() to acquire some basic
-knowledge on he usage of these commands.
+knowledge on the usage of these commands.
 
 Even though you don't have to, we **strongly** recommend you check out the full
 documentation on these commands, at least for the /transform command. If you have
@@ -13,7 +13,7 @@ It's the most complex, but also the most versatile.
 ??? info
     In its most basic form, allows you to transform yourself and other users easily.
     You can also copy other users, or even merge with them, if properly used. For
-    those functions please check either the command's full documentation page, or
+    those functions, please check either the command's full documentation page or
     the [Basic Twinning Tutorial]().
 
 - `/goback <user>`

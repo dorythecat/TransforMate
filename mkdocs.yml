@@ -11,9 +11,7 @@ nav:
       - Transformation:
           - Index: commands/transformation/index.md
       - Set:
-          - Index: commands/set/index.md
-      - Clear:
-          - Index: commands/clear/index.md
+          - Index: commands/set_and_clear/index.md
       - Get:
           - Index: commands/clear/index.md
       - Block:

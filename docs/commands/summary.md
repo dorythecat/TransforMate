@@ -17,16 +17,13 @@ command won't work without it.
     those transformations, without altering any modifiers. This also includes the
     commands to save and load tf files and srings
 
-- ## [Set](set/index.md)
-  > These commands allow us to both configure and alter the settings a user has,
+- ## [Set and Clear](set_and_clear/index.md)
+  > These commands allow us to configure, alter, and clear the settings a user has,
     like their speech impediments and alterations, as well as other settings.
 
-- ## [Clear](clear/index.md)
-  > These commands allow us to clear settings, so that they can, either individually,
-    or all at once, be returned to their defaults.
-
 - ## [Get](get/index.md)
-  > Get the current status of one or all of the settings of a specific user.
+  > Get the current status of one or all of the settings of a specific user, as
+    well as other information about the transformed users in a server.
 
 - ## [Block](block/index.md)
   > Block users or channels from acting upon you through the bot.
