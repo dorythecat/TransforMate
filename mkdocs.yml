@@ -10,10 +10,10 @@ nav:
       - Summary: commands/summary.md
       - Transformation:
           - Index: commands/transformation/index.md
-      - Set:
+      - Set and Clear:
           - Index: commands/set_and_clear/index.md
       - Get:
-          - Index: commands/clear/index.md
+          - Index: commands/get/index.md
       - Block:
           - Index: commands/block/index.md
       - Admin:
