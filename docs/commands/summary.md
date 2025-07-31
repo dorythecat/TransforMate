@@ -1,4 +1,3 @@
-# Summary
 TransforMate has a lot of commands, and, to be able to use all of its functionality,
 you will need to have a basic understanding of how the commands work, and how they
 are structured both inside the code files, and at a client-side level.

@@ -1,5 +1,3 @@
-# About
-
 ## The story of TransforMate
 > TL;DR: TransforMate is just a silly joke project that completely outgrew its
 > original scope.
