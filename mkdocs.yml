@@ -6,6 +6,9 @@ theme:
   logo: img/logo.png
 nav:
   - Home: index.md
+  - Tutorials:
+      - Summary: tutorials/summary.md
+      - Basic TransforMate Tutorial: tutorials/basic.md
   - Commands:
       - Summary: commands/summary.md
       - Transformation:

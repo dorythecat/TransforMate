@@ -1,8 +1,8 @@
 The commands in this category should be the easiest to use, at least at a basic
 level. They allow users to transform themselves and others, and are the barrier
 of entry to 95% of the many other functions the bot has at your disposal. We
-recommend checking out the [Basic TransforMate Tutorial]() to acquire some basic
-knowledge on the usage of these commands.
+recommend checking out the [Basic TransforMate Tutorial](../../tutorials/basic.md)
+to acquire some basic knowledge on the usage of these commands.
 
 Even though you don't have to, we **strongly** recommend you check out the full
 documentation on these commands, at least for the /transform command. If you have
