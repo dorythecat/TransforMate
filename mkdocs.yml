@@ -8,6 +8,20 @@ nav:
   - Home: index.md
   - Commands:
       - Summary: commands/summary.md
+      - Transformation:
+          - Index: commands/transformation/index.md
+      - Set:
+          - Index: commands/set/index.md
+      - Clear:
+          - Index: commands/clear/index.md
+      - Get:
+          - Index: commands/clear/index.md
+      - Block:
+          - Index: commands/block/index.md
+      - Admin:
+          - Index: commands/admin/index.md
+      - Others:
+          - Index: commands/others/index.md
   - About: about.md
 plugins:
   - search
