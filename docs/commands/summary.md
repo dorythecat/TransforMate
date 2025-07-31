@@ -6,7 +6,7 @@ are structured both inside the code files, and at a client-side level.
 The following pages have been written to list the full plethora of commands contained
 in each of the categories, with an example usage listed. For a full description of
 the usage and inner workings of a command, click on it to be redirected to its
-specific page, wih full details.
+specific page, with full details.
 
 - ## Transformation
   > These commands allow us to transform ourselves and others, and pay around with
