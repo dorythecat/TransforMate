@@ -26,6 +26,8 @@ nav:
           - Index: commands/get/index.md
       - Block:
           - Index: commands/block/index.md
+          - /block channel: commands/block/channel.md
+          - /block user: commands/block/user.md
       - Admin:
           - Index: commands/admin/index.md
       - Others:
