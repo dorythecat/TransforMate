@@ -15,7 +15,7 @@ to save and load transformation data to and from files and/or strings.
 ## Simplified internal logic
 ```mermaid
 flowchart TD
-    CheckUser[user parameter is provided]
+    CommandReceived[Command Received] --> CheckUser[user parameter is provided]
     CheckUser --> |False| AssignUser[[user == ctx.user]]
     CheckUser --> |True| CheckBannedGlobal[[Check if user is globally banned]]
     AssignUser --> CheckBannedGlobal

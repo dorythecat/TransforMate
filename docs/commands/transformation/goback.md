@@ -15,7 +15,7 @@ back to their last form.
 ## Simplified internal logic
 ```mermaid
 flowchart TD
-    CheckUser[user parameter provided]
+    CommandReceived[Command Received] --> CheckUser[user parameter provided]
     CheckUser --> |False| AssignUser[[user == ctx.user]]
     CheckUser --> |True| LoadData[[Load Data]]
     Database[(Database)] --> LoadData

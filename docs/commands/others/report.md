@@ -28,6 +28,7 @@ the report, server name, and server owner.
 ## Simplified internal logic
 ```mermaid
 flowchart TD
-    CheckReason[[Check that a proper reason was provided]] --> AskConfirmation[[Ask the user to confirm the report and warn them about possible consequences]]
+    CommandReceived[Command Received] --> CheckReason[[Check that a proper reason was provided]] 
+    CheckReason --> AskConfirmation[[Ask the user to confirm the report and warn them about possible consequences]]
     AskConfirmation --> Report[[Send the report message to the configured channel]]
 ```

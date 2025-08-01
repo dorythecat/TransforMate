@@ -22,7 +22,8 @@ feel uncomfortable or abused.
 ## Simplified internal logic
 ```mermaid
 flowchart TD
-    Database[(Database)] --> LoadData[[Load Data]]
+    CommandReceived[Command Received] --> LoadData[[Load Data]]
+    Database[(Database)] --> LoadData
     LoadData --> CheckClaimed[[Check that the user is actually claimed]]
     CheckClaimed --> Unclaim[[Unclaim the user and notify them of their options]]
     Unclaim --> Log[[Log the safewording]]

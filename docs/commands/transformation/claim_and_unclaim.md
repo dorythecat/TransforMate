@@ -15,7 +15,7 @@ they're unclaimed or use the [`/safeword`](safeword.md) command.
 ## Simplified internal logic for `/claim`
 ```mermaid
 flowchart TD
-    CheckUser[[Check that the user has provided a valid Discord User that isn't themselves]]
+    CommandReceived[Command Received] --> CheckUser[[Check that the user has provided a valid Discord User that isn't themselves]]
     CheckUser --> SecondCheckUser[[Check that the chosen user is currently transformed]]
     SecondCheckUser --> LoadData[[Load Data]]
     Database[(Database)] --> LoadData
@@ -29,7 +29,7 @@ flowchart TD
 ## Simplified logic for `/unclaim`
 ```mermaid
 flowchart TD
-    CheckUser[[Check that the user has provided a valid Discord User that isn't themselves]]
+    CommandReceived[Command Received] --> CheckUser[[Check that the user has provided a valid Discord User that isn't themselves]]
     CheckUser --> SecondCheckUser[[Check that the chosen user is currently transformed]]
     SecondCheckUser --> LoadData[[Load Data]]
     Database[(Database)] --> LoadData

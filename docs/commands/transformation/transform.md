@@ -47,7 +47,7 @@ Providing `into` and `image_url` will make a normal transformation, and providin
 ## Simplified internal logic
 ```mermaid
 flowchart TD
-    CheckUser[user parameter provided]
+    CommandReceived[Command Received] --> CheckUser[user parameter provided]
     CheckUser --> |False| LoadData[[Load Data]]
     CheckUser --> |True| AssignUser[[user = ctx.user]]
     Database[(Database)] --> LoadData
