@@ -14,7 +14,7 @@ It's the most complex, but also the most versatile.
     In its most basic form, allows you to transform yourself and other users easily.
     You can also copy other users, or even merge with them, if properly used. For
     those functions, please check either the command's full documentation page or
-    the [Basic Twinning Tutorial]().
+    the [Basic Twinning Tutorial](../../tutorials/twinning.md).
 
 - `/goback <user>`
 ??? info
