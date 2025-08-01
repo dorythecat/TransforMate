@@ -9,6 +9,7 @@ nav:
   - Tutorials:
       - Summary: tutorials/summary.md
       - Basic TransforMate Tutorial: tutorials/basic.md
+      - Basic Twinning Tutorial: tutorials/twinning.md
   - Commands:
       - Summary: commands/summary.md
       - Transformation:

@@ -18,6 +18,13 @@ and that want a quick and interactive manner to get accustomed to the bot's usag
     ---
 
     Learn how to use the most basic features of the bot, like basic transformation
-    and setting manipulation. You will also learn to export and import settings.
+    and setting manipulation. You will also learn to export and import settings,
+    and to claim and eternally transform other users.
 
+-   [__Basic Twinning Tutorial__](twinning.md)
+
+    ---
+
+    Learn how to copy other transformations, merge with other users, and create an
+    army of users with the same transformation.
 </div>
