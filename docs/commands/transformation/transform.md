@@ -56,6 +56,7 @@ flowchart TD
     CheckBlocked --> CheckClaim[[Check that the user to transform isn't claimed or is owned by the transforming user]]
     CheckClaim --> CheckSyntax[[Check that the user provided the correct command syntax for this server's settings]]
     CheckSyntax --> TransformFunction[[transform_function]]
+    TransformFunction --> SendAnswer[[Send answer]]
 ```
 
 ### The `transform_function`

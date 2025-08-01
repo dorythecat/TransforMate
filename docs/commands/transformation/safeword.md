@@ -26,5 +26,6 @@ flowchart TD
     Database[(Database)] --> LoadData
     LoadData --> CheckClaimed[[Check that the user is actually claimed]]
     CheckClaimed --> Unclaim[[Unclaim the user and notify them of their options]]
-    Unclaim --> Log[[Log the safewording]]
+    Unclaim --> SendAnswer[[Send answer]]
+    SendAnswer --> Log[[Log the safewording]]
 ```

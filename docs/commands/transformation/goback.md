@@ -27,6 +27,7 @@ flowchart TD
     CheckEternal --> |False| GoBack[[Go back to normal]]
     CheckEternal --> |True| CheckClaim[[Check that the user wanting to make the user go back has them claimed]]
     CheckClaim --> GoBack
-    GoBack --> Log[[Log the transformation, or undoing of such]]
-    TransformPrevious --> Log
+    GoBack --> SendAnswer[[Send answer]]
+    TransformPrevious --> SendAnswer
+    SendAnswer --> Log[[Log the transformation, or undoing of such]]
 ```

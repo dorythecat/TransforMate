@@ -31,4 +31,5 @@ flowchart TD
     CommandReceived[Command Received] --> CheckReason[[Check that a proper reason was provided]] 
     CheckReason --> AskConfirmation[[Ask the user to confirm the report and warn them about possible consequences]]
     AskConfirmation --> Report[[Send the report message to the configured channel]]
+    Report --> SendAnswer[[Send answer]]
 ```

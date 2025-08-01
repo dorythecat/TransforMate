@@ -25,9 +25,10 @@ flowchart TD
     CheckBanned --> GetData[[Ask user for TSF data]]
     GetData --> CheckFile[Did they send a file?]
     CheckFile --> |True| ProcessFile[[Extract string from file]]
-    CheckFile --> |False| transform_function[[transform_function]]
-    ProcessFile --> transform_function
-    transform_function --> AppyModifiers[[Apply Modifiers]]
+    CheckFile --> |False| TransformFunction[[transform_function]]
+    ProcessFile --> TransformFunction
+    TransformFunction --> ApplyModifiers[[Apply Modifiers]]
+    ApplyModifiers --> SendAnswer[[Send answer]]
 ```
 
 !!! note

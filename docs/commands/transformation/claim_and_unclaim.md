@@ -21,7 +21,8 @@ flowchart TD
     Database[(Database)] --> LoadData
     LoadData --> CheckClaim[[Check that the user isn't already claimed]]
     CheckClaim --> Claim[[Claim the user]]
-    Claim --> Log[[Log the claiming]]
+    Claim --> SendAnswer[[Send answer]]
+    SendAnswer --> Log[[Log the claiming]]
 ```
 
 ---
@@ -35,5 +36,6 @@ flowchart TD
     Database[(Database)] --> LoadData
     LoadData --> CheckClaim[[Check that the user is claimed and that the owner is the current user]]
     CheckClaim --> Unclaim[[Unclaim the user]]
-    Unclaim --> Log[[Log the unclaiming]]
+    Unclaim --> SendAnswer[[Send answer]]
+    SendAnswer --> Log[[Log the unclaiming]]
 ```
