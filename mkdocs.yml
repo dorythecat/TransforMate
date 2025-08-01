@@ -30,6 +30,15 @@ nav:
           - /block user: commands/block/user.md
       - Admin:
           - Index: commands/admin/index.md
+          - /admin killhooks: commands/admin/killhooks.md
+          - /admin block_channel: commands/admin/block_channel.md
+          - /admin block_user: commands/admin/block_user.md
+          - /admin list_blocked_channels: commands/admin/list_blocked_channels.md
+          - /admin list_blocked_users: commands/admin/list_blocked_users.md
+          - /admin setup_logs: commands/admin/setup_logs.md
+          - /admin update_settings: commands/admin/update_settings.md
+          - /admin regen_server_tfs: commands/admin/regen_server_tfs.md
+          - /admin regen_user_tfs: commands/admin/regen_user_tfs.md
       - Others:
           - Index: commands/others/index.md
           - /report: commands/others/report.md
