@@ -25,7 +25,7 @@ has, individually or all at once.
 For consistency, all chance values default to 30% if unspecified, for every set
 command listed here.
 
-- `/clear all_fields <user>`
+- [`/clear all_fields <user>`](all_fields.md)
 ??? info
     Clears the entirety of a user's configuration (except claims), effectively
     undoing any previous set commands.
@@ -101,3 +101,39 @@ command field that asks for a string supports longer and multi-word strings.
 See [Issue #49](https://github.com/dorythecat/TransforMate/issues/49).
 This should be fixed in a following update. When it is fixed, this page will be
 updated to reflect said change.
+
+---
+
+## The `extract_tf_data` function
+This function is used in all `/set` and `/clear` commands, so it is only fair to
+explain it here. If you don't want the technical ramble and logic explanation, you
+may skip this section with no problems.
+
+This function is located inside the `utils.py` file, and serves as a utility for
+all of these functions, because they all need to do the same checks and require
+variations of the same data.
+
+The function signature contains four variables, `ctx`, representing the Discord
+environment provided by the API and PyCord, `user`, representing the Discord User
+whose data we want to extract, `get_command`, which is a boolean stating whether
+the origin of the request is a `/get` command, and `channel`, which refers to a
+Discord Channel to extract the data at (currently unused, in practice).
+
+The function returns a boolean, indicating whether a user is a valid target or not,
+the data of said user, and, finally, the user. The simplified logic diagram is
+shown here.
+
+```mermaid
+flowchart TD
+    CheckUser[user is None]
+    CheckUser --> |True| AssignUser[[user == ctx.user]]
+    CheckUser --> |False| CheckTransformed[[Check if the user is transformed]]
+    AssignUser --> CheckTransformed
+    CheckTransformed --> |Not Transformed| SendAnswerError[[Send answer, operation failed]]
+    CheckTransformed --> |Transformed| LoadData[[Load data]]
+    Database[(Database)] --> LoadData
+    LoadData -->CheckClaim[Is user claimed by another user and get_command == False?]
+    CheckClaim --> |Yes| SendAnswerError
+    CheckClaim --> |No| ReturnData[[Returns True, data, and the user]]
+    SendAnswerError --> ReturnNone[[Returns False, None, and None]]
+```
