@@ -16,7 +16,7 @@ It's the most complex, but also the most versatile.
     those functions, please check either the command's full documentation page or
     the [Basic Twinning Tutorial](../../tutorials/twinning.md).
 
-- `/goback <user>`
+- [`/goback <user>`](goback.md)
 ??? info
     Go back to your normal self, or, if you have been transformed
     previously, you'll go back to that form.

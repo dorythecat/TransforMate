@@ -15,6 +15,7 @@ nav:
       - Transformation:
           - Index: commands/transformation/index.md
           - /transform: commands/transformation/transform.md
+          - /goback: commands/transformation/goback.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
       - Get:

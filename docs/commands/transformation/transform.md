@@ -44,9 +44,7 @@ Providing `into` and `image_url` will make a normal transformation, and providin
 
 ---
 
-## Internal function
-The `/transform` command's code follows the following (simplified) logic:
-
+## Simplified internal logic
 ```mermaid
 flowchart TD
     CheckUser[user parameter provided]
@@ -61,9 +59,9 @@ flowchart TD
 ```
 
 ### The `transform_function`
-`transform_function` is a utility function inside the code of TransforMate that is
-used through many of the transformation category commands, and contains most of the 
-transformation logic. Following here is an approximation of said logic.
+The `transform_function` is a utility function inside the code of TransforMate that
+is used through many of the transformation category commands, and contains most of
+the transformation logic. Following here is an approximation of said logic.
 
 ```mermaid
 flowchart TD
