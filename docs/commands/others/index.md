@@ -14,7 +14,7 @@ hosts just those commands and their related function.
     !!! danger
         Do not use this command lightly, or you might get banned yourself.
 
-- `/info`
+- [`/info`](info.md)
 ??? info
     Get some information about the bot.
 

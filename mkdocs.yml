@@ -31,6 +31,7 @@ nav:
       - Others:
           - Index: commands/others/index.md
           - /report: commands/others/report.md
+          - /info: commands/others/info.md
   - About: about.md
   - Legal:
       - Terms of Service: legal/tos.md
