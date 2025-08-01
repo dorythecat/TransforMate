@@ -57,3 +57,14 @@ a look around and helping improve the code this little project is made up of.
 If you have any other ideas on how to help, like wanting to contribute with the
 community, infrastructure, or other aspects of the bot, please feel free to
 contact me, I'm always open to new ideas and helping hands!
+
+# Contact
+The general and recommended way of contacting us is by joining our awesome community
+in the [Official TransforMate Discord Server](https://discord.gg/uGjWk2SRf6), where
+you can talk directly with our community and trained staff.
+
+If you're unable to join the server, or would prefer a more private environment, feel
+free to message me, the developer, on Discord, where I'm known as "dorythecat".
+
+At the moment, we don't have any more forms of contact available. Sorry for any
+inconveniences.
