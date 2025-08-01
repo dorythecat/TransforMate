@@ -18,6 +18,8 @@ nav:
           - /goback: commands/transformation/goback.md
           - /claim and /unclaim: commands/transformation/claim_and_unclaim.md
           - /safeword: commands/transformation/safeword.md
+          - /export_tf: commands/transformation/export_tf.md
+          - /import_tf: commands/transformation/import_tf.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
       - Get:

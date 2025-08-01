@@ -190,7 +190,7 @@ easy to share (and edit) strings. This not only allows you to save and share
 transformation, but also to edit transformation data without needing to use a
 single command for every single thing you want to change about a transformation.
 To know more about how to edit these files, check out the full documentation for
-the [`/export_tf` and `/import_tf`](../commands/transformation/index.md)
+the [transformation data string](../commands/transformation/export_tf.md#transformation-string-format)
 commands, where you'll find a full explanation oh how these strings (and the files)
 work, so you can edit them to your liking.
 

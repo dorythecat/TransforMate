@@ -33,12 +33,12 @@ It's the most complex, but also the most versatile.
     claimed them has overstepped, this command is the one to come to your rescue,
     always there when you need it.
 
-- `/export_tf <user> <file>`
+- [`/export_tf <user> <file>`](export_tf.md)
 ??? info
     When you want to save a tf for later, be it as a file or as a string. It also
     makes transformation way easier to share!
 
-- `/import_tf <user>`
+- [`/import_tf <user>`](import_tf.md)
 ??? info
     Imports a saved tf into either yourself or another user. Very much like a
     very compact /transform.
