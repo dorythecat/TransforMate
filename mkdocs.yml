@@ -30,6 +30,7 @@ nav:
           - Index: commands/admin/index.md
       - Others:
           - Index: commands/others/index.md
+          - /report: commands/others/report.md
   - About: about.md
 plugins:
   - search

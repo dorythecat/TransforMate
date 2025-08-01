@@ -2,7 +2,7 @@ These commands didn't fit in any other category, since they are all general
 purpose, and live inside the main file of the bot, not on a separate file that
 hosts just those commands and their related function.
 
-- `/report [user] [reason]`
+- [`/report [user] [reason]`](report.md)
 ??? info
     This command sends a GLOBAL REPORT to the BOT OWNER. Use this command when
     someone:
