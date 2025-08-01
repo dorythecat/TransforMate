@@ -16,6 +16,8 @@ nav:
           - Index: commands/transformation/index.md
           - /transform: commands/transformation/transform.md
           - /goback: commands/transformation/goback.md
+          - /claim and /unclaim: commands/transformation/claim_and_unclaim.md
+          - /safeword: commands/transformation/safeword.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
       - Get:

@@ -21,17 +21,13 @@ It's the most complex, but also the most versatile.
     Go back to your normal self, or, if you have been transformed
     previously, you'll go back to that form.
 
-- `/claim [user]`
+- [`/(un)claim [user]`](claim_and_unclaim.md)
 ??? info
-    Claim another user for yourself, ergo making it so you're the only
+    (Un)claim another user for yourself, ergo making it so you're the only
     one allowed to transform or otherwise modify the user you claim, as if they were
     fully yours.
 
-- `/unclaim [user]`
-??? info
-    Revokes your claim on a user you have claimed for yourself.
-
-- `/safeword`
+- [`/safeword`](safeword.md)
 ??? info
     For those who have been claimed against their will, or think the user that has
     claimed them has overstepped, this command is the one to come to your rescue,
