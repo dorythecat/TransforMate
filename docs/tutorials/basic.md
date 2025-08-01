@@ -1,4 +1,3 @@
-# Basic TransforMate Tutorial
 In this tutorial, you will learn how to operate the basics of TransforMate, plus a
 few handy tricks to help you transform yourself and others in an approachable and
 fun manner!
@@ -15,6 +14,8 @@ this guide.
     inputting the command, you can select the field you want to fill out through
     this very autocomplete feature. When you're still learning, autocomplete will
     be your very best friend.
+
+---
 
 ## Learning to use the `/transform` command
 This command will be your most versatile tool, since you will constantly be using
@@ -177,7 +178,9 @@ Try it out!
     that muffles entire messages instead of words, if you want! You're free to
     experiment with the bot and learn from that! Have fun!
 
-# Exporting and importing transformations
+---
+
+## Exporting and importing transformations
 Sometimes, you make a really great transformation, and you'd like to either share
 it with your friends; or just to save it for later whilst you experiment with some
 new transformation ideas.
@@ -225,7 +228,9 @@ a string by setting the `file` parameter of `/export_tf` to false! This will
 give you an easy-to-copy string that you can save in your notes app or in a
 Discord channel, so it's easier to copy and use!
 
-# Claiming and eternally transforming other users
+---
+
+## Claiming and eternally transforming other users
 For this part of the tutorial, you will need a [good friend](https://xkcd.com/513/)
 to be your [test subject](https://xkcd.com/749/). Be sure they're fine with being
 claimed and eternally transformed for a few minutes so you can learn the basics of
@@ -255,7 +260,9 @@ whatever form you have chosen for them, until you decide to free them.
     Remember to use `/clear eternal` and/or `/unclaim` when you are done with
     your partner, so they can be free once again.
 
-# Conclusion
+---
+
+## Conclusion
 Well, you have done great! Now you know how to use all the basic features of the
 bot! We've only really skipped two features in all of this tutorial. The first
 of these is the per-channel transformations, but you should be able to figure
