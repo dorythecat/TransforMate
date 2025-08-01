@@ -1,11 +1,11 @@
 ## Syntax
-`/info`
+`/invite`
 
 ---
 
 ## Usage
-The `/info` command is meant to be used just to get a small embedded command that
-allows you to see some info about the bot.
+The `/invite` command is meant to be used to get a link to invite the bot to your own
+server(s).
 
 ---
 

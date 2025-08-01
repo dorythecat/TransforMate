@@ -18,15 +18,15 @@ hosts just those commands and their related function.
 ??? info
     Get some information about the bot.
 
-- `/legal`
+- [`/legal`](legal.md)
 ??? info
     Legal information of the bot (Privacy Policy and Terms of Service).
 
-- `/invite`
+- [`/invite`](invite.md)
 ??? info
     Get the invite link for the bot, so you can invite it to your very own
     server!
 
-- `/ping`
+- [`/ping`](ping.md)
 ??? info
     Ping the bot and see how much network delay it has.
