@@ -9,7 +9,7 @@ documentation on these commands, at least for the /transform command. If you hav
 to read anything in detail from this entire documentation, let it be this command.
 It's the most complex, but also the most versatile.
 
-- `/transform <user> <into> <image_url> <channel> <brackets> <copy> <merge>`
+- [`/transform <user> <into> <image_url> <channel> <brackets> <copy> <merge>`](transform.md)
 ??? info
     In its most basic form, allows you to transform yourself and other users easily.
     You can also copy other users, or even merge with them, if properly used. For

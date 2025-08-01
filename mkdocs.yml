@@ -14,6 +14,7 @@ nav:
       - Summary: commands/summary.md
       - Transformation:
           - Index: commands/transformation/index.md
+          - /transform: commands/transformation/transform.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
       - Get:
@@ -33,4 +34,8 @@ markdown_extensions:
   - admonition
   - footnotes
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
