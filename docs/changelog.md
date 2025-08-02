@@ -1,3 +1,10 @@
+## v1.7.1
+- Fixed Issues [#49](https://github.com/dorythecat/TransforMate/issues/49) and
+  [#50](https://github.com/dorythecat/TransforMate/issues/50). Updatted wiki to
+  reflect these changes.
+
+---
+
 ## v1.7.0 (DocuMate)
 - Added documentation
 
