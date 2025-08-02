@@ -70,7 +70,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
-ACCESS_TOKEN_EXPIRE_HOURS = 2 # After how many hours does the access token expire automatically
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 # After how many minutes does the access token expire automatically
 
 # DB stuff
 def load_db(db_path: str) -> dict:
@@ -178,7 +178,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     if user.linked_id in BLOCKED_USERS:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'You are blocked from using the bot' })
-    access_token_expires = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return Token(access_token=access_token, token_type="bearer")
 
