@@ -1,14 +1,14 @@
 ## Syntax
-`/set big <user>`
+`/set hush <user>`
 
 - `user`: A valid Discord User, defaults to the user executing the command.
 
 ---
 
 ## Usage
-This command will apply the big text modifier to the specified user. This modifier
-will make it so that every message the user speaks will be displayed as big text, by
-using Discord's Markdown `#` modifier in front of the message.
+This command will apply the hush text modifier, which will "hush" the user, by
+"censoring" all of their messages, using Discord's Markdown modifier, `||`, to achieve
+this result.
 
 ---
 
