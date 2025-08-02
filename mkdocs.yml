@@ -25,6 +25,16 @@ nav:
           - /clear all_fields: commands/set_and_clear/all_fields.md
           - /set prefix: commands/set_and_clear/prefix.md
           - /set suffix: commands/set_and_clear/suffix.md
+          - /set big: commands/set_and_clear/big.md
+          - /set small: commands/set_and_clear/small.md
+          - /set hush: commands/set_and_clear/hush.md
+          - /set backwards: commands/set_and_clear/backwards.md
+          - /set eternal: commands/set_and_clear/eternal.md
+          - /set censor: commands/set_and_clear/censor.md
+          - /set sprinkle: commands/set_and_clear/sprinkle.md
+          - /set muffle: commands/set_and_clear/muffle.md
+          - /set stutter: commands/set_and_clear/stutter.md
+          - /set bio: commands/set_and_clear/bio.md
       - Get:
           - Index: commands/get/index.md
       - Block:
