@@ -103,6 +103,9 @@ advertise this beautiful bot we have here in our hands.
 - To the awesome PyCord dev team, from bringing home the framework upon which this
   bot is built. Great job guys!
 
+- To the awesome people behind MkDocs and Mermaid, that have made possible this
+  incredible and detailed documentation for our little labor of love.
+
 - To everyone using the bot, collaborating with the community, or otherwise helping
   me keep my motivation to keep working on this awesome little project, that I never
   expected would go so far. Thanks to all of you. Love y'all! <3
