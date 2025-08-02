@@ -6,8 +6,8 @@
 - `suffix_chance`: An integer from 0 to 100, defaults 30. The chance, in percentage,
                    of the suffix being used for a given message.
 
-- `user`: A valid Discord User, defaults to the command sender. User to apply the
-          modifier to.
+- `user`: A valid Discord User, defaults to the user executing the command. User to
+          apply this modifier to.
 
 - `whitespace`: A boolean, defaults true. Whether to include whitespace before the
                 suffix, so it doesn't join the message before it.
