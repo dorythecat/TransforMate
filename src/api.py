@@ -163,7 +163,7 @@ class ErrorMessage(BaseModel):
     message: str
 
 # Login
-@app.post("/token",
+@app.post("/login",
           tags=["Security"],
           response_model=Token,
           responses={

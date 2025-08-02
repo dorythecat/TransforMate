@@ -31,9 +31,12 @@ const output = document.getElementById("output_message");
 login_form.onsubmit = function(e) {
     e.preventDefault();
     const request = new XMLHttpRequest();
-    request.open("POST", "http://localhost:8000/token", false);
+    request.open("POST", "http://localhost:8000/login", false);
     request.setRequestHeader("Accept", "application/json; odata=verbose");
     let form = new FormData(login_form);
     request.send(form);
-    setCookie("token", JSON.parse(request.responseText)['access_token'], 30);
+    if (request.status === 200) {
+        setCookie("token", JSON.parse(request.responseText)['access_token'], 30);
+        output.textContent = "login successful!";
+    } else output.textContent = "login unsuccessful!";
 }
