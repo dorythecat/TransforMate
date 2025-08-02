@@ -1,7 +1,7 @@
 ## Syntax
-`/set muffle [muffle_word] <chance> <alt> <user>`
+`/set muffle [muffle] <chance> <alt> <user>`
 
-- `muffle_word`: A string, to muffle words throughout the messages sent by the user.
+- `muffle`: A string, to muffle words throughout the messages sent by the user.
 
 - `chance`: An integer from 0 to 100, defaults 30. The chance, in percentage, of the
             muffle being used for a given word in a message.

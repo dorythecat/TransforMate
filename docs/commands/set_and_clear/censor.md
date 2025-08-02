@@ -1,7 +1,7 @@
 ## Syntax
-`/set censor [censor_word] [replacement] <user>`
+`/set censor [censor] [replacement] <user>`
 
-- `censor_word`: A string, that will be censored and replaced.
+- `censor`: A string, that will be censored and replaced.
 
 - `replacement`: A string, that will replace the censored word.
 
@@ -12,7 +12,7 @@
 
 ## Usage
 This command will apply the censor text modifier, which will replace every instance
-(case-insensitive) of the `censor_word` parameter with the `replacement` parameter,
+(case-insensitive) of the `censor` parameter with the `replacement` parameter,
 effectively censoring said word. Multiple censored pairs can be set.
 
 ---

@@ -82,7 +82,7 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-        
+
         if data['muffle']:
             desc = ""
             for muffle in data['muffle']['contents']:

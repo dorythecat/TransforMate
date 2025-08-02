@@ -33,14 +33,14 @@ command listed here.
         We recommend you save a transformation before clearing all the settings of a
         user. That will reduce the chance of you regretting it later.
 
-- [`/set prefix [prefix_word] <prefix_chance> <user> <whitespace>`](prefix.md)
+- [`/set prefix [prefix] <chance> <user> <whitespace>`](prefix.md)
 ??? info
-    Sets a prefix string[^1] that will go before the message the user has sent,
+    Sets a prefix string that will go before the message the user has sent,
     with a certain random chance of this happening.
 
-- [`/set suffix [suffix_word] <suffix_chance> <user> <whitespace>`](suffix.md)
+- [`/set suffix [suffix] <chance> <user> <whitespace>`](suffix.md)
 ??? info
-    Sets a suffix string[^1] that will go after the message the user has sent,
+    Sets a suffix string that will go after the message the user has sent,
     with a certain random chance of this happening.
 
 - [`/set big <user>`](big.md)
@@ -69,17 +69,17 @@ command listed here.
     modify themselves or be modified by anyone that isn't the user that claimed
     them.
 
-- [`/set censor [censor_word] [replacement] <user>`](censor.md)
+- [`/set censor [censor] [replacement] <user>`](censor.md)
 ??? info
     "Censors" a word, by replacing it with whatever replacement you choose every
     time the user tries to say it.
 
-- [`/set sprinkle [sprinkle_word] <sprinkle_chance> <user>`](sprinkle.md)
+- [`/set sprinkle [sprinkle] <chance> <user>`](sprinkle.md)
 ??? info
     Randomly sprinkles a word in between whatever the user says, without replacing
     any other words.
 
-- [`/set muffle [muffle_word] <chance> <alt> <user>`](muffle.md)
+- [`/set muffle [muffle] <chance> <alt> <user>`](muffle.md)
 ??? info
     "Muffles" a message, effectively replacing random words with whatever you
     choose, or, if the alternative mode is on, it will substitute entire
@@ -95,12 +95,6 @@ command listed here.
     Sets the user's biography, which, at the moment, is mainly used to describe
     saved characters to others in an easy manner, though it can be used to list
     any kind of information, like limits, kinks, information, etc.
-
-[^1]: Even if the variables are named "prefix_word" and "suffix_word", every set
-command field that asks for a string supports longer and multi-word strings.
-See [Issue #49](https://github.com/dorythecat/TransforMate/issues/49).
-This should be fixed in a following update. When it is fixed, this page will be
-updated to reflect said change.
 
 ---
 

@@ -1,10 +1,10 @@
 ## Syntax
-`/set prefix [prefix_word] <prefix_chance> <user> <whitespace>`
+`/set prefix [prefix] <chance> <user> <whitespace>`
 
-- `prefix_word`: A string, to add to the prefix list.
+- `prefix`: A string, to add to the prefix list.
 
-- `prefix_chance`: An integer from 0 to 100, defaults 30. The chance, in percentage,
-                   of the prefix being used for a given message.
+- `chance`: An integer from 0 to 100, defaults 30. The chance, in percentage, of the
+            prefix being used for a given message.
 
 - `user`: A valid Discord User, defaults to the user executing the command. User to
           apply this modifier to.

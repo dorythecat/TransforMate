@@ -1,10 +1,10 @@
 ## Syntax
-`/set sprinkle [sprinkle_word] <sprinkle_chance> <user>`
+`/set sprinkle [sprinkle] <chance> <user>`
 
-- `sprinkle_word`: A string, to be sprinkled throughout the messages sent by the user.
+- `sprinkle`: A string, to be sprinkled throughout the messages sent by the user.
 
-- `sprinkle_chance`: An integer from 0 to 100, defaults 30. The chance, in percentage,
-                     of the sprinkle being used for a given word in a message.
+- `chance`: An integer from 0 to 100, defaults 30. The chance, in percentage, of the
+            sprinkle being used for a given word in a message.
 
 - `user`: A valid Discord User, defaults to the user executing the command. User to
           apply this modifier to.
