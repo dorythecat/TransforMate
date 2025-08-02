@@ -7,6 +7,7 @@ import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -56,6 +57,15 @@ app = FastAPI(
         }
     ]
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:63342"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
