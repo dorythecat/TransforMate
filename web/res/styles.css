@@ -2,6 +2,7 @@
     background-color: #424242;
     overflow: hidden;
     margin: 0 20%;
+    border-radius: 10px;
 }
 
 .topnav a {
