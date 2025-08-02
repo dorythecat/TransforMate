@@ -37,6 +37,16 @@ nav:
           - /set bio: commands/set_and_clear/bio.md
       - Get:
           - Index: commands/get/index.md
+          - /get settings: commands/get/settings.md
+          - /get claim: commands/get/claim.md
+          - /get censors: commands/get/censors.md
+          - /get sprinkles: commands/get/sprinkles.md
+          - /get muffle: commands/get/muffle.md
+          - /get prefixes: commands/get/prefixes.md
+          - /get suffixes: commands/get/suffixes.md
+          - /get bio: commands/get/bio.md
+          - /get transformed: commands/get/transformed.md
+          - /get image: commands/get/image.md
       - Block:
           - Index: commands/block/index.md
           - /block channel: commands/block/channel.md
