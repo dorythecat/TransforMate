@@ -28,7 +28,8 @@
     float: right;
 }
 
-.topnav a#logout {
+.topnav a#logout,
+.topnav a#account {
     display: none;
 }
 
@@ -73,7 +74,7 @@ input[type=submit]:hover {
     color: #675c4d;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1100px) {
     .topnav {
         position: relative;
         margin: 0;

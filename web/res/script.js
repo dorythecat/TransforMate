@@ -24,7 +24,7 @@ if (window.location.href.split("/").at(-1) === "login.html") {
         e.preventDefault();
         const request = new XMLHttpRequest();
         request.open("POST", "http://localhost:8000/login", false);
-        request.setRequestHeader("Accept", "application/json; odata=verbose");
+        request.setRequestHeader("accept", "application/json");
         let form = new FormData(login_form);
         request.send(form);
         if (request.status === 200) {
@@ -35,11 +35,30 @@ if (window.location.href.split("/").at(-1) === "login.html") {
     }
 }
 
+if (window.location.href.split("/").at(-1) === "account.html") {
+    const username = document.getElementById("username");
+    const email = document.getElementById("email");
+    const linked_id = document.getElementById("linked_id");
+
+    const request = new XMLHttpRequest();
+    request.open("GET", "http://localhost:8000/users/me", false);
+    request.setRequestHeader("accept", "application/json");
+    request.setRequestHeader("Authorization", `Bearer ${getCookie("token")}`);
+    request.send();
+    response = JSON.parse(request.responseText);
+
+    username.innerHTML += response['username'];
+    email.innerHTML += response['email'];
+    linked_id.innerHTML += response['linked_id'];
+}
+
 const login = document.getElementById("login");
+const account = document.getElementById("account");
 const logout = document.getElementById("logout");
 
 if (getCookie("token") !== "") {
     login.style.display = "none";
+    account.style.display = "block";
     logout.style.display = "block";
 }
 
