@@ -414,6 +414,7 @@ async def info(ctx: discord.ApplicationContext) -> None:
     embed.add_field(name="Original Creators", value="<@770662556456976415>\n<@250982256976330754>")
     embed.add_field(name="Logo by", value="<@317115440180494337>")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
+    embed.add_field(name="official Documentation", value="https://dorythecat.github.io/TransforMate/")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")
     embed.add_field(name="Support the project!", value="[Patreon](https://www.patreon.com/dorythecat)")
     await ctx.respond(embed=embed)
@@ -421,8 +422,8 @@ async def info(ctx: discord.ApplicationContext) -> None:
 @bot.slash_command(description="Legal stuff, so fun!")
 async def legal(ctx: discord.ApplicationContext) -> None:
     desc = "By using this bot you agree to our "
-    desc += "[Terms of Service](https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md) and "
-    desc += "[Privacy Policy](https://github.com/dorythecat/TransforMate/blob/main/legal/PRIVACY_POLICY.md)"
+    desc += "[Terms of Service](https://dorythecat.github.io/TransforMate/legal/tos.html) and our "
+    desc += "[Privacy Policy](https://dorythecat.github.io/TransforMate/legal/privacy_policy.html)"
     embed = utils.get_embed_base(title="Legal Stuff",desc=desc)
     await ctx.respond(embed=embed)
 
