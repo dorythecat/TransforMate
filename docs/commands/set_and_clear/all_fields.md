@@ -13,8 +13,7 @@ Clears all settings from a transformed user.
 ## Simplified internal logic
 ```mermaid
 flowchart TD
-    CommandReceived[Command Received] --> ExtractTfData[extract_tf_data]
-    ExtractTfData --> CheckValid[[Check if valid]]
-    CheckValid --> ClearModifiers[[Clear all modifiers]]
+    CommandReceived[Command Received] --> ExtractTfData[[extract_tf_data]]
+    ExtractTfData --> ClearModifiers[[Clear all modifiers]]
     ClearModifiers --> SendAnswer[[Send answer]]
 ```

@@ -43,25 +43,25 @@ command listed here.
     Sets a suffix string[^1] that will go after the message the user has sent,
     with a certain random chance of this happening.
 
-- `/set big <user>`
+- [`/set big <user>`](big.md)
 ??? info
     Makes all the text the user writes big.
 
-- `/set small <user>`
+- [`/set small <user>`](small.md)
 ??? info
     Makes all the text the user writes small.
 
-- `/set hush <user>`
+- [`/set hush <user>`](hush.md)
 ??? info
     "Hushes" the user, that is to say, makes it into a spoiler, effectively 
     emulating the user being unable to speak, but maintaining a certain level of
     mutual understanding through the underlying text.
 
-- `/set backwards <user>`
+- [`/set backwards <user>`](backwards.md)
 ??? info
     Makes the user's text be inverted completely.
 
-- `/set eternal <user>`
+- [`/set eternal <user>`](eternal.md)
 ??? info
     !!! note
         Requires the user to have been claimed by another user.
@@ -69,28 +69,28 @@ command listed here.
     modify themselves or be modified by anyone that isn't the user that claimed
     them.
 
-- `/set censor [censor_word] [replacement] <user>`
+- [`/set censor [censor_word] [replacement] <user>`](censor.md)
 ??? info
     "Censors" a word, by replacing it with whatever replacement you choose every
     time the user tries to say it.
 
-- `/set sprinkle [sprinkle_word] <sprinkle_chance> <user>`
+- [`/set sprinkle [sprinkle_word] <sprinkle_chance> <user>`](sprinkle.md)
 ??? info
     Randomly sprinkles a word in between whatever the user says, without replacing
     any other words.
 
-- `/set muffle [muffle_word] <chance> <alt> <user>`
+- [`/set muffle [muffle_word] <chance> <alt> <user>`](muffle.md)
 ??? info
     "Muffles" a message, effectively replacing random words with whatever you
     choose, or, if the alternative mode is on, it will substitute entire
     messages.
 
-- `/set stutter <chance> <user>`
+- [`/set stutter <chance> <user>`](stutter.md)
 ??? info
     Makes the user stutter. T-this makes t-them talk in a s-similar manner to
     t-this.
 
-- `/set bio`
+- [`/set bio`](bio.md)
 ??? info
     Sets the user's biography, which, at the moment, is mainly used to describe
     saved characters to others in an easy manner, though it can be used to list
@@ -122,6 +122,10 @@ Discord Channel to extract the data at (currently unused, in practice).
 The function returns a boolean, indicating whether a user is a valid target or not,
 the data of said user, and, finally, the user. The simplified logic diagram is
 shown here.
+
+Any time the function is used, the pertinent command checks if the user is valid or
+not (so, whether the first return argument is True), and this step will be omitted in
+future logic trees, to avoid unnecessary clutter.
 
 ```mermaid
 flowchart TD
