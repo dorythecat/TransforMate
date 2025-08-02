@@ -5,8 +5,8 @@ differ, so this is the best way to provide proper clarity on them.
 - `/get settings <user>`
 ??? info
     This command will show you what modifiers are turned on and which are turned
-    on and which aren't, and will also show you the stutter chance. It will NOT
-    show you the biography, claim, or eternal status of a user.
+    off, and will also show you the stutter chance. It will NOT show you the
+    biography, claim, or eternal status of a user.
 
 - `/get claim <user>`
 ??? info
