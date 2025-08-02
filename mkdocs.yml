@@ -22,7 +22,9 @@ nav:
           - /import_tf: commands/transformation/import_tf.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
-          - /clear all_fields: commands/set_and_clear.md
+          - /clear all_fields: commands/set_and_clear/all_fields.md
+          - /set prefix: commands/set_and_clear/prefix.md
+          - /set suffix: commands/set_and_clear/suffix.md
       - Get:
           - Index: commands/get/index.md
       - Block:

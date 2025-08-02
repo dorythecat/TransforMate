@@ -33,12 +33,12 @@ command listed here.
         We recommend you save a transformation before clearing all the settings of a
         user. That will reduce the chance of you regretting it later.
 
-- `/set prefix [prefix_word] <prefix_chance> <user> <whitespace>`
+- [`/set prefix [prefix_word] <prefix_chance> <user> <whitespace>`](prefix.md)
 ??? info
     Sets a prefix string[^1] that will go before the message the user has sent,
     with a certain random chance of this happening.
 
-- `/set suffix [suffix_word] <suffix_chance> <user> <whitespace>`
+- [`/set suffix [suffix_word] <suffix_chance> <user> <whitespace>`](suffix.md)
 ??? info
     Sets a suffix string[^1] that will go after the message the user has sent,
     with a certain random chance of this happening.
@@ -137,3 +137,13 @@ flowchart TD
     CheckClaim --> |No| ReturnData[[Returns True, data, and the user]]
     SendAnswerError --> ReturnNone[[Returns False, None, and None]]
 ```
+
+---
+
+## Simplified internal logic of `/clear` commands
+All the `/clear` commands (except `/clear all_fields`, which has its own article),
+follow more-or-less the same logic as their `/set` counterparts, but instead of
+adding the modifier, they clear it (and they don't apply any extra string
+modifications, ike the affixes adding whitespace). Due to this, simplified logic
+sections and diagrams won't be specifically added (at this point, at least) for
+these commands.
