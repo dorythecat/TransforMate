@@ -82,14 +82,20 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-        if not data['muffle']:
-            await ctx.respond(f"{user.mention} has no muffles at the moment!")
-            return
+        if data['muffle']:
+            desc = ""
+            for muffle in data['muffle']['contents']:
+                desc += f"**{muffle}**: {data['muffle']['contents'][muffle]}%\n\n"
+            await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc[:-2]))
 
-        desc = ""
-        for muffle in data['muffle']['contents']:
-            desc += f"**{muffle}**: {data['muffle']['contents'][muffle]}%\n\n"
-        await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc[:-2]))
+        if data['alt_muffle']:
+            desc = ""
+            for alt_muffle in data['alt_muffle']['contents']:
+                desc += f"**{alt_muffle}**: {data['alt_muffle']['contents'][alt_muffle]}%\n\n"
+            await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc[:-2]))
+
+        if not (data['muffle'] or data['alt_muffle']):
+            await ctx.respond(f"{user.mention} has no muffles at the moment!")
 
     @get_command.command(description="List the prefixes for the transformed user")
     async def prefixes(self,
