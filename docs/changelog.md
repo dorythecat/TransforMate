@@ -1,6 +1,6 @@
 ## v1.6.1
 - Fixed Issues [#49](https://github.com/dorythecat/TransforMate/issues/49) and
-  [#50](https://github.com/dorythecat/TransforMate/issues/50). Updatted wiki to
+  [#50](https://github.com/dorythecat/TransforMate/issues/50). Updated wiki to
   reflect these changes.
 
 ---
