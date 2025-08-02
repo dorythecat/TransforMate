@@ -1,7 +1,7 @@
 ## Syntax
 `/set suffix [suffix_word] <suffix_chance> <user> <whitespace>`
 
-- `suffix_word`: A string. Word to add to the suffix list.
+- `suffix_word`: A string, to add to the suffix list.
 
 - `suffix_chance`: An integer from 0 to 100, defaults 30. The chance, in percentage,
                    of the suffix being used for a given message.

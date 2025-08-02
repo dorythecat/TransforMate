@@ -1,7 +1,8 @@
 ## Syntax
 `/set big <user>`
 
-- `user`: A valid Discord User, defaults to the user executing the command.
+- `user`: A valid Discord User, defaults to the user executing the command. User to
+          apply this modifier to.
 
 ---
 

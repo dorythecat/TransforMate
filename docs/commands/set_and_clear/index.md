@@ -90,7 +90,7 @@ command listed here.
     Makes the user stutter. T-this makes t-them talk in a s-similar manner to
     t-this.
 
-- [`/set bio`](bio.md)
+- [`/set bio [biography] <user>`](bio.md)
 ??? info
     Sets the user's biography, which, at the moment, is mainly used to describe
     saved characters to others in an easy manner, though it can be used to list
