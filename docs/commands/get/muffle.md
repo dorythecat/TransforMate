@@ -8,10 +8,7 @@
 
 ## Usage
 Lets you see the muffles (and their respective chances) this user has active, if any.
-
-!!! bug
-    There's a [known issue](https://github.com/dorythecat/TransforMate/issues/50),
-    due to which, the alternative muffle settings won't show up on this list.
+Also, displays alternative muffles in a separate embed.
 
 ---
 
@@ -19,5 +16,8 @@ Lets you see the muffles (and their respective chances) this user has active, if
 ```mermaid
 flowchart TD
     CommandReceived[Command Received] --> ExtractTfData[[extract_tf_data]]
-    ExtractTfData --> SendAnswer[[Send answer]]
+    ExtractTfData --> CheckMuffles[[Check if there's muffles active]]
+    CheckMuffles --> SendMuffles[[Send normal muffles]]
+    SendMuffles --> CheckAlt[[Check if there's alternative muffles]]
+    CheckAlt --> SendAlt[[Send alternative muffles]]
 ```
