@@ -136,8 +136,8 @@ class Clear(commands.Cog):
     async def censor(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None,
-                     censor_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Word to clear") = None) -> None:
+                     censor: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Censor to clear") = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return

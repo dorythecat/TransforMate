@@ -13,10 +13,10 @@ class Set(commands.Cog):
     @set_command.command(description="Set a prefix for the transformed messages")
     async def prefix(self,
                      ctx: discord.ApplicationContext,
-                     prefix_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Prefix to add"),
-                     prefix_chance: discord.Option(discord.SlashCommandOptionType.integer,
-                                                   description="Chance for prefix to go off") = 30,
+                     prefix: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Prefix to add"),
+                     chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                            description="Chance for prefix to go off") = 30,
                      user: discord.Option(discord.User) = None,
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                                 description="Add a space after the prefix "
@@ -24,17 +24,17 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        prefix_word += (" " * whitespace)
-        utils.write_tf(user, ctx.guild, prefix=prefix_word, chance=prefix_chance)
-        await ctx.respond(f"Prefix for {user.mention} set to \"{prefix_word.strip()}\"!")
+        prefix += (" " * whitespace)
+        utils.write_tf(user, ctx.guild, prefix=prefix, chance=chance)
+        await ctx.respond(f"Prefix for {user.mention} set to \"{prefix.strip()}\"!")
 
     @set_command.command(description="Set a suffix for the transformed messages")
     async def suffix(self,
                      ctx: discord.ApplicationContext,
-                     suffix_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Suffix to add"),
-                     suffix_chance: discord.Option(discord.SlashCommandOptionType.integer,
-                                                   description="Chance for suffix to go off") = 30,
+                     suffix: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Suffix to add"),
+                     chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                            description="Chance for suffix to go off") = 30,
                      user: discord.Option(discord.User) = None,
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                                 description="Add a space before the suffix (defaults true)") = True) \
@@ -42,9 +42,9 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        suffix_word = (" " * whitespace) + suffix_word
-        utils.write_tf(user, ctx.guild, suffix=suffix_word, chance=suffix_chance)
-        await ctx.respond(f"Suffix for {user.mention} set to \"{suffix_word.strip()}\"!")
+        suffix = (" " * whitespace) + suffix
+        utils.write_tf(user, ctx.guild, suffix=suffix, chance=chance)
+        await ctx.respond(f"Suffix for {user.mention} set to \"{suffix.strip()}\"!")
 
     @set_command.command(description="Set the transformed user to speak in big text")
     async def big(self,
@@ -125,37 +125,37 @@ class Set(commands.Cog):
     @set_command.command(description="Set the transformed user to be censored")
     async def censor(self,
                      ctx: discord.ApplicationContext,
-                     censor_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Word to censor"),
+                     censor: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Text to censor"),
                      replacement: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Word to replace with"),
+                                                 description="Text to replace with"),
                      user: discord.Option(discord.User) = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        utils.write_tf(user, ctx.guild, censor=censor_word, censor_replacement=replacement)
-        await ctx.respond(f"{user.mention} will now have the word \"{censor_word}\" censored to \"{replacement}\"!")
+        utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
+        await ctx.respond(f"{user.mention} will now have the word \"{censor}\" censored to \"{replacement}\"!")
 
     @set_command.command(description="Set the transformed user to have specific words sprinkled in their messages")
     async def sprinkle(self,
                        ctx: discord.ApplicationContext,
-                       sprinkle_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                     description="Word to sprinkle"),
-                       sprinkle_chance: discord.Option(discord.SlashCommandOptionType.integer,
-                                                       description='Chance for sprinkle to go off') = 30,
+                       sprinkle: discord.Option(discord.SlashCommandOptionType.string,
+                                                description="Text to sprinkle"),
+                       chance: discord.Option(discord.SlashCommandOptionType.integer,
+                                              description='Chance for sprinkle to go off') = 30,
                        user: discord.Option(discord.User) = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        utils.write_tf(user, ctx.guild, sprinkle=sprinkle_word, chance=sprinkle_chance)
-        await ctx.respond(f"{user.mention} will now have the word \"{sprinkle_word}\" sprinkled in their messages!")
+        utils.write_tf(user, ctx.guild, sprinkle=sprinkle, chance=chance)
+        await ctx.respond(f"{user.mention} will now have the word \"{sprinkle}\" sprinkled in their messages!")
 
     @set_command.command(description="Set the transformed user to have their words/messages randomly replaced with a "
                                      "specific set of words")
     async def muffle(self,
                      ctx: discord.ApplicationContext,
-                     muffle_word: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="Word that will replace others"),
+                     muffle: discord.Option(discord.SlashCommandOptionType.string,
+                                            description="Text that will replace others"),
                      chance: discord.Option(discord.SlashCommandOptionType.integer,
                                             description='Chance for muffle to go off') = 30,
                      alt: discord.Option(discord.SlashCommandOptionType.boolean,
@@ -165,11 +165,11 @@ class Set(commands.Cog):
         if not valid:
             return
         if alt:
-            utils.write_tf(user, ctx.guild, alt_muffle=muffle_word, chance=chance)
-            await ctx.respond(f"{user.mention} will now have their messages muffled with \"{muffle_word}\"!")
+            utils.write_tf(user, ctx.guild, alt_muffle=muffle, chance=chance)
+            await ctx.respond(f"{user.mention} will now have their messages muffled with \"{muffle}\"!")
             return
-        utils.write_tf(user, ctx.guild, muffle=muffle_word, chance=chance)
-        await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle_word}\"!")
+        utils.write_tf(user, ctx.guild, muffle=muffle, chance=chance)
+        await ctx.respond(f"{user.mention} will now have their words muffled with \"{muffle}\"!")
 
     @set_command.command(description="Set the transformed user to stutter on random words, with a certain chance")
     async def stutter(self,

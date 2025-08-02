@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: TransforMate Bot Docs
+theme:
+  name: material
+  favicon: img/favicon.ico
+  logo: img/logo.png
+nav:
+  - Home: index.md
+  - Tutorials:
+      - Summary: tutorials/summary.md
+      - Basic TransforMate Tutorial: tutorials/basic.md
+      - Basic Twinning Tutorial: tutorials/twinning.md
+  - Commands:
+      - Summary: commands/summary.md
+      - Transformation:
+          - Index: commands/transformation/index.md
+          - /transform: commands/transformation/transform.md
+          - /goback: commands/transformation/goback.md
+          - /claim and /unclaim: commands/transformation/claim_and_unclaim.md
+          - /safeword: commands/transformation/safeword.md
+          - /export_tf: commands/transformation/export_tf.md
+          - /import_tf: commands/transformation/import_tf.md
+      - Set and Clear:
+          - Index: commands/set_and_clear/index.md
+          - /clear all_fields: commands/set_and_clear/all_fields.md
+          - /set prefix: commands/set_and_clear/prefix.md
+          - /set suffix: commands/set_and_clear/suffix.md
+          - /set big: commands/set_and_clear/big.md
+          - /set small: commands/set_and_clear/small.md
+          - /set hush: commands/set_and_clear/hush.md
+          - /set backwards: commands/set_and_clear/backwards.md
+          - /set eternal: commands/set_and_clear/eternal.md
+          - /set censor: commands/set_and_clear/censor.md
+          - /set sprinkle: commands/set_and_clear/sprinkle.md
+          - /set muffle: commands/set_and_clear/muffle.md
+          - /set stutter: commands/set_and_clear/stutter.md
+          - /set bio: commands/set_and_clear/bio.md
+      - Get:
+          - Index: commands/get/index.md
+          - /get settings: commands/get/settings.md
+          - /get claim: commands/get/claim.md
+          - /get censors: commands/get/censors.md
+          - /get sprinkles: commands/get/sprinkles.md
+          - /get muffle: commands/get/muffle.md
+          - /get prefixes: commands/get/prefixes.md
+          - /get suffixes: commands/get/suffixes.md
+          - /get bio: commands/get/bio.md
+          - /get transformed: commands/get/transformed.md
+          - /get image: commands/get/image.md
+      - Block:
+          - Index: commands/block/index.md
+          - /block channel: commands/block/channel.md
+          - /block user: commands/block/user.md
+      - Admin:
+          - Index: commands/admin/index.md
+          - /admin killhooks: commands/admin/killhooks.md
+          - /admin block_channel: commands/admin/block_channel.md
+          - /admin block_user: commands/admin/block_user.md
+          - /admin list_blocked_channels: commands/admin/list_blocked_channels.md
+          - /admin list_blocked_users: commands/admin/list_blocked_users.md
+          - /admin setup_logs: commands/admin/setup_logs.md
+          - /admin update_settings: commands/admin/update_settings.md
+          - /admin regen_server_tfs: commands/admin/regen_server_tfs.md
+          - /admin regen_user_tfs: commands/admin/regen_user_tfs.md
+      - Others:
+          - Index: commands/others/index.md
+          - /report: commands/others/report.md
+          - /info: commands/others/info.md
+          - /legal: commands/others/legal.md
+          - /invite: commands/others/invite.md
+          - /ping: commands/others/ping.md
+  - Changelog: changelog.md
+  - About: about.md
+  - Legal:
+      - Terms of Service: legal/tos.md
+      - Privacy Policy: legal/privacy_policy.md
+plugins:
+  - search
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
