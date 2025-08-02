@@ -10,25 +10,26 @@
 
 <body>
     <div class="topnav">
-        <a href="index.html" class="active">Home</a>
+        <a href="index.html">Home</a>
         <a href="tsf_editor.html">TSF Editor</a>
         <a href="https://dorythecat.github.io/TransforMate">Documentation</a>
-        <a href="login.html" class="left login">Login</a>
+        <a href="login.html" class="active left" id="login">Login</a>
+        <a class="left" id="logout">Logout</a>
         <a href="https://dorythecat.github.io/TransforMate/about.html" class="left">About</a>
     </div>
 
-    <form id="login_form">
-        <input type="hidden" name="grant_type" value="password">
-        <div class="login">
+    <div class="page-content">
+        <form id="login_form">
+            <input type="hidden" name="grant_type" value="password">
             <label for="username">Username
                 <input type="text" name="username" placeholder="Username" required>
             </label>
             <label for="password">Password
                 <input type="password" name="password" placeholder="Password" required>
             </label>
+            <output style="color: red; font-size: 20px;" id="output_message"></output>
             <input type="submit" value="Login">
-            <output id="output_message"></output>
-        </div>
-    </form>
+        </form>
+    </div>
 </body>
 </html>

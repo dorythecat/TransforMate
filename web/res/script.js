@@ -16,27 +16,34 @@ function getCookie(cname) {
     return "";
 }
 
-function checkCookie() {
-    let user = getCookie("username");
-    if (user !== "") alert("Welcome again " + user);
-    else {
-        user = prompt("Please enter your name:", "");
-        if (user !== "" && user != null) setCookie("username", user, 365);
+if (window.location.href.split("/").at(-1) === "login.html") {
+    const login_form = document.getElementById("login_form");
+    const output = document.getElementById("output_message");
+
+    login_form.onsubmit = function (e) {
+        e.preventDefault();
+        const request = new XMLHttpRequest();
+        request.open("POST", "http://localhost:8000/login", false);
+        request.setRequestHeader("Accept", "application/json; odata=verbose");
+        let form = new FormData(login_form);
+        request.send(form);
+        if (request.status === 200) {
+            setCookie("token", JSON.parse(request.responseText)['access_token'], 30);
+            window.location.href = "index.html";
+        } else if (request.status === 403) output.textContent = "Incorrect username or password!";
+        else output.textContent = "Unknown error!";
     }
 }
 
-const login_form = document.getElementById("login_form");
-const output = document.getElementById("output_message");
+const login = document.getElementById("login");
+const logout = document.getElementById("logout");
 
-login_form.onsubmit = function(e) {
-    e.preventDefault();
-    const request = new XMLHttpRequest();
-    request.open("POST", "http://localhost:8000/login", false);
-    request.setRequestHeader("Accept", "application/json; odata=verbose");
-    let form = new FormData(login_form);
-    request.send(form);
-    if (request.status === 200) {
-        setCookie("token", JSON.parse(request.responseText)['access_token'], 30);
-        output.textContent = "login successful!";
-    } else output.textContent = "login unsuccessful!";
+if (getCookie("token") !== "") {
+    login.style.display = "none";
+    logout.style.display = "block";
+}
+
+logout.onclick = function (e) {
+    setCookie("token", null, -1);
+    window.location.reload();
 }
