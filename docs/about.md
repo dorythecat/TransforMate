@@ -37,6 +37,8 @@ awesome people who help keep this project up and running. Without them, I probab
 would have taken this bot down a long time ago. Thanks for your support, guys.
 Love y'all! <3
 
+---
+
 ## How can I help?
 TransforMate is mostly a passion project. Development, documenting, hosting, and
 maintenance, all fall under me at the moment. I am a single person, and, whilst I'm
@@ -58,7 +60,9 @@ If you have any other ideas on how to help, like wanting to contribute with the
 community, infrastructure, or other aspects of the bot, please feel free to
 contact me, I'm always open to new ideas and helping hands!
 
-# Contact
+---
+
+## Contact
 The general and recommended way of contacting us is by joining our awesome community
 in the [Official TransforMate Discord Server](https://discord.gg/uGjWk2SRf6), where
 you can talk directly with our community and trained staff.
@@ -68,3 +72,37 @@ free to message me, the developer, on Discord, where I'm known as "dorythecat".
 
 At the moment, we don't have any more forms of contact available. Sorry for any
 inconveniences.
+
+---
+
+## Thank you
+I want to personally thank some awesome people, listed here, without which this bot
+would either not exist at all, or not be what it is. They have pushed me to give my
+everything, helped me continue, and selflessly helped develop, improve, and/or
+advertise this beautiful bot we have here in our hands.
+
+- A big thank you to Leroco, the awesome developer of the original BPTBot, whose
+  hiatus led me to start coding TransforMate; and who, through his continued
+  development of his own bot, has pushed me time and time again to add more, and
+  overall improve the features, documentation, and backend of the bot.
+
+- To Espartanica, for originally showing me BPTBot on his rundown RP server, and
+  helping send my "I could do it better in two weeks" into (almost) a reality,
+  without which, this bot wouldn't exist.
+
+- To Ren, for helping me with starting development, documentation, and deciphering
+  BPTBot, as well as being our assigned test subject.
+
+- To Zen, for drawing the official logo, and being an awesome and selfless artist.
+
+- To TwoFell, for giving us the name idea and winning the contest to name the bot.
+
+- To my awesome staff team, in special to Gwen, for pushing me to advertise the bot,
+  effectively reviving it from its slumber.
+
+- To the awesome PyCord dev team, from bringing home the framework upon which this
+  bot is built. Great job guys!
+
+- To everyone using the bot, collaborating with the community, or otherwise helping
+  me keep my motivation to keep working on this awesome little project, that I never
+  expected would go so far. Thanks to all of you. Love y'all! <3
