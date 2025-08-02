@@ -69,6 +69,7 @@ nav:
           - /legal: commands/others/legal.md
           - /invite: commands/others/invite.md
           - /ping: commands/others/ping.md
+  - Changelog: changelog.md
   - About: about.md
   - Legal:
       - Terms of Service: legal/tos.md
