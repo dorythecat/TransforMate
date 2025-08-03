@@ -1,72 +1,65 @@
 // Cookie utilities
-function setCookie(cname, cvalue, exmins) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exmins * 60 * 1000));
-    let expires = "Expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";Path=/;Secure;SameSite=Strict;"; // Make cookie secure
-}
+const setCookie = (cname, cvalue, exmins) => {
+    const expires = new Date(Date.now() + exmins * 60 * 1000).toUTCString();
+    document.cookie = `${cname}=${cvalue};Expires=${expires};Path=/;Secure;SameSite=Strict;`;
+};
 
-function getCookie(cname) {
-    let name = cname + "=";
-    let ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1);
-        if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
-    }
-    return "";
-}
+const getCookie = (cname) => {
+    const name = `${cname}=`;
+    return document.cookie
+        .split(';')
+        .map(c => c.trim())
+        .find(c => c.startsWith(name))
+        ?.substring(name.length) || '';
+};
 
 // TSF utilities
 // See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf.html#transformation-string-format
-function encode_tsf(into,
-                    image_url,
-                    big = false,
-                    small = false,
-                    hush = false,
-                    backwards = false,
-                    stutter = 0,
-                    proxy_prefix = null,
-                    proxy_suffix = null,
-                    bio = null,
-                    prefixes = null,
-                    suffixes = null,
-                    sprinkles = null,
-                    muffles = null,
-                    alt_muffles = null,
-                    censors = null) {
-    
-    // Initialize with required fields
-    const data = [
-        "15",  // TSFv1/TMUDv15
-        into,
-        image_url,
-        big ? "1" : "0",
-        small ? "1" : "0",
-        hush ? "1" : "0",
-        backwards ? "1" : "0",
-        stutter.toString(),
-        proxy_prefix ?? "",
-        proxy_suffix ?? "",
-        bio ?? ""
-    ];
-
+function encode_tsf(into, image_url, options = {
+    big: false,
+    small: false,
+    hush: false,
+    backwards: false,
+    stutter: 0,
+    proxy_prefix: null,
+    proxy_suffix: null,
+    bio: null,
+    prefixes: [],
+    suffixes: [],
+    sprinkles: [],
+    muffles: [],
+    alt_muffles: [],
+    censors: []
+}) {
     // Helper function to process arrays
-    const processArray = (arr) => {
-        if (!arr?.length) return ["0", ""];
-        return ["1", arr.map(item => `${item.content}|${item.value}`).join(",")];
-    };
+    const processArray = (arr) =>
+        !arr?.length ? ["0", ""] : ["1", arr.map(({content, value}) => `${content}|${value}`).join(",")];
 
-    // Process all arrays
-    const arrays = [prefixes, suffixes, sprinkles, muffles, alt_muffles, censors];
-    arrays.forEach(arr => { data.push(...processArray(arr)); });
+    // Generate arrays and make it into the proper data to return
+    return ["15",
+            into,
+            image_url,
+            Number(options.big),
+            Number(options.small),
+            Number(options.hush),
+            Number(options.backwards),
+            options.stutter.toString(),
+            options.proxy_prefix ?? "",
+            options.proxy_suffix ?? "",
+            options.bio ?? "",
+            ...processArray(options.prefixes),
+            ...processArray(options.suffixes),
+            ...processArray(options.sprinkles),
+            ...processArray(options.muffles),
+            ...processArray(options.alt_muffles),
+            ...processArray(options.censors)
+    ].join(";");
 
-    return data.join(";");
 }
 
+// Token handling
 if (window.location.href.includes("token")) {
-    // Discord tokens last 7 days, more or less
-    setCookie("token", window.location.href.split("=")[1], 7 * 24 * 60);
+    setCookie("token", window.location.href.split("=")[1], 7 * 24 * 60); // 7 days
     window.location.href = "index.html";
 }
 
@@ -79,7 +72,6 @@ if (getCookie("token") !== "") {
 }
 
 login.onclick = function (e) {
-    // Link to Discord OAuth
     window.location.href = "https://discord.com/oauth2/authorize?client_id=1274436972621987881&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Flogin%3Fredirect_url%3Dhttp%253A%252F%252Flocalhost%253A63342%252FTransforMate%252Fweb%252Findex.html&scope=identify+guilds";
 }
 
@@ -90,14 +82,97 @@ logout.onclick = function (e) {
 
 // TSF Editor page
 if (window.location.href.includes("tsf_editor.html")) {
-    const new_tf_name = document.getElementById("new_tf_name");
-    const new_tf_img = document.getElementById("new_tf_img");
-    const new_tf_submit = document.getElementById("new_tf_submit");
-    const new_tf_container = document.getElementById("new_tf_container");
-    const tf_data_form = document.getElementById("tf_data_form");
+    const elements = {
+        new_tf_name: document.getElementById("new_tf_name"),
+        new_tf_img: document.getElementById("new_tf_img"),
+        new_tf_submit: document.getElementById("new_tf_submit"),
+        new_tf_container: document.getElementById("new_tf_container"),
+        tf_data_form: document.getElementById("tf_data_form"),
+        big: document.getElementById("big"),
+        small: document.getElementById("small"),
+        hush: document.getElementById("hush"),
+        backwards: document.getElementById("backwards"),
+        bio: document.getElementById("bio")
+    };
 
-    new_tf_submit.onclick = function (e) {
-        if (new_tf_name.value === "" || new_tf_img.value === "") {
+    const sliderPairs = [
+        { name: 'stutter', default: 0 },
+        { name: 'prefix_chance', default: 30 },
+        { name: 'suffix_chance', default: 30 },
+        { name: 'sprinkle_chance', default: 30 },
+        { name: 'muffle_chance', default: 30 },
+        { name: 'alt_muffle_chance', default: 30 }
+    ].map(({ name, default: defaultValue }) => ({
+        slider: document.getElementById(name),
+        value: document.getElementById(`${name}_value`),
+        defaultValue
+    }));
+
+    const syncSliderPair = (pair) => {
+        const syncValues = (event) => {
+            pair.slider.value = pair.value.value = event.target.value;
+        };
+        pair.slider.addEventListener("input", syncValues);
+        pair.value.addEventListener("input", syncValues);
+    };
+
+    sliderPairs.forEach(syncSliderPair);
+
+    const listConfigs = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
+        .reduce((acc, id) => {
+            acc[id] = {
+                list: [],
+                container: document.getElementById(`${id}_container`),
+                contentInput: document.getElementById(`${id}_content`),
+                ...(id === 'censor'
+                    ? { replacementInput: document.getElementById('censor_replacement') }
+                    : { chancePair: sliderPairs[sliderPairs.findIndex(p => p.slider.id.includes(id))] })
+            };
+            return acc;
+        }, {});
+
+    window.removeFunction = (index, ID) => {
+        listConfigs[ID].list.splice(index, 1);
+        updateList(ID);
+    };
+
+    const updateList = (ID, isCensor = false) => {
+        const { list, container } = listConfigs[ID];
+        container.innerHTML = list
+            .map((item, index) => `
+                <li class="item">
+                    <span>${item.content} (${item.value}${isCensor ? "" : "%"})</span>
+                    <button type="button" onclick="removeFunction(${index}, '${ID}')">Remove</button>
+                </li>`)
+            .join('');
+    };
+
+    Object.entries(listConfigs).forEach(([ID, config]) => {
+        const isCensor = ID === 'censor';
+        document.getElementById(`add_${ID}_btn`)
+            .addEventListener('click', () => {
+                const valueInput = isCensor ? config.replacementInput.value : config.chancePair.slider.value;
+                if (!config.contentInput.value || !valueInput) return;
+
+                config.list.push({
+                    content: config.contentInput.value,
+                    value: valueInput
+                });
+
+                updateList(ID, isCensor);
+
+                config.contentInput.value = '';
+                if (isCensor) config.replacementInput.value = '';
+                else {
+                    config.chancePair.slider.value = config.chancePair.defaultValue;
+                    config.chancePair.value.value = config.chancePair.defaultValue;
+                }
+            });
+    });
+
+    elements.new_tf_submit.onclick = () => {
+        const { new_tf_name, new_tf_img } = elements;
+        if (!new_tf_name.value || !new_tf_img.value) {
             alert("Please fill out all required fields!");
             return;
         }
@@ -109,175 +184,31 @@ if (window.location.href.includes("tsf_editor.html")) {
             alert("Image URL must be a valid URL!");
             return;
         }
-        new_tf_container.style.width = "100%";
-        tf_data_form.style.display = "inline";
-    }
-
-    // Form data
-    const big = document.getElementById("big");
-    const small = document.getElementById("small");
-    const hush = document.getElementById("hush");
-    const backwards = document.getElementById("backwards");
-    const bio = document.getElementById("bio");
-
-    // Set the sliders to sync with their respective values and viceversa
-    const sliderPairs = [
-        { // Stutter
-            slider: document.getElementById("stutter"),
-            value: document.getElementById("stutter_value")
-        },
-        { // Prefix
-            slider: document.getElementById('prefix_chance'),
-            value: document.getElementById('prefix_chance_value')
-        },
-        { // Suffix
-            slider: document.getElementById('suffix_chance'),
-            value: document.getElementById('suffix_chance_value')
-        },
-        { // Sprinkles
-            slider: document.getElementById('sprinkle_chance'),
-            value: document.getElementById('sprinkle_chance_value')
-        },
-        { // Muffles
-            slider: document.getElementById('muffle_chance'),
-            value: document.getElementById('muffle_chance_value')
-        },
-        { // Alt Muffles
-            slider: document.getElementById('alt_muffle_chance'),
-            value: document.getElementById('alt_muffle_chance_value')
-        }
-    ];
-
-    sliderPairs.forEach(pair => {
-        // Sync slider to value input
-        pair.slider.addEventListener("input", (event) => {
-            pair.value.value = event.target.value;
-        });
-
-        // Sync value input to slider
-        pair.value.addEventListener("input", (event) => {
-            pair.slider.value = event.target.value;
-        });
-    });
-
-    const listConfigs = {
-        'prefixes': {
-            list: [],
-            container: document.getElementById('prefix-container'),
-            contentInput: document.getElementById('prefix-content'),
-            chancePair: sliderPairs[1]
-        },
-        'suffixes': {
-            list: [],
-            container: document.getElementById('suffix-container'),
-            contentInput: document.getElementById('suffix-content'),
-            chancePair: sliderPairs[2]
-        },
-        'sprinkles': {
-            list: [],
-            container: document.getElementById('sprinkle-container'),
-            contentInput: document.getElementById('sprinkle-content'),
-            chancePair: sliderPairs[3]
-        },
-        'muffles': {
-            list: [],
-            container: document.getElementById('muffle-container'),
-            contentInput: document.getElementById('muffle-content'),
-            chancePair: sliderPairs[4]
-        },
-        'alt_muffles': {
-            list: [],
-            container: document.getElementById('alt-muffle-container'),
-            contentInput: document.getElementById('alt-muffle-content'),
-            chancePair: sliderPairs[5]
-        },
-        'censors': {
-            list: [],
-            container: document.getElementById('censor-container'),
-            contentInput: document.getElementById('censor-content'),
-            replacementInput: document.getElementById('censor-replacement')
-        }
+        elements.new_tf_container.style.width = "100%";
+        elements.tf_data_form.style.display = "inline";
     };
 
-    const listButtons = {
-        'prefixes': document.getElementById('add-prefix-btn'),
-        'suffixes': document.getElementById('add-suffix-btn'),
-        'sprinkles': document.getElementById('add-sprinkle-btn'),
-        'muffles': document.getElementById('add-muffle-btn'),
-        'alt_muffles': document.getElementById('add-alt-muffle-btn'),
-        'censors': document.getElementById('add-censor-btn')
-    }
-
-    window.removeFunction = (index, ID) => {
-        listConfigs[ID].list.splice(index, 1);
-        updateList(ID);
-    };
-
-    function updateList(ID, censor = false) {
-        const { list, container } = listConfigs[ID];
-        container.innerHTML = '';
-
-        list.forEach((item, index) => {
-            const li = document.createElement('li');
-            li.className = 'item';
-            li.innerHTML = `
-                <span>${item.content} (${item.value}${censor ? "" : "%"})</span>
-                <button type="button" onclick="removeFunction(${index}, '${ID}')">Remove</button>
-            `;
-            container.appendChild(li);
-        });
-    }
-
-    for (const [ID, button] of Object.entries(listButtons)) {
-        button.addEventListener('click', () => {
-            const config = listConfigs[ID];
-
-            let valueInput = ID === 'censors' ? config.replacementInput.value : config.chancePair.slider.value
-            if (!config.contentInput.value || !valueInput) return;
-
-            const item = {
-                content: config.contentInput.value,
-                value: valueInput
-            }
-
-            config.list.push(item);
-            updateList(ID, ID === 'censors');
-
-            // Reset inputs
-            config.contentInput.value = '';
-            if (ID === 'censors') config.replacementInput.value = '';
-            else {
-                config.chancePair.slider.value = 30;
-                config.chancePair.value.value = 30;
-            }
-        });
-    }
-
-    // Censor has to be handled separately due to it being a string-string pair
-    
-
-    const submit_tf_btn = document.getElementById("submit_tf_btn");
-
-    submit_tf_btn.onclick = function (e) {
+    document.getElementById("submit_tf_btn").onclick = () => {
         const tsf_data = encode_tsf(
-            new_tf_name.value,
-            new_tf_img.value,
-            big.checked,
-            small.checked,
-            hush.checked,
-            backwards.checked,
-            parseInt(document.getElementById("stutter_value").value),
-            null,
-            null,
-            bio.value,
-            listConfigs.prefixes.list,
-            listConfigs.suffixes.list,
-            listConfigs.sprinkles.list,
-            listConfigs.muffles.list,
-            listConfigs.alt_muffles.list,
-            listConfigs.censors.list
-        )
-
+            elements.new_tf_name.value,
+            elements.new_tf_img.value,
+            {
+                big: elements.big.checked,
+                small: elements.small.checked,
+                hush: elements.hush.checked,
+                backwards: elements.backwards.checked,
+                stutter: parseInt(document.getElementById("stutter_value").value),
+                proxy_prefix: null,
+                proxy_suffix: null,
+                bio: elements.bio.value,
+                prefixes: listConfigs.prefix.list,
+                suffixes: listConfigs.suffix.list,
+                sprinkles: listConfigs.sprinkle.list,
+                muffles: listConfigs.muffle.list,
+                alt_muffles: listConfigs.alt_muffle.list,
+                censors: listConfigs.censor.list
+            }
+        );
         console.log(tsf_data);
-    }
+    };
 }

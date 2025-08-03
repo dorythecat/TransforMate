@@ -18,7 +18,7 @@
         <a class="left" id="logout">Logout</a>
     </div>
 
-    <div class="page-content">
+    <div class="page_content">
         <h1>TSF File Editor</h1>
         <div id="new_tf_container">
             <label for="new_tf_name"> Transformation Name:<a style="color: red;">*</a>
@@ -53,151 +53,151 @@
             </label>
             <hr/>
             <div class="manager">
-                <div class="input-group">
-                    <div class="form-group">
-                        <label for="prefix-content">Prefix Content:
-                            <input type="text" id="prefix-content" name="prefix-content" required>
+                <div class="input_group">
+                    <div class="form_group">
+                        <label for="prefix_content">Prefix Content:
+                            <input type="text" id="prefix_content" name="prefix_content" required>
                         </label>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form_group">
                         <label for="prefix_chance"> Chance:
                             <input type="range" id="prefix_chance" min="1" max="100" step="1" value="30"/>
                             <input id="prefix_chance_value" type="number" min="1" max="100" value="30"/>
                         </label>
                     </div>
 
-                    <button type="button" id="add-prefix-btn" class="btn btn-primary">Add Prefix</button>
+                    <button type="button" id="add_prefix_btn" class="btn btn_primary">Add Prefix</button>
                 </div>
 
                 <div class="list">
                     <h3>Current Prefixes</h3>
-                    <ul id="prefix-container"></ul>
+                    <ul id="prefix_container"></ul>
                 </div>
             </div>
             <hr/>
             <div class="manager">
-                <div class="input-group">
-                    <div class="form-group">
-                        <label for="suffix-content">Suffix Content:
-                            <input type="text" id="suffix-content" name="suffix-content" required>
+                <div class="input_group">
+                    <div class="form_group">
+                        <label for="suffix_content">Suffix Content:
+                            <input type="text" id="suffix_content" name="suffix_content" required>
                         </label>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form_group">
                         <label for="suffix_chance"> Chance:
                             <input type="range" id="suffix_chance" min="1" max="100" step="1" value="30"/>
                             <input id="suffix_chance_value" type="number" min="1" max="100" value="30"/>
                         </label>
                     </div>
 
-                    <button type="button" id="add-suffix-btn" class="btn btn-primary">Add Suffix</button>
+                    <button type="button" id="add_suffix_btn" class="btn btn_primary">Add Suffix</button>
                 </div>
 
                 <div class="list">
                     <h3>Current Suffixes</h3>
-                    <ul id="suffix-container"></ul>
+                    <ul id="suffix_container"></ul>
                 </div>
             </div>
             <hr/>
             <div class="manager">
-                <div class="input-group">
-                    <div class="form-group">
-                        <label for="sprinkle-content">Sprinkle Content:
-                            <input type="text" id="sprinkle-content" name="sprinkle-content" required>
+                <div class="input_group">
+                    <div class="form_group">
+                        <label for="sprinkle_content">Sprinkle Content:
+                            <input type="text" id="sprinkle_content" name="sprinkle_content" required>
                         </label>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form_group">
                         <label for="sprinkle_chance"> Chance:
                             <input type="range" id="sprinkle_chance" min="1" max="100" step="1" value="30"/>
                             <input id="sprinkle_chance_value" type="number" min="1" max="100" value="30"/>
                         </label>
                     </div>
 
-                    <button type="button" id="add-sprinkle-btn" class="btn btn-primary">Add Sprinkle</button>
+                    <button type="button" id="add_sprinkle_btn" class="btn btn_primary">Add Sprinkle</button>
                 </div>
 
                 <div class="list">
                     <h3>Current Sprinkles</h3>
-                    <ul id="sprinkle-container"></ul>
+                    <ul id="sprinkle_container"></ul>
                 </div>
             </div>
             <hr/>
             <div class="manager">
-                <div class="input-group">
-                    <div class="form-group">
-                        <label for="muffle-content">Muffle Content:
-                            <input type="text" id="muffle-content" name="muffle-content" required>
+                <div class="input_group">
+                    <div class="form_group">
+                        <label for="muffle_content">Muffle Content:
+                            <input type="text" id="muffle_content" name="muffle_content" required>
                         </label>
                     </div>
 
-                    <div class="form-group">
-                        <label for="muffle-chance"> Chance:
+                    <div class="form_group">
+                        <label for="muffle_chance"> Chance:
                             <input type="range" id="muffle_chance" min="1" max="100" step="1" value="30"/>
                             <input id="muffle_chance_value" type="number" min="1" max="100" value="30"/>
                         </label>
                     </div>
 
-                    <button type="button" id="add-muffle-btn" class="btn btn-primary">Add Muffle</button>
+                    <button type="button" id="add_muffle_btn" class="btn btn_primary">Add Muffle</button>
                 </div>
 
                 <div class="list">
                     <h3>Current Muffles</h3>
-                    <ul id="muffle-container"></ul>
+                    <ul id="muffle_container"></ul>
                 </div>
             </div>
             <hr/>
             <div class="manager">
-                <div class="input-group">
-                    <div class="form-group">
-                        <label for="alt-muffle-content">Alt Muffle Content:
-                            <input type="text" id="alt-muffle-content" name="alt-muffle-content" required>
+                <div class="input_group">
+                    <div class="form_group">
+                        <label for="alt_muffle_content">Alt Muffle Content:
+                            <input type="text" id="alt_muffle_content" name="alt_muffle_content" required>
                         </label>
                     </div>
 
-                    <div class="form-group">
-                        <label for="alt-muffle-chance"> Chance:
+                    <div class="form_group">
+                        <label for="alt_muffle_chance"> Chance:
                             <input type="range" id="alt_muffle_chance" min="1" max="100" step="1" value="30"/>
                             <input id="alt_muffle_chance_value" type="number" min="1" max="100" value="30"/>
                         </label>
                     </div>
 
-                    <button type="button" id="add-alt-muffle-btn" class="btn btn-primary">Add Alt Muffle</button>
+                    <button type="button" id="add_alt_muffle_btn" class="btn btn_primary">Add Alt Muffle</button>
                 </div>
 
                 <div class="list">
                     <h3>Current Alt Muffles</h3>
-                    <ul id="alt-muffle-container"></ul>
+                    <ul id="alt_muffle_container"></ul>
                 </div>
             </div>
             <hr/>
             <div class="manager">
-                <div class="input-group">
-                    <div class="form-group">
-                        <label for="censor-content">Censored Content:
-                            <input type="text" id="censor-content" name="censor-content" required>
+                <div class="input_group">
+                    <div class="form_group">
+                        <label for="censor_content">Censored Content:
+                            <input type="text" id="censor_content" name="censor_content" required>
                         </label>
                     </div>
 
-                    <div class="form-group">
-                        <label for="censor-replacement"> Replacement:
-                            <input type="text" id="censor-replacement" name="censor-replacement" required/>
+                    <div class="form_group">
+                        <label for="censor_replacement"> Replacement:
+                            <input type="text" id="censor_replacement" name="censor_replacement" required/>
                         </label>
                     </div>
 
-                    <button type="button" id="add-censor-btn" class="btn btn-primary">Add Censor</button>
+                    <button type="button" id="add_censor_btn" class="btn btn_primary">Add Censor</button>
                 </div>
 
                 <div class="list">
                     <h3>Current Censors</h3>
-                    <ul id="censor-container"></ul>
+                    <ul id="censor_container"></ul>
                 </div>
             </div>
             <hr/>
             <button id="submit_tf_btn">Submit</button>
 
-        <div style="margin: 10px 0; font-size: 50%;">(<a style="color: red;">*</a>): Required field</div>
+        <div style="margin: 10px 0; font_size: 50%;">(<a style="color: red;">*</a>): Required field</div>
 
     </div>
 </body>
