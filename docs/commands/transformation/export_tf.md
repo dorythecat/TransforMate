@@ -63,7 +63,7 @@ as archive for future reference, with the expected behavior when importing said
 versions of TSF data.
 
 ### v1.0 specification
-This version counts with 21 parameters separated using the `;` character.
+This version counts with 22 parameters separated using the `;` character.
 The parameters are displayed here, with an explanation where necessary, and divided
 into categories for easier understanding. For more information on the modifiers, see
 their respective [modifier page](../set_and_clear/index.md).
