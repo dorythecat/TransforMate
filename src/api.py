@@ -6,7 +6,7 @@ from typing import Annotated, NamedTuple, Union
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
@@ -756,9 +756,24 @@ def revoke_access_token(access_token):
          tags=["Your User"],
          response_model=None,
          responses={
-             400: {'model': ErrorMessage}
+             404: {'model': ErrorMessage}
          })
-async def link_discord(code: str) -> None:
+async def link_discord(code: str) -> RedirectResponse | JSONResponse:
     """Links the current user's Discord account."""
     data = exchange_code(code)
-    print(data)
+
+    req_user = requests.get('%s/users/@me' % API_ENDPOINT, headers={'Authorization': 'Bearer %s' % data['access_token']})
+    req_user.raise_for_status()
+    req_user = req_user.json()
+
+    user = fake_users_db.get(req_user['username'])
+    if user is None:
+        return JSONResponse(status_code=404,
+                            content={'detail': 'Username is not registered'})
+    user['linked_id'] = req_user['id']
+
+    fake_users_db[req_user['username']] = user
+    with open(DATABASE_PATH, 'w') as f:
+        json.dump(fake_users_db, f, indent=4)
+
+    return RedirectResponse(url=f"http://localhost:63342/TransforMate/web/index.html")
