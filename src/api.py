@@ -16,6 +16,8 @@ import utils
 from config import BLOCKED_USERS, CACHE_PATH, SECRET_KEY
 from cogs.transformation import transform_function
 
+DATABASE_PATH = f"{CACHE_PATH}/accounts.json"
+
 # Setting some basic things up
 app = FastAPI(
     title="TransforMate API",
@@ -83,7 +85,7 @@ def load_db(db_path: str) -> dict:
             return {}
         return json.loads(contents)
 
-fake_users_db = load_db(f"{CACHE_PATH}/accounts.json")
+fake_users_db = load_db(DATABASE_PATH)
 
 # Various utilities
 class Token(BaseModel):
@@ -681,3 +683,46 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_active
 async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
     """Returns the current user's complete file."""
     return utils.load_tf(current_user.linked_id)
+
+@app.put("/users/me/edit",
+         tags=["Your User"],
+         response_model=User,
+         responses={
+             400: {'model': ErrorMessage}
+         })
+async def edit_users_me(current_user: Annotated[User, Depends(get_current_active_user)],
+                        username: str | None = None,
+                        email: str | None = None) -> User | JSONResponse:
+    """Edits the current user's stored information."""
+    if username:
+        if len(username) < 2:
+            return JSONResponse(status_code=400,
+                                content={'detail': 'Username must be at least 2 characters long'})
+
+        if username in fake_users_db and username != current_user.username:
+            return JSONResponse(status_code=400,
+                                content={'detail': 'Username already taken'})
+    else:
+        username = current_user.username
+
+    if email:
+        if len(email) < 6 or not "@" in email or not "." in email:
+            return JSONResponse(status_code=400,
+                                content={'detail': 'Email must be a valid email address'})
+    else:
+        email = current_user.email
+
+    if username or email:
+        old_data = fake_users_db[current_user.username]
+        old_data['username'] = username
+        old_data['email'] = email
+        del fake_users_db[current_user.username]
+
+        fake_users_db[username] = old_data
+        current_user.username = username
+        current_user.email = email
+
+        with open(DATABASE_PATH, 'w') as f:
+            json.dump(fake_users_db, f, indent=4)
+
+    return current_user
