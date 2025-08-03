@@ -29,16 +29,24 @@ if (window.location.href.split("/").at(-1) === "login.html") {
         request.send(form);
         if (request.status === 200) {
             setCookie("token", JSON.parse(request.responseText)['access_token'], 30);
-            window.location.href = "index.html";
+            window.location.href = "account.html";
         } else if (request.status === 403) output.textContent = "Incorrect username or password!";
         else output.textContent = "Unknown error!";
     }
 }
 
 if (window.location.href.split("/").at(-1) === "account.html") {
+    // Text fields
     const username = document.getElementById("username");
     const email = document.getElementById("email");
     const linked_id = document.getElementById("linked_id");
+
+    // Change forms
+    const edit_user = document.getElementById("edit_user");
+    const change_email = document.getElementById("change_email");
+
+    // Link button
+    const link_discord = document.getElementById("link_discord");
 
     const request = new XMLHttpRequest();
     request.open("GET", "http://localhost:8000/users/me", false);
@@ -49,7 +57,28 @@ if (window.location.href.split("/").at(-1) === "account.html") {
 
     username.innerHTML += response['username'];
     email.innerHTML += response['email'];
-    linked_id.innerHTML += response['linked_id'];
+    if (response['linked_id'] === null || response['linked_id'] === 0) {
+        linked_id.innerHTML += "Not linked";
+        link_discord.style.display = ""; // If we use "block", it won't center align :(
+    }
+    else linked_id.innerHTML += response['linked_id'];
+
+    edit_user.onsubmit = function (e) {
+        e.preventDefault();
+        fetch("http://localhost:8000/users/me/edit?email=" + edit_user.email.value + "&username=" + edit_user.username.value, {
+            method: "PUT",
+            headers: {
+                "accept": "application/json",
+                "Authorization": `Bearer ${getCookie("token")}`
+            }
+        }).then(response => response.json()).then(data => {
+            console.log(data);
+            setCookie("token", null, -1);  // Reset token so we have to re-login
+            window.location.href = "login.html";
+        }).catch(error => {
+            console.error(error);
+        })
+    }
 }
 
 const login = document.getElementById("login");
@@ -64,5 +93,5 @@ if (getCookie("token") !== "") {
 
 logout.onclick = function (e) {
     setCookie("token", null, -1);
-    window.location.reload();
+    window.location.href = "index.html";
 }

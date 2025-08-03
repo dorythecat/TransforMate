@@ -23,7 +23,17 @@
         <h1>Account</h1>
         <p id="username"><b>Username:</b> </p>
         <p id="email"><b>Email:</b> </p>
+        <form id="edit_user">
+            <label for="new_username">New Username
+                <input type="text" name="username" placeholder="New Username" required>
+            </label>
+            <label for="new_email">New Email
+                <input type="email" name="email" placeholder="New Email">
+            </label>
+            <input type="submit" value="Change Username">
+        </form>
         <p id="linked_id"><b>Linked Discord ID:</b> </p>
+        <button id="link_discord" style="display: none;">Link Discord Account</button>
     </div>
 </body>
 </html>
