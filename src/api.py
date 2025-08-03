@@ -5,7 +5,7 @@ from typing import Annotated, NamedTuple, Union
 
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
@@ -141,12 +141,12 @@ class ErrorMessage(BaseModel):
 # Login
 @app.get("/login",
          tags=["Security"],
-         response_model=Token,
+         response_model=None,
          responses={
              403: { 'model': ErrorMessage },
              502: { 'model': ErrorMessage }
          })
-async def login(code: str) -> Token | JSONResponse:
+async def login(code: str, redirect_url: str) -> RedirectResponse | JSONResponse:
     """Login to a Discord account."""
     data = exchange_code(code)
     user_data = get_user_info(data['access_token'])
@@ -158,7 +158,7 @@ async def login(code: str) -> Token | JSONResponse:
                             content={ 'detail': 'That user is blocked from using the bot' })
     access_token = create_access_token(data={'access_token': data['access_token']},
                                        expires_delta=timedelta(seconds=int(data['expires_in'])))
-    return Token(access_token=access_token)
+    return RedirectResponse(url=redirect_url + '?token=' + access_token, status_code=303)
 
 @app.post("/logout",
           tags=["Security"])
