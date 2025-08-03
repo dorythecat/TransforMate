@@ -63,7 +63,7 @@ as archive for future reference, with the expected behavior when importing said
 versions of TSF data.
 
 ### v1.0 specification
-This version counts with 15 parameters separated using the `;` character.
+This version counts with 21 parameters separated using the `;` character.
 The parameters are displayed here, with an explanation where necessary, and divided
 into categories for easier understanding. For more information on the modifiers, see
 their respective [modifier page](../set_and_clear/index.md).
@@ -94,7 +94,7 @@ bot has available. `0` means False, `1` means True.
 - `backwards`: Invert text.
 
 #### Basic modifiers
-These modifiers ren't separated within themselves, since they are simple strings or
+These modifiers aren't separated within themselves, since they are simple strings or
 integers.
 
 - `stutter`: Stutter modifier. Integer from 0 to 100.
@@ -112,6 +112,10 @@ pattern though; they are a dictionary, with elements separated with the `,`
 character, and pairs denoted with the `|` character. For all except the `censor`
 parameter, these are string-integer pairs, with the integer being a number from 0
 to 100. In he case of he `censor` parameter, it's all string-string pairs.
+
+Each of these parameters is preceded by another parameter, valued either one or zero,
+indicating the "active" status of these modifiers. If the value is 0, the modifier
+will be ignored.
 
 - `prefix`: Strings that go before the text the user has sent, with a certain chance.
 
