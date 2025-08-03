@@ -46,12 +46,27 @@
     padding: 20px;
 }
 
+/* For when we have the ability to edit files too :D
 div#new_tf_container {
     width: 50%;
 }
+*/
 
-input {
+input[type=text] {
     width: 100%;
+    margin: 10px 0;
+}
+
+input[type=checkbox] {
+    margin-right: 10px;
+}
+
+#tf_data_form {
+    display: none;
+}
+
+label {
+    display: block;
     margin-bottom: 10px;
 }
 
@@ -79,6 +94,74 @@ input[type=submit]:hover {
     color: #675c4d;
 }
 */
+
+.manager {
+    margin: 20px;
+}
+
+.form {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input[type=text] {
+    width: 50%;
+}
+
+.list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    background-color: #eee;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.item button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #ff4444;
+    color: white;
+    border: 2px black solid;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.item button:hover {
+    background-color: #ff6666;
+    border: 2px black solid;
+    box-shadow: 0 0 10px black;
+}
+
+button#submit-tf-btn {
+    margin-top: 10px;
+    font-size: 250%;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background-color: #675c4d;
+    color: #aaa;
+    border: #424242 solid 2px;
+}
+
+button#submit-tf-btn:hover {
+    background-color: #aaa;
+    color: #675c4d;
+    box-shadow: 0 0 20px #675c4d;
+}
 
 @media screen and (max-width: 1100px) {
     .topnav {
