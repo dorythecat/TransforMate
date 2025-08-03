@@ -1,3 +1,8 @@
+## v1.6.2
+- Fixed TSF data documentation.
+
+---
+
 ## v1.6.1
 - Fixed Issues [#49](https://github.com/dorythecat/TransforMate/issues/49) and
   [#50](https://github.com/dorythecat/TransforMate/issues/50). Updated wiki to
