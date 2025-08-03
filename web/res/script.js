@@ -1,3 +1,4 @@
+// Cookie utilities
 function setCookie(cname, cvalue, exmins) {
     const d = new Date();
     d.setTime(d.getTime() + (exmins * 60 * 1000));
@@ -16,83 +17,17 @@ function getCookie(cname) {
     return "";
 }
 
-if (window.location.href.split("/").at(-1) === "login.html") {
-    const login_form = document.getElementById("login_form");
-    const output = document.getElementById("output_message");
-
-    login_form.onsubmit = function (e) {
-        e.preventDefault();
-        const request = new XMLHttpRequest();
-        request.open("POST", "http://localhost:8000/login", false);
-        request.setRequestHeader("accept", "application/json");
-        let form = new FormData(login_form);
-        request.send(form);
-        if (request.status === 200) {
-            setCookie("token", JSON.parse(request.responseText)['access_token'], 30);
-            window.location.href = "account.html";
-        } else if (request.status === 403) output.textContent = "Incorrect username or password!";
-        else output.textContent = "Unknown error!";
-    }
-}
-
-if (window.location.href.split("/").at(-1) === "account.html") {
-    // Text fields
-    const username = document.getElementById("username");
-    const email = document.getElementById("email");
-    const linked_id = document.getElementById("linked_id");
-
-    // Change forms
-    const edit_user = document.getElementById("edit_user");
-
-    // Link button
-    const link_discord = document.getElementById("link_discord");
-
-    const request = new XMLHttpRequest();
-    request.open("GET", "http://localhost:8000/users/me", false);
-    request.setRequestHeader("accept", "application/json");
-    request.setRequestHeader("Authorization", `Bearer ${getCookie("token")}`);
-    request.send();
-    response = JSON.parse(request.responseText);
-
-    username.innerHTML += response['username'];
-    email.innerHTML += response['email'];
-    if (response['linked_id'] === null || response['linked_id'] === 0) {
-        linked_id.innerHTML += "Not linked";
-        link_discord.style.display = ""; // If we use "block", it won't center align :(
-    }
-    else linked_id.innerHTML += response['linked_id'];
-
-    edit_user.onsubmit = function (e) {
-        e.preventDefault();
-        fetch("http://localhost:8000/users/me/edit?email=" + edit_user.email.value + "&username=" + edit_user.username.value, {
-            method: "PUT",
-            headers: {
-                "accept": "application/json",
-                "Authorization": `Bearer ${getCookie("token")}`
-            }
-        }).then(response => response.json()).then(data => {
-            console.log(data);
-            setCookie("token", null, -1);  // Reset token so we have to re-login
-            window.location.href = "login.html";
-        }).catch(error => {
-            console.error(error);
-        })
-    }
-
-    link_discord.onclick = function (e) {
-        // Redirect to Discord OAuh
-        window.location.href = "";
-    }
-}
-
 const login = document.getElementById("login");
-const account = document.getElementById("account");
 const logout = document.getElementById("logout");
 
 if (getCookie("token") !== "") {
     login.style.display = "none";
-    account.style.display = "block";
     logout.style.display = "block";
+}
+
+login.onclick = function (e) {
+    // Link to Discord OAuth
+    window.location.href = "https://discord.com/oauth2/authorize?client_id=1274436972621987881&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Fusers%2Fme%2Flink_discord&scope=identify+guilds+email";
 }
 
 logout.onclick = function (e) {

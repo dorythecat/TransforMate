@@ -29,8 +29,7 @@
     float: right;
 }
 
-.topnav a#logout,
-.topnav a#account {
+.topnav a#logout {
     display: none;
 }
 

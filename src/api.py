@@ -5,11 +5,9 @@ from typing import Annotated, NamedTuple, Union
 
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jwt.exceptions import InvalidTokenError
-from passlib.context import CryptContext
 from pydantic import BaseModel
 
 import utils
@@ -67,121 +65,96 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
-ACCESS_TOKEN_EXPIRE_MINUTES = 30 # After how many minutes does the access token expire automatically
 
-# DB stuff
-def load_db(db_path: str) -> dict:
-    db_path = db_path.split("/")
-    if db_path[-1] not in os.listdir("/".join(db_path[:-1])):
-        return {}
-    with open("/".join(db_path)) as f:
-        contents = f.read().strip()
-        if contents == "":
-            return {}
-        return json.loads(contents)
+# Discord API interactions
+API_ENDPOINT = 'https://discord.com/api/v10' # Discord API endpoint
 
-fake_users_db = load_db(DATABASE_PATH)
+def exchange_code(code: str) -> dict:
+    data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': REDIRECT_URI
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    r = requests.post('%s/oauth2/token' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+    r.raise_for_status()
+    return r.json()
+
+def refresh_token(refresh_token: str) -> dict:
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    r = requests.post('%s/oauth2/token' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+    r.raise_for_status()
+    return r.json()
+
+def revoke_access_token(access_token: str) -> None:
+    data = {
+        'token': access_token,
+        'token_type_hint': 'access_token'
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    requests.post('%s/oauth2/token/revoke' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+
+def get_user_info(access_token: str) -> dict:
+    headers = {
+        'Authorization': 'Bearer %s' % access_token
+    }
+    r = requests.get('%s/users/@me' % API_ENDPOINT, headers=headers)
+    r.raise_for_status()
+    return r.json()
+
+def get_user_guilds(access_token: str) -> list[dict]:
+    headers = {
+        'Authorization': 'Bearer %s' % access_token
+    }
+    r = requests.get('%s/users/@me/guilds' % API_ENDPOINT, headers=headers)
+    r.raise_for_status()
+    return r.json()
 
 # Various utilities
 class Token(BaseModel):
     access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-
-class User(BaseModel):
-    username: str
-    email: str
-    linked_id: int
-    in_servers: list[int]
-    admin_servers: list[int]
-
-
-class UserInDB(User):
-    hashed_password: str
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-def get_user(db, username: str) -> UserInDB | None:
-    if username not in db:
-        return None
-    user_dict = db[username]
-    return UserInDB(**user_dict)
-
-
-def authenticate_user(fake_db, username: str, password: str) -> UserInDB | None:
-    user = get_user(fake_db, username)
-    if not (user and verify_password(password, user.hashed_password)):
-        return None
-    return user
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta if expires_delta else timedelta(minutes=15))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserInDB | None:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials!",
-        headers={"WWW-Authenticate": "Bearer"}
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except InvalidTokenError:
-        raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
-    return current_user
+def decode_access_token(token: str) -> dict:
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
 class ErrorMessage(BaseModel):
     message: str
 
 # Login
-@app.post("/login",
-          tags=["Security"],
-          response_model=Token,
-          responses={
-              403: { 'model': ErrorMessage }
-          })
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token | JSONResponse:
-    """Login to an account."""
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user:
-        return JSONResponse(status_code=403,
-                            content={ 'detail': 'Incorrect username or password' })
-    if user.linked_id in BLOCKED_USERS:
-        return JSONResponse(status_code=403,
-                            content={ 'detail': 'You are blocked from using the bot' })
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return Token(access_token=access_token, token_type="bearer")
+@app.get("/login",
+         tags=["Security"],
+         response_model=Token)
+async def login(code: str) -> Token | JSONResponse:
+    """Login to a Discord account."""
+    data = exchange_code(code)
+    access_token = create_access_token(data={'access_token': data['access_token']},
+                                       expires_delta=timedelta(seconds=int(data['expires_in'])))
+    return Token(access_token=access_token)
+
+@app.post("/logout",
+          tags=["Security"])
+async def logout(token: Annotated[Token, Depends()]) -> None:
+    """Logout of a Discord account."""
+    token = jwt.decode(token.access_token, SECRET_KEY, algorithms=[ALGORITHM])
+    revoke_access_token(token)
 
 # Get info
 class ServerDataBasic(BaseModel):
@@ -203,21 +176,37 @@ class ServerData(BaseModel):
     affixes: bool = False
     transformed_users: dict[str, list[str]] = {}
 
+
 @app.get("/get/{server_id}",
          tags=["Get"],
          response_model=Union[ServerDataBasic, ServerData],
          responses={
-             403: { 'model': ErrorMessage }
+             403: { 'model': ErrorMessage },
+             404: { 'model': ErrorMessage }
          })
-def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
+def get_server(token: Annotated[Token, Depends()],
                server_id: int) -> ServerDataBasic | ServerData | JSONResponse:
     """Returns the settings for a given server. If you're an administrator, you'll get the full file for said server."""
-    if server_id not in current_user.in_servers:
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    guild = None
+    is_admin = False
+    for g in user_guilds:
+        if g['id'] == str(server_id):
+            guild = g
+            is_admin = int(g['permissions']) & 8 == 8
+            break
+
+    if guild is None:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'Current user is not on that server' })
 
     server = utils.load_transformed(server_id)
-    if str(current_user.linked_id) in server['blocked_users']:
+    if server == {}:
+        return JSONResponse(status_code=404,
+                            content={ 'detail': 'That server does not have TransforMate in it' })
+
+    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    if current_user_info['id'] in server['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'This server has blocked the current user' })
 
@@ -228,7 +217,7 @@ def get_server(current_user: Annotated[User, Depends(get_current_active_user)],
         clear_other_logs=server['clear_other_logs'],
         affixes=server['affixes'],
         transformed_users=server['transformed_users']
-    ) if server_id in current_user.admin_servers else ServerDataBasic(
+    ) if is_admin else ServerDataBasic(
         blocked_users=server['blocked_users'],
         blocked_channels=server['blocked_channels'],
         affixes=server['affixes']
@@ -268,13 +257,21 @@ class UserData(BaseModel):
          tags=["Get"],
          response_model=UserData,
          responses={
-             403: { 'model': ErrorMessage }
+             403: { 'model': ErrorMessage },
+             404: { 'model': ErrorMessage }
          })
-def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)],
+def get_tfed_user(token: Annotated[Token, Depends()],
                   server_id: int,
                   user_id: int) -> UserData | JSONResponse:
     """Returns the transformed data for a given user in a server."""
-    if server_id not in current_user.in_servers:
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    guild = None
+    for g in user_guilds:
+        if g['id'] == str(server_id):
+            guild = g
+            break
+
+    if guild is None:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'Current user is not on that server' })
 
@@ -283,17 +280,22 @@ def get_tfed_user(current_user: Annotated[User, Depends(get_current_active_user)
                             content={ 'detail': 'That user is blocked from using the bot' })
 
     server = utils.load_transformed(server_id)
-    if server != {}:
-        if str(current_user.linked_id) in server['blocked_users']:
-            return JSONResponse(status_code=403,
-                                content={ 'detail': 'This server has blocked the current user' })
+    if server == {}:
+        return JSONResponse(status_code=404,
+                            content={ 'detail': 'That server does not have TransforMate in it' })
 
-        if str(user_id) in server['blocked_users']:
-            return JSONResponse(status_code=403,
-                                content={ 'detail': 'This server has blocked that user' })
+    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_id = current_user_info['id']
+    if current_user_id in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This server has blocked the current user' })
+
+    if str(user_id) in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This server has blocked that user' })
 
     tf = utils.load_tf(user_id, server_id)
-    if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
+    if tf != {} and current_user_id in tf['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'This user has blocked the current user' })
 
@@ -356,13 +358,22 @@ class TransformData(BaseModel):
          responses={
              400: { 'model': ErrorMessage },
              403: { 'model': ErrorMessage },
+             404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
+def tf_user(token: Annotated[Token, Depends()],
             server_id: int,
             user_id: int,
             tf_data: Annotated[TransformData, Depends()]) -> UserTransformationData | JSONResponse:
-    if server_id not in current_user.in_servers:
+    """Transforms a given user."""
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    guild = None
+    for g in user_guilds:
+        if g['id'] == str(server_id):
+            guild = g
+            break
+
+    if guild is None:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'Current user is not on that server' })
 
@@ -371,21 +382,26 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
                             content={ 'detail': 'That user is blocked from using the bot' })
 
     server = utils.load_transformed(server_id)
-    if server != {}:
-        if str(current_user.linked_id) in server['blocked_users']:
-            return JSONResponse(status_code=403,
-                                content={ 'detail': 'This server has blocked the current user' })
+    if server == {}:
+        return JSONResponse(status_code=404,
+                            content={ 'detail': 'That server does not have TransforMate in it' })
 
-        if str(user_id) in server['blocked_users']:
-            return JSONResponse(status_code=403,
-                                content={ 'detail': 'This server has blocked that user' })
+    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_id = current_user_info['id']
+    if current_user_id in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This server has blocked the current user' })
 
-        if str(tf_data.channel_id) in server['blocked_channels']:
-            return JSONResponse(status_code=403,
-                                content={ 'detail': 'This server has blocked that channel' })
+    if str(user_id) in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This server has blocked that user' })
+
+    if str(tf_data.channel_id) in server['blocked_channels']:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'This server has blocked that channel' })
 
     tf = utils.load_tf(user_id, server_id)
-    if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
+    if tf != {} and current_user_id in tf['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'That user has blocked the current user' })
 
@@ -403,14 +419,14 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
             return JSONResponse(status_code=409,
                                 content={ 'detail': 'That user is already transformed on this server' })
 
-        if tf['claim'] is not None and int(tf['claim']) != current_user.linked_id and tf['eternal']:
-            if current_user.linked_id != user_id:
+        if tf['claim'] is not None and tf['claim'] != current_user_id and tf['eternal']:
+            if int(current_user_id) != user_id:
                 return JSONResponse(status_code=409,
                                     content={ 'detail': 'That user is claimed, and you are not their owner' })
             return JSONResponse(status_code=409,
                                 content={'detail': 'You are claimed, and can not transform yourself' })
 
-    if server != {} and server['affixes']:
+    if server['affixes']:
         if not tf_data.brackets:
             return JSONResponse(status_code=400,
                                 content={ 'detail': 'You need to provide brackets on this server' })
@@ -446,7 +462,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
         utils.write_tf(user_id,
                        server_id,
                        tf_data.channel_id,
-                       transformed_by=str(current_user.linked_id),
+                       transformed_by=current_user_id,
                        new_data=new_data)
 
     elif tf_data.into:
@@ -471,7 +487,7 @@ def tf_user(current_user: Annotated[User, Depends(get_current_active_user)],
         utils.write_tf(user_id,
                        server_id,
                        tf_data.channel_id,
-                       transformed_by=str(current_user.linked_id),
+                       transformed_by=current_user_id,
                        into=tf_data.into.strip(),
                        image_url=tf_data.image_url,
                        proxy_prefix=tf_data.brackets[0] if tf_data.brackets is not None else None,
@@ -532,10 +548,11 @@ class ModData(BaseModel):
     small: bool | None = None
     hush: bool | None = None
     backwards: bool | None = None
-    censor: dict | None = None
-    sprinkle: dict | None = None
-    muffle: dict | None = None
-    alt_muffle: dict | None = None
+    censor: str | None = None
+    censor_replacement: str | None = None
+    sprinkle: str | None = None
+    muffle: str | None = None
+    alt_muffle: str | None = None
     stutter: int | None = None
     bio: str | None = None
     chance: int | None = None
@@ -546,13 +563,22 @@ class ModData(BaseModel):
          responses={
              400: { 'model': ErrorMessage },
              403: { 'model': ErrorMessage },
+             404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)],
+def modifier_user(token: Annotated[Token, Depends()],
                   server_id: int,
                   user_id: int,
                   mod_data: Annotated[ModData, Depends()]) -> UserTransformationData | JSONResponse:
-    if server_id not in current_user.in_servers:
+    """Modifies a given user's settings."""
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    guild = None
+    for g in user_guilds:
+        if g['id'] == str(server_id):
+            guild = g
+            break
+
+    if guild is None:
         return JSONResponse(status_code=403,
                             content={'detail': 'Current user is not on that server'})
 
@@ -561,21 +587,26 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
                             content={ 'detail': 'That user is blocked from using the bot' })
 
     server = utils.load_transformed(server_id)
-    if server != {}:
-        if str(current_user.linked_id) in server['blocked_users']:
-            return JSONResponse(status_code=403,
-                                content={'detail': 'This server has blocked the current user'})
+    if server == {}:
+        return JSONResponse(status_code=404,
+                            content={'detail': 'That server does not have TransforMate in it'})
 
-        if str(user_id) in server['blocked_users']:
-            return JSONResponse(status_code=403,
-                                content={'detail': 'This server has blocked that user'})
+    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_id = current_user_info['id']
+    if current_user_id in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked the current user'})
 
-        if str(mod_data.channel_id) in server['blocked_channels']:
-            return JSONResponse(status_code=403,
-                                content={'detail': 'This server has blocked that channel'})
+    if str(user_id) in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked that user'})
+
+    if str(mod_data.channel_id) in server['blocked_channels']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked that channel'})
 
     tf = utils.load_tf(user_id, server_id)
-    if tf != {} and str(current_user.linked_id) in tf['blocked_users']:
+    if tf != {} and current_user_id in tf['blocked_users']:
             return JSONResponse(status_code=403,
                                 content={'detail': 'That user has blocked the current user'})
 
@@ -593,8 +624,8 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
             return JSONResponse(status_code=409,
                                 content={'detail': 'That user is already transformed on this server'})
 
-        if tf['claim'] is not None and int(tf['claim']) != current_user.linked_id and tf['eternal']:
-            if current_user.linked_id != user_id:
+        if tf['claim'] is not None and tf['claim'] != current_user_id and tf['eternal']:
+            if int(current_user_id) != user_id:
                 return JSONResponse(status_code=409,
                                     content={'detail': 'That user is claimed, and you are not their owner'})
             return JSONResponse(status_code=409,
@@ -611,20 +642,14 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
                    small=mod_data.small,
                    hush=mod_data.hush,
                    backwards=mod_data.backwards,
+                   censor=mod_data.censor,
+                   censor_replacement=mod_data.censor_replacement,
                    sprinkle=mod_data.sprinkle,
                    muffle=mod_data.muffle,
                    alt_muffle=mod_data.alt_muffle,
                    stutter=mod_data.stutter,
                    bio=mod_data.bio,
                    chance=mod_data.chance)
-
-    if mod_data.censor:
-        for censor in mod_data.censor:
-            utils.write_tf(user_id,
-                           server_id,
-                           mod_data.channel_id,
-                           censor=censor,
-                           censor_replacement=mod_data.censor[censor])
 
     tf = utils.load_tf(user_id, server_id)
     channel_id = mod_data.channel_id if mod_data.channel_id else 'all'
@@ -669,111 +694,10 @@ def modifier_user(current_user: Annotated[User, Depends(get_current_active_user)
     )
 
 # User-related features
+
 @app.get("/users/me",
          tags=["Your User"],
-         response_model=User)
-async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
-    """Return the current user's stored information."""
-    return current_user
-
-@app.get("/users/me/file",
-         tags=["Your User"],
          response_model=dict)
-async def read_users_file_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> dict:
+async def read_users_file_me(token: Annotated[Token, Depends()]) -> dict:
     """Returns the current user's complete file."""
-    return utils.load_tf(current_user.linked_id)
-
-@app.put("/users/me/edit",
-         tags=["Your User"],
-         response_model=User,
-         responses={
-             400: {'model': ErrorMessage}
-         })
-async def edit_users_me(current_user: Annotated[User, Depends(get_current_active_user)],
-                        username: str | None = None,
-                        email: str | None = None) -> User | JSONResponse:
-    """Edits the current user's stored information."""
-    if username:
-        if len(username) < 2:
-            return JSONResponse(status_code=400,
-                                content={'detail': 'Username must be at least 2 characters long'})
-
-        if username in fake_users_db and username != current_user.username:
-            return JSONResponse(status_code=400,
-                                content={'detail': 'Username already taken'})
-    else:
-        username = current_user.username
-
-    if email:
-        if len(email) < 6 or not "@" in email or not "." in email:
-            return JSONResponse(status_code=400,
-                                content={'detail': 'Email must be a valid email address'})
-    else:
-        email = current_user.email
-
-    if username or email:
-        old_data = fake_users_db[current_user.username]
-        old_data['username'] = username
-        old_data['email'] = email
-        del fake_users_db[current_user.username]
-
-        fake_users_db[username] = old_data
-        current_user.username = username
-        current_user.email = email
-
-        with open(DATABASE_PATH, 'w') as f:
-            json.dump(fake_users_db, f, indent=4)
-
-    return current_user
-
-# Discord API interactions
-API_ENDPOINT = 'https://discord.com/api/v10' # Discord API endpoint
-
-def exchange_code(code):
-    data = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': REDIRECT_URI
-    }
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    r = requests.post('%s/oauth2/token' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
-    r.raise_for_status()
-    return r.json()
-
-def revoke_access_token(access_token):
-    data = {
-        'token': access_token,
-        'token_type_hint': 'access_token'
-    }
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    requests.post('%s/oauth2/token/revoke' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
-
-@app.get("/users/me/link_discord",
-         tags=["Your User"],
-         response_model=None,
-         responses={
-             404: {'model': ErrorMessage}
-         })
-async def link_discord(code: str) -> RedirectResponse | JSONResponse:
-    """Links the current user's Discord account."""
-    data = exchange_code(code)
-
-    req_user = requests.get('%s/users/@me' % API_ENDPOINT, headers={'Authorization': 'Bearer %s' % data['access_token']})
-    req_user.raise_for_status()
-    req_user = req_user.json()
-
-    user = fake_users_db.get(req_user['username'])
-    if user is None:
-        return JSONResponse(status_code=404,
-                            content={'detail': 'Username is not registered'})
-    user['linked_id'] = req_user['id']
-
-    fake_users_db[req_user['username']] = user
-    with open(DATABASE_PATH, 'w') as f:
-        json.dump(fake_users_db, f, indent=4)
-
-    return RedirectResponse(url=f"http://localhost:63342/TransforMate/web/index.html")
+    return utils.load_tf(int(get_user_info(decode_access_token(token.access_token)['access_token'])['id']))
