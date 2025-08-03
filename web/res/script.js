@@ -35,74 +35,32 @@ function encode_tsf(into,
                     muffles = null,
                     alt_muffles = null,
                     censors = null) {
-    data = ["15"]; // We're on TSFv1, so TMUDv15
-    data.push(into);
-    data.push(image_url);
+    
+    // Initialize with required fields
+    const data = [
+        "15",  // TSFv1/TMUDv15
+        into,
+        image_url,
+        big ? "1" : "0",
+        small ? "1" : "0",
+        hush ? "1" : "0",
+        backwards ? "1" : "0",
+        stutter.toString(),
+        proxy_prefix ?? "",
+        proxy_suffix ?? "",
+        bio ?? ""
+    ];
 
-    data.push(big ? "1" : "0");
-    data.push(small ? "1" : "0");
-    data.push(hush ? "1" : "0");
-    data.push(backwards ? "1" : "0");
+    // Helper function to process arrays
+    const processArray = (arr) => {
+        if (!arr?.length) return ["0", ""];
+        return ["1", arr.map(item => `${item.content}|${item.value}`).join(",")];
+    };
 
-    data.push(stutter.toString());
-    data.push(proxy_prefix != null ? proxy_prefix : "");
-    data.push(proxy_suffix != null ? proxy_suffix : "");
-    data.push(bio != null ? bio : "");
+    // Process all arrays
+    const arrays = [prefixes, suffixes, sprinkles, muffles, alt_muffles, censors];
+    arrays.forEach(arr => { data.push(...processArray(arr)); });
 
-    if (prefixes != null && prefixes.length > 0) {
-        data.push("1");
-        let prefix_data = []
-        for (let prefix of prefixes) prefix_data.push(prefix.content + "|" + prefix.value);
-        data.push(prefix_data.join(","));
-    } else {
-        data.push("0");
-        data.push("");
-    }
-    if (suffixes != null && suffixes.length > 0) {
-        data.push("1");
-        let suffix_data = []
-        for (let suffix of suffixes) suffix_data.push(suffix.content  + "|" + suffix.value);
-        data.push(suffix_data.join(","));
-    } else {
-        data.push("0");
-        data.push("");
-    }
-    if (sprinkles != null && sprinkles.length > 0) {
-        data.push("1");
-        let sprinkle_data = []
-        for (let sprinkle of sprinkles) sprinkle_data.push(sprinkle.content + "|" + sprinkle.value);
-        data.push(sprinkle_data.join(","));
-    } else {
-        data.push("0");
-        data.push("");
-    }
-    if (muffles != null && muffles.length > 0) {
-        data.push("1");
-        let muffle_data = []
-        for (let muffle of muffles) muffle_data.push(muffle.content + "|" + muffle.value);
-        data.push(muffle_data.join(","));
-    } else {
-        data.push("0");
-        data.push("");
-    }
-    if (alt_muffles != null && alt_muffles.length > 0) {
-        data.push("1");
-        let alt_muffle_data = []
-        for (let alt_muffle of alt_muffles) alt_muffle_data.push(alt_muffle.content + "|" + alt_muffle.value);
-        data.push(alt_muffle_data.join(","));
-    } else {
-        data.push("0");
-        data.push("");
-    }
-    if (censors != null && censors.length > 0) {
-        data.push("1");
-        let censor_data = []
-        for (let censor of censors) censor_data.push(censor.content + "|" + censor.value);
-        data.push(censor_data.join(","));
-    } else {
-        data.push("0");
-        data.push("");
-    }
     return data.join(";");
 }
 
