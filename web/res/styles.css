@@ -70,31 +70,6 @@ label {
     margin-bottom: 10px;
 }
 
-/*
-input[type=text], input[type=password], input[type=email] {
-    width: 100%;
-    height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-input[type=submit] {
-    width: 50%;
-    margin: 5% 20%;
-    padding: 1%;
-    color: #ccc;
-    background-color: #675c4d;
-    border: #424242 solid 2px;
-    border-radius: 5px;
-}
-
-input[type=submit]:hover {
-    background-color: #ccc;
-    color: #675c4d;
-}
-*/
-
 .manager {
     margin: 20px;
 }
