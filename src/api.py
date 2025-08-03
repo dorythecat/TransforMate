@@ -1,5 +1,5 @@
 import json
-import os
+import requests
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, NamedTuple, Union
 
@@ -13,8 +13,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 import utils
-from config import BLOCKED_USERS, CACHE_PATH, SECRET_KEY
-from cogs.transformation import transform_function
+from config import *
 
 DATABASE_PATH = f"{CACHE_PATH}/accounts.json"
 
@@ -726,3 +725,40 @@ async def edit_users_me(current_user: Annotated[User, Depends(get_current_active
             json.dump(fake_users_db, f, indent=4)
 
     return current_user
+
+# Discord API interactions
+API_ENDPOINT = 'https://discord.com/api/v10' # Discord API endpoint
+
+def exchange_code(code):
+    data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': REDIRECT_URI
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    r = requests.post('%s/oauth2/token' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+    r.raise_for_status()
+    return r.json()
+
+def revoke_access_token(access_token):
+    data = {
+        'token': access_token,
+        'token_type_hint': 'access_token'
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    requests.post('%s/oauth2/token/revoke' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+
+@app.get("/users/me/link_discord",
+         tags=["Your User"],
+         response_model=None,
+         responses={
+             400: {'model': ErrorMessage}
+         })
+async def link_discord(code: str) -> None:
+    """Links the current user's Discord account."""
+    data = exchange_code(code)
+    print(data)

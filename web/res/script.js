@@ -43,7 +43,6 @@ if (window.location.href.split("/").at(-1) === "account.html") {
 
     // Change forms
     const edit_user = document.getElementById("edit_user");
-    const change_email = document.getElementById("change_email");
 
     // Link button
     const link_discord = document.getElementById("link_discord");
@@ -78,6 +77,11 @@ if (window.location.href.split("/").at(-1) === "account.html") {
         }).catch(error => {
             console.error(error);
         })
+    }
+
+    link_discord.onclick = function (e) {
+        // Redirect to Discord OAuh
+        window.location.href = "";
     }
 }
 

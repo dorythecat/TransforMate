@@ -61,7 +61,12 @@ WEBHOOK_NAME=webhook_name
 BLOCKED_USERS="[user_id1, user_id2, ...]"
 USER_REPORTS_CHANNEL_ID=your_channel_id
 CACHE_PATH="cache"
+
+# API Exclusive Config
 SECRET_KEY=(see "Secret Key" below)
+CLIENT_ID=discord_app_id
+CLIENT_SECRET=discord_app_secret
+REDIRECT_URI=discord_app_redirect_uri
 ```
 
 You should also install all the requirements from `requirements.txt` and create the

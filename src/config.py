@@ -37,3 +37,15 @@ CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder
 if os.getenv("SECRET_KEY") is None:
     raise Exception("SECRET_KEY has not been provided! Check your .env! Aborting")
 SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others
+
+if os.getenv("CLIENT_ID") is None:
+    raise Exception("CLIENT_ID hasn't been provided! Check your .env! Aborting")
+CLIENT_ID: str = os.getenv("CLIENT_ID")
+
+if os.getenv("CLIENT_SECRET") is None:
+    raise Exception("CLIENT_SECRET hasn't been provided! Check your .env! Aborting")
+CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
+
+if os.getenv("REDIRECT_URI") is None:
+    raise Exception("REDIRECT_URI hasn't been provided! Check your .env! Aborting")
+REDIRECT_URI: str = os.getenv("REDIRECT_URI")
