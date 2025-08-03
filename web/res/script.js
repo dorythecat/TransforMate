@@ -21,20 +21,20 @@ function getCookie(cname) {
 // See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf.html#transformation-string-format
 function encode_tsf(into,
                     image_url,
-                    big,
-                    small,
-                    hush,
-                    backwards,
-                    stutter,
-                    proxy_prefix,
-                    proxy_suffix,
-                    bio,
-                    prefixes,
-                    suffixes,
-                    sprinkles,
-                    muffles,
-                    alt_muffles,
-                    censors) {
+                    big = false,
+                    small = false,
+                    hush = false,
+                    backwards = false,
+                    stutter = 0,
+                    proxy_prefix = null,
+                    proxy_suffix = null,
+                    bio = null,
+                    prefixes = null,
+                    suffixes = null,
+                    sprinkles = null,
+                    muffles = null,
+                    alt_muffles = null,
+                    censors = null) {
     data = ["15"]; // We're on TSFv1, so TMUDv15
     data.push(into);
     data.push(image_url);
@@ -110,4 +110,15 @@ login.onclick = function (e) {
 logout.onclick = function (e) {
     setCookie("token", null, -1);
     window.location.href = "index.html";
+}
+
+// TSF Editor page
+if (window.location.href.includes("tsf_editor.html")) {
+    new_tf_name = document.getElementById("new_tf_name");
+    new_tf_img = document.getElementById("new_tf_img");
+    new_tf_submit = document.getElementById("new_tf_submit");
+
+    new_tf_submit.onclick = function (e) {
+        console.log(encode_tsf(new_tf_name.value, new_tf_img.value));
+    }
 }
