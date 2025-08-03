@@ -2,8 +2,8 @@
 function setCookie(cname, cvalue, exmins) {
     const d = new Date();
     d.setTime(d.getTime() + (exmins * 60 * 1000));
-    let expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    let expires = "Expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";Path=/;Secure;SameSite=Strict;"; // Make cookie secure
 }
 
 function getCookie(cname) {
