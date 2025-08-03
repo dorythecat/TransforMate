@@ -141,10 +141,21 @@ class ErrorMessage(BaseModel):
 # Login
 @app.get("/login",
          tags=["Security"],
-         response_model=Token)
+         response_model=Token,
+         responses={
+             403: { 'model': ErrorMessage },
+             502: { 'model': ErrorMessage }
+         })
 async def login(code: str) -> Token | JSONResponse:
     """Login to a Discord account."""
     data = exchange_code(code)
+    user_data = get_user_info(data['access_token'])
+    if not ('identify' in data['scope'] and 'guilds' in data['scope']):
+        return JSONResponse(status_code=502,
+                            content={ 'detail': 'Required Discord scopes were not granted' })
+    if user_data['id'] in BLOCKED_USERS:
+        return JSONResponse(status_code=403,
+                            content={ 'detail': 'That user is blocked from using the bot' })
     access_token = create_access_token(data={'access_token': data['access_token']},
                                        expires_delta=timedelta(seconds=int(data['expires_in'])))
     return Token(access_token=access_token)
