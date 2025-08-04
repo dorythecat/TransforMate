@@ -342,11 +342,9 @@ def is_transformed(user: discord.User | discord.Member | int,
                    channel: discord.TextChannel | int | None = None) -> bool:
     data = load_transformed(guild)
     user_id = str(user if type(user) is int else user.id)
+    if data == {} or user_id not in data['transformed_users'] or data['transformed_users'][user_id] in [[], None]:
+        return False
     channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
-    if data == {} or user_id not in data['transformed_users']:
-        return False
-    if data['transformed_users'][user_id] in [[], None]:
-        return False
     return channel_id in data['transformed_users'][user_id] or 'all' in data['transformed_users'][user_id]
 
 
