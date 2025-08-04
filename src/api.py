@@ -4,9 +4,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, NamedTuple, Union
 
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Security
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt.exceptions import InvalidTokenError
 from pydantic import BaseModel
 
@@ -66,6 +67,7 @@ app.add_middleware(
 )
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
+security = HTTPBearer()
 
 
 # Discord API interactions
@@ -129,19 +131,26 @@ def get_user_guilds(access_token: str) -> list[dict]:
 
 
 # Various utilities
-class Token(BaseModel):
-    access_token: str
-
-
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta if expires_delta else timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
-def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+async def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
+    """Get and validate the Authorization header token."""
+    token = credentials.credentials if credentials else None
+    if not token:
+        return None
+    try:
+        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return data
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 class ErrorMessage(BaseModel):
@@ -173,9 +182,8 @@ async def login(code: str, redirect_url: str) -> RedirectResponse | JSONResponse
 
 @app.post("/logout",
           tags=["Security"])
-async def logout(token: Annotated[Token, Depends()]) -> None:
+async def logout(token: Annotated[str, Depends(get_current_token)]) -> None:
     """Logout of a Discord account."""
-    token = jwt.decode(token.access_token, SECRET_KEY, algorithms=[ALGORITHM])
     revoke_access_token(token)
 
 
@@ -209,10 +217,10 @@ class ServerData(BaseModel):
              403: { 'model': ErrorMessage },
              404: { 'model': ErrorMessage }
          })
-async def get_server(token: Annotated[Token, Depends()],
+async def get_server(token: Annotated[str, Depends(get_current_token)],
                      server_id: int) -> ServerDataBasic | ServerData | JSONResponse:
     """Returns the settings for a given server. If you're an administrator, you'll get the full file for said server."""
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_guilds = get_user_guilds(token)
     guild = None
     is_admin = False
     for g in user_guilds:
@@ -230,7 +238,7 @@ async def get_server(token: Annotated[Token, Depends()],
         return JSONResponse(status_code=404,
                             content={ 'detail': 'That server does not have TransforMate in it' })
 
-    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_info = get_user_info(token)
     if current_user_info['id'] in server['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'This server has blocked the current user' })
@@ -289,11 +297,11 @@ class UserData(BaseModel):
              403: { 'model': ErrorMessage },
              404: { 'model': ErrorMessage }
          })
-async def get_tfed_user(token: Annotated[Token, Depends()],
+async def get_tfed_user(token: Annotated[str, Depends(get_current_token)],
                         server_id: int,
                         user_id: int) -> UserData | JSONResponse:
     """Returns the transformed data for a given user in a server."""
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_guilds = get_user_guilds(token)
     guild = None
     for g in user_guilds:
         if g['id'] == str(server_id):
@@ -313,7 +321,7 @@ async def get_tfed_user(token: Annotated[Token, Depends()],
         return JSONResponse(status_code=404,
                             content={ 'detail': 'That server does not have TransforMate in it' })
 
-    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_info = get_user_info(token)
     current_user_id = current_user_info['id']
     if current_user_id in server['blocked_users']:
         return JSONResponse(status_code=403,
@@ -392,12 +400,12 @@ class TransformData(BaseModel):
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-async def tf_user(token: Annotated[Token, Depends()],
+async def tf_user(token: Annotated[str, Depends(get_current_token)],
                   server_id: int,
                   user_id: int,
                   tf_data: Annotated[TransformData, Depends()]) -> UserTransformationData | JSONResponse:
     """Transforms a given user."""
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_guilds = get_user_guilds(token)
     guild = None
     for g in user_guilds:
         if g['id'] == str(server_id):
@@ -418,7 +426,7 @@ async def tf_user(token: Annotated[Token, Depends()],
         return JSONResponse(status_code=404,
                             content={ 'detail': 'That server does not have TransforMate in it' })
 
-    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_info = get_user_info(token)
     current_user_id = current_user_info['id']
     if current_user_id in server['blocked_users']:
         return JSONResponse(status_code=403,
@@ -600,12 +608,12 @@ class ModData(BaseModel):
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-async def modifier_user(token: Annotated[Token, Depends()],
+async def modifier_user(token: Annotated[str, Depends(get_current_token)],
                         server_id: int,
                         user_id: int,
                         mod_data: Annotated[ModData, Depends()]) -> UserTransformationData | JSONResponse:
     """Modifies a given user's settings."""
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_guilds = get_user_guilds(token)
     guild = None
     for g in user_guilds:
         if g['id'] == str(server_id):
@@ -625,7 +633,7 @@ async def modifier_user(token: Annotated[Token, Depends()],
         return JSONResponse(status_code=404,
                             content={'detail': 'That server does not have TransforMate in it'})
 
-    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_info = get_user_info(token)
     current_user_id = current_user_info['id']
     if current_user_id in server['blocked_users']:
         return JSONResponse(status_code=403,
@@ -738,12 +746,12 @@ async def modifier_user(token: Annotated[Token, Depends()],
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-async def tsf_user(token: Annotated[Token, Depends()],
+async def tsf_user(token: Annotated[str, Depends(get_current_token)],
                    server_id: int,
                    user_id: int,
                    tsf_string: str) -> UserTransformationData | JSONResponse:
     """Modifies a user's settings using a TSF-compliant string."""
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_guilds = get_user_guilds(token)
     guild = None
     for g in user_guilds:
         if g['id'] == str(server_id):
@@ -763,7 +771,7 @@ async def tsf_user(token: Annotated[Token, Depends()],
         return JSONResponse(status_code=404,
                             content={'detail': 'That server does not have TransforMate in it'})
 
-    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_info = get_user_info(token)
     current_user_id = current_user_info['id']
     if current_user_id in server['blocked_users']:
         return JSONResponse(status_code=403,
@@ -858,9 +866,9 @@ async def tsf_user(token: Annotated[Token, Depends()],
 @app.get("/users/me",
          tags=["Your User"],
          response_model=dict)
-async def read_users_file_me(token: Annotated[Token, Depends()]) -> dict:
+async def read_users_file_me(token: Annotated[str, Depends(get_current_token)]) -> dict:
     """Returns the current user's complete file."""
-    return utils.load_tf(int(get_user_info(decode_access_token(token.access_token)['access_token'])['id']))
+    return utils.load_tf(int(get_user_info(token)))
 
 
 class DiscordUser(BaseModel):
@@ -873,9 +881,9 @@ class DiscordUser(BaseModel):
 @app.get("/users/me/discord",
          tags=["Your User"],
          response_model=DiscordUser)
-async def read_users_discord_me(token: Annotated[Token, Depends()]) -> DiscordUser:
+async def read_users_discord_me(token: Annotated[str, Depends(get_current_token)]) -> DiscordUser:
     """Returns the current user's Discord data."""
-    user = get_user_info(decode_access_token(token.access_token)['access_token'])
+    user = get_user_info(token)
     return DiscordUser(
         id=int(user['id']),
         username=user['username'],
@@ -894,9 +902,9 @@ class DiscordServer(BaseModel):
 @app.get("/users/me/discord/servers",
          tags=["Your User"],
          response_model=list[DiscordServer])
-async def read_users_discord_servers_me(token: Annotated[Token, Depends()]) -> list[DiscordServer]:
+async def read_users_discord_servers_me(token: Annotated[str, Depends(get_current_token)]) -> list[DiscordServer]:
     """Returns the current user's Discord servers on which the bot is at the current moment."""
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_guilds = get_user_guilds(token)
     bot_servers = []
     
     for guild in user_guilds:
@@ -921,12 +929,12 @@ async def read_users_discord_servers_me(token: Annotated[Token, Depends()]) -> l
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-async def tsf_user_me(token: Annotated[Token, Depends()],
+async def tsf_user_me(token: Annotated[str, Depends(get_current_token)],
                       server_id: int,
                       tsf_string: str) -> UserTransformationData | JSONResponse:
     """Modifies the current user's settings using a TSF-compliant string."""
-    user_id = int(get_user_info(decode_access_token(token.access_token)['access_token'])['id'])
-    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    user_id = int(get_user_info(token))
+    user_guilds = get_user_guilds(token)
     guild = None
     for g in user_guilds:
         if g['id'] == str(server_id):
@@ -946,7 +954,7 @@ async def tsf_user_me(token: Annotated[Token, Depends()],
         return JSONResponse(status_code=404,
                             content={'detail': 'That server does not have TransforMate in it'})
 
-    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_info = get_user_info(token)
     current_user_id = current_user_info['id']
     if current_user_id in server['blocked_users']:
         return JSONResponse(status_code=403,
