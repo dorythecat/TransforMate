@@ -108,10 +108,6 @@ class Transformation(commands.Cog):
         if not user:
             user = ctx.author
 
-        data = utils.load_tf(user, ctx.guild)
-        transformed_data = utils.load_transformed(ctx.guild)
-        channel_id = str(ctx.channel.id if not channel else channel.id)
-
         # Blocked users (globally)
         if ctx.user.id in BLOCKED_USERS:
             await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
@@ -122,26 +118,29 @@ class Transformation(commands.Cog):
             await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
             return
 
+        channel_id = str(ctx.channel.id if not channel else channel.id)
+        data = utils.load_tf(user, ctx.guild)
         # Blocked channels (user)
-        if data != {}:
-            if channel_id in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
-                return
+        if data != {} and channel_id in data['blocked_channels']:
+            await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                              f"They have blocked the bot here!", ephemeral=True)
+            return
 
-        if transformed_data != {}:
-            # Blocked channels (server)
-            if channel_id in transformed_data['blocked_channels']:
-                await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                return
+        transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data == {}:
+            utils.write_transformed(ctx.guild)
+        # Blocked channels (server)
+        if channel_id in transformed_data['blocked_channels']:
+            await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+            return
 
-            # Blocked users (server)
-            if str(ctx.user.id) in transformed_data['blocked_users']:
-                await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                return
-            if str(user.id) in transformed_data['blocked_users']:
-                await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
-                return
+        # Blocked users (server)
+        if str(ctx.user.id) in transformed_data['blocked_users']:
+            await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+            return
+        if str(user.id) in transformed_data['blocked_users']:
+            await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+            return
 
         if utils.is_transformed(user, ctx.guild):
             if channel_id in data:
@@ -164,7 +163,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
 
-        if transformed_data != {} and transformed_data['affixes']:
+        if transformed_data['affixes']:
             if not brackets:
                 await ctx.respond(f"Please provide brackets for this transformation!")
                 return
@@ -223,15 +222,21 @@ class Transformation(commands.Cog):
                      user: discord.Option(discord.User) = None) -> None:
         if user is None:
             user = ctx.author
-        data = utils.load_tf(user, ctx.guild)
+
+        # No one has been transformed in the server, so why would this user be?
         transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data == {}:
+            await ctx.respond(f"{user.mention} is not transformed at the moment!")
+            return
+
+        data = utils.load_tf(user, ctx.guild)
         channel = None
         if str(ctx.channel.id) in data:
             data = data[str(ctx.channel.id)]
             channel = ctx.channel
         elif 'all' in data:
             data = data['all']
-        elif transformed_data != {} and not transformed_data['affixes']:
+        elif not transformed_data['affixes']:
             await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to! "
                               f"(At least on this channel)")
             return
@@ -392,30 +397,32 @@ class Transformation(commands.Cog):
         data = utils.load_tf(user, ctx.guild)
         transformed_data = utils.load_transformed(ctx.guild)
 
+        if data == {}:
+            await ctx.respond(f"{user.mention} is not transformed at the moment!")
+            return
+
         # Blocked channels (user)
-        if data != {}:
-            if str(ctx.channel.id) in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                    f"They have blocked the bot here!", ephemeral=True)
+        if str(ctx.channel.id) in data['blocked_channels']:
+            await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                              f"They have blocked the bot here!", ephemeral=True)
+            return
+
+        if transformed_data != {}:
+            # Blocked channels (server)
+            if str(ctx.channel.id) in transformed_data['blocked_channels']:
+                await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
                 return
 
-            if transformed_data != {}:
-                # Blocked channels (server)
-                if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                    return
+            # Blocked users (server)
+            if str(ctx.user.id) in transformed_data['blocked_users']:
+                await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                return
+            if str(user.id) in transformed_data['blocked_users']:
+                await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                return
 
-                # Blocked users (server)
-                if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                    return
-                if str(user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
-                    return
-
-        data = utils.load_tf(user, ctx.guild)
         version = utils.get_data_version(user)
-        data = data[str(ctx.channel) if str(ctx.channel) in data else 'all']
+        data = data[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
 
         output = utils.encode_tsf(data, version)
 
@@ -485,6 +492,7 @@ class Transformation(commands.Cog):
             await ctx.respond("Cancelled the transformation!")
             return
 
+        tsf_string = response.content
         if response.attachments:
             await response.attachments[0].save(f"tf_cache.tf")
             try:
@@ -494,8 +502,6 @@ class Transformation(commands.Cog):
             except OSError as e:
                 print(f"Error reading from file or removing file:")
                 print(f"{type(e).__name__}: {e}")
-        else:
-            tsf_string = response.content
 
         new_data = utils.decode_tsf(tsf_string)
         new_data['transformed_by'] = ctx.author.id
