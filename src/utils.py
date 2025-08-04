@@ -81,7 +81,7 @@ class ServerTFData(BaseModel):
 
 # Actual TMUD
 class TMUD(BaseModel):
-    version: int = 15
+    version: int = CURRENT_TMUD_VERSION
     data: dict[int, ServerTFData] = {}
 
 
