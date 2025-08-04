@@ -4,8 +4,6 @@ import random
 import math
 
 from types import NoneType
-from typing import Annotated
-from pydantic import BaseModel, Field
 
 import discord
 
@@ -43,52 +41,12 @@ CURRENT_TMUD_VERSION = 15
 # VERSION 1: Base version
 CURRENT_TRANSFORMED_DATA_VERSION = 7
 
-class StringIntegerModifier(BaseModel):
-    active: bool = False
-    contents: dict[str, int] = {}
-
-class StringStringModifier(BaseModel):
-    active: bool = False
-    contents: dict[str, str] = {}
-
-# Per-channel TF Data
-class TFData(BaseModel):
-    transformed_by: str
-    into: str
-    image_url: str
-    claim: int | None = None
-    eternal: bool = False
-    prefix: StringIntegerModifier
-    suffix: StringIntegerModifier
-    big: bool = False
-    small: bool = False
-    hush: bool = False
-    backwards: bool = False
-    censor: StringStringModifier
-    sprinkle: StringIntegerModifier
-    muffle: StringIntegerModifier
-    alt_muffle: StringIntegerModifier
-    stutter: Annotated[int, Field(ge=0, le=100)] = 0
-    proxy_prefix: str | None = None
-    proxy_suffix: str | None = None
-    bio: str | None = None
-
-# Per-server TF data
-class ServerTFData(BaseModel):
-    blocked_channels: list[str] = []
-    blocked_users: list[str] = []
-    data: dict[str, TFData] = {}
-
-# Actual TMUD
-class TMUD(BaseModel):
-    version: int = CURRENT_TMUD_VERSION
-    data: dict[int, ServerTFData] = {}
-
 
 # USER TRANSFORMATION DATA UTILS
 def load_tf(user: discord.User | discord.Member | int, guild: discord.Guild | int | None = None) -> dict:
     return load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
+
 
 def get_data_version(user: discord.User | discord.Member) -> int:
     return int(load_file(f'{CACHE_PATH}/people/{str(user.id)}.json')['version'])
