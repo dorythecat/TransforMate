@@ -11,12 +11,17 @@
 <body>
     <div class="topnav">
         <a href="index.html">Home</a>
-        <a href="tsf_editor.html" class="active">TSF Editor</a>
+        <div class="dropdown">
+            <a class="dropbtn active">Toolbox</a>
+            <div class="dropdown_content">
+                <a href="tsf_editor.html" class="sub_active">TSF Editor</a>
+            </div>
+        </div>
         <a href="https://dorythecat.github.io/TransforMate">Documentation</a>
-        <a class="left" id="login">Login</a>
         <a href="https://dorythecat.github.io/TransforMate/about">About</a>
+        <a class="left theme_toggle" id="theme_toggle">Light Mode</a>
+        <a class="left" id="login">Login</a>
         <a class="left" id="logout">Logout</a>
-        <a id="theme_toggle" class="left theme_toggle">Light Mode</a>
     </div>
 
     <div class="page_content">
@@ -28,7 +33,7 @@
             <label for="new_tf_img"> Image URL:<a style="color: red;">*</a>
                 <input type="text" id="new_tf_img" placeholder="Image URL"/>
             </label>
-            <button id="new_tf_submit">Submit</button>
+            <button id="new_tf_submit" class="btn">Submit</button>
         </div>
         <hr/>
         <div id="tf_data_form">
@@ -196,14 +201,14 @@
                 </div>
             </div>
             <hr/>
-            <button id="submit_tf_btn">Submit</button>
-            <button onclick="window.location.reload();">Reset</button>
+            <button id="submit_tf_btn" class="btn">Submit</button>
+            <button onclick="window.location.reload();" class="btn">Reset</button>
             <hr/>
             <div id="tf_submit_output" style="display: none;">
                 <label for="new_tf_output"> Generated TSF String:
                     <textarea id="new_tf_output"></textarea>
                 </label>
-                <button id="copy_tf_output">Copy to clipboard</button>
+                <button id="copy_tf_output" class="btn">Copy to clipboard</button>
                 <hr/>
             </div>
         </div>

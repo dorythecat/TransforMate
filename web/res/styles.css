@@ -38,14 +38,15 @@ body {
 }
 
 .topnav a {
+    float: left;
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
     color: var(--text-secondary);
     cursor: pointer;
     user-select: none;
-}
-
-.topnav a:hover {
-    background-color: var(--hover-bg);
-    color: var(--hover-text);
 }
 
 .topnav a.active {
@@ -53,13 +54,9 @@ body {
     color: var(--text-secondary);
 }
 
-.topnav a {
-    float: left;
-    display: block;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-size: 17px;
+.topnav a:hover, .topnav a.active:hover, .dropdown:hover .dropbtn {
+    background-color: var(--hover-bg);
+    color: var(--hover-text);
 }
 
 .topnav a.left {
@@ -161,7 +158,7 @@ label {
     box-shadow: 0 0 10px black;
 }
 
-button {
+button.btn {
     cursor: pointer;
     color: var(--text-primary);
     background-color: mediumseagreen;
@@ -172,7 +169,7 @@ button {
     margin: 10px;
 }
 
-button:hover {
+button.btn:hover {
     background-color: lightgreen;
     box-shadow: 0 0 10px var(--bg-secondary);
 }
@@ -205,36 +202,87 @@ input[type=text] {
 }
 
 .slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  background: var(--bg-secondary);
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: var(--bg-secondary);
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
 }
 
 .slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
 }
 
-@media screen and (max-width: 1100px) {
+.dropdown {
+    float: left;
+    overflow: hidden;
+}
+
+.dropdown .dropbtn {
+    font-size: 17px;
+    border: none;
+    outline: none;
+    color: var(--text-secondary);
+    padding: 14px 16px;
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+}
+
+/* Style the dropdown content (hidden by default) */
+.dropdown_content {
+    display: none;
+    position: absolute;
+    background-color: var(--bg-secondary);
+    min-width: 160px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Style the links inside the dropdown */
+.dropdown_content a {
+    float: none;
+    color: var(--text-secondary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 10px;
+    border: 5px var(--bg-secondary) solid;
+}
+
+.dropdown_content a:hover {
+    background-color: var(--hover-bg);
+    color: var(--hover-text);
+}
+
+.dropdown:hover .dropdown_content {
+    display: block;
+    margin: 40px;
+    border-radius: 10px;
+}
+
+@media screen and (max-width: 1000px) {
     .topnav {
         position: relative;
         margin: 2%;
@@ -257,5 +305,33 @@ input[type=text] {
     }
     div#new_tf_container {
         width: 100%;
+    }
+    .topnav .dropdown {
+        float: none;
+    }
+    .topnav .dropdown .dropbtn {
+        display: none;
+    }
+    .dropdown .dropdown_content {
+        display: block;
+        position: relative;
+        margin: 0;
+        width: 100%;
+    }
+    .dropdown_content a.sub_active {
+        background-color: var(--accent-color);
+        color: var(--text-secondary);
+    }
+    .dropdown_content a {
+        border-radius: 0;
+    }
+    .dropdown_content a:hover {
+        background-color: var(--hover-bg);
+        color: var(--hover-text);
+    }
+    .dropdown:hover .dropdown_content {
+        display: block;
+        margin: 0;
+        padding: 0;
     }
 }
