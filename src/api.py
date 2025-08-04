@@ -742,6 +742,7 @@ async def tsf_user(token: Annotated[Token, Depends()],
                    server_id: int,
                    user_id: int,
                    tsf_string: str) -> UserTransformationData | JSONResponse:
+    """Modifies a user's settings using a TSF-compliant string."""
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
     for g in user_guilds:
@@ -862,6 +863,14 @@ async def read_users_file_me(token: Annotated[Token, Depends()]) -> dict:
     return utils.load_tf(int(get_user_info(decode_access_token(token.access_token)['access_token'])['id']))
 
 
+@app.get("/users/me/discord",
+         tags=["Your User"],
+         response_model=dict)
+async def read_users_discord_me(token: Annotated[Token, Depends()]) -> dict:
+    """Returns the current user's Discord data."""
+    return get_user_info(decode_access_token(token.access_token)['access_token'])
+
+
 @app.put("/users/me/tsf",
          tags=["Your User"],
          response_model=UserTransformationData,
@@ -874,6 +883,7 @@ async def read_users_file_me(token: Annotated[Token, Depends()]) -> dict:
 async def tsf_user_me(token: Annotated[Token, Depends()],
                       server_id: int,
                       tsf_string: str) -> UserTransformationData | JSONResponse:
+    """Modifies the current user's settings using a TSF-compliant string."""
     user_id = int(get_user_info(decode_access_token(token.access_token)['access_token'])['id'])
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
