@@ -201,7 +201,7 @@ if (window.location.href.includes("tsf_editor.html")) {
         elements.new_tf_submit.style.display = "none";
     };
 
-    document.getElementById("submit_tf_btn").onclick = () => {
+    document.getElementById("submit_tf_btn").onclick = async () => {
         // Generate TSF string with provided data
         const tsf_data = encode_tsf(
             elements.new_tf_name.value,
@@ -228,9 +228,6 @@ if (window.location.href.includes("tsf_editor.html")) {
         const new_tf_output = document.getElementById("new_tf_output");
         new_tf_output.value = tsf_data;
 
-        // Display output and associated label
-        document.getElementById("tf_submit_output").style.display = "block";
-
         // Select and copy the output when the associated button is pressed
         document.getElementById("copy_tf_output").onclick = () => {
             new_tf_output.select();
@@ -249,6 +246,57 @@ if (window.location.href.includes("tsf_editor.html")) {
             element.click();
             element.remove();
         }
+
+        // Make the loading visible
+        const loading_container = document.getElementById("loading_container");
+        loading_container.style.display = "block";
+
+        // Check if the user is logged in, if they are, allow them to select what server to apply the transformation to,
+        // and wait before loading the rest of the elements down here
+        if (getCookie("token") !== "") {
+            const response = fetch('http://127.0.0.1:8000/users/me/discord/servers', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getCookie('token')}`
+                }
+            }).catch(e => console.error(e)).then(r => r.text());
+
+            await response.then(servers => {
+                const serverSelect = document.getElementById("tf_output_server");
+                for (const server of JSON.parse(servers.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'))) {
+                    const option = document.createElement("option");
+                    option.value = server['id'];
+                    option.textContent = server['name'];
+                    serverSelect.appendChild(option);
+                }
+
+                const button = document.getElementById("apply_tf_output");
+                button.onclick = async () => {
+                    const server = serverSelect.value;
+                    if (server === "") return;
+                    const response = fetch(`http://127.0.0.1:8000/users/me/tsf/${server}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${getCookie('token')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(tsf_data)
+                    }).catch(e => console.error(e)).then(r => r.json());
+
+                    await response.then(r => {
+                        alert("Transformation applied successfully!");
+                        window.location.href = "tsf_editor.html";
+                    })
+                }
+
+                serverSelect.classList.remove("hidden");
+                button.classList.remove("hidden");
+            })
+            loading_container.style.display = "none";
+            document.getElementById("tf_submit_output").style.display = "block";
+        }
+        loading_container.style.display = "none";
+        document.getElementById("tf_submit_output").style.display = "block";
     };
 }
 

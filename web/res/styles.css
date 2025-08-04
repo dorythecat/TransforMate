@@ -328,6 +328,72 @@ input[type=text] {
     border-radius: 10px;
 }
 
+.hidden {
+    display: none;
+}
+
+select {
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    font-size: 150%;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 2px var(--bg-secondary) solid;
+}
+
+.loader {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.loader:before {
+    content: '';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    top: 50%;
+    left: 0;
+    transform: translate(-5px, -50%);
+    background-size: 200% auto;
+    background: linear-gradient(to right, #fff 50%, #de3500 50%) no-repeat 100% 0;
+    animation: colorBallMoveX 1.5s linear infinite alternate;
+}
+
+.loader:after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: #de3500;
+}
+
+@keyframes colorBallMoveX {
+    0% {
+        background-position: 0;
+        transform: translate(-15px, -50%);
+    }
+    15%, 25% {
+        background-position: 0;
+        transform: translate(0px, -50%);
+    }
+    75%, 85% {
+        background-position: 100% 0;
+        transform: translate(50px, -50%);
+    }
+    100% {
+        background-position: 100% 0;
+        transform: translate(65px, -50%);
+    }
+}
+
 @media screen and (max-width: 1000px) {
     .topnav {
         position: relative;

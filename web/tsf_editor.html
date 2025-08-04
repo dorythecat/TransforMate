@@ -207,12 +207,22 @@
             <button id="submit_tf_btn" class="btn">Submit</button>
             <button onclick="window.location.reload();" class="btn">Reset</button>
             <hr/>
+            <div id="loading_container" style="display: none;">
+                <div class="loader"></div>
+                <p>Please wait...</p>
+                <hr/>
+            </div>
             <div id="tf_submit_output" style="display: none;">
                 <label for="new_tf_output"> Generated TSF String:
                     <textarea id="new_tf_output"></textarea>
                 </label>
                 <button id="copy_tf_output" class="btn">Copy to clipboard</button>
                 <button id="download_tf_output" class="btn">Download file</button>
+
+                <select id="tf_output_server" class="hidden">
+
+                </select>
+                <button id="apply_tf_output" class="btn hidden">Apply transformation</button>
                 <hr/>
             </div>
         </div>
