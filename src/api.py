@@ -875,8 +875,17 @@ async def read_users_discord_me(token: Annotated[Token, Depends()]) -> dict:
          tags=["Your User"],
          response_model=list[dict])
 async def read_users_discord_servers_me(token: Annotated[Token, Depends()]) -> list[dict]:
-    """Returns the current user's Discord servers."""
-    return get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    """Returns the current user's Discord servers on which the bot is at the current moment."""
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    bot_servers = []
+    
+    for guild in user_guilds:
+        server_id = int(guild['id'])
+        server = utils.load_transformed(server_id)
+        if server != {}:  # Bot is present on this server
+            bot_servers.append(guild)
+    return bot_servers
+    
 
 
 @app.put("/users/me/tsf",
