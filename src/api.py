@@ -871,6 +871,14 @@ async def read_users_discord_me(token: Annotated[Token, Depends()]) -> dict:
     return get_user_info(decode_access_token(token.access_token)['access_token'])
 
 
+@app.get("/users/me/discord/servers",
+         tags=["Your User"],
+         response_model=list[dict])
+async def read_users_discord_servers_me(token: Annotated[Token, Depends()]) -> list[dict]:
+    """Returns the current user's Discord servers."""
+    return get_user_guilds(decode_access_token(token.access_token)['access_token'])
+
+
 @app.put("/users/me/tsf",
          tags=["Your User"],
          response_model=UserTransformationData,
