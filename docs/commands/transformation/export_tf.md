@@ -42,7 +42,7 @@ TransforMate User Data (TMUD). The numbering starts as 0, where TSFv0 is compati
 with TMUDv14 (Both deprecated since v1.5.0).
 
 !!! note
-    The TMUD standard isn't documented as-is, and only exists inside the
+    The TMUD standard isn't documented as-is and only exists inside the
     [`utils.py`](https://github.com/dorythecat/TransforMate/blob/main/src/utils.py)
     file of TransforMate, where the changelog is located too.
 
@@ -55,7 +55,8 @@ with TMUDv14 (Both deprecated since v1.5.0).
     so you can use them freely for your projects, modify, and propose changes to them.
 
 !!! warning
-    TSF is backwards compatible with all previous versions, but TMUD is not.
+    TSF is backwards compatible with all previous versions (except v0, deprecated
+    since v2.0.0), but TMUD is NOT.
 
 The current specification, here described, is TSFv1.0, used since v1.5.0. The
 documentation for v0 will not be released, but every version since v1 will be kept
@@ -138,3 +139,17 @@ if they are active or not.
 - `alt_muffle`: Strings that fully replace what the user has sent.
 
 - `censor`: Replaces the first string of the pair for the second one. Case-insensitive.
+
+### A note on TSF files
+The Transformation String Format was originally designed to encode transformation
+data in an efficient, easy to edit, and more or less human-readable manner. It was
+originally designed as a translation layer between the JSON of the TMUD format
+and something that could be easily handled by humans interacting over Discord.
+
+An alternative mode was born out of this, the TSF File Format. As of the latest
+version of TSF, this file format simply consists of a TSF-compliant string,
+packaged in any kind of readable UTF-8 encoded file, preferably terminated with the
+`.tsf` denominator, for ease of identification.
+
+It is a supported addition of the standard and can even be used to replace TMUD
+files, in a more space-efficient manner.
