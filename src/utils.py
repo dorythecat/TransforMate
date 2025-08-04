@@ -266,7 +266,11 @@ def remove_all_server_tf(user: discord.User | discord.Member,
 
 
 def remove_all_tf(user: discord.User | discord.Member) -> None:
-    os.remove(f'{CACHE_PATH}/people/{str(user.id)}.json')
+    try:
+        os.remove(f'{CACHE_PATH}/people/{str(user.id)}.json')
+    except OSError as e:
+        print("Error removing file:")
+        print(f"{type(e).__name__}: {e}")
 
 
 # TRANSFORMED DATA UTILS
@@ -499,8 +503,13 @@ def load_file(filename: str, guild_id: int | None = None) -> dict:
     filename = filename.split("/")
     if filename[-1] not in os.listdir("/".join(filename[:-1])):
         return {}
-    with open("/".join(filename)) as f:
-        contents = f.read().strip()
+    try:
+        with open("/".join(filename)) as f:
+            contents = f.read().strip()
+    except OSError as e:
+        print("Error loading file:")
+        print(f"{type(e).__name__}: {e}")
+        return {}
     if contents == "":
         return {}
     data = json.loads(contents)
@@ -513,8 +522,12 @@ def load_file(filename: str, guild_id: int | None = None) -> dict:
 
 def write_file(filename: str,
                data: dict) -> None:
-    with open(filename, "w+") as f:
-        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    try:
+        with open(filename, "w+") as f:
+            f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    except OSError as e:
+        print("Error writing to file:")
+        print(f"{type(e).__name__}: {e}")
 
 
 # MISCELLANEOUS UTILS
