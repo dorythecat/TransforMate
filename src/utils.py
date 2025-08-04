@@ -347,9 +347,7 @@ def is_transformed(user: discord.User | discord.Member | int,
         return False
     if data['transformed_users'][user_id] in [[], None]:
         return False
-    if channel_id in data['transformed_users'][user_id] or 'all' in data['transformed_users'][user_id]:
-        return True
-    return False
+    return channel_id in data['transformed_users'][user_id] or 'all' in data['transformed_users'][user_id]
 
 
 def remove_transformed(user: discord.User | discord.Member,
