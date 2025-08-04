@@ -528,44 +528,45 @@ async def tf_user(token: Annotated[Token, Depends()],
     utils.write_transformed(server_id, user_id, tf_data.channel_id)
     tf = utils.load_tf(user_id, server_id)
     channel_id = tf_data.channel_id if tf_data.channel_id else 'all'
+    tf = tf[channel_id] if channel_id in tf else tf['all']
     return UserTransformationData(
-        transformed_by=tf[channel_id]['transformed_by'],
-        into=tf[channel_id]['into'],
-        image_url=tf[channel_id]['image_url'],
-        claim=tf[channel_id]['claim'],
-        eternal=tf[channel_id]['eternal'],
+        transformed_by=tf['transformed_by'],
+        into=tf['into'],
+        image_url=tf['image_url'],
+        claim=tf['claim'],
+        eternal=tf['eternal'],
         prefix=Modifier(
-            tf[channel_id]['prefix']['active'],
-            tf[channel_id]['prefix']['contents']
+            tf['prefix']['active'],
+            tf['prefix']['contents']
         ),
         suffix=Modifier(
-            tf[channel_id]['prefix']['active'],
-            tf[channel_id]['prefix']['contents'],
+            tf['prefix']['active'],
+            tf['prefix']['contents'],
         ),
-        big=tf[channel_id]['big'],
-        small=tf[channel_id]['small'],
-        hush=tf[channel_id]['hush'],
-        backwards=tf[channel_id]['backwards'],
+        big=tf['big'],
+        small=tf['small'],
+        hush=tf['hush'],
+        backwards=tf['backwards'],
         censor=Modifier(
-            tf[channel_id]['censor']['active'],
-            tf[channel_id]['censor']['contents']
+            tf['censor']['active'],
+            tf['censor']['contents']
         ),
         sprinkle=Modifier(
-            tf[channel_id]['sprinkle']['active'],
-            tf[channel_id]['sprinkle']['contents']
+            tf['sprinkle']['active'],
+            tf['sprinkle']['contents']
         ),
         muffle=Modifier(
-            tf['all']['muffle']['active'],
-            tf['all']['muffle']['contents']
+            tf['muffle']['active'],
+            tf['muffle']['contents']
         ),
         alt_muffle=Modifier(
-            tf[channel_id]['alt_muffle']['active'],
-            tf[channel_id]['alt_muffle']['contents']
+            tf['alt_muffle']['active'],
+            tf['alt_muffle']['contents']
         ),
-        stutter=tf[channel_id]['stutter'],
-        proxy_prefix=tf[channel_id]['proxy_prefix'],
-        proxy_suffix=tf[channel_id]['proxy_suffix'],
-        bio=tf[channel_id]['bio']
+        stutter=tf['stutter'],
+        proxy_prefix=tf['proxy_prefix'],
+        proxy_suffix=tf['proxy_suffix'],
+        bio=tf['bio']
     )
 
 
@@ -686,44 +687,45 @@ async def modifier_user(token: Annotated[Token, Depends()],
 
     tf = utils.load_tf(user_id, server_id)
     channel_id = mod_data.channel_id if mod_data.channel_id else 'all'
+    tf = tf[channel_id] if channel_id in tf else tf['all']
     return UserTransformationData(
-        transformed_by=tf[channel_id]['transformed_by'],
-        into=tf[channel_id]['into'],
-        image_url=tf[channel_id]['image_url'],
-        claim=tf[channel_id]['claim'],
-        eternal=tf[channel_id]['eternal'],
+        transformed_by=tf['transformed_by'],
+        into=tf['into'],
+        image_url=tf['image_url'],
+        claim=tf['claim'],
+        eternal=tf['eternal'],
         prefix=Modifier(
-            tf[channel_id]['prefix']['active'],
-            tf[channel_id]['prefix']['contents']
+            tf['prefix']['active'],
+            tf['prefix']['contents']
         ),
         suffix=Modifier(
-            tf[channel_id]['prefix']['active'],
-            tf[channel_id]['prefix']['contents'],
+            tf['prefix']['active'],
+            tf['prefix']['contents'],
         ),
-        big=tf[channel_id]['big'],
-        small=tf[channel_id]['small'],
-        hush=tf[channel_id]['hush'],
-        backwards=tf[channel_id]['backwards'],
+        big=tf['big'],
+        small=tf['small'],
+        hush=tf['hush'],
+        backwards=tf['backwards'],
         censor=Modifier(
-            tf[channel_id]['censor']['active'],
-            tf[channel_id]['censor']['contents']
+            tf['censor']['active'],
+            tf['censor']['contents']
         ),
         sprinkle=Modifier(
-            tf[channel_id]['sprinkle']['active'],
-            tf[channel_id]['sprinkle']['contents']
+            tf['sprinkle']['active'],
+            tf['sprinkle']['contents']
         ),
         muffle=Modifier(
-            tf['all']['muffle']['active'],
-            tf['all']['muffle']['contents']
+            tf['muffle']['active'],
+            tf['muffle']['contents']
         ),
         alt_muffle=Modifier(
-            tf[channel_id]['alt_muffle']['active'],
-            tf[channel_id]['alt_muffle']['contents']
+            tf['alt_muffle']['active'],
+            tf['alt_muffle']['contents']
         ),
-        stutter=tf[channel_id]['stutter'],
-        proxy_prefix=tf[channel_id]['proxy_prefix'],
-        proxy_suffix=tf[channel_id]['proxy_suffix'],
-        bio=tf[channel_id]['bio']
+        stutter=tf['stutter'],
+        proxy_prefix=tf['proxy_prefix'],
+        proxy_suffix=tf['proxy_suffix'],
+        bio=tf['bio']
     )
 
 
@@ -810,45 +812,44 @@ async def tsf_user(token: Annotated[Token, Depends()],
     data['all'] = new_data
     utils.write_tf(user_id, server_id, None, data)
 
-    tf = new_data
     return UserTransformationData(
-        transformed_by=tf['transformed_by'],
-        into=tf['into'],
-        image_url=tf['image_url'],
-        claim=tf['claim'],
-        eternal=tf['eternal'],
+        transformed_by=new_data['transformed_by'],
+        into=new_data['into'],
+        image_url=new_data['image_url'],
+        claim=new_data['claim'],
+        eternal=new_data['eternal'],
         prefix=Modifier(
-            tf['prefix']['active'],
-            tf['prefix']['contents']
+            new_data['prefix']['active'],
+            new_data['prefix']['contents']
         ),
         suffix=Modifier(
-            tf['prefix']['active'],
-            tf['prefix']['contents'],
+            new_data['prefix']['active'],
+            new_data['prefix']['contents'],
         ),
-        big=tf['big'],
-        small=tf['small'],
-        hush=tf['hush'],
-        backwards=tf['backwards'],
+        big=new_data['big'],
+        small=new_data['small'],
+        hush=new_data['hush'],
+        backwards=new_data['backwards'],
         censor=Modifier(
-            tf['censor']['active'],
-            tf['censor']['contents']
+            new_data['censor']['active'],
+            new_data['censor']['contents']
         ),
         sprinkle=Modifier(
-            tf['sprinkle']['active'],
-            tf['sprinkle']['contents']
+            new_data['sprinkle']['active'],
+            new_data['sprinkle']['contents']
         ),
         muffle=Modifier(
-            tf['muffle']['active'],
-            tf['muffle']['contents']
+            new_data['muffle']['active'],
+            new_data['muffle']['contents']
         ),
         alt_muffle=Modifier(
-            tf['alt_muffle']['active'],
-            tf['alt_muffle']['contents']
+            new_data['alt_muffle']['active'],
+            new_data['alt_muffle']['contents']
         ),
-        stutter=tf['stutter'],
-        proxy_prefix=tf['proxy_prefix'],
-        proxy_suffix=tf['proxy_suffix'],
-        bio=tf['bio']
+        stutter=new_data['stutter'],
+        proxy_prefix=new_data['proxy_prefix'],
+        proxy_suffix=new_data['proxy_suffix'],
+        bio=new_data['bio']
     )
 
 
