@@ -4,6 +4,8 @@ import random
 import math
 
 from types import NoneType
+from typing import Annotated
+from pydantic import BaseModel, Field
 
 import discord
 
@@ -30,7 +32,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 15
+CURRENT_TMUD_VERSION = 15
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -40,6 +42,47 @@ CURRENT_TFEE_DATA_VERSION = 15
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
 CURRENT_TRANSFORMED_DATA_VERSION = 7
+
+class StringIntegerModifier(BaseModel):
+    active: bool = False
+    contents: dict[str, int] = {}
+
+class StringStringModifier(BaseModel):
+    active: bool = False
+    contents: dict[str, str] = {}
+
+# Per-channel TF Data
+class TFData(BaseModel):
+    transformed_by: str
+    into: str
+    image_url: str
+    claim: int | None = None
+    eternal: bool = False
+    prefix: StringIntegerModifier
+    suffix: StringIntegerModifier
+    big: bool = False
+    small: bool = False
+    hush: bool = False
+    backwards: bool = False
+    censor: StringStringModifier
+    sprinkle: StringIntegerModifier
+    muffle: StringIntegerModifier
+    alt_muffle: StringIntegerModifier
+    stutter: Annotated[int, Field(ge=0, le=100)] = 0
+    proxy_prefix: str | None = None
+    proxy_suffix: str | None = None
+    bio: str | None = None
+
+# Per-server TF data
+class ServerTFData(BaseModel):
+    blocked_channels: list[str] = []
+    blocked_users: list[str] = []
+    data: dict[str, TFData] = {}
+
+# Actual TMUD
+class TMUD(BaseModel):
+    version: int = 15
+    data: dict[int, ServerTFData] = {}
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -574,7 +617,6 @@ def clear_apple_marks(text: str) -> str:
 
 # TSF Utilities
 # See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
-# TODO: Make a class to indicate the actual required contents of the TMUD standard (Maybe for v16?)
 def encode_tsf(data: dict, version: int) -> str:
     """
     Encodes a TMUD-compliant transformation data dict into a TSF-compliant string.
