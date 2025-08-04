@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, NamedTuple, Union
 
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, Security
+from fastapi import Depends, FastAPI, HTTPException, Security, Body
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -403,7 +403,7 @@ class TransformData(BaseModel):
 async def tf_user(token: Annotated[str, Depends(get_current_token)],
                   server_id: int,
                   user_id: int,
-                  tf_data: Annotated[TransformData, Depends()]) -> UserTransformationData | JSONResponse:
+                  tf_data: Annotated[TransformData, Body()]) -> UserTransformationData | JSONResponse:
     """Transforms a given user."""
     user_guilds = get_user_guilds(token)
     guild = None
@@ -611,7 +611,7 @@ class ModData(BaseModel):
 async def modifier_user(token: Annotated[str, Depends(get_current_token)],
                         server_id: int,
                         user_id: int,
-                        mod_data: Annotated[ModData, Depends()]) -> UserTransformationData | JSONResponse:
+                        mod_data: Annotated[ModData, Body()]) -> UserTransformationData | JSONResponse:
     """Modifies a given user's settings."""
     user_guilds = get_user_guilds(token)
     guild = None
@@ -749,7 +749,9 @@ async def modifier_user(token: Annotated[str, Depends(get_current_token)],
 async def tsf_user(token: Annotated[str, Depends(get_current_token)],
                    server_id: int,
                    user_id: int,
-                   tsf_string: str) -> UserTransformationData | JSONResponse:
+                   tsf_string: Annotated[str, Body(
+                       example="15;into;image_url;0;0;0;0;0;;;;0;;0;;0;;0;;0;;0;"
+                   )]) -> UserTransformationData | JSONResponse:
     """Modifies a user's settings using a TSF-compliant string."""
     user_guilds = get_user_guilds(token)
     guild = None
@@ -917,10 +919,10 @@ async def read_users_discord_servers_me(token: Annotated[str, Depends(get_curren
                 admin=int(guild['permissions']) & 8 == 8
             ))
     return bot_servers
-    
 
 
-@app.put("/users/me/tsf",
+
+@app.put("/users/me/tsf/{server_id}",
          tags=["Your User"],
          response_model=UserTransformationData,
          responses={
@@ -931,9 +933,11 @@ async def read_users_discord_servers_me(token: Annotated[str, Depends(get_curren
          })
 async def tsf_user_me(token: Annotated[str, Depends(get_current_token)],
                       server_id: int,
-                      tsf_string: str) -> UserTransformationData | JSONResponse:
+                      tsf_string: Annotated[str, Body(
+                          example="15;into;image_url;0;0;0;0;0;;;;0;;0;;0;;0;;0;;0;"
+                      )]) -> UserTransformationData | JSONResponse:
     """Modifies the current user's settings using a TSF-compliant string."""
-    user_id = int(get_user_info(token))
+    user_id = int(get_user_info(token)['id'])
     user_guilds = get_user_guilds(token)
     guild = None
     for g in user_guilds:
