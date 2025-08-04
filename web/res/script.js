@@ -68,15 +68,26 @@ const logout = document.getElementById("logout");
 
 if (getCookie("token") !== "") {
     login.classList.add("hidden");
-    logout.classList.remove("hidden");
+    logout.classList.remove("hidden")
 }
 
 login.onclick = function (e) {
     window.location.href = "https://discord.com/oauth2/authorize?client_id=1274436972621987881&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A8000%2Flogin%3Fredirect_url%3Dhttp%253A%252F%252Flocalhost%253A63342%252FTransforMate%252Fweb%252Findex.html&scope=identify+guilds";
 }
 
-logout.onclick = function (e) {
-    // TODO: Logout using the API or manually to make the token invalid
+logout.onclick = async function (e) {
+    try {
+        const response = await fetch('http://127.0.0.1:8000/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${getCookie('token')}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Logout failed');
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
     setCookie("token", null, -1);
     window.location.href = "index.html";
 }
@@ -255,7 +266,7 @@ themeToggle.addEventListener('click', () => {
 });
 
 function toggleMenu() {
-    var x = document.getElementsByClassName("topnav")[0];
+    const x = document.getElementsByClassName("topnav")[0];
     if (x.className === "topnav") {
         x.className += " responsive";
     } else {
