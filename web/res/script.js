@@ -240,6 +240,15 @@ if (window.location.href.includes("tsf_editor.html")) {
                 r => alert("Failed to copy to clipboard!")
             );
         }
+
+        // Download the TSF-compliant file when the associated button is pressed
+        document.getElementById("download_tf_output").onclick = () => {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(tsf_data));
+            element.setAttribute('download', `${elements.new_tf_name.value}.tsf`);
+            element.click();
+            element.remove();
+        }
     };
 }
 
