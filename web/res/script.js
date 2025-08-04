@@ -212,3 +212,26 @@ if (window.location.href.includes("tsf_editor.html")) {
         console.log(tsf_data);
     };
 }
+
+// Theme toggle utility
+function setTheme(theme) {
+    document.documentElement.setAttribute('data_theme', theme);
+    localStorage.setItem('theme', theme);
+
+    // Update the icon
+    const themeToggle = document.getElementById('theme_toggle');
+    themeToggle.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+}
+
+// Initialize theme
+// Check for saved theme preference or default to 'light'
+const savedTheme = localStorage.getItem('theme') || 'dark';
+setTheme(savedTheme);
+
+// Add click event listener to theme toggle button
+const themeToggle = document.getElementById('theme_toggle');
+themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data_theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+});

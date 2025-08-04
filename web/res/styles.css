@@ -1,28 +1,65 @@
+:root {
+  /* Dark theme (default) */
+  --bg-page: #1a1a1a;
+  --bg-primary: #aaa;
+  --bg-secondary: #424242;
+  --text-primary: #424242;
+  --text-secondary: #aaa;
+  --accent-color: #675c4d;
+  --hover-bg: #aaa;
+  --hover-text: #424242;
+  --item-bg: #eee;
+}
+
+[data_theme="light"] {
+  /* Light theme */
+  --bg-page: #eee;
+  --bg-primary: #aaa;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #eee;
+  --text-secondary: #fff;
+  --accent-color: #8b7355;
+  --hover-bg: #3d3d3d;
+  --hover-text: #eee;
+  --item-bg: #2d2d2d;
+}
+
+body {
+    background-color: var(--bg-page);
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .topnav {
-    background-color: #424242;
+    background-color: var(--bg-secondary);
     overflow: hidden;
-    margin: 0 20%;
+    margin: 10px 20%;
     border-radius: 10px;
+}
+
+.topnav a {
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.topnav a:hover {
+    background-color: var(--hover-bg);
+    color: var(--hover-text);
+}
+
+.topnav a.active {
+    background-color: var(--accent-color);
+    color: var(--text-secondary);
 }
 
 .topnav a {
     float: left;
     display: block;
-    color: #ccc;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
     font-size: 17px;
-}
-
-.topnav a:hover {
-    background-color: #ccc;
-    color: #424242;
-}
-
-.topnav a.active {
-    background-color: #675c4d;
-    color: #ccc;
 }
 
 .topnav a.left {
@@ -37,13 +74,14 @@
     display: none;
 }
 
-.page-content {
-    color: #424242;
-    background-color: #ccc;
+.page_content {
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
     margin: 5% 20%;
     font-size: 150%;
     text-align: center;
     padding: 20px;
+    border-radius: 20px;
 }
 
 /* For when we have the ability to edit files too :D
@@ -78,16 +116,16 @@ label {
     margin-bottom: 20px;
 }
 
-.form-group {
+.form_group {
     margin-bottom: 15px;
 }
 
-.form-group label {
+.form_group label {
     display: block;
     margin-bottom: 5px;
 }
 
-.form-group input[type=text] {
+.form_group input[type=text] {
     width: 50%;
 }
 
@@ -98,9 +136,10 @@ label {
 }
 
 .item {
+    background-color: var(--item-bg);
+    color: var(--text-primary);
     display: flex;
     align-items: center;
-    background-color: #eee;
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
@@ -141,7 +180,7 @@ button#submit-tf-btn:hover {
 @media screen and (max-width: 1100px) {
     .topnav {
         position: relative;
-        margin: 0;
+        margin: 2%;
     }
     .topnav a.icon {
         position: absolute;
@@ -156,8 +195,8 @@ button#submit-tf-btn:hover {
     .topnav a.left {
         float: none;
     }
-    .page-content {
-        margin: 5% 0;
+    .page_content {
+        margin: 2%;
     }
     div#new_tf_container {
         width: 100%;
