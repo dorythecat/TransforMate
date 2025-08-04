@@ -247,7 +247,6 @@ input[type=text] {
     margin: 0;
 }
 
-/* Style the dropdown content (hidden by default) */
 .dropdown_content {
     display: none;
     position: absolute;
@@ -257,7 +256,6 @@ input[type=text] {
     z-index: 1;
 }
 
-/* Style the links inside the dropdown */
 .dropdown_content a {
     float: none;
     color: var(--text-secondary);
