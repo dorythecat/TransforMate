@@ -705,8 +705,131 @@ def modifier_user(token: Annotated[Token, Depends()],
         bio=tf[channel_id]['bio']
     )
 
-# User-related features
+@app.put("/tsf/{server_id}/{user_id}",
+         tags=["Transformation"],
+         response_model=UserTransformationData,
+         responses={
+             400: { 'model': ErrorMessage },
+             403: { 'model': ErrorMessage },
+             404: { 'model': ErrorMessage },
+             409: { 'model': ErrorMessage }
+         })
+def tsf_user(token: Annotated[Token, Depends()],
+             server_id: int,
+             user_id: int,
+             tsf_string: str) -> UserTransformationData | JSONResponse:
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    guild = None
+    for g in user_guilds:
+        if g['id'] == str(server_id):
+            guild = g
+            break
 
+    if guild is None:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'Current user is not on that server'})
+
+    if user_id in BLOCKED_USERS:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'That user is blocked from using the bot'})
+
+    server = utils.load_transformed(server_id)
+    if server == {}:
+        return JSONResponse(status_code=404,
+                            content={'detail': 'That server does not have TransforMate in it'})
+
+    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_id = current_user_info['id']
+    if current_user_id in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked the current user'})
+
+    if str(user_id) in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked that user'})
+
+    tf = utils.load_tf(user_id, server_id)
+    if tf != {} and current_user_id in tf['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'That user has blocked the current user'})
+
+    if utils.is_transformed(user_id, server_id):
+        if str(mod_data.channel_id) in tf:
+            tf = tf[str(mod_data.channel_id)]
+        elif 'all' in tf:
+            tf = tf['all']
+        elif server != {} and server['affixes']:
+            tf = {'claim': None}  # Empty data so we can do multiple tfs
+        elif tf == {}:
+            # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+            tf = {'claim': None}
+        else:
+            return JSONResponse(status_code=409,
+                                content={'detail': 'That user is already transformed on this server'})
+
+        if tf['claim'] is not None and tf['claim'] != current_user_id and tf['eternal']:
+            if int(current_user_id) != user_id:
+                return JSONResponse(status_code=409,
+                                    content={'detail': 'That user is claimed, and you are not their owner'})
+            return JSONResponse(status_code=409,
+                                content={'detail': 'You are claimed, and can not transform yourself'})
+
+    try:
+        new_data = utils.decode_tsf(tsf_string)
+    except ValueError as e:
+        return JSONResponse(status_code=400,
+                            content={'detail': str(e)})
+
+    new_data['transformed_by'] = user_id
+    new_data['claim'] = None
+    new_data['eternal'] = False
+
+    data = utils.load_tf(user_id, server_id)
+    data['all'] = new_data
+    utils.write_tf(user_id, server_id, None, data)
+
+    tf = new_data
+    return UserTransformationData(
+        transformed_by=tf['transformed_by'],
+        into=tf['into'],
+        image_url=tf['image_url'],
+        claim=tf['claim'],
+        eternal=tf['eternal'],
+        prefix=Modifier(
+            tf['prefix']['active'],
+            tf['prefix']['contents']
+        ),
+        suffix=Modifier(
+            tf['prefix']['active'],
+            tf['prefix']['contents'],
+        ),
+        big=tf['big'],
+        small=tf['small'],
+        hush=tf['hush'],
+        backwards=tf['backwards'],
+        censor=Modifier(
+            tf['censor']['active'],
+            tf['censor']['contents']
+        ),
+        sprinkle=Modifier(
+            tf['sprinkle']['active'],
+            tf['sprinkle']['contents']
+        ),
+        muffle=Modifier(
+            tf['muffle']['active'],
+            tf['muffle']['contents']
+        ),
+        alt_muffle=Modifier(
+            tf['alt_muffle']['active'],
+            tf['alt_muffle']['contents']
+        ),
+        stutter=tf['stutter'],
+        proxy_prefix=tf['proxy_prefix'],
+        proxy_suffix=tf['proxy_suffix'],
+        bio=tf['bio']
+    )
+
+# User-related features
 @app.get("/users/me",
          tags=["Your User"],
          response_model=dict)
