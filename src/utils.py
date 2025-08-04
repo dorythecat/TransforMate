@@ -678,7 +678,7 @@ def decode_tsf(tsf_string: str) -> dict:
     }
 
     # Generate modifier data
-    if tsf_data[10] == "1":
+    if tsf_data[10] != "0":
         data['prefix']['active'] = True
         prefixes = tsf_data[11].split(",")
         for prefix in prefixes:
@@ -687,7 +687,7 @@ def decode_tsf(tsf_string: str) -> dict:
             key, value = prefix.split("|")
             data['prefix']['contents'][key] = value
 
-    if tsf_data[12] == "1":
+    if tsf_data[12] != "0":
         data['suffix']['active'] = True
         suffixes = tsf_data[13].split(",")
         for suffix in suffixes:
@@ -696,7 +696,7 @@ def decode_tsf(tsf_string: str) -> dict:
             key, value = suffix.split("|")
             data['suffix']['contents'][key] = value
 
-    if tsf_data[14] == "1":
+    if tsf_data[14] != "0":
         data['sprinkle']['active'] = True
         sprinkles = tsf_data[15].split(",")
         for sprinkle in sprinkles:
@@ -705,7 +705,7 @@ def decode_tsf(tsf_string: str) -> dict:
             key, value = sprinkle.split("|")
             data['sprinkle']['contents'][key] = value
 
-    if tsf_data[16] == "1":
+    if tsf_data[16] != "0":
         data['muffle']['active'] = True
         muffles = tsf_data[17].split(",")
         for muffle in muffles:
@@ -714,7 +714,7 @@ def decode_tsf(tsf_string: str) -> dict:
             key, value = muffle.split("|")
             data['muffle']['contents'][key] = value
 
-    if tsf_data[18] == "1":
+    if tsf_data[18] != "0":
         data['alt_muffle']['active'] = True
         alt_muffles = tsf_data[19].split(",")
         for alt_muffle in alt_muffles:
@@ -723,7 +723,7 @@ def decode_tsf(tsf_string: str) -> dict:
             key, value = alt_muffle.split("|")
             data['alt_muffle']['contents'][key] = value
 
-    if tsf_data[20] == "1":
+    if tsf_data[20] != "0":
         data['censor']['active'] = True
         censors = tsf_data[21].split(",")
         for censor in censors:
