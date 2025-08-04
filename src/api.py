@@ -58,6 +58,7 @@ app = FastAPI(
     ]
 )
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:63342"],
@@ -65,6 +66,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
