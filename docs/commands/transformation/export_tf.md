@@ -153,3 +153,9 @@ packaged in any kind of readable UTF-8 encoded file, preferably terminated with 
 
 It is a supported addition of the standard and can even be used to replace TMUD
 files, in a more space-efficient manner.
+
+!!! warning
+    Unlike TMUD, TSF does not store the blocked status of users or channels, as of
+    the latest revision. It also does not differentiate between channels and
+    servers, so an actual full TMUD replacement using the current version of TSF
+    would not be viable.
