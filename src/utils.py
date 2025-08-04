@@ -345,7 +345,9 @@ def is_transformed(user: discord.User | discord.Member | int,
     channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
     if data == {} or user_id not in data['transformed_users']:
         return False
-    if data['transformed_users'][user_id] not in [[], None] and channel_id in data['transformed_users'][user_id]:
+    if data['transformed_users'][user_id] in [[], None]:
+        return False
+    if channel_id in data['transformed_users'][user_id] or 'all' in data['transformed_users'][user_id]:
         return True
     return False
 
