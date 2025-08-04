@@ -863,27 +863,51 @@ async def read_users_file_me(token: Annotated[Token, Depends()]) -> dict:
     return utils.load_tf(int(get_user_info(decode_access_token(token.access_token)['access_token'])['id']))
 
 
+class DiscordUser(BaseModel):
+    id: int
+    username: str
+    avatar: str
+    global_name: str
+
+
 @app.get("/users/me/discord",
          tags=["Your User"],
-         response_model=dict)
-async def read_users_discord_me(token: Annotated[Token, Depends()]) -> dict:
+         response_model=DiscordUser)
+async def read_users_discord_me(token: Annotated[Token, Depends()]) -> DiscordUser:
     """Returns the current user's Discord data."""
-    return get_user_info(decode_access_token(token.access_token)['access_token'])
+    user = get_user_info(decode_access_token(token.access_token)['access_token'])
+    return DiscordUser(
+        id=int(user['id']),
+        username=user['username'],
+        avatar=user['avatar'],
+        global_name=user['global_name']
+    )
+
+
+class DiscordServer(BaseModel):
+    id: int
+    name: str
+    owner: bool
+    admin: bool
 
 
 @app.get("/users/me/discord/servers",
          tags=["Your User"],
-         response_model=list[dict])
-async def read_users_discord_servers_me(token: Annotated[Token, Depends()]) -> list[dict]:
+         response_model=list[DiscordServer])
+async def read_users_discord_servers_me(token: Annotated[Token, Depends()]) -> list[DiscordServer]:
     """Returns the current user's Discord servers on which the bot is at the current moment."""
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     bot_servers = []
     
     for guild in user_guilds:
-        server_id = int(guild['id'])
-        server = utils.load_transformed(server_id)
-        if server != {}:  # Bot is present on this server
-            bot_servers.append(guild)
+        guild_data = utils.load_transformed(int(guild['id']))
+        if guild_data != {}:  # Bot is present on this server
+            bot_servers.append(DiscordServer(
+                id=int(guild['id']),
+                name=guild['name'],
+                owner=guild['owner'],
+                admin=int(guild['permissions']) & 8 == 8
+            ))
     return bot_servers
     
 
