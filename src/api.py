@@ -860,3 +860,127 @@ async def tsf_user(token: Annotated[Token, Depends()],
 async def read_users_file_me(token: Annotated[Token, Depends()]) -> dict:
     """Returns the current user's complete file."""
     return utils.load_tf(int(get_user_info(decode_access_token(token.access_token)['access_token'])['id']))
+
+
+@app.put("/users/me/tsf",
+         tags=["Your User"],
+         response_model=UserTransformationData,
+         responses={
+             400: { 'model': ErrorMessage },
+             403: { 'model': ErrorMessage },
+             404: { 'model': ErrorMessage },
+             409: { 'model': ErrorMessage }
+         })
+async def tsf_user_me(token: Annotated[Token, Depends()],
+                      server_id: int,
+                      tsf_string: str) -> UserTransformationData | JSONResponse:
+    user_id = int(get_user_info(decode_access_token(token.access_token)['access_token'])['id'])
+    user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
+    guild = None
+    for g in user_guilds:
+        if g['id'] == str(server_id):
+            guild = g
+            break
+
+    if guild is None:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'Current user is not on that server'})
+
+    if user_id in BLOCKED_USERS:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'That user is blocked from using the bot'})
+
+    server = utils.load_transformed(server_id)
+    if server == {}:
+        return JSONResponse(status_code=404,
+                            content={'detail': 'That server does not have TransforMate in it'})
+
+    current_user_info = get_user_info(decode_access_token(token.access_token)['access_token'])
+    current_user_id = current_user_info['id']
+    if current_user_id in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked the current user'})
+
+    if str(user_id) in server['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'This server has blocked that user'})
+
+    tf = utils.load_tf(user_id, server_id)
+    if tf != {} and current_user_id in tf['blocked_users']:
+        return JSONResponse(status_code=403,
+                            content={'detail': 'That user has blocked the current user'})
+
+    if utils.is_transformed(user_id, server_id):
+        if str(mod_data.channel_id) in tf:
+            tf = tf[str(mod_data.channel_id)]
+        elif 'all' in tf:
+            tf = tf['all']
+        elif server != {} and server['affixes']:
+            tf = {'claim': None}  # Empty data so we can do multiple tfs
+        elif tf == {}:
+            # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+            tf = {'claim': None}
+        else:
+            return JSONResponse(status_code=409,
+                                content={'detail': 'That user is already transformed on this server'})
+
+        if tf['claim'] is not None and tf['claim'] != current_user_id and tf['eternal']:
+            if int(current_user_id) != user_id:
+                return JSONResponse(status_code=409,
+                                    content={'detail': 'That user is claimed, and you are not their owner'})
+            return JSONResponse(status_code=409,
+                                content={'detail': 'You are claimed, and can not transform yourself'})
+
+    try:
+        new_data = utils.decode_tsf(tsf_string)
+    except ValueError as e:
+        return JSONResponse(status_code=400,
+                            content={'detail': str(e)})
+
+    new_data['transformed_by'] = user_id
+    new_data['claim'] = None
+    new_data['eternal'] = False
+
+    data = utils.load_tf(user_id, server_id)
+    data['all'] = new_data
+    utils.write_tf(user_id, server_id, None, data)
+
+    return UserTransformationData(
+        transformed_by=new_data['transformed_by'],
+        into=new_data['into'],
+        image_url=new_data['image_url'],
+        claim=new_data['claim'],
+        eternal=new_data['eternal'],
+        prefix=Modifier(
+            new_data['prefix']['active'],
+            new_data['prefix']['contents']
+        ),
+        suffix=Modifier(
+            new_data['prefix']['active'],
+            new_data['prefix']['contents'],
+        ),
+        big=new_data['big'],
+        small=new_data['small'],
+        hush=new_data['hush'],
+        backwards=new_data['backwards'],
+        censor=Modifier(
+            new_data['censor']['active'],
+            new_data['censor']['contents']
+        ),
+        sprinkle=Modifier(
+            new_data['sprinkle']['active'],
+            new_data['sprinkle']['contents']
+        ),
+        muffle=Modifier(
+            new_data['muffle']['active'],
+            new_data['muffle']['contents']
+        ),
+        alt_muffle=Modifier(
+            new_data['alt_muffle']['active'],
+            new_data['alt_muffle']['contents']
+        ),
+        stutter=new_data['stutter'],
+        proxy_prefix=new_data['proxy_prefix'],
+        proxy_suffix=new_data['proxy_suffix'],
+        bio=new_data['bio']
+    )
