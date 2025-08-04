@@ -224,9 +224,8 @@ function setTheme(theme) {
 }
 
 // Initialize theme
-// Check for saved theme preference or default to 'light'
-const savedTheme = localStorage.getItem('theme') || 'dark';
-setTheme(savedTheme);
+// Check for saved theme preference or default to dark theme
+setTheme(localStorage.getItem('theme') || 'dark');
 
 // Add click event listener to theme toggle button
 const themeToggle = document.getElementById('theme_toggle');
