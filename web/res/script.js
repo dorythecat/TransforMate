@@ -251,3 +251,12 @@ themeToggle.addEventListener('click', () => {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
 });
+
+function toggleMenu() {
+    var x = document.getElementsByClassName("topnav")[0];
+    if (x.className === "topnav") {
+        x.className += " responsive";
+    } else {
+        x.className = "topnav";
+    }
+}
