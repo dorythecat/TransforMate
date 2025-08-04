@@ -650,86 +650,23 @@ def decode_tsf(tsf_string: str) -> dict:
         'stutter': int(tsf_data[6]),
         'proxy_prefix': tsf_data[7],
         'proxy_suffix': tsf_data[8],
-        'bio': tsf_data[9],
-        'prefix': {
-            'active': False,
-            'contents': {}
-        },
-        'suffix': {
-            'active': False,
-            'contents': {}
-        },
-        'sprinkle': {
-            'active': False,
-            'contents': {}
-        },
-        'muffle': {
-            'active': False,
-            'contents': {}
-        },
-        'alt_muffle': {
-            'active': False,
-            'contents': {}
-        },
-        'censor': {
-            'active': False,
-            'contents': {}
-        }
+        'bio': tsf_data[9]
     }
 
-    # Generate modifier data
-    if tsf_data[10] != "0":
-        data['prefix']['active'] = True
-        prefixes = tsf_data[11].split(",")
-        for prefix in prefixes:
-            if prefix == "":
-                continue
-            key, value = prefix.split("|")
-            data['prefix']['contents'][key] = value
+    modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
 
-    if tsf_data[12] != "0":
-        data['suffix']['active'] = True
-        suffixes = tsf_data[13].split(",")
-        for suffix in suffixes:
-            if suffix == "":
+    for modifier in modifiers:
+        data[modifier] = {
+            'active': tsf_data[10 + modifiers.index(modifier) * 2] != "0",
+            'contents': {}
+        }
+        if not data[modifier]['active']:
+            continue
+        modifier_data = tsf_data[11 + modifiers.index(modifier) * 2].split(",")
+        for mod in modifier_data:
+            if mod == "":
                 continue
-            key, value = suffix.split("|")
-            data['suffix']['contents'][key] = value
-
-    if tsf_data[14] != "0":
-        data['sprinkle']['active'] = True
-        sprinkles = tsf_data[15].split(",")
-        for sprinkle in sprinkles:
-            if sprinkle == "":
-                continue
-            key, value = sprinkle.split("|")
-            data['sprinkle']['contents'][key] = value
-
-    if tsf_data[16] != "0":
-        data['muffle']['active'] = True
-        muffles = tsf_data[17].split(",")
-        for muffle in muffles:
-            if muffle == "":
-                continue
-            key, value = muffle.split("|")
-            data['muffle']['contents'][key] = value
-
-    if tsf_data[18] != "0":
-        data['alt_muffle']['active'] = True
-        alt_muffles = tsf_data[19].split(",")
-        for alt_muffle in alt_muffles:
-            if alt_muffle == "":
-                continue
-            key, value = alt_muffle.split("|")
-            data['alt_muffle']['contents'][key] = value
-
-    if tsf_data[20] != "0":
-        data['censor']['active'] = True
-        censors = tsf_data[21].split(",")
-        for censor in censors:
-            if censor == "":
-                continue
-            key, value = censor.split("|")
-            data['censor']['contents'][key] = value
+            key, value = mod.split("|")
+            data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
 
     return data
