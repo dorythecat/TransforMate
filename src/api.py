@@ -144,7 +144,7 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
         return None
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return data
+        return data['access_token']
     except InvalidTokenError:
         raise HTTPException(
             status_code=401,
