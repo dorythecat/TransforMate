@@ -559,3 +559,177 @@ def clear_apple_marks(text: str) -> str:
     text = text.replace("’", "'")
     text = text.replace("“", "\"")
     return text.replace("”", "\"")
+
+# TSF Utilities
+# See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
+# TODO: Make a class to indicate the actual required contents of the TMUD standard (Maybe for v16?)
+def encode_tsf(data: dict, version: int) -> str:
+    """
+    Encodes a TMUD-compliant transformation data dict into a TSF-compliant string.
+    :param data: Properly encoded TMUD-compliant transformation data dict.
+    :param version: The version of the TMUD standard to use. (Used at the moment only to check compatibility)
+    :return: A TSF-compliant string.
+    """
+
+    if version != 15:
+        raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
+
+    # Basic stuff
+    output = str(version) + ";"
+    output += data['into'] + ";"
+    output += data['image_url'] + ";"
+
+    # Booleans
+    output += "1;" if data['big'] else "0;"
+    output += "1;" if data['small'] else "0;"
+    output += "1;" if data['hush'] else "0;"
+    output += "1;" if data['backwards'] else "0;"
+
+    # "Easy Stuff"
+    output += str(data['stutter']) + ";"
+    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
+    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
+    output += (data['bio'] if data['bio'] else "") + ";"
+
+    # Prefix
+    output += "1;" if data['prefix']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['prefix']['contents'].items()])
+               if data['prefix']['active'] else "") + ";"
+
+    # Suffix
+    output += "1;" if data['suffix']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['suffix']['contents'].items()])
+               if data['suffix']['active'] else "") + ";"
+
+    # Sprinkle
+    output += "1;" if data['sprinkle']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['sprinkle']['contents'].items()])
+               if data['sprinkle']['active'] else "") + ";"
+
+    # Muffle
+    output += "1;" if data['muffle']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['muffle']['contents'].items()])
+               if data['muffle']['active'] else "") + ";"
+
+    # Alt Muffle
+    output += "1;" if data['alt_muffle']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['alt_muffle']['contents'].items()])
+               if data['alt_muffle']['active'] else "") + ";"
+
+    # Censor
+    output += "1;" if data['censor']['active'] else "0;"
+    output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
+               if data['censor']['active'] else "")
+
+    return output
+
+def decode_tsf(tsf_string: str) -> dict:
+    """
+    Decodes a TSF-compliant string into a TMUD-compliant dict of transformation data.
+    :param tsf_string: A TSF-compliant string.
+    :return: A TMUD-compliant transformation data dict.
+    """
+
+    tsf_data = tsf_string.split(";")
+    version = int(tsf_data[0])
+    if version != 15:
+        raise ValueError("decode_tsf() only supports TSFv1.0, at the moment!")
+
+    if len(tsf_data) != 23:
+        raise ValueError("decode_tsf() expected 23 elements in the TSF string, got " + str(len(tsf_data)))
+
+    tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
+    # Generate basic data
+    data = {
+        'into': tsf_data[0],
+        'image_url': tsf_data[1],
+        'big': tsf_data[2] == "1",
+        'small': tsf_data[3] == "1",
+        'hush': tsf_data[4] == "1",
+        'backwards': tsf_data[5] == "1",
+        'stutter': int(tsf_data[6]),
+        'proxy_prefix': tsf_data[7],
+        'proxy_suffix': tsf_data[8],
+        'bio': tsf_data[9],
+        'prefix': {
+            'active': False,
+            'contents': {}
+        },
+        'suffix': {
+            'active': False,
+            'contents': {}
+        },
+        'sprinkle': {
+            'active': False,
+            'contents': {}
+        },
+        'muffle': {
+            'active': False,
+            'contents': {}
+        },
+        'alt_muffle': {
+            'active': False,
+            'contents': {}
+        },
+        'censor': {
+            'active': False,
+            'contents': {}
+        }
+    }
+
+    # Generate modifier data
+    if tsf_data[10] == "1":
+        data['prefix']['active'] = True
+        prefixes = tsf_data[11].split(",")
+        for prefix in prefixes:
+            if prefix == "":
+                continue
+            key, value = prefix.split("|")
+            data['prefix']['contents'][key] = value
+
+    if tsf_data[12] == "1":
+        data['suffix']['active'] = True
+        suffixes = tsf_data[13].split(",")
+        for suffix in suffixes:
+            if suffix == "":
+                continue
+            key, value = suffix.split("|")
+            data['suffix']['contents'][key] = value
+
+    if tsf_data[14] == "1":
+        data['sprinkle']['active'] = True
+        sprinkles = tsf_data[15].split(",")
+        for sprinkle in sprinkles:
+            if sprinkle == "":
+                continue
+            key, value = sprinkle.split("|")
+            data['sprinkle']['contents'][key] = value
+
+    if tsf_data[16] == "1":
+        data['muffle']['active'] = True
+        muffles = tsf_data[17].split(",")
+        for muffle in muffles:
+            if muffle == "":
+                continue
+            key, value = muffle.split("|")
+            data['muffle']['contents'][key] = value
+
+    if tsf_data[18] == "1":
+        data['alt_muffle']['active'] = True
+        alt_muffles = tsf_data[19].split(",")
+        for alt_muffle in alt_muffles:
+            if alt_muffle == "":
+                continue
+            key, value = alt_muffle.split("|")
+            data['alt_muffle']['contents'][key] = value
+
+    if tsf_data[20] == "1":
+        data['censor']['active'] = True
+        censors = tsf_data[21].split(",")
+        for censor in censors:
+            if censor == "":
+                continue
+            key, value = censor.split("|")
+            data['censor']['contents'][key] = value
+
+    return data
