@@ -428,15 +428,15 @@ class Transformation(commands.Cog):
 
         if file:
             try:
-                with open("tf_cache.tf", "w") as f:
+                with open("tf_cache", "w") as f:
                     f.write(output)
             except OSError as e:
                 print(f"Error writing to file:")
                 print(f"{type(e).__name__}: {e}")
 
-            await ctx.respond(file=discord.File("tf_cache.tf", f"{data['into']}.tf"))
+            await ctx.respond(file=discord.File("tf_cache", f"{data['into']}.tsf"))
             try:
-                os.remove("tf_cache.tf")
+                os.remove("tf_cache")
             except OSError as e:
                 print(f"Error removing file:")
                 print(f"{type(e).__name__}: {e}")
@@ -494,11 +494,11 @@ class Transformation(commands.Cog):
 
         tsf_string = response.content
         if response.attachments:
-            await response.attachments[0].save(f"tf_cache.tf")
+            await response.attachments[0].save(f"tf_cache")
             try:
-                with open("tf_cache.tf") as f:
+                with open("tf_cache") as f:
                     tsf_string = f.read()
-                os.remove("tf_cache.tf")
+                os.remove("tf_cache")
             except OSError as e:
                 print(f"Error reading from file or removing file:")
                 print(f"{type(e).__name__}: {e}")
