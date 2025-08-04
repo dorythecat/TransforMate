@@ -11,12 +11,20 @@
 <body>
     <div class="topnav">
         <a href="index.html" class="active">Home</a>
-        <a href="tsf_editor.html">TSF Editor</a>
+        <div class="dropdown">
+            <a class="dropbtn">Toolbox</a>
+            <div class="dropdown_content">
+                <a href="tsf_editor.html">TSF Editor</a>
+            </div>
+        </div>
         <a href="https://dorythecat.github.io/TransforMate">Documentation</a>
-        <a class="left" id="login">Login</a>
         <a href="https://dorythecat.github.io/TransforMate/about">About</a>
-        <a class="left" id="logout">Logout</a>
-        <a id="theme_toggle" class="left theme_toggle">Light Mode</a>
+        <a id="theme_toggle" class="left theme_toggle">Dark Mode</a>
+        <a class="left" id="login">Login</a>
+        <a class="left hidden" id="logout">Logout</a>
+        <a href="javascript:void(0);" class="icon" onclick="toggleMenu()">
+            <span class="hamburger"></span>
+        </a>
     </div>
 
     <div class="page_content">

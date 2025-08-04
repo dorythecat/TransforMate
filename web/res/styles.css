@@ -63,7 +63,7 @@ body {
     float: right;
 }
 
-.topnav a#logout {
+.topnav a.hidden {
     display: none;
 }
 
@@ -308,7 +308,6 @@ input[type=text] {
 .dropdown_content a {
     float: none;
     color: var(--text-secondary);
-    padding: 12px 16px;
     text-decoration: none;
     display: block;
     text-align: left;
@@ -391,6 +390,7 @@ input[type=text] {
     }
     .dropdown_content a {
         border-radius: 0;
+        border: none;
     }
     .dropdown_content a:hover {
         background-color: var(--hover-bg);
@@ -400,5 +400,8 @@ input[type=text] {
         display: block;
         margin: 0;
         padding: 0;
+    }
+    .topnav a.hidden {
+        display: none;
     }
 }

@@ -67,8 +67,8 @@ const login = document.getElementById("login");
 const logout = document.getElementById("logout");
 
 if (getCookie("token") !== "") {
-    login.style.display = "none";
-    logout.style.display = "block";
+    login.classList.add("hidden");
+    logout.classList.remove("hidden");
 }
 
 login.onclick = function (e) {
@@ -76,6 +76,7 @@ login.onclick = function (e) {
 }
 
 logout.onclick = function (e) {
+    // TODO: Logout using the API or manually to make the token invalid
     setCookie("token", null, -1);
     window.location.href = "index.html";
 }
@@ -186,6 +187,7 @@ if (window.location.href.includes("tsf_editor.html")) {
         }
         elements.new_tf_container.style.width = "100%";
         elements.tf_data_form.style.display = "inline";
+        elements.new_tf_submit.style.display = "none";
     };
 
     document.getElementById("submit_tf_btn").onclick = () => {
