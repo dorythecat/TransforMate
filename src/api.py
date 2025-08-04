@@ -209,8 +209,8 @@ class ServerData(BaseModel):
              403: { 'model': ErrorMessage },
              404: { 'model': ErrorMessage }
          })
-def get_server(token: Annotated[Token, Depends()],
-               server_id: int) -> ServerDataBasic | ServerData | JSONResponse:
+async def get_server(token: Annotated[Token, Depends()],
+                     server_id: int) -> ServerDataBasic | ServerData | JSONResponse:
     """Returns the settings for a given server. If you're an administrator, you'll get the full file for said server."""
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
@@ -289,9 +289,9 @@ class UserData(BaseModel):
              403: { 'model': ErrorMessage },
              404: { 'model': ErrorMessage }
          })
-def get_tfed_user(token: Annotated[Token, Depends()],
-                  server_id: int,
-                  user_id: int) -> UserData | JSONResponse:
+async def get_tfed_user(token: Annotated[Token, Depends()],
+                        server_id: int,
+                        user_id: int) -> UserData | JSONResponse:
     """Returns the transformed data for a given user in a server."""
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
@@ -392,10 +392,10 @@ class TransformData(BaseModel):
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-def tf_user(token: Annotated[Token, Depends()],
-            server_id: int,
-            user_id: int,
-            tf_data: Annotated[TransformData, Depends()]) -> UserTransformationData | JSONResponse:
+async def tf_user(token: Annotated[Token, Depends()],
+                  server_id: int,
+                  user_id: int,
+                  tf_data: Annotated[TransformData, Depends()]) -> UserTransformationData | JSONResponse:
     """Transforms a given user."""
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
@@ -599,10 +599,10 @@ class ModData(BaseModel):
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-def modifier_user(token: Annotated[Token, Depends()],
-                  server_id: int,
-                  user_id: int,
-                  mod_data: Annotated[ModData, Depends()]) -> UserTransformationData | JSONResponse:
+async def modifier_user(token: Annotated[Token, Depends()],
+                        server_id: int,
+                        user_id: int,
+                        mod_data: Annotated[ModData, Depends()]) -> UserTransformationData | JSONResponse:
     """Modifies a given user's settings."""
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
@@ -736,10 +736,10 @@ def modifier_user(token: Annotated[Token, Depends()],
              404: { 'model': ErrorMessage },
              409: { 'model': ErrorMessage }
          })
-def tsf_user(token: Annotated[Token, Depends()],
-             server_id: int,
-             user_id: int,
-             tsf_string: str) -> UserTransformationData | JSONResponse:
+async def tsf_user(token: Annotated[Token, Depends()],
+                   server_id: int,
+                   user_id: int,
+                   tsf_string: str) -> UserTransformationData | JSONResponse:
     user_guilds = get_user_guilds(decode_access_token(token.access_token)['access_token'])
     guild = None
     for g in user_guilds:
