@@ -394,6 +394,7 @@ def tf_user(token: Annotated[Token, Depends()],
 
     server = utils.load_transformed(server_id)
     if server == {}:
+        # TODO: Add a way to check if the bot is in this server
         return JSONResponse(status_code=404,
                             content={ 'detail': 'That server does not have TransforMate in it' })
 
