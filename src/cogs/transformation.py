@@ -490,6 +490,10 @@ class Transformation(commands.Cog):
             tsf_string = response.content
 
         new_data = utils.decode_tsf(tsf_string)
+        new_data['transformed_by'] = ctx.author.id
+        new_data['claim'] = None
+        new_data['eternal'] = False
+
         data = utils.load_tf(user, ctx.guild)
         data['all'] = new_data
         utils.write_tf(user, ctx.guild, None, data)
