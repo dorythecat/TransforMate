@@ -420,10 +420,6 @@ class Transformation(commands.Cog):
         output = utils.encode_tsf(data, version)
 
         if file:
-            # Encode the URL
-            output = output.split(";")
-            output = ";".join(output)
-
             try:
                 with open("tf_cache.tf", "w") as f:
                     f.write(output)
