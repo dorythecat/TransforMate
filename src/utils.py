@@ -348,26 +348,28 @@ def is_transformed(user: discord.User | discord.Member | int,
     return channel_id in data['transformed_users'][user_id] or 'all' in data['transformed_users'][user_id]
 
 
-def remove_transformed(user: discord.User | discord.Member,
-                       guild: discord.Guild,
-                       channel: discord.TextChannel | None = None) -> None:
+def remove_transformed(user: discord.User | discord.Member | int,
+                       guild: discord.Guild | int,
+                       channel: discord.TextChannel | int | None = None) -> None:
     data = load_transformed()
     if not is_transformed(user, guild, channel):
         return
-    data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
+    guild_id = str(guild if type(guild) is int else guild.id)
+    user_id = str(user if type(user) is int else user.id)
+    channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
+    data[guild_id]['transformed_users'][user_id].remove(channel_id)
     write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
-def remove_server_from_transformed(guild: discord.Guild) -> None:
+def remove_server_from_transformed(guild: discord.Guild | int) -> None:
     data = load_transformed()
-    del data[str(guild.id)]
+    del data[str(guild if type(guild) is int else guild.id)]
     write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
-def transform_text(data: dict,
-                   original: str) -> str:
+def transform_text(data: dict, original: str) -> str:
     # Ignore italics and bold messages
     if (original.startswith("*") and original.endswith("*")) or \
             (original.startswith("_") and original.endswith("_")):
@@ -493,21 +495,20 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 
 
 # FILE UTILS
-def load_file(filename: str,
-              guild_id: int | None = None) -> dict:
+def load_file(filename: str, guild_id: int | None = None) -> dict:
     filename = filename.split("/")
     if filename[-1] not in os.listdir("/".join(filename[:-1])):
         return {}
     with open("/".join(filename)) as f:
         contents = f.read().strip()
-        if contents == "":
-            return {}
-        data = json.loads(contents)
-        if guild_id is None:
-            return data
-        if str(guild_id) in data:
-            return data[str(guild_id)]
+    if contents == "":
         return {}
+    data = json.loads(contents)
+    if guild_id is None:
+        return data
+    if str(guild_id) in data:
+        return data[str(guild_id)]
+    return {}
 
 
 def write_file(filename: str,
