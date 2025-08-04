@@ -189,6 +189,7 @@ if (window.location.href.includes("tsf_editor.html")) {
     };
 
     document.getElementById("submit_tf_btn").onclick = () => {
+        // Generate TSF string with provided data
         const tsf_data = encode_tsf(
             elements.new_tf_name.value,
             elements.new_tf_img.value,
@@ -209,7 +210,23 @@ if (window.location.href.includes("tsf_editor.html")) {
                 censors: listConfigs.censor.list
             }
         );
-        console.log(tsf_data);
+
+        // Set output text
+        const new_tf_output = document.getElementById("new_tf_output");
+        new_tf_output.value = tsf_data;
+
+        // Display output and associated label
+        document.getElementById("tf_submit_output").style.display = "block";
+
+        // Select and copy the output when the associated button is pressed
+        document.getElementById("copy_tf_output").onclick = () => {
+            new_tf_output.select();
+            new_tf_output.setSelectionRange(0, 99999); // Mobile compatibility
+            navigator.clipboard.writeText(new_tf_output.value).then(
+                r => alert("Copied to clipboard!"),
+                r => alert("Failed to copy to clipboard!")
+            );
+        }
     };
 }
 

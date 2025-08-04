@@ -161,6 +161,22 @@ label {
     box-shadow: 0 0 10px black;
 }
 
+button {
+    cursor: pointer;
+    color: var(--text-primary);
+    background-color: mediumseagreen;
+    border: 2px var(--bg-page) solid;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 150%;
+    margin: 10px;
+}
+
+button:hover {
+    background-color: lightgreen;
+    box-shadow: 0 0 10px var(--bg-page);
+}
+
 button#submit-tf-btn {
     margin-top: 10px;
     font-size: 250%;
@@ -175,6 +191,17 @@ button#submit-tf-btn:hover {
     background-color: #aaa;
     color: #675c4d;
     box-shadow: 0 0 20px #675c4d;
+}
+
+input[type=text] {
+    border-radius: 5px;
+}
+
+#new_tf_output {
+    margin: 20px;
+    width: 90%;
+    padding: 10px 20px;
+    border-radius: 10px;
 }
 
 @media screen and (max-width: 1100px) {
