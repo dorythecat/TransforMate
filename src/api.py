@@ -67,8 +67,10 @@ app.add_middleware(
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 
+
 # Discord API interactions
 API_ENDPOINT = 'https://discord.com/api/v10' # Discord API endpoint
+
 
 def exchange_code(code: str) -> dict:
     data = {
@@ -83,6 +85,7 @@ def exchange_code(code: str) -> dict:
     r.raise_for_status()
     return r.json()
 
+
 def refresh_token(refresh_token: str) -> dict:
     data = {
         'grant_type': 'refresh_token',
@@ -95,6 +98,7 @@ def refresh_token(refresh_token: str) -> dict:
     r.raise_for_status()
     return r.json()
 
+
 def revoke_access_token(access_token: str) -> None:
     data = {
         'token': access_token,
@@ -105,6 +109,7 @@ def revoke_access_token(access_token: str) -> None:
     }
     requests.post('%s/oauth2/token/revoke' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
 
+
 def get_user_info(access_token: str) -> dict:
     headers = {
         'Authorization': 'Bearer %s' % access_token
@@ -113,6 +118,7 @@ def get_user_info(access_token: str) -> dict:
     r.raise_for_status()
     return r.json()
 
+
 def get_user_guilds(access_token: str) -> list[dict]:
     headers = {
         'Authorization': 'Bearer %s' % access_token
@@ -120,6 +126,7 @@ def get_user_guilds(access_token: str) -> list[dict]:
     r = requests.get('%s/users/@me/guilds' % API_ENDPOINT, headers=headers)
     r.raise_for_status()
     return r.json()
+
 
 # Various utilities
 class Token(BaseModel):
@@ -132,11 +139,14 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+
 def decode_access_token(token: str) -> dict:
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
+
 class ErrorMessage(BaseModel):
     message: str
+
 
 # Login
 @app.get("/login",
@@ -160,6 +170,7 @@ async def login(code: str, redirect_url: str) -> RedirectResponse | JSONResponse
                                        expires_delta=timedelta(seconds=int(data['expires_in'])))
     return RedirectResponse(url=redirect_url + '?token=' + access_token, status_code=303)
 
+
 @app.post("/logout",
           tags=["Security"])
 async def logout(token: Annotated[Token, Depends()]) -> None:
@@ -167,17 +178,20 @@ async def logout(token: Annotated[Token, Depends()]) -> None:
     token = jwt.decode(token.access_token, SECRET_KEY, algorithms=[ALGORITHM])
     revoke_access_token(token)
 
+
 # Get info
 class ServerDataBasic(BaseModel):
     blocked_users: list[int] = []
     blocked_channels: list[int] = []
     affixes: bool = False
 
+
 class ServerLogChannels(NamedTuple):
     edit_logs: int | None = None
     delete_logs: int | None = None
     transform_logs: int | None = None
     claim_logs: int | None = None
+
 
 class ServerData(BaseModel):
     blocked_users: list[int] = []
@@ -234,9 +248,11 @@ def get_server(token: Annotated[Token, Depends()],
         affixes=server['affixes']
     )
 
+
 class Modifier(NamedTuple):
     active: bool = False
     contents: dict = {}
+
 
 class UserTransformationData(BaseModel):
     transformed_by: int = 0
@@ -259,10 +275,12 @@ class UserTransformationData(BaseModel):
     proxy_suffix: str | None = None
     bio: str | None = None
 
+
 class UserData(BaseModel):
     blocked_channels: list[int] = []
     blocked_users: list[int] = []
     all: UserTransformationData = UserTransformationData()
+
 
 @app.get("/get/{server_id}/{user_id}",
          tags=["Get"],
@@ -354,6 +372,7 @@ def get_tfed_user(token: Annotated[Token, Depends()],
         )
     )
 
+
 # Transform other users
 class TransformData(BaseModel):
     into: str | None = None
@@ -362,6 +381,7 @@ class TransformData(BaseModel):
     brackets: list[str] | None = None
     copy_id: int | None = None
     merge: bool = False
+
 
 @app.put("/tf/{server_id}/{user_id}",
          tags=["Transformation"],
@@ -569,6 +589,7 @@ class ModData(BaseModel):
     bio: str | None = None
     chance: int | None = None
 
+
 @app.put("/mod/{server_id}/{user_id}",
          tags=["Transformation"],
          response_model=UserTransformationData,
@@ -705,6 +726,7 @@ def modifier_user(token: Annotated[Token, Depends()],
         bio=tf[channel_id]['bio']
     )
 
+
 @app.put("/tsf/{server_id}/{user_id}",
          tags=["Transformation"],
          response_model=UserTransformationData,
@@ -828,6 +850,7 @@ def tsf_user(token: Annotated[Token, Depends()],
         proxy_suffix=tf['proxy_suffix'],
         bio=tf['bio']
     )
+
 
 # User-related features
 @app.get("/users/me",
