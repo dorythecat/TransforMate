@@ -1045,3 +1045,22 @@ async def tsf_user_me(token: Annotated[str, Depends(get_current_token)],
         proxy_suffix=new_data['proxy_suffix'],
         bio=new_data['bio']
     )
+
+
+@app.delete("/users/me/delete",
+            tags=["Your User"])
+async def delete_user_me(token: Annotated[str, Depends(get_current_token)]) -> None:
+    """Deletes all of the current user's transformations and settings, a database wipe of their information."""
+    user_id = int(get_user_info(token)['id'])
+    utils.remove_all_tf(user_id)
+    return JSONResponse(status_code=200,
+                        content={'detail': 'Successfully deleted all of your transformations and settings'})
+
+
+@app.delete("/users/me/delete/{server_id}",
+            tags=["Your User"])
+async def delete_user_me_server(token: Annotated[str, Depends(get_current_token)],
+                           server_id: int) -> None:
+    """Deletes all of the current user's transformations and settings on a specific server."""
+    user_id = int(get_user_info(token)['id'])
+    utils.remove_all_server_tf(user_id, server_id)
