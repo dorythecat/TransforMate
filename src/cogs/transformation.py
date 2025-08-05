@@ -507,6 +507,7 @@ class Transformation(commands.Cog):
         new_data['transformed_by'] = ctx.author.id
         new_data['claim'] = None
         new_data['eternal'] = False
+        new_data['version'] = 15 # Hardcoded for now TODO do this properly
 
         data = utils.load_tf(user, ctx.guild)
         data['all'] = new_data
