@@ -113,11 +113,6 @@ async def on_message(message: discord.Message) -> None:
             message.content.strip().startswith('('):
         return
 
-    # If the message contains stickers, we just don't process it
-    if message.stickers:
-        await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
-        return
-
     data = utils.load_tf(message.author, message.guild)
     if data == {}:  # User isn't transformed
         return
@@ -125,6 +120,11 @@ async def on_message(message: discord.Message) -> None:
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
     if str(message.channel.id) in (data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']):
+        return
+
+    # If the message contains stickers, we just don't process it
+    if message.stickers:
+        await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
         return
 
     found = False
