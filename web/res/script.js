@@ -1,3 +1,7 @@
+// Global variables
+TM_API = "http://127.0.0.1:8000";
+
+
 // Cookie utilities
 const setCookie = (cname, cvalue, exmins) => {
     const expires = new Date(Date.now() + exmins * 60 * 1000).toUTCString();
@@ -77,14 +81,12 @@ login.onclick = function (e) {
 
 logout.onclick = async function (e) {
     try {
-        const response = await fetch('http://127.0.0.1:8000/logout', {
+        const response = await fetch(`${TM_API}/logout`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${getCookie('token')}`
             }
         });
-
-        if (!response.ok) throw new Error('Logout failed');
     } catch (error) {
         console.error('Error during logout:', error);
     }
@@ -108,7 +110,7 @@ if (window.location.href.includes("tsf_editor.html")) {
     };
 
     if (getCookie("token") !== "") {
-        const response = fetch("http://127.0.0.1:8000/users/me/discord", {
+        const response = fetch(`${TM_API}/users/me/discord`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${getCookie("token")}`
@@ -268,7 +270,7 @@ if (window.location.href.includes("tsf_editor.html")) {
         // Check if the user is logged in, if they are, allow them to select what server to apply the transformation to,
         // and wait before loading the rest of the elements down here
         if (getCookie("token") !== "") {
-            const response = fetch('http://127.0.0.1:8000/users/me/discord/servers', {
+            const response = fetch(`${TM_API}/users/me/discord/servers`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getCookie('token')}`
@@ -288,7 +290,7 @@ if (window.location.href.includes("tsf_editor.html")) {
                 button.onclick = async () => {
                     const server = serverSelect.value;
                     if (server === "") return;
-                    const response = fetch(`http://127.0.0.1:8000/users/me/tsf/${server}`, {
+                    const response = fetch(`${TM_API}/users/me/tsf/${server}`, {
                         method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${getCookie('token')}`,
@@ -328,7 +330,7 @@ function setTheme(theme) {
 // Check for saved theme preference or default to dark theme
 setTheme(localStorage.getItem('theme') || 'dark');
 
-// Add click event listener to theme toggle button
+// Add click event listener to the theme toggle button
 const themeToggle = document.getElementById('theme_toggle');
 themeToggle.addEventListener('click', () => {
     const currentTheme = document.documentElement.getAttribute('data_theme');
@@ -338,9 +340,6 @@ themeToggle.addEventListener('click', () => {
 
 function toggleMenu() {
     const x = document.getElementsByClassName("topnav")[0];
-    if (x.className === "topnav") {
-        x.className += " responsive";
-    } else {
-        x.className = "topnav";
-    }
+    if (x.className === "topnav") x.className += " responsive";
+    else x.className = "topnav";
 }
