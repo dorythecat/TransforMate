@@ -82,19 +82,24 @@ def write_tf(user: discord.User | discord.Member | int,
     data = load_tf(user) if type(user) is int else load_tf(user)
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
-    if new_data is not None:
-        data[guild_id] = new_data
-        write_file(f'{CACHE_PATH}/people/{str(user_id)}.json', data)
-        return
-    transformed_data = load_transformed(guild)
-    if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
+    if data == {} or data['version'] != CURRENT_TMUD_VERSION:
         # TODO: Add a way to update (at least) previous version data to newest version
         if CLEAR_OLD_TFEE_DATA:
             data = {}  # Clear data if necessary
-        data['version'] = CURRENT_TFEE_DATA_VERSION
+        data['version'] = CURRENT_TMUD_VERSION
+    transformed_data = load_transformed(guild)
     if transformed_data == {}:
         # Write some blank data if there's nothing to read here, and then read it
         transformed_data = write_transformed(guild)
+    if new_data is not None:
+        if 'blocked_users' not in new_data:
+            new_data['blocked_users'] = []
+        if 'blocked_channels' not in new_data:
+            new_data['blocked_channels'] = []
+        data[guild_id] = new_data
+        write_file(f'{CACHE_PATH}/people/{str(user_id)}.json', data)
+        write_transformed(guild, user, channel, block_user, block_channel)
+        return
     if transformed_data['affixes']:
         channel_id = proxy_prefix + " " + proxy_suffix
     else:
