@@ -197,20 +197,20 @@ if (window.location.href.includes("tsf_editor.html")) {
             return acc;
         }, {});
 
-    window.removeFunction = (index, ID) => {
-        listConfigs[ID].list.splice(index, 1);
-        updateList(ID);
-    };
-
-    const updateList = (ID, isCensor = false) => {
+    const updateList = (ID) => {
         const { list, container } = listConfigs[ID];
         container.innerHTML = list
             .map((item, index) => `
                 <li class="item">
-                    <span>${item.content} (${item.value}${isCensor ? "" : "%"})</span>
+                    <span>${item.content} (${item.value}${ID === 'censor' ? "" : "%"})</span>
                     <button type="button" onclick="removeFunction(${index}, '${ID}')">Remove</button>
                 </li>`)
             .join('');
+    };
+
+    window.removeFunction = (index, ID) => {
+        listConfigs[ID].list.splice(index, 1);
+        updateList(ID);
     };
 
     Object.entries(listConfigs).forEach(([ID, config]) => {
@@ -225,7 +225,7 @@ if (window.location.href.includes("tsf_editor.html")) {
                     value: valueInput
                 });
 
-                updateList(ID, isCensor);
+                updateList(ID);
 
                 config.contentInput.value = '';
                 if (isCensor) config.replacementInput.value = '';
@@ -395,7 +395,7 @@ if (window.location.href.includes("tsf_editor.html")) {
                         value: item.value
                     }
                 }
-                updateList(key, key === 'censor');
+                updateList(key);
             }
 
             elements.tf_data_form.style.display = "inline";
