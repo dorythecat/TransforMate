@@ -159,6 +159,19 @@ if (window.location.href.includes("tsf_editor.html")) {
         })
     }
 
+    const inputElement = document.getElementById("tf_file_input");
+    inputElement.addEventListener("change", handleFiles, false);
+    function handleFiles() {
+        const fileList = this.files;
+        const file = fileList[0];
+        const reader = new FileReader();
+        reader.readAsText(file);
+        // The file contains a TSF string to decode
+        reader.onload = function (e) {
+            data = decode_tsf(e.target.result);
+        }
+    }
+
     const sliderPairs = [
         { name: 'stutter', default: 0 },
         { name: 'prefix_chance', default: 30 },
