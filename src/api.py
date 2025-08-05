@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, NamedTuple, Union
 
 import jwt
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Security, Body
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -391,48 +392,6 @@ class TransformData(BaseModel):
     brackets: list[str] | None = None
     copy_id: int | None = None
     merge: bool = False
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-
-                },
-                {
-                    'into': 'Channel-specific Transformation',
-                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
-                    'channel_id': 1234567890,
-                    'brackets': None,
-                    'copy_id': None,
-                    'merge': False
-                },
-                {
-                    'into': 'Bracketed Transformation',
-                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
-                    'channel_id': None,
-                    'brackets': ["[","]"],
-                    'copy_id': None,
-                    'merge': False
-                },
-                {
-                    'into': 'Copy Transformation',
-                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
-                    'channel_id': None,
-                    'brackets': None,
-                    'copy_id': 1234567890,
-                    'merge': False
-                },
-                {
-                    'into': 'Merge Transformation',
-                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
-                    'channel_id': None,
-                    'brackets': None,
-                    'copy_id': 1234567890,
-                    'merge': True
-                }
-            ]
-        }
-    }
 
 
 @app.post("/tf/{server_id}/{user_id}",
@@ -895,7 +854,12 @@ async def tsf_user(token: Annotated[str, Depends(get_current_token)],
                    server_id: int,
                    user_id: int,
                    tsf_string: Annotated[str, Body(
-                       example="15;into;image_url;0;0;0;0;0;;;;0;;0;;0;;0;;0;;0;"
+                       openapi_examples={
+                           'basic': {
+                               'summary': 'Basic TSF string',
+                               'value': '15;into;image_url;0;0;0;0;0;;;;0;;0;;0;;0;;0;;0;'
+                           }
+                       }
                    )]) -> UserTransformationData | JSONResponse:
     """Modifies a user's settings using a TSF-compliant string."""
     user_guilds = get_user_guilds(token)
@@ -1077,7 +1041,12 @@ async def read_users_discord_servers_me(token: Annotated[str, Depends(get_curren
 async def tsf_user_me(token: Annotated[str, Depends(get_current_token)],
                       server_id: int,
                       tsf_string: Annotated[str, Body(
-                          example="15;into;image_url;0;0;0;0;0;;;;0;;0;;0;;0;;0;;0;"
+                          openapi_examples={
+                              'basic': {
+                                  'summary': 'Basic TSF string',
+                                  'value': '15;into;image_url;0;0;0;0;0;;;;0;;0;;0;;0;;0;;0;'
+                              }
+                          }
                       )]) -> UserTransformationData | JSONResponse:
     """Modifies the current user's settings using a TSF-compliant string."""
     user_id = int(get_user_info(token)['id'])
@@ -1207,3 +1176,6 @@ async def delete_user_me_server(token: Annotated[str, Depends(get_current_token)
     """Deletes all of the current user's transformations and settings on a specific server."""
     user_id = int(get_user_info(token)['id'])
     utils.remove_all_server_tf(user_id, server_id)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
