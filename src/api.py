@@ -791,9 +791,7 @@ async def tsf_user(token: Annotated[str, Depends(get_current_token)],
                             content={'detail': 'That user has blocked the current user'})
 
     if utils.is_transformed(user_id, server_id):
-        if str(mod_data.channel_id) in tf:
-            tf = tf[str(mod_data.channel_id)]
-        elif 'all' in tf:
+        if 'all' in tf:
             tf = tf['all']
         elif server != {} and server['affixes']:
             tf = {'claim': None}  # Empty data so we can do multiple tfs
@@ -976,9 +974,7 @@ async def tsf_user_me(token: Annotated[str, Depends(get_current_token)],
                             content={'detail': 'That user has blocked the current user'})
 
     if utils.is_transformed(user_id, server_id):
-        if str(mod_data.channel_id) in tf:
-            tf = tf[str(mod_data.channel_id)]
-        elif 'all' in tf:
+        if 'all' in tf:
             tf = tf['all']
         elif server != {} and server['affixes']:
             tf = {'claim': None}  # Empty data so we can do multiple tfs
