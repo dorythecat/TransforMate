@@ -130,10 +130,6 @@ body {
     border-radius: 20px;
 }
 
-div#new_tf_container {
-    /*width: 50%;*/
-}
-
 input[type=text] {
     width: 90%;
     margin: 10px;

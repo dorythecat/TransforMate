@@ -139,6 +139,7 @@ if (window.location.href.includes("tsf_editor.html")) {
         new_tf_img: document.getElementById("new_tf_img"),
         new_tf_submit: document.getElementById("new_tf_submit"),
         new_tf_container: document.getElementById("new_tf_container"),
+        tf_file_container: document.getElementById("tf_file_container"),
         tf_data_form: document.getElementById("tf_data_form"),
         big: document.getElementById("big"),
         small: document.getElementById("small"),
@@ -159,19 +160,6 @@ if (window.location.href.includes("tsf_editor.html")) {
             elements.new_tf_name.value = r.username;
             elements.new_tf_img.value = `https://cdn.discordapp.com/avatars/${r.id}/${r.avatar}.png`;
         })
-    }
-
-    const inputElement = document.getElementById("tf_file_input");
-    inputElement.addEventListener("change", handleFiles, false);
-    function handleFiles() {
-        const fileList = this.files;
-        const file = fileList[0];
-        const reader = new FileReader();
-        reader.readAsText(file);
-        // The file contains a TSF string to decode
-        reader.onload = function (e) {
-            const data = decode_tsf(e.target.result);
-        }
     }
 
     const sliderPairs = [
@@ -263,9 +251,9 @@ if (window.location.href.includes("tsf_editor.html")) {
             alert("Image URL must be a valid URL!");
             return;
         }
-        elements.new_tf_container.style.width = "100%";
         elements.tf_data_form.style.display = "inline";
         elements.new_tf_submit.style.display = "none";
+        elements.tf_file_container.style.display = "none";
     };
 
     document.getElementById("submit_tf_btn").onclick = async () => {
@@ -365,6 +353,49 @@ if (window.location.href.includes("tsf_editor.html")) {
         loading_container.style.display = "none";
         document.getElementById("tf_submit_output").style.display = "block";
     };
+
+    const inputElement = document.getElementById("tf_file_input");
+    inputElement.addEventListener("change", handleFiles, false);
+    function handleFiles() {
+        const fileList = this.files;
+        const file = fileList[0];
+        const reader = new FileReader();
+        reader.readAsText(file);
+        // The file contains a TSF string to decode
+        reader.onload = function (e) {
+            const data = decode_tsf(e.target.result);
+            if (!data) return;
+
+            elements.new_tf_name.value = data.into;
+            elements.new_tf_img.value = data.image_url;
+            elements.big.checked = data.big;
+            elements.small.checked = data.small;
+            elements.hush.checked = data.hush;
+            elements.backwards.checked = data.backwards;
+            elements.bio.value = data.bio;
+
+            document.getElementById("stutter").value = data.stutter;
+            document.getElementById("stutter_value").value = data.stutter;
+
+            listConfigs.prefix.list = data.prefixes || [];
+            listConfigs.suffix.list = data.suffixes || [];
+            listConfigs.sprinkle.list = data.sprinkles || [];
+            listConfigs.muffle.list = data.muffles || [];
+            listConfigs.alt_muffle.list = data.alt_muffles || [];
+            listConfigs.censor.list = data.censors || [];
+
+            updateList('prefix');
+            updateList('suffix');
+            updateList('sprinkle');
+            updateList('muffle');
+            updateList('alt_muffle');
+            updateList('censor', true);
+
+            elements.tf_data_form.style.display = "inline";
+            elements.new_tf_submit.style.display = "none";
+            elements.tf_file_container.style.display = "none";
+        }
+    }
 }
 
 // Theme toggle utility
