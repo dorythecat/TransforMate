@@ -392,6 +392,48 @@ class TransformData(BaseModel):
     copy_id: int | None = None
     merge: bool = False
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+
+                },
+                {
+                    'into': 'Channel-specific Transformation',
+                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                    'channel_id': 1234567890,
+                    'brackets': None,
+                    'copy_id': None,
+                    'merge': False
+                },
+                {
+                    'into': 'Bracketed Transformation',
+                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                    'channel_id': None,
+                    'brackets': ["[","]"],
+                    'copy_id': None,
+                    'merge': False
+                },
+                {
+                    'into': 'Copy Transformation',
+                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                    'channel_id': None,
+                    'brackets': None,
+                    'copy_id': 1234567890,
+                    'merge': False
+                },
+                {
+                    'into': 'Merge Transformation',
+                    'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                    'channel_id': None,
+                    'brackets': None,
+                    'copy_id': 1234567890,
+                    'merge': True
+                }
+            ]
+        }
+    }
+
 
 @app.post("/tf/{server_id}/{user_id}",
          tags=["Transformation"],
@@ -405,7 +447,54 @@ class TransformData(BaseModel):
 async def tf_user(token: Annotated[str, Depends(get_current_token)],
                   server_id: int,
                   user_id: int,
-                  tf_data: Annotated[TransformData, Body()]) -> UserTransformationData | JSONResponse:
+                  tf_data: Annotated[TransformData, Body(
+                      openapi_examples={
+                          'normal': {
+                              'summary': 'A normal transformation',
+                              'value': {
+                                  'into': 'Normal Transformation',
+                                  'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                                  'merge': False
+                              }
+                          },
+                          'channel-specific': {
+                              'summary': 'A channel-specific transformation',
+                              'value': {
+                                  'into': 'Channel-specific Transformation',
+                                  'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                                  'channel_id': 1234567890,
+                                  'merge': False
+                              }
+                          },
+                          'brackets': {
+                              'summary': 'A transformation with brackets',
+                              'value': {
+                                  'into': 'Brackets Transformation',
+                                  'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                                  'brackets': ["[","]"],
+                                  'merge': False
+                              }
+                          },
+                          'copy': {
+                              'summary': 'A copy of another user',
+                              'value': {
+                                  'into': 'Copy Transformation',
+                                  'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                                  'copy_id': 1234567890,
+                                  'merge': False
+                              }
+                          },
+                          'merge': {
+                              'summary': 'A merge with another user',
+                              'value': {
+                                  'into': 'Merge Transformation',
+                                  'image_url': 'https://cdn.discordapp.com/embed/avatars/1.png',
+                                  'copy_id': 1234567890,
+                                  'merge': True
+                              }
+                          }
+                      }
+                  )]) -> UserTransformationData | JSONResponse:
     """Transforms a given user."""
     user_guilds = get_user_guilds(token)
     guild = None
@@ -613,7 +702,61 @@ class ModData(BaseModel):
 async def modifier_user(token: Annotated[str, Depends(get_current_token)],
                         server_id: int,
                         user_id: int,
-                        mod_data: Annotated[ModData, Body()]) -> UserTransformationData | JSONResponse:
+                        mod_data: Annotated[ModData, Body(
+                            openapi_examples={
+                                'claim': {
+                                    'summary': 'Claim the user',
+                                    'value': {
+                                        'claim': 1234567890
+                                    }
+                                },
+                                'claim-and-eternal': {
+                                    'summary': 'Claim the user and make the transformation eternal',
+                                    'value': {
+                                        'claim': 1234567890,
+                                        'eternal': True
+                                    }
+                                },
+                                'add-prefix-basic': {
+                                    'summary': 'Add a prefix',
+                                    'value': {
+                                        'prefix': 'prefix'
+                                    }
+                                },
+                                'add-suffix-chance': {
+                                    'summary': 'Add a suffix with a chance, or modify the chance of an existing suffix',
+                                    'value': {
+                                        'suffix': 'suffix',
+                                        'chance': 65
+                                    }
+                                },
+                                'remove-muffle': {
+                                    'summary': 'Remove a muffle',
+                                    'value': {
+                                        'muffle': '$/-muffle'
+                                    }
+                                },
+                                'add-censor': {
+                                    'summary': 'Add a censor',
+                                    'value': {
+                                        'censor': 'censor',
+                                        'censor_replacement': 'replacement'
+                                    }
+                                },
+                                'set-stutter': {
+                                    'summary': 'Set the stutter chance',
+                                    'value': {
+                                        'stutter': 10
+                                    }
+                                },
+                                'set-bio': {
+                                    'summary': 'Set the biography',
+                                    'value': {
+                                        'bio': 'Lorem ipsum dolor sit amet...'
+                                    }
+                                }
+                            }
+                        )]) -> UserTransformationData | JSONResponse:
     """Modifies a given user's settings."""
     user_guilds = get_user_guilds(token)
     guild = None
@@ -867,8 +1010,8 @@ async def tsf_user(token: Annotated[str, Depends(get_current_token)],
 # User-related features
 @app.get("/users/me",
          tags=["Your User"],
-         response_model=dict)
-async def read_users_file_me(token: Annotated[str, Depends(get_current_token)]) -> dict:
+         response_model=UserData)
+async def read_users_file_me(token: Annotated[str, Depends(get_current_token)]) -> UserData:
     """Returns the current user's complete file."""
     return utils.load_tf(int(get_user_info(token)))
 
