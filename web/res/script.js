@@ -2,6 +2,11 @@
 TM_API = "http://127.0.0.1:8000";
 
 
+// General utility
+const strJSON = (integer) => {
+    return JSON.parse(integer.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));
+}
+
 // Cookie utilities
 const setCookie = (cname, cvalue, exmins) => {
     const expires = new Date(Date.now() + exmins * 60 * 1000).toUTCString();
@@ -115,7 +120,7 @@ if (window.location.href.includes("tsf_editor.html")) {
             headers: {
                 "Authorization": `Bearer ${getCookie("token")}`
             }
-        }).catch(e => console.error(e)).then(r => r.json());
+        }).catch(e => console.error(e)).then(r => r.text()).then(r => strJSON(r));
 
         response.then(r => {
             elements.new_tf_name.value = r.username;
@@ -275,11 +280,11 @@ if (window.location.href.includes("tsf_editor.html")) {
                 headers: {
                     'Authorization': `Bearer ${getCookie('token')}`
                 }
-            }).catch(e => console.error(e)).then(r => r.text());
+            }).catch(e => console.error(e)).then(r => r.text()).then(r => strJSON(r));
 
             await response.then(servers => {
                 const serverSelect = document.getElementById("tf_output_server");
-                for (const server of JSON.parse(servers.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'))) {
+                for (const server of servers) {
                     const option = document.createElement("option");
                     option.value = server['id'];
                     option.textContent = server['name'];
