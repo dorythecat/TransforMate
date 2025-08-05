@@ -66,6 +66,37 @@ function encode_tsf(into, image_url, options = {
 
 }
 
+function decode_tsf(tsf) {
+    tsf = tsf.split(";");
+
+    const getArray = (index) => {
+        if (tsf[index] === "0") return [];
+        return tsf[index + 1].split(",").map(p => {
+            const [content, value] = p.split("|");
+            return {content, value};
+        });
+    }
+
+    return {
+        into: tsf[1],
+        image_url: tsf[2],
+        big: tsf[3] === "1",
+        small: tsf[4] === "1",
+        hush: tsf[5] === "1",
+        backwards: tsf[6] === "1",
+        stutter: parseInt(tsf[7]),
+        proxy_prefix: tsf[8],
+        proxy_suffix: tsf[9],
+        bio: tsf[10],
+        prefixes: getArray(11),
+        suffixes: getArray(13),
+        sprinkles: getArray(15),
+        muffles: getArray(17),
+        alt_muffles: getArray(19),
+        censors: getArray(21)
+    }
+}
+
 // Token handling
 if (window.location.href.includes("token")) {
     setCookie("token", window.location.href.split("=")[1], 7 * 24 * 60); // 7 days
