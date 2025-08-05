@@ -255,6 +255,7 @@ if (window.location.href.includes("tsf_editor.html")) {
         elements.tf_file_container.style.display = "none";
     };
 
+    let loaded_servers = [];
     document.getElementById("submit_tf_btn").onclick = async () => {
         // Generate TSF string with provided data
         const tsf_data = encode_tsf(
@@ -301,13 +302,14 @@ if (window.location.href.includes("tsf_editor.html")) {
             element.remove();
         }
 
-        // Make the loading visible
         const loading_container = document.getElementById("loading_container");
-        loading_container.style.display = "block";
 
         // Check if the user is logged in, if they are, allow them to select what server to apply the transformation to,
         // and wait before loading the rest of the elements down here
-        if (getCookie("token") !== "") {
+        if (getCookie("token") && loaded_servers.length === 0) {
+            // Make the throbber visible
+            loading_container.style.display = "block";
+
             const response = fetch(`${TM_API}/users/me/discord/servers`, {
                 method: 'GET',
                 headers: {
@@ -316,8 +318,10 @@ if (window.location.href.includes("tsf_editor.html")) {
             }).catch(e => console.error(e)).then(r => r.text()).then(r => strJSON(r));
 
             await response.then(servers => {
+                loaded_servers = servers;
+                console.log(loaded_servers);
                 const serverSelect = document.getElementById("tf_output_server");
-                for (const server of servers) {
+                for (const server of loaded_servers) {
                     const option = document.createElement("option");
                     option.value = server['id'];
                     option.textContent = server['name'];
@@ -340,12 +344,13 @@ if (window.location.href.includes("tsf_editor.html")) {
                     await response.then(r => {
                         alert("Transformation applied successfully!");
                         window.location.href = "tsf_editor.html";
-                    })
+                    });
                 }
 
                 serverSelect.classList.remove("hidden");
                 button.classList.remove("hidden");
-            })
+            });
+
             loading_container.style.display = "none";
             document.getElementById("tf_submit_output").style.display = "block";
         }
