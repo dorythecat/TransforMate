@@ -69,6 +69,8 @@ function encode_tsf(into, image_url, options = {
 function decode_tsf(tsf) {
     tsf = tsf.split(";");
 
+    if (tsf[0] !== "15" || tsf.length !== 23) return;
+
     const getArray = (index) => {
         if (tsf[index] === "0") return [];
         return tsf[index + 1].split(",").map(p => {
@@ -168,7 +170,7 @@ if (window.location.href.includes("tsf_editor.html")) {
         reader.readAsText(file);
         // The file contains a TSF string to decode
         reader.onload = function (e) {
-            data = decode_tsf(e.target.result);
+            const data = decode_tsf(e.target.result);
         }
     }
 
