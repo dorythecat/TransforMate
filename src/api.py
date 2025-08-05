@@ -1065,7 +1065,7 @@ async def read_users_discord_servers_me(token: Annotated[str, Depends(get_curren
 
 
 
-@app.post("/users/me/tsf/{server_id}",
+@app.put("/users/me/tsf/{server_id}",
          tags=["Your User"],
          response_model=UserTransformationData,
          responses={

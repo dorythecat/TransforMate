@@ -332,7 +332,7 @@ if (window.location.href.includes("tsf_editor.html")) {
                     const server = serverSelect.value;
                     if (server === "") return;
                     const response = fetch(`${TM_API}/users/me/tsf/${server}`, {
-                        method: 'POST',
+                        method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${getCookie('token')}`,
                             'Content-Type': 'application/json'
