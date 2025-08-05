@@ -319,7 +319,6 @@ if (window.location.href.includes("tsf_editor.html")) {
 
             await response.then(servers => {
                 loaded_servers = servers;
-                console.log(loaded_servers);
                 const serverSelect = document.getElementById("tf_output_server");
                 for (const server of loaded_servers) {
                     const option = document.createElement("option");
