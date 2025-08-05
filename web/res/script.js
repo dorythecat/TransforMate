@@ -1,7 +1,6 @@
 // Global variables
 TM_API = "http://127.0.0.1:8000";
 
-
 // General utility
 const strJSON = (integer) => {
     return JSON.parse(integer.replace(/("[^"]*"\s*:\s*)(\d{16,})/g, '$1"$2"'));
