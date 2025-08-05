@@ -130,11 +130,9 @@ body {
     border-radius: 20px;
 }
 
-/* For when we have the ability to edit files too :D
 div#new_tf_container {
-    width: 50%;
+    /*width: 50%;*/
 }
-*/
 
 input[type=text] {
     width: 100%;

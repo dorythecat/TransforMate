@@ -107,6 +107,20 @@ if (window.location.href.includes("tsf_editor.html")) {
         bio: document.getElementById("bio")
     };
 
+    if (getCookie("token") !== "") {
+        const response = fetch("http://127.0.0.1:8000/users/me/discord", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${getCookie("token")}`
+            }
+        }).catch(e => console.error(e)).then(r => r.json());
+
+        response.then(r => {
+            elements.new_tf_name.value = r.username;
+            elements.new_tf_img.value = `https://cdn.discordapp.com/avatars/${r.id}/${r.avatar}.png`;
+        })
+    }
+
     const sliderPairs = [
         { name: 'stutter', default: 0 },
         { name: 'prefix_chance', default: 30 },
