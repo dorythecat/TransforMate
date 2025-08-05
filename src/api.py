@@ -393,7 +393,7 @@ class TransformData(BaseModel):
     merge: bool = False
 
 
-@app.put("/tf/{server_id}/{user_id}",
+@app.post("/tf/{server_id}/{user_id}",
          tags=["Transformation"],
          response_model=UserTransformationData,
          responses={
@@ -601,7 +601,7 @@ class ModData(BaseModel):
     chance: int | None = None
 
 
-@app.put("/mod/{server_id}/{user_id}",
+@app.post("/mod/{server_id}/{user_id}",
          tags=["Transformation"],
          response_model=UserTransformationData,
          responses={
@@ -739,7 +739,7 @@ async def modifier_user(token: Annotated[str, Depends(get_current_token)],
     )
 
 
-@app.put("/tsf/{server_id}/{user_id}",
+@app.post("/tsf/{server_id}/{user_id}",
          tags=["Transformation"],
          response_model=UserTransformationData,
          responses={
@@ -922,7 +922,7 @@ async def read_users_discord_servers_me(token: Annotated[str, Depends(get_curren
 
 
 
-@app.put("/users/me/tsf/{server_id}",
+@app.post("/users/me/tsf/{server_id}",
          tags=["Your User"],
          response_model=UserTransformationData,
          responses={
