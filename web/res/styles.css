@@ -135,7 +135,7 @@ div#new_tf_container {
 }
 
 input[type=text] {
-    width: 100%;
+    width: 90%;
     margin: 10px;
     border-radius: 5px;
 }
