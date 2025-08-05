@@ -241,34 +241,36 @@ def write_tf(user: discord.User | discord.Member | int,
     write_file(f'{CACHE_PATH}/people/{user_id}.json', data)
 
 
-def remove_tf(user: discord.User | discord.Member,
-              guild: discord.Guild,
-              channel: discord.TextChannel | None = None) -> None:
+def remove_tf(user: discord.User | discord.Member | int,
+              guild: discord.Guild | int,
+              channel: discord.TextChannel | int | None = None) -> None:
     data = load_tf(user)
-    if data == {} or not str(guild.id) in data or \
-            (channel is not None and not str(channel.id) in data[str(guild.id)]) or \
-            (channel is None and "all" not in data[str(guild.id)]):
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if data == {} or not guild_id in data or \
+            (channel is not None and not str(channel.id) in data[guild_id]) or \
+            (channel is None and "all" not in data[guild_id]):
         return
-    del data[str(guild.id)]['all' if channel is None else str(channel.id)]
-    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+    del data[guild_id]['all' if channel is None else str(channel if type(channel) is int else channel.id)]
+    write_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json', data)
 
     remove_transformed(user, guild, channel)
 
 
-def remove_all_server_tf(user: discord.User | discord.Member,
-                         guild: discord.Guild) -> None:
+def remove_all_server_tf(user: discord.User | discord.Member | int,
+                         guild: discord.Guild | int) -> None:
     data = load_tf(user)
-    if data == {} or not str(guild.id) in data:
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if data == {} or not guild_id in data:
         return
-    del data[str(guild.id)]
-    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+    del data[guild_id]
+    write_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json', data)
 
     remove_transformed(user, guild)
 
 
-def remove_all_tf(user: discord.User | discord.Member) -> None:
+def remove_all_tf(user: discord.User | discord.Member | int) -> None:
     try:
-        os.remove(f'{CACHE_PATH}/people/{str(user.id)}.json')
+        os.remove(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')
     except OSError as e:
         print("Error removing file:")
         print(f"{type(e).__name__}: {e}")
