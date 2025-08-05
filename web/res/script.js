@@ -377,19 +377,27 @@ if (window.location.href.includes("tsf_editor.html")) {
             document.getElementById("stutter").value = data.stutter;
             document.getElementById("stutter_value").value = data.stutter;
 
-            listConfigs.prefix.list = data.prefixes || [];
-            listConfigs.suffix.list = data.suffixes || [];
-            listConfigs.sprinkle.list = data.sprinkles || [];
-            listConfigs.muffle.list = data.muffles || [];
-            listConfigs.alt_muffle.list = data.alt_muffles || [];
-            listConfigs.censor.list = data.censors || [];
+            // We need to pair them since they have different names.
+            const pairs = {
+                'prefix': 'prefixes',
+                'suffix': 'suffixes',
+                'sprinkle': 'sprinkles',
+                'muffle': 'muffles',
+                'alt_muffle': 'alt_muffles',
+                'censor': 'censors'
+            }
 
-            updateList('prefix');
-            updateList('suffix');
-            updateList('sprinkle');
-            updateList('muffle');
-            updateList('alt_muffle');
-            updateList('censor', true);
+            for (const [key, value] of Object.entries(pairs)) {
+                const list = listConfigs[key].list;
+                const dataList = data[value];
+                for (const [index, item] of dataList.entries()) {
+                    list[index] = {
+                        content: item.content,
+                        value: item.value
+                    }
+                }
+                updateList(key, key === 'censor');
+            }
 
             elements.tf_data_form.style.display = "inline";
             elements.new_tf_submit.style.display = "none";
