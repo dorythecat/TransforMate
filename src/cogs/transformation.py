@@ -507,9 +507,12 @@ class Transformation(commands.Cog):
         new_data['transformed_by'] = ctx.author.id
         new_data['claim'] = None
         new_data['eternal'] = False
-        new_data['version'] = 15 # Hardcoded for now TODO do this properly
+        new_data['blocked_channels'] = []
+        new_data['blocked_users'] = []
 
         data = utils.load_tf(user, ctx.guild)
+        if data == {}:
+            data['version'] = 15
         data['all'] = new_data
         utils.write_tf(user, ctx.guild, None, data)
 
