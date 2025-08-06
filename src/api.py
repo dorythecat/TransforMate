@@ -85,7 +85,7 @@ def exchange_code(code: str) -> dict:
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
-    r = requests.post('%s/oauth2/token' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+    r = requests.post(API_ENDPOINT + '/oauth2/token', data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
     r.raise_for_status()
     return r.json()
 
@@ -98,7 +98,7 @@ def refresh_token(refresh_token: str) -> dict:
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
-    r = requests.post('%s/oauth2/token' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+    r = requests.post(API_ENDPOINT + '/oauth2/token', data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
     r.raise_for_status()
     return r.json()
 
@@ -111,23 +111,23 @@ def revoke_access_token(access_token: str) -> None:
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
-    requests.post('%s/oauth2/token/revoke' % API_ENDPOINT, data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
+    requests.post(API_ENDPOINT + '/oauth2/token/revoke', data=data, headers=headers, auth=(CLIENT_ID, CLIENT_SECRET))
 
 
 def get_user_info(access_token: str) -> dict:
     headers = {
-        'Authorization': 'Bearer %s' % access_token
+        'Authorization': 'Bearer ' + access_token
     }
-    r = requests.get('%s/users/@me' % API_ENDPOINT, headers=headers)
+    r = requests.get(API_ENDPOINT + '/users/@me', headers=headers)
     r.raise_for_status()
     return r.json()
 
 
 def get_user_guilds(access_token: str) -> list[dict]:
     headers = {
-        'Authorization': 'Bearer %s' % access_token
+        'Authorization': 'Bearer ' + access_token
     }
-    r = requests.get('%s/users/@me/guilds' % API_ENDPOINT, headers=headers)
+    r = requests.get(API_ENDPOINT + '/users/@me/guilds', headers=headers)
     r.raise_for_status()
     return r.json()
 
@@ -146,6 +146,7 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
         return None
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(data)
         return data['access_token']
     except InvalidTokenError:
         raise HTTPException(
