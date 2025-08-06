@@ -185,7 +185,7 @@ async def login(code: str, redirect_url: str) -> RedirectResponse | JSONResponse
 @app.post("/logout",
           tags=["Security"])
 async def logout(token: Annotated[str, Depends(get_current_token)]) -> None:
-    """Logout of a Discord account, and invaidate the associated token."""
+    """Logout of a Discord account and invalidate the associated token."""
     revoke_access_token(token)
 
 
