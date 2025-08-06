@@ -61,7 +61,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:63342"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -1172,6 +1172,6 @@ async def delete_user_me(token: Annotated[str, Depends(get_current_token)]) -> N
             tags=["Your User"])
 async def delete_user_me_server(token: Annotated[str, Depends(get_current_token)],
                            server_id: int) -> None:
-    """Deletes all of the current user's transformations and settings on a specific server."""
+    """Deletes all the current user's transformations and settings on a specific server."""
     user_id = int(get_user_info(token)['id'])
     utils.remove_all_server_tf(user_id, server_id)
