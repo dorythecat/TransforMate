@@ -1,5 +1,5 @@
 // Global variables
-TM_API = "http://127.0.0.1:8000";
+TM_API = "http://api.transformate.live";
 
 // General utility
 const strJSON = (integer) => {

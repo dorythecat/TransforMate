@@ -4,7 +4,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated, NamedTuple, Union
 
 import jwt
-import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Security, Body
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -1176,6 +1175,3 @@ async def delete_user_me_server(token: Annotated[str, Depends(get_current_token)
     """Deletes all of the current user's transformations and settings on a specific server."""
     user_id = int(get_user_info(token)['id'])
     utils.remove_all_server_tf(user_id, server_id)
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
