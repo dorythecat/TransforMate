@@ -343,7 +343,7 @@ option {
 }
 
 .loader {
-    background-image: url("../../docs/img/logo.png");
+    background-image: url("img/logo.png");
     background-size: cover;
     background-position: center;
     background-color: var(--bg-secondary);
