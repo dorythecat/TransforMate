@@ -76,6 +76,11 @@ security = HTTPBearer()
 API_ENDPOINT = 'https://discord.com/api/v10' # Discord API endpoint
 
 
+@app.get("/", include_in_schema=False)
+async def root() -> RedirectResponse:
+    return RedirectResponse(url='/docs', status_code=301)
+
+
 def exchange_code(code: str) -> dict:
     data = {
         'grant_type': 'authorization_code',
