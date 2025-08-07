@@ -113,11 +113,6 @@ async def on_message(message: discord.Message) -> None:
             message.content.strip().startswith('('):
         return
 
-    # If the message contains stickers, we just don't process it
-    if message.stickers:
-        await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
-        return
-
     data = utils.load_tf(message.author, message.guild)
     if data == {}:  # User isn't transformed
         return
@@ -125,6 +120,11 @@ async def on_message(message: discord.Message) -> None:
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
     if str(message.channel.id) in (data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']):
+        return
+
+    # If the message contains stickers, we just don't process it
+    if message.stickers:
+        await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
         return
 
     found = False
@@ -240,7 +240,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
             str(reaction.emoji) not in ["❓", "❔", "✏️", "❌", "🔒", "🔓", "🔐"]:
         return
 
-    tfee, data = utils.check_reactions(reaction)
+    tfee, data = utils.check_message(reaction.message)
     if tfee is None:
         return
     await reaction.remove(user)  # Remove the reaction from the message
@@ -428,7 +428,7 @@ async def legal(ctx: discord.ApplicationContext) -> None:
 
 @bot.slash_command(description="Invite the bot to your server")
 async def invite(ctx: discord.ApplicationContext) -> None:
-    await ctx.respond("To invite the bot to a server you own, use"
+    await ctx.respond("To invite the bot to a server you own, use "
                       "[this link](https://discord.com/oauth2/authorize?client_id=1274436972621987881)!\n\n"
                       "Feel free to share it around with anyone! <3")
 
@@ -438,4 +438,6 @@ async def ping(ctx: discord.ApplicationContext) -> None:
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
 
 
-bot.run(BOT_TOKEN)  # Start the bot up
+
+if __name__ == "__main__":
+    bot.run(BOT_TOKEN)  # Start the bot up

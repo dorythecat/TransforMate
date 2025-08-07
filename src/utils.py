@@ -30,7 +30,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TFEE_DATA_VERSION = 15
+CURRENT_TMUD_VERSION = 15
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -43,24 +43,21 @@ CURRENT_TRANSFORMED_DATA_VERSION = 7
 
 
 # USER TRANSFORMATION DATA UTILS
-def load_tf_by_id(user_id: str, guild: discord.Guild | int | None = None) -> dict:
-    return load_file(f'{CACHE_PATH}/people/{user_id}.json',
+def load_tf(user: discord.User | discord.Member | int, guild: discord.Guild | int | None = None) -> dict:
+    return load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
 
-
-def load_tf(user: discord.User | discord.Member, guild: discord.Guild | int | None = None) -> dict:
-    return load_tf_by_id(str(user.id), guild)
 
 def get_data_version(user: discord.User | discord.Member) -> int:
     return int(load_file(f'{CACHE_PATH}/people/{str(user.id)}.json')['version'])
 
 
-def write_tf(user: discord.User | discord.Member,
-             guild: discord.Guild,
-             channel: discord.TextChannel | None = None,
+def write_tf(user: discord.User | discord.Member | int,
+             guild: discord.Guild | int,
+             channel: discord.TextChannel | int | None = None,
              new_data: dict | None = None,
-             block_channel: discord.TextChannel | None = None,
-             block_user: discord.User | discord.Member | None = None,
+             block_channel: discord.TextChannel | int | None = None,
+             block_user: discord.User | discord.Member | int | None = None,
              transformed_by: str | None = None,
              into: str | None = None,
              image_url: str | None = None,
@@ -82,30 +79,34 @@ def write_tf(user: discord.User | discord.Member,
              proxy_prefix: str | None = None,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
-    data = load_tf(user)
-    if new_data is not None:
-        data[str(guild.id)] = new_data
-        write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
-        return
-    transformed_data = load_transformed(guild)
-    if data == {} or data['version'] != CURRENT_TFEE_DATA_VERSION:
+    data = load_tf(user) if type(user) is int else load_tf(user)
+    user_id = str(user if type(user) is int else user.id)
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if data == {} or data['version'] != CURRENT_TMUD_VERSION:
         # TODO: Add a way to update (at least) previous version data to newest version
-        if CLEAR_OLD_TFEE_DATA:
-            data = {}  # Clear data if necessary
-        data['version'] = CURRENT_TFEE_DATA_VERSION
+        data = {} if CLEAR_OLD_TFEE_DATA else data # Clear data if necessary
+        data['version'] = CURRENT_TMUD_VERSION
+    transformed_data = load_transformed(guild)
     if transformed_data == {}:
         # Write some blank data if there's nothing to read here, and then read it
         transformed_data = write_transformed(guild)
+    if new_data is not None:
+        new_data['blocked_users'] = [] if 'blocked_users' not in new_data else new_data['blocked_users']
+        new_data['blocked_channels'] = [] if 'blocked_channels' not in new_data else new_data['blocked_channels']
+        data[guild_id] = new_data
+        write_file(f'{CACHE_PATH}/people/{str(user_id)}.json', data)
+        write_transformed(guild, user, channel, block_user, block_channel)
+        return
     if transformed_data['affixes']:
         channel_id = proxy_prefix + " " + proxy_suffix
     else:
-        channel_id = 'all' if channel is None else str(channel.id)
+        channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
     if into not in ["", None]:
-        if str(guild.id) not in data:
-            data[str(guild.id)] = {}
-            data[str(guild.id)]['blocked_channels'] = []
-            data[str(guild.id)]['blocked_users'] = []
-        data[str(guild.id)][channel_id] = {
+        if guild_id not in data:
+            data[guild_id] = {}
+            data[guild_id]['blocked_channels'] = []
+            data[guild_id]['blocked_users'] = []
+        data[guild_id][channel_id] = {
             'transformed_by': transformed_by,
             'into': into,
             'image_url': image_url,
@@ -146,139 +147,148 @@ def write_tf(user: discord.User | discord.Member,
         }
     else:
         if transformed_by is not None and transformed_by != "":
-            data[str(guild.id)][channel_id]['transformed_by'] = transformed_by
+            data[guild_id][channel_id]['transformed_by'] = transformed_by
         if image_url is not None and image_url != "":
-            data[str(guild.id)][channel_id]['image_url'] = image_url
+            data[guild_id][channel_id]['image_url'] = image_url
         if claim_user is not None and claim_user != 0:
-            data[str(guild.id)][channel_id]['claim'] = claim_user
+            data[guild_id][channel_id]['claim'] = claim_user
         if eternal is not None:
-            data[str(guild.id)][channel_id]['eternal'] = False if eternal == 0 else True
+            data[guild_id][channel_id]['eternal'] = False if eternal == 0 else True
         if block_channel is not None:
-            if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
-                data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
+            block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
+            if block_channel not in data[guild_id]['blocked_channels']:
+                data[guild_id]['blocked_channels'].append(block_channel)
             else:
-                data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+                data[guild_id]['blocked_channels'].remove(block_channel)
         if block_user is not None:
-            if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
-                data[str(guild.id)]['blocked_users'].append(str(block_user.id))
+            block_user = str(block_user if type(block_user) is int else block_user.id)
+            if block_user not in data[guild_id]['blocked_users']:
+                data[guild_id]['blocked_users'].append(block_user)
             else:
-                data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
+                data[guild_id]['blocked_users'].remove(block_user)
         if prefix is not None:
-            data[str(guild.id)][channel_id]['prefix']['active'] = True if prefix != "" else False
+            data[guild_id][channel_id]['prefix']['active'] = True if prefix != "" else False
             if prefix != "":
                 if prefix.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['prefix']['contents'].pop(prefix[3:])
+                    data[guild_id][channel_id]['prefix']['contents'].pop(prefix[3:])
                 else:
-                    data[str(guild.id)][channel_id]['prefix']['contents'][prefix] = chance if chance else 30
+                    data[guild_id][channel_id]['prefix']['contents'][prefix] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['prefix']['contents'] = {}
+                data[guild_id][channel_id]['prefix']['contents'] = {}
         if suffix is not None:
-            data[str(guild.id)][channel_id]['suffix']['active'] = True if suffix != "" else False
+            data[guild_id][channel_id]['suffix']['active'] = True if suffix != "" else False
             if suffix != "":
                 if suffix.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['suffix']['contents'].pop(suffix[3:])
+                    data[guild_id][channel_id]['suffix']['contents'].pop(suffix[3:])
                 else:
-                    data[str(guild.id)][channel_id]['suffix']['contents'][suffix] = chance if chance else 30
+                    data[guild_id][channel_id]['suffix']['contents'][suffix] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['suffix']['contents'] = {}
+                data[guild_id][channel_id]['suffix']['contents'] = {}
         if big is not None:
-            data[str(guild.id)][channel_id]['big'] = False if big == 0 else True
+            data[guild_id][channel_id]['big'] = False if big == 0 else True
         if small is not None:
-            data[str(guild.id)][channel_id]['small'] = False if small == 0 else True
+            data[guild_id][channel_id]['small'] = False if small == 0 else True
         if hush is not None:
-            data[str(guild.id)][channel_id]['hush'] = False if hush == 0 else True
+            data[guild_id][channel_id]['hush'] = False if hush == 0 else True
         if backwards is not None:
-            data[str(guild.id)][channel_id]['backwards'] = False if backwards == 0 else True
+            data[guild_id][channel_id]['backwards'] = False if backwards == 0 else True
         if censor is not None:
-            data[str(guild.id)][channel_id]['censor']['active'] = True if censor != "" else False
+            data[guild_id][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
                 if censor.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['censor']['contents'].pop(censor[3:])
+                    data[guild_id][channel_id]['censor']['contents'].pop(censor[3:])
                 elif censor_replacement not in ["", None]:
-                    if data[str(guild.id)][channel_id]['censor']['contents'] is None:
-                        data[str(guild.id)][channel_id]['censor']['contents'] = {}
-                    data[str(guild.id)][channel_id]['censor']['contents'][censor.lower()] = \
+                    if data[guild_id][channel_id]['censor']['contents'] is None:
+                        data[guild_id][channel_id]['censor']['contents'] = {}
+                    data[guild_id][channel_id]['censor']['contents'][censor.lower()] = \
                         censor_replacement.lower()
         if sprinkle is not None:
-            data[str(guild.id)][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
+            data[guild_id][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
             if sprinkle != "":
                 if sprinkle.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['sprinkle']['contents'].pop(sprinkle[3:])
+                    data[guild_id][channel_id]['sprinkle']['contents'].pop(sprinkle[3:])
                 else:
-                    data[str(guild.id)][channel_id]['sprinkle']['contents'][sprinkle] = chance if chance else 30
+                    data[guild_id][channel_id]['sprinkle']['contents'][sprinkle] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['sprinkle']['contents'] = {}
+                data[guild_id][channel_id]['sprinkle']['contents'] = {}
         if muffle is not None:
-            data[str(guild.id)][channel_id]['muffle']['active'] = True if muffle != "" else False
+            data[guild_id][channel_id]['muffle']['active'] = True if muffle != "" else False
             if muffle != "":
                 if muffle.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['muffle']['contents'].pop(muffle[3:])
+                    data[guild_id][channel_id]['muffle']['contents'].pop(muffle[3:])
                 else:
-                    data[str(guild.id)][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
+                    data[guild_id][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['muffle']['contents'] = {}
+                data[guild_id][channel_id]['muffle']['contents'] = {}
         if alt_muffle is not None:
-            data[str(guild.id)][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
+            data[guild_id][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
             if alt_muffle != "":
                 if alt_muffle.startswith("$/-"):
-                    data[str(guild.id)][channel_id]['alt_muffle']['contents'].pop(alt_muffle[3:])
+                    data[guild_id][channel_id]['alt_muffle']['contents'].pop(alt_muffle[3:])
                 else:
-                    data[str(guild.id)][channel_id]['alt_muffle']['contents'][alt_muffle] = chance if chance else 30
+                    data[guild_id][channel_id]['alt_muffle']['contents'][alt_muffle] = chance if chance else 30
             else:
-                data[str(guild.id)][channel_id]['alt_muffle']['contents'] = {}
+                data[guild_id][channel_id]['alt_muffle']['contents'] = {}
 
         if stutter is not None:
-            data[str(guild.id)][channel_id]['stutter'] = stutter
+            data[guild_id][channel_id]['stutter'] = stutter
 
         if proxy_prefix is not None:
-            data[str(guild.id)][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
+            data[guild_id][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
         if proxy_suffix is not None:
-            data[str(guild.id)][channel_id]['proxy_suffix'] = None if proxy_suffix == "" else proxy_suffix
+            data[guild_id][channel_id]['proxy_suffix'] = None if proxy_suffix == "" else proxy_suffix
 
         if bio is not None:
-            data[str(guild.id)][channel_id]['bio'] = None if bio == "" else bio
-    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+            data[guild_id][channel_id]['bio'] = None if bio == "" else bio
+    write_file(f'{CACHE_PATH}/people/{user_id}.json', data)
 
 
-def remove_tf(user: discord.User | discord.Member,
-              guild: discord.Guild,
-              channel: discord.TextChannel | None = None) -> None:
+def remove_tf(user: discord.User | discord.Member | int,
+              guild: discord.Guild | int,
+              channel: discord.TextChannel | int | None = None) -> None:
     data = load_tf(user)
-    if data == {} or not str(guild.id) in data or \
-            (channel is not None and not str(channel.id) in data[str(guild.id)]) or \
-            (channel is None and "all" not in data[str(guild.id)]):
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if data == {} or not guild_id in data or \
+            (channel is not None and not str(channel.id) in data[guild_id]) or \
+            (channel is None and "all" not in data[guild_id]):
         return
-    del data[str(guild.id)]['all' if channel is None else str(channel.id)]
-    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+    del data[guild_id]['all' if channel is None else str(channel if type(channel) is int else channel.id)]
+    write_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json', data)
 
     remove_transformed(user, guild, channel)
 
 
-def remove_all_server_tf(user: discord.User | discord.Member,
-                         guild: discord.Guild) -> None:
+def remove_all_server_tf(user: discord.User | discord.Member | int,
+                         guild: discord.Guild | int) -> None:
     data = load_tf(user)
-    if data == {} or not str(guild.id) in data:
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if data == {} or not guild_id in data:
         return
-    del data[str(guild.id)]
-    write_file(f'{CACHE_PATH}/people/{str(user.id)}.json', data)
+    del data[guild_id]
+    write_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json', data)
 
     remove_transformed(user, guild)
 
 
-def remove_all_tf(user: discord.User | discord.Member) -> None:
-    os.remove(f'{CACHE_PATH}/people/{str(user.id)}.json')
+def remove_all_tf(user: discord.User | discord.Member | int) -> None:
+    try:
+        os.remove(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')
+    except OSError as e:
+        print("Error removing file:")
+        print(f"{type(e).__name__}: {e}")
 
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild | int | None = None) -> dict:
-    return load_file(f'{CACHE_PATH}/transformed.json', guild if type(guild) in [int, NoneType] else guild.id)
+    return load_file(f'{CACHE_PATH}/transformed.json',
+                     guild if type(guild) in [int, NoneType] else guild.id)
 
 
-def write_transformed(guild: discord.Guild,
-                      user: discord.User | discord.Member | None = None,
-                      channel: discord.TextChannel | None = None,
-                      block_user: discord.User | discord.Member | None = None,
-                      block_channel: discord.TextChannel | None = None,
+def write_transformed(guild: discord.Guild | int,
+                      user: discord.User | discord.Member | int | None = None,
+                      channel: discord.TextChannel | int | None = None,
+                      block_user: discord.User | discord.Member | int | None = None,
+                      block_channel: discord.TextChannel | int | None = None,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
                       clear_other_logs: bool | None = None,
                       affixes: bool | None = None) -> dict:
@@ -288,8 +298,9 @@ def write_transformed(guild: discord.Guild,
             data = {}  # Clear data if necessary
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
 
-    if str(guild.id) not in data:
-        data[str(guild.id)] = {
+    guild_id = str(guild if type(guild) is int else guild.id)
+    if guild_id not in data:
+        data[guild_id] = {
             'blocked_users': [],
             'blocked_channels': [],
             'logs': [None, None, None, None],
@@ -299,71 +310,75 @@ def write_transformed(guild: discord.Guild,
         }
 
     if user is not None:
-        if str(user.id) not in data[str(guild.id)]['transformed_users']:
-            data[str(guild.id)]['transformed_users'][str(user.id)] = []
+        user_id = str(user if type(user) is int else user.id)
+        channel_id = str(channel if type(channel) in int else channel.id) if channel else 'all'
+        if user_id not in data[guild_id]['transformed_users']:
+            data[guild_id]['transformed_users'][user_id] = []
         if channel is None:
-            if 'all' not in data[str(guild.id)]['transformed_users'][str(user.id)]:
-                data[str(guild.id)]['transformed_users'][str(user.id)].append('all')
-        elif str(channel.id) not in data[str(guild.id)]['transformed_users'][str(user.id)]:
-            data[str(guild.id)]['transformed_users'][str(user.id)].append(str(channel.id))
+            if 'all' not in data[guild_id]['transformed_users'][user_id]:
+                data[guild_id]['transformed_users'][user_id].append('all')
+        elif channel_id not in data[guild_id]['transformed_users'][user_id]:
+            data[guild_id]['transformed_users'][user_id].append(channel_id)
 
     if block_channel is not None:
-        if str(block_channel.id) not in data[str(guild.id)]['blocked_channels']:
-            data[str(guild.id)]['blocked_channels'].append(str(block_channel.id))
+        block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
+        if block_channel not in data[guild_id]['blocked_channels']:
+            data[guild_id]['blocked_channels'].append(block_channel)
         else:
-            data[str(guild.id)]['blocked_channels'].remove(str(block_channel.id))
+            data[guild_id]['blocked_channels'].remove(block_channel)
 
     if block_user is not None:
-        if str(block_user.id) not in data[str(guild.id)]['blocked_users']:
-            data[str(guild.id)]['blocked_users'].append(str(block_user.id))
+        block_user = str(block_user if type(block_user) is int else block_user.id)
+        if block_user not in data[guild_id]['blocked_users']:
+            data[guild_id]['blocked_users'].append(block_user)
         else:
-            data[str(guild.id)]['blocked_users'].remove(str(block_user.id))
+            data[guild_id]['blocked_users'].remove(block_user)
 
     if logs is not None:
-        data[str(guild.id)]['logs'] = logs
+        data[guild_id]['logs'] = logs
 
     if clear_other_logs is not None:
-        data[str(guild.id)]['clear_other_logs'] = clear_other_logs
+        data[guild_id]['clear_other_logs'] = clear_other_logs
     if affixes is not None:
-        data[str(guild.id)]['affixes'] = affixes
+        data[guild_id]['affixes'] = affixes
 
     write_file(f'{CACHE_PATH}/transformed.json', data)
-    return data[str(guild.id)]
+    return data[guild_id]
 
 
-def is_transformed(user: discord.User | discord.Member,
-                   guild: discord.Guild,
-                   channel: discord.TextChannel | None = None) -> bool:
+def is_transformed(user: discord.User | discord.Member | int,
+                   guild: discord.Guild | int,
+                   channel: discord.TextChannel | int | None = None) -> bool:
     data = load_transformed(guild)
-    if data == {} or str(user.id) not in data['transformed_users']:
+    user_id = str(user if type(user) is int else user.id)
+    if data == {} or user_id not in data['transformed_users'] or data['transformed_users'][user_id] in [[], None]:
         return False
-    if data['transformed_users'][str(user.id)] not in [[], None] and \
-            ((channel is not None and str(channel.id) in data['transformed_users'][str(user.id)]) or
-             'all' in data['transformed_users'][str(user.id)]):
-        return True
-    return False
+    channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
+    return channel_id in data['transformed_users'][user_id] or 'all' in data['transformed_users'][user_id]
 
 
-def remove_transformed(user: discord.User | discord.Member,
-                       guild: discord.Guild,
-                       channel: discord.TextChannel | None = None) -> None:
+def remove_transformed(user: discord.User | discord.Member | int,
+                       guild: discord.Guild | int,
+                       channel: discord.TextChannel | int | None = None) -> None:
     data = load_transformed()
     if not is_transformed(user, guild, channel):
         return
-    data[str(guild.id)]['transformed_users'][str(user.id)].remove(str(channel.id) if channel is not None else 'all')
+    guild_id = str(guild if type(guild) is int else guild.id)
+    user_id = str(user if type(user) is int else user.id)
+    channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
+    data[guild_id]['transformed_users'][user_id].remove(channel_id)
     write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
-def remove_server_from_transformed(guild: discord.Guild):
+def remove_server_from_transformed(guild: discord.Guild | int) -> None:
     data = load_transformed()
-    del data[str(guild.id)]
+    del data[str(guild if type(guild) is int else guild.id)]
     write_file(f'{CACHE_PATH}/transformed.json', data)
 
 
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
-def transform_text(data: dict,
-                   original: str) -> str:
+def transform_text(data: dict, original: str) -> str:
     # Ignore italics and bold messages
     if (original.startswith("*") and original.endswith("*")) or \
             (original.startswith("_") and original.endswith("_")):
@@ -471,45 +486,53 @@ def transform_text(data: dict,
 async def extract_tf_data(ctx: discord.ApplicationContext,
                           user: discord.User | discord.Member | None,
                           get_command: bool = False,
-                          channel: discord.TextChannel | None = None) -> [bool,
-                                                         dict | None,
-                                                         discord.User | discord.Member | None]:
+                          channel: discord.TextChannel | None = None) -> tuple[bool,
+                                                                               dict | None,
+                                                                               discord.User | discord.Member | None]:
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild, channel):
         await ctx.respond(f"You can't do that! {user.mention} is not transformed at the moment!")
-        return [False, None, None]
+        return False, None, None
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
     if not get_command and data['claim'] is not None and data['claim'] != ctx.author.id:
         await ctx.respond(f"You can't do that! {user.mention} is owned by"
                           f"{ctx.guild.get_member(data['claim']).mention}, and not by you!")
-        return [False, None, None]
-    return [True, data, user]
+        return False, None, None
+    return True, data, user
 
 
 # FILE UTILS
-def load_file(filename: str,
-              guild_id: int | None = None) -> dict:
+def load_file(filename: str, guild_id: int | None = None) -> dict:
     filename = filename.split("/")
     if filename[-1] not in os.listdir("/".join(filename[:-1])):
         return {}
-    with open("/".join(filename)) as f:
-        contents = f.read().strip()
-        if contents == "":
-            return {}
-        data = json.loads(contents)
-        if guild_id is None:
-            return data
-        if str(guild_id) in data:
-            return data[str(guild_id)]
+    try:
+        with open("/".join(filename)) as f:
+            contents = f.read().strip()
+    except OSError as e:
+        print("Error loading file:")
+        print(f"{type(e).__name__}: {e}")
         return {}
+    if contents == "":
+        return {}
+    data = json.loads(contents)
+    if guild_id is None:
+        return data
+    if str(guild_id) in data:
+        return data[str(guild_id)]
+    return {}
 
 
 def write_file(filename: str,
                data: dict) -> None:
-    with open(filename, "w+") as f:
-        f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    try:
+        with open(filename, "w+") as f:
+            f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+    except OSError as e:
+        print("Error writing to file:")
+        print(f"{type(e).__name__}: {e}")
 
 
 # MISCELLANEOUS UTILS
@@ -535,24 +558,131 @@ def get_embed_base(title: str,
     )
 
 
-def check_message(message: discord.Message) -> [int | None, dict | None]:
+def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
     transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
-        data = load_tf_by_id(tfee, message.guild)
+        data = load_tf(tfee, message.guild)
         if data == {}:
             continue
         data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
         if data['into'] == message.author.name:
-            return [int(tfee), data]
-    return [None, None]
-
-def check_reactions(reaction: discord.Reaction) -> [int | None, dict | None]:
-    return check_message(reaction.message)
+            return int(tfee), data
+    return None, None
 
 
 def clear_apple_marks(text: str) -> str:
     text = text.replace("’", "'")
     text = text.replace("“", "\"")
     return text.replace("”", "\"")
+
+# TSF Utilities
+# See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
+def encode_tsf(data: dict, version: int) -> str:
+    """
+    Encodes a TMUD-compliant transformation data dict into a TSF-compliant string.
+    :param data: Properly encoded TMUD-compliant transformation data dict.
+    :param version: The version of the TMUD standard to use. (Used at the moment only to check compatibility)
+    :return: A TSF-compliant string.
+    """
+
+    if version != 15:
+        raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
+
+    # Basic stuff
+    output = str(version) + ";"
+    output += data['into'] + ";"
+    output += data['image_url'] + ";"
+
+    # Booleans
+    output += "1;" if data['big'] else "0;"
+    output += "1;" if data['small'] else "0;"
+    output += "1;" if data['hush'] else "0;"
+    output += "1;" if data['backwards'] else "0;"
+
+    # "Easy Stuff"
+    output += str(data['stutter']) + ";"
+    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
+    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
+    output += (data['bio'] if data['bio'] else "") + ";"
+
+    # Prefix
+    output += "1;" if data['prefix']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['prefix']['contents'].items()])
+               if data['prefix']['active'] else "") + ";"
+
+    # Suffix
+    output += "1;" if data['suffix']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['suffix']['contents'].items()])
+               if data['suffix']['active'] else "") + ";"
+
+    # Sprinkle
+    output += "1;" if data['sprinkle']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['sprinkle']['contents'].items()])
+               if data['sprinkle']['active'] else "") + ";"
+
+    # Muffle
+    output += "1;" if data['muffle']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['muffle']['contents'].items()])
+               if data['muffle']['active'] else "") + ";"
+
+    # Alt Muffle
+    output += "1;" if data['alt_muffle']['active'] else "0;"
+    output += (",".join([key + "|" + str(value) for key, value in data['alt_muffle']['contents'].items()])
+               if data['alt_muffle']['active'] else "") + ";"
+
+    # Censor
+    output += "1;" if data['censor']['active'] else "0;"
+    output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
+               if data['censor']['active'] else "")
+
+    return output
+
+def decode_tsf(tsf_string: str) -> dict:
+    """
+    Decodes a TSF-compliant string into a TMUD-compliant dict of transformation data.
+    :param tsf_string: A TSF-compliant string.
+    :return: A TMUD-compliant transformation data dict.
+    """
+
+    tsf_data = tsf_string.split(";")
+    version = int(tsf_data[0])
+    if version != 15:
+        raise ValueError("decode_tsf() only supports TSFv1.0, at the moment!")
+
+    if len(tsf_data) != 23:
+        raise ValueError("decode_tsf() expected 23 elements in the TSF string, got " + str(len(tsf_data)))
+
+    tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
+    # Generate basic data
+    data = {
+        'into': tsf_data[0],
+        'image_url': tsf_data[1],
+        'big': tsf_data[2] == "1",
+        'small': tsf_data[3] == "1",
+        'hush': tsf_data[4] == "1",
+        'backwards': tsf_data[5] == "1",
+        'stutter': int(tsf_data[6]),
+        'proxy_prefix': tsf_data[7],
+        'proxy_suffix': tsf_data[8],
+        'bio': tsf_data[9]
+    }
+
+    modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
+
+    for modifier in modifiers:
+        data[modifier] = {
+            'active': tsf_data[10 + modifiers.index(modifier) * 2] != "0",
+            'contents': {}
+        }
+        if not data[modifier]['active']:
+            continue
+        modifier_data = tsf_data[11 + modifiers.index(modifier) * 2].split(",")
+        for mod in modifier_data:
+            if mod == "":
+                continue
+            key, value = mod.split("|")
+            data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
+
+    return data

@@ -18,6 +18,9 @@ async def transform_function(ctx: discord.ApplicationContext,
                              merge: bool | None = None) -> bool:
     if copy is not None:
         new_data = utils.load_tf(copy, ctx.guild)
+        if new_data == {} or new_data['all'] == {}:
+            await ctx.respond("That user can't be copied, since hey don't have any transformation available!")
+            return False
         if merge in [False, None]:
             new_data['all']['into'] += "឵឵ᅟ"
         if into:
@@ -105,10 +108,6 @@ class Transformation(commands.Cog):
         if not user:
             user = ctx.author
 
-        data = utils.load_tf(user, ctx.guild)
-        transformed_data = utils.load_transformed(ctx.guild)
-        channel_id = str(ctx.channel.id if not channel else channel.id)
-
         # Blocked users (globally)
         if ctx.user.id in BLOCKED_USERS:
             await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
@@ -119,26 +118,29 @@ class Transformation(commands.Cog):
             await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
             return
 
+        channel_id = str(ctx.channel.id if not channel else channel.id)
+        data = utils.load_tf(user, ctx.guild)
         # Blocked channels (user)
-        if data != {}:
-            if channel_id in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
-                return
+        if data != {} and channel_id in data['blocked_channels']:
+            await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                              f"They have blocked the bot here!", ephemeral=True)
+            return
 
-        if transformed_data != {}:
-            # Blocked channels (server)
-            if channel_id in transformed_data['blocked_channels']:
-                await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                return
+        transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data == {}:
+            utils.write_transformed(ctx.guild)
+        # Blocked channels (server)
+        if channel_id in transformed_data['blocked_channels']:
+            await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+            return
 
-            # Blocked users (server)
-            if str(ctx.user.id) in transformed_data['blocked_users']:
-                await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                return
-            if str(user.id) in transformed_data['blocked_users']:
-                await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
-                return
+        # Blocked users (server)
+        if str(ctx.user.id) in transformed_data['blocked_users']:
+            await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+            return
+        if str(user.id) in transformed_data['blocked_users']:
+            await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+            return
 
         if utils.is_transformed(user, ctx.guild):
             if channel_id in data:
@@ -146,10 +148,10 @@ class Transformation(commands.Cog):
             elif 'all' in data:
                 data = data['all']
             elif transformed_data != {} and transformed_data['affixes']:
-                data = {'claim': None}  # Empty data so we can do multiple tfs
+                data = { 'claim': None }  # Empty data so we can do multiple tfs
             elif data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = {'claim': None}
+                data = { 'claim': None }
             else:
                 await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return
@@ -161,7 +163,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
 
-        if transformed_data != {} and transformed_data['affixes']:
+        if transformed_data['affixes']:
             if not brackets:
                 await ctx.respond(f"Please provide brackets for this transformation!")
                 return
@@ -220,15 +222,21 @@ class Transformation(commands.Cog):
                      user: discord.Option(discord.User) = None) -> None:
         if user is None:
             user = ctx.author
-        data = utils.load_tf(user, ctx.guild)
+
+        # No one has been transformed in the server, so why would this user be?
         transformed_data = utils.load_transformed(ctx.guild)
+        if transformed_data == {}:
+            await ctx.respond(f"{user.mention} is not transformed at the moment!")
+            return
+
+        data = utils.load_tf(user, ctx.guild)
         channel = None
         if str(ctx.channel.id) in data:
             data = data[str(ctx.channel.id)]
             channel = ctx.channel
         elif 'all' in data:
             data = data['all']
-        elif transformed_data != {} and not transformed_data['affixes']:
+        elif not transformed_data['affixes']:
             await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to! "
                               f"(At least on this channel)")
             return
@@ -369,10 +377,10 @@ class Transformation(commands.Cog):
     # TF EXPORTING/IMPORTING
     @discord.slash_command(description="Export your transformation to a shareable file or text string")
     async def export_tf(self,
-                     ctx: discord.ApplicationContext,
-                     user: discord.Option(discord.User) = None,
-                     file: discord.Option(discord.SlashCommandOptionType.boolean,
-                                          description="Whether the output is a .tf file or a string") = True) -> None:
+                        ctx: discord.ApplicationContext,
+                        user: discord.Option(discord.User) = None,
+                        file: discord.Option(discord.SlashCommandOptionType.boolean,
+                                             description="Whether the output is a .tf file or a string") = True) -> None:
         if user is None:
             user = ctx.author
 
@@ -389,126 +397,57 @@ class Transformation(commands.Cog):
         data = utils.load_tf(user, ctx.guild)
         transformed_data = utils.load_transformed(ctx.guild)
 
+        if data == {}:
+            await ctx.respond(f"{user.mention} is not transformed at the moment!")
+            return
+
         # Blocked channels (user)
-        if data != {}:
-            if str(ctx.channel.id) in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                    f"They have blocked the bot here!", ephemeral=True)
+        if str(ctx.channel.id) in data['blocked_channels']:
+            await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                              f"They have blocked the bot here!", ephemeral=True)
+            return
+
+        if transformed_data != {}:
+            # Blocked channels (server)
+            if str(ctx.channel.id) in transformed_data['blocked_channels']:
+                await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
                 return
 
-            if transformed_data != {}:
-                # Blocked channels (server)
-                if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                    return
+            # Blocked users (server)
+            if str(ctx.user.id) in transformed_data['blocked_users']:
+                await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                return
+            if str(user.id) in transformed_data['blocked_users']:
+                await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                return
 
-                # Blocked users (server)
-                if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                    return
-                if str(user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
-                    return
-
-        data = utils.load_tf(user, ctx.guild)
         version = utils.get_data_version(user)
-        channel = None
-        if str(ctx.channel) in data:
-            data = data[str(ctx.channel)]
-            channel = ctx.channel
-        else:
-            data = data['all']
+        data = data[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
 
-        # Basic stuff
-        output = str(version) + ";"
-        output += data['into'] + ";"
-        output += data['image_url'] + ";"
-
-        # Booleans
-        output += "1;" if data['big'] else "0;"
-        output += "1;" if data['small'] else "0;"
-        output += "1;" if data['hush'] else "0;"
-        output += "1;" if data['backwards'] else "0;"
-
-        # "Easy Stuff"
-        output += str(data['stutter']) + ";"
-        output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
-        output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
-        output += (data['bio'] if data['bio'] else "") + ";"
-
-        # Prefix
-        output += "1;" if data['prefix']['active'] else "0;"
-        match version:
-            case 14:
-                output += (",".join(data['prefix']['contents']) if data['prefix']['active'] else "") + ";"
-                output += (str(data['prefix']['chance']) if data['prefix']['active'] else "") + ";"
-            case 15:
-                output += (",".join([key + "|" + str(value) for key, value in data['prefix']['contents'].items()])
-                           if data['prefix']['active'] else "") + ";"
-
-        # Suffix
-        output += "1;" if data['suffix']['active'] else "0;"
-        match version:
-            case 14:
-                output += (",".join(data['suffix']['contents']) if data['suffix']['active'] else "") + ";"
-                output += (str(data['suffix']['chance']) if data['suffix']['active'] else "") + ";"
-            case 15:
-                output += (",".join([key + "|" + str(value) for key, value in data['suffix']['contents'].items()])
-                           if data['suffix']['active'] else "") + ";"
-
-        # Sprinkle
-        output += "1;" if data['sprinkle']['active'] else "0;"
-        match version:
-            case 14:
-                output += (",".join(data['sprinkle']['contents']) if data['sprinkle']['active'] else "") + ";"
-                output += (str(data['sprinkle']['chance']) if data['sprinkle']['active'] else "") + ";"
-            case 15:
-                output += (",".join([key + "|" + str(value) for key, value in data['sprinkle']['contents'].items()])
-                           if data['sprinkle']['active'] else "") + ";"
-
-        # Muffle
-        output += "1;" if data['muffle']['active'] else "0;"
-        match version:
-            case 14:
-                output += (",".join(data['muffle']['contents']) if data['muffle']['active'] else "") + ";"
-                output += (str(data['muffle']['chance']) if data['muffle']['active'] else "") + ";"
-            case 15:
-                output += (",".join([key + "|" + str(value) for key, value in data['muffle']['contents'].items()])
-                           if data['muffle']['active'] else "") + ";"
-
-        # Alt Muffle
-        output += "1;" if data['alt_muffle']['active'] else "0;"
-        match version:
-            case 14:
-                output += (",".join(data['alt_muffle']['contents']) if data['alt_muffle']['active'] else "") + ";"
-                output += (str(data['alt_muffle']['chance']) if data['alt_muffle']['active'] else "") + ";"
-            case 15:
-                output += (",".join([key + "|" + str(value) for key, value in data['alt_muffle']['contents'].items()])
-                           if data['alt_muffle']['active'] else "") + ";"
-
-        # Censor
-        output += "1;" if data['censor']['active'] else "0;"
-        output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
-                                                                 if data['censor']['active'] else "")
+        output = utils.encode_tsf(data, version)
 
         if file:
-            # Encode the URL
-            output = output.split(";")
-            output = ";".join(output)
+            try:
+                with open("tf_cache", "w") as f:
+                    f.write(output)
+            except OSError as e:
+                print(f"Error writing to file:")
+                print(f"{type(e).__name__}: {e}")
 
-            with open("tf_cache.tf", "w") as f:
-                f.write(output)
-
-            await ctx.respond(file=discord.File("tf_cache.tf", f"{data['into']}.tf"))
-            os.remove("tf_cache.tf")
+            await ctx.respond(file=discord.File("tf_cache", f"{data['into']}.tsf"))
+            try:
+                os.remove("tf_cache")
+            except OSError as e:
+                print(f"Error removing file:")
+                print(f"{type(e).__name__}: {e}")
             return
 
         await ctx.respond(output)
 
     @discord.slash_command(description="Import your saved transformations")
     async def import_tf(self,
-                     ctx: discord.ApplicationContext,
-                     user: discord.Option(discord.User) = None) -> None:
+                        ctx: discord.ApplicationContext,
+                        user: discord.Option(discord.User) = None) -> None:
         if user is None:
             user = ctx.author
 
@@ -553,124 +492,27 @@ class Transformation(commands.Cog):
             await ctx.respond("Cancelled the transformation!")
             return
 
+        tsf_string = response.content
         if response.attachments:
-            await response.attachments[0].save(f"tf_cache.tf")
-            with open("tf_cache.tf") as f:
-                data = f.read().split(";")
-            os.remove("tf_cache.tf")
-        else:
-            data = response.content.split(";")
+            await response.attachments[0].save(f"tf_cache")
+            try:
+                with open("tf_cache") as f:
+                    tsf_string = f.read()
+                os.remove("tf_cache")
+            except OSError as e:
+                print(f"Error reading from file or removing file:")
+                print(f"{type(e).__name__}: {e}")
 
-        version = 14 # Version where files where added, but it didn't originally have the version identifier so
-        if len(data) not in [23, 27]:
-            await ctx.send("Invalid transformation data!")
-            return
-        if len(data) == 23: # Version 15 and above
-            version = int(data[0])
-            data = data[1:]
+        new_data = utils.decode_tsf(tsf_string)
+        new_data['transformed_by'] = ctx.author.id
+        new_data['claim'] = None
+        new_data['eternal'] = False
 
-        if version not in [14, 15]:
-            await ctx.send("The version of this file isn't supported! Please contact support for more information!")
+        data = utils.load_tf(user, ctx.guild)
+        data['all'] = new_data
+        utils.write_tf(user, ctx.guild, None, data)
 
-        # Basic stuff
-        await transform_function(ctx, user, data[0], data[1])
-
-        # More-or-less-basic stuff
-        utils.write_tf(user,
-                       ctx.guild,
-                       big=int(data[2]),
-                       small=int(data[3]),
-                       hush=int(data[4]),
-                       backwards=int(data[5]),
-                       stutter=int(data[6]),
-                       proxy_prefix=data[7],
-                       proxy_suffix=data[8],
-                       bio=data[9])
-
-        # Prefix
-        if data[10] == "1":
-            prefixes = data[11].split(",")
-            match version:
-                case 14:
-                    for prefix in prefixes:
-                        utils.write_tf(user, ctx.guild, prefix=prefix, chance=int(data[12]))
-                case 15:
-                    for prefix in prefixes:
-                        prefix = prefix.split("|")
-                        utils.write_tf(user, ctx.guild, prefix=prefix[0], chance=int(prefix[1]))
-
-        # Suffix
-        match version:
-            case 14:
-                if data[13] == "1":
-                    suffixes = data[14].split(",")
-                    for suffix in suffixes:
-                        utils.write_tf(user, ctx.guild, suffix=suffix, chance=int(data[15]))
-            case 15:
-                if data[12] == "1":
-                    suffixes = data[13].split(",")
-                    for suffix in suffixes:
-                        suffix = suffix.split("|")
-                        utils.write_tf(user, ctx.guild, suffix=suffix[0], chance=int(suffix[1]))
-
-        # Sprinkle
-        match version:
-            case 14:
-                if data[16] == "1":
-                    sprinkles = data[17].split(",")
-                    for sprinkle in sprinkles:
-                        utils.write_tf(user, ctx.guild, sprinkle=sprinkle, chance=int(data[18]))
-            case 15:
-                if data[14] == "1":
-                    sprinkles = data[15].split(",")
-                    for sprinkle in sprinkles:
-                        sprinkle = sprinkle.split("|")
-                        utils.write_tf(user, ctx.guild, sprinkle=sprinkle[0], chance=int(sprinkle[1]))
-
-        # Muffle
-        match version:
-            case 14:
-                if data[19] == "1":
-                    muffles = data[20].split(",")
-                    for muffle in muffles:
-                        utils.write_tf(user, ctx.guild, muffle=muffle, chance=int(data[21]))
-            case 15:
-                if data[16] == "1":
-                    muffles = data[17].split(",")
-                    for muffle in muffles:
-                        muffle = muffle.split("|")
-                        utils.write_tf(user, ctx.guild, muffle=muffle[0], chance=int(muffle[1]))
-
-        # Alt Muffle
-        match version:
-            case 14:
-                if data[22] == "1":
-                    alt_muffles = data[23].split(",")
-                    for alt_muffle in alt_muffles:
-                        utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle, chance=int(data[24]))
-            case 15:
-                if data[18] == "1":
-                    alt_muffles = data[19].split(",")
-                    for alt_muffle in alt_muffles:
-                        alt_muffle = alt_muffle.split("|")
-                        utils.write_tf(user, ctx.guild, alt_muffle=alt_muffle[0], chance=int(alt_mufffle[1]))
-
-        # Censor
-        match version:
-            case 14:
-                if data[25] == "1":
-                    censors = data[26].split(",")
-                    for censor in censors:
-                        censor = censor.split("|")
-                        utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
-            case 15:
-                if data[20] == "1":
-                    censors = data[21].split(",")
-                    for censor in censors:
-                        censor = censor.split("|")
-                        utils.write_tf(user, ctx.guild, censor=censor[0], censor_replacement=censor[1])
-
-        await ctx.send(f"Transformed {user.mention} successfully into {data[0]}!")
+        await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 
 
 def setup(bot: discord.Bot) -> None:

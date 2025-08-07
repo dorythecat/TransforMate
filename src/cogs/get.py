@@ -153,7 +153,7 @@ class Get(commands.Cog):
 
         desc = ""
         for tfee in tfee_data:
-            transformed_data = utils.load_tf_by_id(tfee, ctx.guild)
+            transformed_data = utils.load_tf(int(tfee), ctx.guild)
             if transformed_data == {}:
                 continue
             transformed_data = transformed_data[
