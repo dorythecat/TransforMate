@@ -1,46 +1,47 @@
 [![Qodana](https://github.com/dorythecat/TransforMate/actions/workflows/code_quality.yml/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/code_quality.yml)
 [![CodeQL](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql)
 
-# TransforMate (WIP)
-> A bot to Trasform your Mates
+# TransforMate
+> A bot to Transform your Mates
 
 ## Who's this bot for?
-Ever felt like Tupperbox and PluralKit weren't enough for your RPs? Ever felt like you needed to spice them up,
-transforming your friends and family? Well, look no further! With TransforMate, this task is made much simpler!
+Ever felt like Tupperbox and PluralKit weren't enough for your RPs? Ever felt
+like you needed to spice them up, transforming your friends and family? Well,
+look no further! With TransforMate, this task is made much simpler!
 
 ## Current Features
 ### For users:
 - Transform yourself and others
 - Go back and forth with a single command
 - Highly customizable and modular
-- Easy to use and understand
+- Straightforward to use and understand
 - Well-documented, open-source, and in active development and support
 - Friendly, helpful, and active community
-- Easily report bugs and suggest features
 - Free to use
 - No ads, no tracking, no selling of data
 
 ### For server staff:
 - Little to none setup and configuration
-- Easy to moderate and manage
+- Easily configurable for all kinds of servers
 - Block users from using the bot, on a per-user or per-server basis
 - Global ban system that helps you keep your server safe from known bad actors
+- A big (and growing) community for support
 
 ### For developers:
 - Open-source, with a permissive license
 - Well-documented, with a clear and easy-to-understand codebase
 - Easy to contribute to, with a friendly and welcoming community
 - Active development and support
+- Fully open source data formats
 
 ## Upcoming Features
 - Avoid logging deleted messages in most popular log bots
 - More customization options, both for users AND server staff
-- Custom API
-- Webpage and web interface
-- Even better documentation
+- ~~Custom API~~
+- ~~Webpage and web interface~~
+- ~~Even better documentation~~
 - Optimised file structure
-- Plugins and custom scripting languague
-- AI Integration
+- Plugins and custom scripting language
 - And more fun stuff!!!
 
 ## Inviting TransforMate
@@ -49,24 +50,25 @@ You can either use it as is, or, if you have any security concerns with giving t
 can also disable it and just keep the other permissions active, though this may need additional setup, and may be prone
 to unusual behaviours.
 
-By adding TransforMate to your server, you agree to our [Terms of Service](https://docs.google.com/document/d/1S9yDP6tI2tHs-FhqjGF9AsBZAFnHrYFyxnsIK042fvk),
-and to our [Privacy Policy](https://docs.google.com/document/d/18cg4aW2XW6CE21X17SqOCFOie-fmXR6xkjDQ0LcCUqE).
+By adding TransforMate to your server, you agree to our
+[Terms of Service](http://docs.transformate.live/legal/tos/), and to our
+[Privacy Policy](http://docs.transformate.live/legal/privacy_policy/).
 
 ## Hosting TransforMate
-To host your own TransforMate isntance, you'll just need to clone this repo, install the requirements,
-and create a `.env` file with the following contents:
+To host your own TransforMate instance, you'll just need to clone this repo,
+install the requirements, and create a `.env` file with the following contents:
 ```
-BOT_TOKEN=your_token_here
-WEBHOOK_NAME=webhook_name
-BLOCKED_USERS="[user_id1, user_id2, ...]"
-USER_REPORTS_CHANNEL_ID=your_channel_id
-CACHE_PATH="cache"
+BOT_TOKEN= # Your Discord Bot token
+WEBHOOK_NAME= # The name of the Discord Webhooks your bot will create
+BLOCKED_USERS="[user_id1, user_id2, ...]" # List of globally blocked users
+USER_REPORTS_CHANNEL_ID= # Discord Channel ID to send user reports to
+CACHE_PATH="cache" # Recommend you keep this as the default value
 
 # API Exclusive Config
-SECRET_KEY=(see "Secret Key" below)
-CLIENT_ID=discord_app_id
-CLIENT_SECRET=discord_app_secret
-REDIRECT_URI=discord_app_redirect_uri
+SECRET_KEY= # (see "Secret Key" below)
+CLIENT_ID= # Your Discord app client id
+CLIENT_SECRET= # Your Discord app secret
+REDIRECT_URI= # Your Discord REDIRECT_URI
 ```
 
 You should also install all the requirements from `requirements.txt` and create the
@@ -83,8 +85,8 @@ randomly generated secret key. Do not share this key with anyone.
 
 ## Collaborating with the project
 If you've had a cool idea, found a bug, or wanted to add some of your own code, 
-feel free to open an issue, or to do a pull request! You can also contact us in our
-Discord server, where we have channels and forums specifically for this stuff!
+feel free to open an issue or to do a pull request! You can also contact us in
+our Discord server, where we have channels and forums specifically for this stuff!
 
 ## More info
 [Discord Server](https://discord.gg/uGjWk2SRf6)
