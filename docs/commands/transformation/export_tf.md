@@ -36,8 +36,8 @@ flowchart TD
 
 ## Transformation String Format
 The Transformation String Format (TSF) is a standard manner of encoding
-transformation data, in an uncompressed, human-readable, and easy o edit manner. It
-possesses various revisions, reflecting their equivalent version of the internal
+transformation data, in an uncompressed, human-readable, and easy to edit manner.
+It possesses various revisions, reflecting their equivalent version of the internal
 TransforMate User Data (TMUD). The numbering starts as 0, where TSFv0 is compatible
 with TMUDv14 (Both deprecated since v1.5.0).
 
@@ -58,10 +58,12 @@ with TMUDv14 (Both deprecated since v1.5.0).
     TSF is backwards compatible with all previous versions (except v0, deprecated
     since v2.0.0), but TMUD is NOT.
 
-The current specification, here described, is TSFv1.0, used since v1.5.0. The
-documentation for v0 will not be released, but every version since v1 will be kept
-as an archive for future reference, with the expected behavior when importing said
-versions of TSF data.
+The current specification, here described, is TSFv1.0, used since v1.5.0.
+
+!!! note
+    The documentation for v0 will not be released, but every version since v1 will
+    be kept as an archive for future reference, with the expected behavior when
+    importing said versions of TSF data.
 
 ### v1.0 specification
 This version counts with 22 parameters separated using the `;` character.
@@ -107,7 +109,6 @@ bot has available.
 These modifiers aren't separated within themselves, since they are simple strings or
 =======
 These modifiers aren't separated within themselves since they are simple strings or
->>>>>>> v2
 integers.
 
 - `stutter`: Stutter modifier. Integer from 0 to 100.
