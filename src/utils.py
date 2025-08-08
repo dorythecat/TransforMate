@@ -743,3 +743,18 @@ def decode_tsf(tsf_string: str) -> dict:
             data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
 
     return data
+
+
+def check_url(url: str) -> str:
+    """
+    This function will check if a given URL is a valid HTTP address, and if it isn't, and it can be fixed, fixes it.
+
+    :param url: The URL to check.
+
+    :return: A string containing a usable URL, blank if the given URL is invalid and con't be automatically fixed.
+    """
+    if not re.match(r'(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)', url):
+        return ""
+    if not url.startswith("http"): # Basic preliminary check
+        return "http://" + url
+    return url
