@@ -283,6 +283,7 @@ class Transformation(commands.Cog):
             await ctx.respond(f"You can't claim yourself!")
             return
         if not utils.is_transformed(user, ctx.guild, ctx.channel):
+            # TODO: https://github.com/dorythecat/TransforMate/issues/35
             await ctx.respond(f"{user.mention} is not transformed at the moment, you can't claim them!")
             return
         data = utils.load_tf(user, ctx.guild)

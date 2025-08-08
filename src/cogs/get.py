@@ -147,6 +147,7 @@ class Get(commands.Cog):
     @get_command.command(description="Get a list of transformed users")
     async def transformed(self,
                           ctx: discord.ApplicationContext) -> None:
+        # TODO: https://github.com/dorythecat/TransforMate/issues/51
         tfee_data = utils.load_transformed(ctx.guild)['transformed_users']
         if tfee_data == {}:
             await ctx.respond("No one is transformed in this server, at the moment!")
