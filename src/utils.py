@@ -563,7 +563,7 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
     # Currently, we have to check over ALL transformed users
     # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
-        data = load_tf(tfee, message.guild)
+        data = load_tf(int(tfee), message.guild)
         if data == {}:
             continue
         data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
