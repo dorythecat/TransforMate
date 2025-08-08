@@ -101,7 +101,7 @@ async def on_message(message: discord.Message) -> None:
     transformed_data = utils.load_transformed(message.guild)
     if message.author.bot and transformed_data != {} and transformed_data['clear_other_logs']:
         if message.author.id == 1273264155482390570:  # Dyno bot
-            if message.embeds and message.embeds[0].description.__contains__("Deleted"):
+            if message.embeds and "Deleted" in message.embeds[0].description:
                 if utils.is_transformed(discord.utils.get(bot.get_all_members(), name=message.embeds[0].author.name),
                                         message.guild,
                                         message.channel):
