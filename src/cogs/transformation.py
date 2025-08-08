@@ -426,14 +426,14 @@ class Transformation(commands.Cog):
                     f.write(output)
             except OSError as e:
                 print(f"Error writing to file:")
-                print(f"{type(e).__name__}: {e}")
+                print(f"{str(type(e))}: {e}")
 
             await ctx.respond(file=discord.File("tf_cache", f"{data['into']}.tsf"))
             try:
                 os.remove("tf_cache")
             except OSError as e:
                 print(f"Error removing file:")
-                print(f"{type(e).__name__}: {e}")
+                print(f"{str(type(e))}: {e}")
             return
 
         await ctx.respond(output)
@@ -495,7 +495,7 @@ class Transformation(commands.Cog):
                 os.remove("tf_cache")
             except OSError as e:
                 print(f"Error reading from file or removing file:")
-                print(f"{type(e).__name__}: {e}")
+                print(f"{str(type(e))}: {e}")
 
         new_data = utils.decode_tsf(tsf_string)
         new_data['transformed_by'] = ctx.author.id

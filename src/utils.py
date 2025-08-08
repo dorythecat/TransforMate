@@ -324,7 +324,7 @@ def remove_all_tf(user: discord.User | discord.Member | int) -> None:
         os.remove(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')
     except OSError as e:
         print("Error removing file:")
-        print(f"{type(e).__name__}: {e}")
+        print(f"{str(type(e))}: {e}")
 
 
 # TRANSFORMED DATA UTILS
@@ -575,7 +575,7 @@ def load_file(filename: str, guild_id: int | None = None) -> dict:
             contents = f.read().strip()
     except OSError as e:
         print("Error loading file:")
-        print(f"{type(e).__name__}: {e}")
+        print(f"{str(type(e))}: {e}")
         return {}
     if contents == "":
         return {}
@@ -594,7 +594,7 @@ def write_file(filename: str,
             f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
     except OSError as e:
         print("Error writing to file:")
-        print(f"{type(e).__name__}: {e}")
+        print(f"{str(type(e))}: {e}")
 
 
 # MISCELLANEOUS UTILS
