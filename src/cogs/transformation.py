@@ -197,7 +197,7 @@ class Transformation(commands.Cog):
 
         await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
         response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
-        if response.content.strip() == "CANCEL":
+        if response.content.lower().strip() == "cancel":
             await ctx.respond("Cancelled the transformation!")
             return
         if await transform_function(ctx,
@@ -482,7 +482,7 @@ class Transformation(commands.Cog):
         await ctx.respond(f"Please send the saved transformation you want to apply to {user.mention}?"
                           f"(Send CANCEL to cancel)")
         response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
-        if response.content.strip() == "CANCEL":
+        if response.content.lower().strip() == "cancel":
             await ctx.respond("Cancelled the transformation!")
             return
 
