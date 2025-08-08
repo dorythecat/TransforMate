@@ -28,6 +28,7 @@ WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")  # Name to use for the webhooks
 BLOCKED_USERS: list[int] = parse_list(os.getenv("BLOCKED_USERS"))  # Users that are blocked from using the bot
 USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
 CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder? (In relationship to the utils.py file)
+MAX_REGEN_USERS: int = int(os.getenv("MAX_REGEN_USERS")) # Maximum number of users in a server allowed for /regen_server_tfs
 
 # API settings
 SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others

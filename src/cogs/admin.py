@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 import utils
-from config import WEBHOOK_NAME
+from config import WEBHOOK_NAME, MAX_REGEN_USERS
 
 
 class Admin(commands.Cog):
@@ -108,7 +108,9 @@ class Admin(commands.Cog):
                                really_sure: bool = False,
                                really_really_sure: bool = False,
                                fully_sure: bool = False) -> None:
-        # TODO: Add a maximum member count for this command, that can be changed on the .env
+        if (ctx.guild.member_count > MAX_REGEN_USERS):
+            await ctx.respond(f"You're trying to regenerate all transformed users for a server with {ctx.guild.member_count} members!\n\n"
+                              f"This operation cannot be fulfilled manually, and you should contact the bot's owner to take this action!")
         if not (sure and really_sure and really_really_sure and fully_sure):
             await ctx.respond("You haven't verified that you're *actually* sure about doing this! Please try again!")
             return
