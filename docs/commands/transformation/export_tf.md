@@ -107,7 +107,6 @@ bot has available.
 These modifiers aren't separated within themselves, since they are simple strings or
 =======
 These modifiers aren't separated within themselves since they are simple strings or
->>>>>>> v2
 integers.
 
 - `stutter`: Stutter modifier. Integer from 0 to 100.
