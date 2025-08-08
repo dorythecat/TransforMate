@@ -58,14 +58,33 @@ with TMUDv14 (Both deprecated since v1.5.0).
     TSF is backwards compatible with all previous versions (except v0, deprecated
     since v2.0.0), but TMUD is NOT.
 
-The current specification, here described, is TSFv1.0, used since v1.5.0.
-
 !!! note
     The documentation for v0 will not be released, but every version since v1 will
     be kept as an archive for future reference, with the expected behavior when
     importing said versions of TSF data.
 
-### v1.0 specification
+### v1.1 specification (Not yet introduced)
+This revision includes two changes from v1.0.
+
+The first of these has to do with how the version number is indicated. Instead of
+indicating the compatible TMUD version (TMUDv15, in the case of TSFv1.x), it will
+now be replaced by a unique TSF version identifier. This identifier is indicated
+beside every specification, between parentheses.
+
+The second change is to the boolean modifiers. Instead of being represented as
+individual digits, they will now be interpreted as a single hexadecimal integer.
+This hexadecimal digit encodes the value of these variables in a bitmask-able
+manner. The number is calculated by adding together all the modifiers set to be
+true. The bitmask values of the variables are as follows:
+
+| Variable    | Bitmask  | Decimal value | Hexadecimal value |
+|:------------|:---------|--------------:|------------------:|
+| `big`       | 00000001 |             1 |               0x1 |
+| `small`     | 00000010 |             2 |               0x2 |
+| `hush`      | 00000100 |             4 |               0x4 |
+| `backwards` | 00001000 |             8 |               0x8 |
+
+### v1.0 specification (Introduced in v1.5.0)
 This version counts with 22 parameters separated using the `;` character.
 The parameters are displayed here, with an explanation where necessary, and divided
 into categories for easier understanding. For more information on the modifiers, see
