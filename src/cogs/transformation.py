@@ -187,23 +187,26 @@ class Transformation(commands.Cog):
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.name}"!')
             return
 
-        # This avoids a bug with avatar images (See https://github.com/dorythecat/TransforMate/issues/16)
-        # TODO: Find a better fix, perhaps?
-        # IDEA: Make the bot use a "buffer channel", where it sends the image before the transformation is done.
-        # This might be a horrible idea, or a great one, idk!
-        if utils.is_transformed(ctx.author, ctx.guild):
-            await ctx.respond(f"You can't transform someone (using this method) whilst you're transformed yourself!")
-            return
-
         await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
         response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
+
+        # Get any attached image, if given
+        file_url = None
+        if response.attachments:
+            file_url = response.attachments[0].url
+            if utils.is_transformed(ctx.author, ctx.guild):
+                # Solution to https://github.com/dorythecat/TransforMate/issues/16
+                file = await response.attachments[0].to_file()
+                file_message = await ctx.guild.get_channel(1273264391273320478).send(file=file) # PLACEHOLDER, DO NOT SHIP
+                file_url = file_message.attachments[0].url
+
         if response.content.lower().strip() == "cancel":
             await ctx.respond("Cancelled the transformation!")
             return
         if await transform_function(ctx,
                                     user,
                                     response.content,
-                                    response.attachments[0].url if response.attachments else None,
+                                    file_url,
                                     channel,
                                     brackets,
                                     None):
