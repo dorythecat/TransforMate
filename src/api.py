@@ -5,7 +5,7 @@ from typing import Annotated, NamedTuple, Union
 
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, Security, Body
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt.exceptions import InvalidTokenError
@@ -79,6 +79,11 @@ API_ENDPOINT = 'https://discord.com/api/v10' # Discord API endpoint
 @app.get("/", include_in_schema=False)
 async def root() -> RedirectResponse:
     return RedirectResponse(url='/docs', status_code=301)
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots() -> PlainTextResponse:
+    return PlainTextResponse(content="User-agent: *\nDisallow: /", media_type="text/plain")
 
 
 def exchange_code(code: str) -> dict:
