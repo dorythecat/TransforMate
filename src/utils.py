@@ -755,6 +755,8 @@ def check_url(url: str) -> str:
     """
     if not re.match(r'(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)', url):
         return ""
+    if "?" in url:
+        url = url[:url.index("?")]
     if not url.startswith("http"): # Basic preliminary check
         return "http://" + url
     return url

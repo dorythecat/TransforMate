@@ -30,12 +30,10 @@ async def transform_function(ctx: discord.ApplicationContext,
                 into = into.lower().replace("discord", "Disc0rd")
             new_data['all']['into'] = into
         if image_url:
-            image_url = image_url.strip()
-            if image_url[:4] != "http":
+            image_url = utils.check_url(image_url)
+            if image_url == "":
                 await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
                 return False
-            if "?" in image_url:  # Prune url, if possible, to preserve space
-                image_url = image_url[:image_url.index("?")]
             new_data['all']['image_url'] = image_url
         utils.write_tf(user, ctx.guild, new_data=new_data)
         utils.write_transformed(ctx.guild, user, channel)
@@ -45,12 +43,10 @@ async def transform_function(ctx: discord.ApplicationContext,
         return False
     if not image_url:
         image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
-    image_url = image_url.strip()
-    if image_url[:4] != "http":
+    image_url = utils.check_url(image_url)
+    if image_url == "":
         await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
         return False
-    if "?" in image_url:  # Prune url, if possible, to preserve space
-        image_url = image_url[:image_url.index("?")]
 
     # Webhook username cannot contain "discord", or it will return a 400 error
     # TODO: Find a better fix, perhaps?
