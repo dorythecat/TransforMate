@@ -1,3 +1,12 @@
+## v2.0.0
+- Added [TransforWeb](http://www.transformate.live/) and the accompanying
+  [TransforMate API](http://api.transformate.live/) to production, allowing
+  for a lot of new features, like the TSF Editor.
+
+- Improved the performance of the bot slightly and fixed some minor bugs.
+
+---
+
 ## v1.6.2
 - Fixed TSF data documentation.
 

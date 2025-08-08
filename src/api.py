@@ -28,7 +28,7 @@ app = FastAPI(
         - See your own information
         All of this with proper security and more to come!
     """,
-    version="1.6.1",
+    version="2.0.0",
     terms_of_service="https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md",
     contact={
         "name": "Official TransforMate Discord Server",
