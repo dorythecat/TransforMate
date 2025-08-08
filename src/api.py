@@ -546,7 +546,6 @@ async def tf_user(token: Annotated[str, Depends(get_current_token)],
             new_data['all']['into'] += "឵឵ᅟ"
         if tf_data.into:
             # Webhook username cannot contain "discord", or it will return a 400 error
-            # TODO: Find a better fix, perhaps?
             if "discord" in tf_data.into.lower():
                 return JSONResponse(status_code=400,
                                     content={ 'detail': 'Name cannot contain "discord"' })
