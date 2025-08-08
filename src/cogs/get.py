@@ -23,6 +23,7 @@ class Get(commands.Cog):
         embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
         embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
         embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
+        embed.add_field(name="Backwards", value="Yes" if data['backwards'] else "No")
         embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
         embed.add_field(name="Sprinkle", value="Yes" if data['sprinkle']['active'] else "No")
         embed.add_field(name="Muffle", value="Yes" if data['muffle']['active'] else "No")
