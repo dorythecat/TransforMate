@@ -10,12 +10,12 @@ import discord
 from config import CACHE_PATH
 
 # SETTINGS
-CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version that we can't translate, should it be cleared out?
+#CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version that we can't translate, should it be cleared out?
 CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
-# VERSION 15: Added individual chances to all modifiers
+# VERSION 15: Added individual chances to all modifiers - ADDENDUM 1: Made the "transformed_by" and "claim" fields be integers now
 # VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
 # VERSION 12: Added compatibility for multiple characters, when in tupper-like mode (Added "index" field)
@@ -30,7 +30,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TMUD_VERSION = 15
+CURRENT_TMUD_VERSION = 15 # 15.1
 
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -58,10 +58,10 @@ def write_tf(user: discord.User | discord.Member | int,
              new_data: dict | None = None,
              block_channel: discord.TextChannel | int | None = None,
              block_user: discord.User | discord.Member | int | None = None,
-             transformed_by: str | None = None,
+             transformed_by: discord.User | discord.Member | int = 0,
              into: str | None = None,
              image_url: str | None = None,
-             claim_user: int | None = None,
+             claim_user: discord.User | discord.Member | int = 0,
              eternal: int | None = None,
              prefix: str | None = None,
              suffix: str | None = None,
@@ -79,12 +79,56 @@ def write_tf(user: discord.User | discord.Member | int,
              proxy_prefix: str | None = None,
              proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
-    data = load_tf(user) if type(user) is int else load_tf(user)
+    """
+    This is a utility function with the unique purpose of modifying the TMUD-compliant transformation data of a given
+    user, in a given server, in a given channel. It should automatically handle data creation and deletion, as well as
+    updates to the TMUD version.
+
+    Every Discord object (User, Member, Guild, and TextChannel) can also be inputted as an integer equaling the ID of
+    said objects, and the function will automatically handle it.
+
+    For inputting modifiers (prefix, suffix, sprinkle, muffle, alt_muffle) specify one modifier per function call, and
+    remember to always include the chance parameter. In the case of censor, include always a censor_replacement.
+
+    All booleans are integer parameters, that will be set to False if they equal 0, and otherwise, set to True.
+
+    :param user: A Discord User or Member object, representing the user whose data is to be altered.
+    :param guild: A Discord Guild object, representing the server in which the user's data is to be altered.
+    :param channel: A Discord TextChannel object, representing the channel in which the user's data is to be altered. If not specified, will modify the data for the 'all' section of the TMUD data.
+    :param new_data: A TMUD-compliant channel data string that will override any currently present data for the given parameters, without any extra checks from the function.
+    :param block_channel: A Discord TextChannel object, representing a channel to block on the specified server.
+    :param block_user: A Discord User or Member object, representing a user to block on the specified server.
+    :param transformed_by: A Discord User or Member object, representing the user who is applying the transformation.
+    :param into: The name of the transformation to apply.
+    :param image_url: A valid image URL to use as the user's avatar.
+    :param claim_user: A Discord User or Member object, representing the user who is claiming the transformation.
+    :param eternal: A boolean indicating whether the transformation should be eternal.
+    :param prefix: A string indicating the prefix to apply to the user's name.
+    :param suffix: A string indicating the suffix to apply to the user's name.
+    :param big: A boolean indicating whether the text the transformed user writes should be made big.
+    :param small: A boolean indicating whether the text the transformed user writes should be made small.
+    :param hush: A boolean indicating whether the text the transformed user writes should be hushed. (Discord censor)
+    :param backwards: A boolean indicating whether the text the transformed user writes should be reversed.
+    :param censor: A string to censor.
+    :param censor_replacement: What to replace the censored text with.
+    :param sprinkle: A string to sprinkle randomly throughout the transformed user's text.
+    :param muffle: A string that will replace random words on the user's text.
+    :param alt_muffle: A string that will replace random messages entirely.
+    :param stutter: A value from 0 to 100 indicating the amount of stuttering to apply.
+    :param chance: A value from 0 to 100 indicating the chance of the associated modifier being applied.
+    :param proxy_prefix: When in Tupper-like mode, this is the string that has to precede the user's text for the transformation to be applied.
+    :param proxy_suffix: Same as proxy_prefix but has to follow the user's text instead.
+    :param bio: The biography of the transformed form. Can be used as general storage for strings, as per the TMUD standard.
+
+    :return: This function does not return anything, but it will write the modified data to the cache file.
+    """
+    data = load_tf(user)
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or data['version'] != CURRENT_TMUD_VERSION:
-        # TODO: Add a way to update (at least) previous version data to newest version
-        data = {} if CLEAR_OLD_TFEE_DATA else data # Clear data if necessary
+        if data['transformed_by']: # Translate from v15 to v15.1
+            data['transformed_by'] = int(data['transformed_by'])
+        #data = {} if CLEAR_OLD_TFEE_DATA else data # Clear data if necessary
         data['version'] = CURRENT_TMUD_VERSION
     transformed_data = load_transformed(guild)
     if transformed_data == {}:
@@ -107,10 +151,10 @@ def write_tf(user: discord.User | discord.Member | int,
             data[guild_id]['blocked_channels'] = []
             data[guild_id]['blocked_users'] = []
         data[guild_id][channel_id] = {
-            'transformed_by': transformed_by,
+            'transformed_by': transformed_by if type(transformed_by) is int else transformed_by.id,
             'into': into,
             'image_url': image_url,
-            'claim': None,
+            'claim': claim_user if type(claim_user) is int else claim_user.id,
             'eternal': False,
             'prefix': {
                 'active': False,
@@ -146,14 +190,14 @@ def write_tf(user: discord.User | discord.Member | int,
             'bio': None
         }
     else:
-        if transformed_by is not None and transformed_by != "":
-            data[guild_id][channel_id]['transformed_by'] = transformed_by
+        if transformed_by != 0:
+            data[guild_id][channel_id]['transformed_by'] = transformed_by if type(transformed_by) is int else transformed_by.id
         if image_url is not None and image_url != "":
             data[guild_id][channel_id]['image_url'] = image_url
-        if claim_user is not None and claim_user != 0:
-            data[guild_id][channel_id]['claim'] = claim_user
+        if claim_user != 0:
+            data[guild_id][channel_id]['claim'] = claim_user if type(claim_user) is int else claim_user.id
         if eternal is not None:
-            data[guild_id][channel_id]['eternal'] = False if eternal == 0 else True
+            data[guild_id][channel_id]['eternal'] = eternal != 0
         if block_channel is not None:
             block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
             if block_channel not in data[guild_id]['blocked_channels']:
@@ -185,13 +229,13 @@ def write_tf(user: discord.User | discord.Member | int,
             else:
                 data[guild_id][channel_id]['suffix']['contents'] = {}
         if big is not None:
-            data[guild_id][channel_id]['big'] = False if big == 0 else True
+            data[guild_id][channel_id]['big'] = big != 0
         if small is not None:
-            data[guild_id][channel_id]['small'] = False if small == 0 else True
+            data[guild_id][channel_id]['small'] = small != 0
         if hush is not None:
-            data[guild_id][channel_id]['hush'] = False if hush == 0 else True
+            data[guild_id][channel_id]['hush'] = hush != 0
         if backwards is not None:
-            data[guild_id][channel_id]['backwards'] = False if backwards == 0 else True
+            data[guild_id][channel_id]['backwards'] = backwards != 0
         if censor is not None:
             data[guild_id][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":
@@ -496,7 +540,7 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
         return False, None, None
     data = load_tf(user, ctx.guild)
     data = data[str(ctx.channel.id)] if str(ctx.channel.id) in data else data['all']
-    if not get_command and data['claim'] is not None and data['claim'] != ctx.author.id:
+    if not get_command and data['claim'] != 0 and data['claim'] != ctx.author.id:
         await ctx.respond(f"You can't do that! {user.mention} is owned by"
                           f"{ctx.guild.get_member(data['claim']).mention}, and not by you!")
         return False, None, None

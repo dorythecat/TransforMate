@@ -105,7 +105,7 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if data['claim'] is None:
+        if data['claim'] == 0:
             await ctx.respond(f"{user.mention} isn't owned by anyone! Claim them to eternally transform them!")
             return
         if data['eternal']:
@@ -114,7 +114,7 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, eternal=1)
         await ctx.respond(f"{user.mention} is now eternally transformed!")
 
-        transformed_data = utils.load_transformed(ctx.message.guild)
+        transformed_data = utils.load_transformed(ctx.guild)
         if transformed_data['logs'][3]:
             embed = utils.get_embed_base(title="User Eternally Transformed", color=discord.Color.gold())
             embed.add_field(name="User", value=user.mention)
