@@ -66,9 +66,15 @@ the transformation logic. Following here is an approximation of said logic.
 
 ```mermaid
 flowchart TD
-    CheckCopy[copy parameter provided]
+    CheckIntoProvided[into parameter provided]
+    CheckIntoProvided --> |True| CheckIntoSyntax[[Check into syntax]]
+    CheckIntoProvided --> |False| CheckImageProvided[image_url parameter provided]
+    CheckIntoSyntax --> CheckImageProvided
+    CheckImageProvided --> |True| CheckImageSyntax[[Check image_url syntax]]
+    CheckImageProvided --> |False| CheckCopyProvided[copy parameter provided]
+    CheckImageSyntax --> CheckCopyProvided
     Database[(Database)] --> LoadData[[Load data of user to copy]]
-    CheckCopy --> |True| LoadData
+    CheckCopyProvided --> |True| LoadData
     LoadData --> CheckMerge[merge value]
     CheckMerge --> |False| AddInvisible[[Add an invisible character at the end of the name]]
     CheckMerge --> |True| CheckIntoCopy[into parameter provided]
@@ -76,19 +82,18 @@ flowchart TD
     CheckIntoCopy --> |True| ChangeIntoCopy[[Change into value for provided]]
     CheckIntoCopy --> |False| CheckImageCopy[image_url parameter provided]
     ChangeIntoCopy --> CheckImageCopy
-    CheckImageCopy --> |True| CleanImageCopy[[Clean up and validate the image_url parameter]]
+    CheckImageCopy --> |True| ChangeImageCopy[[Change image_url value for provided]]
     CheckImageCopy --> |False| Transform[[Transform user]]
-    CleanImageCopy --> Transform
-    CheckCopy --> |False| CheckInto[into parameter provided]
+    ChangeImageCopy --> Transform
+    CheckCopyProvided --> |False| CheckInto[into parameter provided]
     CheckInto --> |False| ChangeInto[[Make into be the username]]
     CheckInto --> |True| CheckImage[image_url parameter provided]
     ChangeInto --> CheckImage
     CheckImage --> |False| SecondCheckImage[Does the user have a profile picture?]
-    CheckImage --> |True| CleanImage[[Clean up and validate the image_url parameter]]
+    CheckImage --> |True| Transform
     SecondCheckImage --> |False| UseDefaultAvatar[[Use a default Discord avatar]]
     SecondCheckImage --> |True| SetUserPicture[[Make the image_url be the user's Discord profile picture]]
-    UseDefaultAvatar --> CleanImage
-    SetUserPicture --> CleanImage
-    CleanImage --> Transform
+    UseDefaultAvatar --> Transform
+    SetUserPicture --> Transform
     Transform --> Log[[Log the transformation]]
 ```
