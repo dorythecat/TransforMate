@@ -547,8 +547,9 @@ async def tf_user(token: Annotated[str, Depends(get_current_token)],
         if tf_data.into:
             # Webhook username cannot contain "discord", or it will return a 400 error
             # TODO: Find a better fix, perhaps?
-            if tf_data.into.lower().__contains__("discord"):
-                tf_data.into = tf_data.into.lower().replace("discord", "Disc0rd")
+            if "discord" in tf_data.into.lower():
+                return JSONResponse(status_code=400,
+                                    content={ 'detail': 'Name cannot contain "discord"' })
             new_data['all']['into'] = tf_data.into
         if tf_data.image_url:
             tf_data.image_url = tf_data.image_url.strip()
@@ -579,9 +580,9 @@ async def tf_user(token: Annotated[str, Depends(get_current_token)],
                 tf_data.image_url = tf_data.image_url[:tf_data.image_url.index("?")]
 
         # Webhook username cannot contain "discord", or it will return a 400 error
-        # TODO: Find a better fix, perhaps?
-        if tf_data.into.lower().__contains__("discord"):
-            tf_data.into = tf_data.into.lower().replace("discord", "Disc0rd")
+        if "discord" in tf_data.into.lower():
+            return JSONResponse(status_code=400,
+                                content={ 'detail': 'Name cannot contain "discord"' })
 
         utils.write_tf(user_id,
                        server_id,
