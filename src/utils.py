@@ -704,43 +704,62 @@ def encode_tsf(data: dict, version: int) -> str:
 def decode_tsf(tsf_string: str) -> dict:
     """
     Decodes a TSF-compliant string into a TMUD-compliant dict of transformation data.
+
     :param tsf_string: A TSF-compliant string.
+
     :return: A TMUD-compliant transformation data dict.
     """
 
     tsf_data = tsf_string.split(";")
     version = int(tsf_data[0])
-    if version != 15:
+    if version != 15 and version != 1: # v1.0 and v1.1
         raise ValueError("decode_tsf() only supports TSFv1.0, at the moment!")
 
-    if len(tsf_data) != 23:
-        raise ValueError("decode_tsf() expected 23 elements in the TSF string, got " + str(len(tsf_data)))
+    if version == 15 and len(tsf_data) != 23:
+        raise ValueError("decode_tsf() expected 23 elements in the TSFv1.0 string, got " + str(len(tsf_data)))
+    if version == 1 and len(tsf_data) != 20:
+        raise ValueError("decode_tsf() expected 20 elements in the TSFv1.1 string, got " + str(len(tsf_data)))
 
     tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
+
+    # Booleans
+    if version == 15: # v1.0
+        big = tsf_data[2] == "1"
+        small = tsf_data[3] == "1"
+        hush = tsf_data[4] == "1"
+        backwards = tsf_data[5] == "1"
+        next_index = 6
+    else: # v1.1
+        boolean_number = int(tsf_data[2], 16)
+        big = boolean_number & 1 != 0
+        small = boolean_number & 2 != 0
+        hush = boolean_number & 4 != 0
+        backwards = boolean_number & 8 != 0
+        next_index = 3
+
     # Generate basic data
     data = {
         'into': tsf_data[0],
         'image_url': tsf_data[1],
-        'big': tsf_data[2] == "1",
-        'small': tsf_data[3] == "1",
-        'hush': tsf_data[4] == "1",
-        'backwards': tsf_data[5] == "1",
-        'stutter': int(tsf_data[6]),
-        'proxy_prefix': tsf_data[7],
-        'proxy_suffix': tsf_data[8],
-        'bio': tsf_data[9]
+        'big': big,
+        'small': small,
+        'hush': hush,
+        'backwards': backwards,
+        'stutter': int(tsf_data[next_index]),
+        'proxy_prefix': tsf_data[next_index + 1],
+        'proxy_suffix': tsf_data[next_index + 2],
+        'bio': tsf_data[next_index + 3]
     }
 
     modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
-
     for modifier in modifiers:
         data[modifier] = {
-            'active': tsf_data[10 + modifiers.index(modifier) * 2] != "0",
+            'active': tsf_data[next_index + 4 + modifiers.index(modifier) * 2] != "0",
             'contents': {}
         }
         if not data[modifier]['active']:
             continue
-        modifier_data = tsf_data[11 + modifiers.index(modifier) * 2].split(",")
+        modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split(",")
         for mod in modifier_data:
             if mod == "":
                 continue
