@@ -84,6 +84,11 @@ true. The bitmask values of the variables are as follows:
 | `hush`      | 00000100 |             4 |               0x4 |
 | `backwards` | 00001000 |             8 |               0x8 |
 
+The number should be included as a bare hexadecimal, without any identifier. For
+example, if only the `big` modifier is specified, the number would be a `1`. If
+every other modifier except the `big` modifier, the number would be `e`. Lowercase
+is preferred, but not enforced.
+
 ### v1.0 specification (Introduced in v1.5.0)
 This version counts with 22 parameters separated using the `;` character.
 The parameters are displayed here, with an explanation where necessary, and divided
