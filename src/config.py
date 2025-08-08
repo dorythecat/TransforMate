@@ -14,38 +14,23 @@ def parse_list(string: str | None) -> list[int]:
 if not load_dotenv():
     raise Exception("Either your .env file is empty, or you don't even have a .env file! Aborting")
 
-if os.getenv("BOT_TOKEN") is None:
-    raise Exception("BOT_TOKEN hasn't been provided! Check your .env! Aborting")
+required_variables = ["BOT_TOKEN", "WEBHOOK_NAME", "BLOCKED_USERS", "USER_REPORTS_CHANNEL_ID", "CACHE_PATH",
+                      "SECRET_KEY", "CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI"]
+for var in required_variables:
+    if os.getenv(var) is None:
+        raise Exception(f"{var} hasn't been provided! Check your .env! Aborting")
+    elif os.getenv(var) in [""]:
+        raise Exception(f"{var} has been provided, but is empty! Check your .env! Aborting")
+
+# General bot configuration
 BOT_TOKEN: str = os.getenv("BOT_TOKEN")  # Token for the bot
-
-if os.getenv("WEBHOOK_NAME") is None:
-    raise Exception("WEBHOOK_NAME hasn't been provided! Check your .env! Aborting")
 WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")  # Name to use for the webhooks
-
-if os.getenv("BLOCKED_USERS") is None:
-    raise Exception("BLOCKED_USERS hasn't been provided! Check your .env! Aborting")
 BLOCKED_USERS: list[int] = parse_list(os.getenv("BLOCKED_USERS"))  # Users that are blocked from using the bot
-
-if os.getenv("USER_REPORTS_CHANNEL_ID") is None:
-    raise Exception("USER_REPORTS_CHANNEL_ID hasn't been provided! Check your .env! Aborting")
 USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
-
-if os.getenv("CACHE_PATH") is None:
-    raise Exception("CACHE_PATH hasn't been provided! Check your .env! Aborting")
 CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder? (In relationship to the utils.py file)
 
-if os.getenv("SECRET_KEY") is None:
-    raise Exception("SECRET_KEY has not been provided! Check your .env! Aborting")
+# API settings
 SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others
-
-if os.getenv("CLIENT_ID") is None:
-    raise Exception("CLIENT_ID hasn't been provided! Check your .env! Aborting")
 CLIENT_ID: str = os.getenv("CLIENT_ID")
-
-if os.getenv("CLIENT_SECRET") is None:
-    raise Exception("CLIENT_SECRET hasn't been provided! Check your .env! Aborting")
 CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
-
-if os.getenv("REDIRECT_URI") is None:
-    raise Exception("REDIRECT_URI hasn't been provided! Check your .env! Aborting")
 REDIRECT_URI: str = os.getenv("REDIRECT_URI")

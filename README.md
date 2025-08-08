@@ -59,18 +59,22 @@ By adding TransforMate to your server, you agree to our
 To host your own TransforMate instance, you'll just need to clone this repo,
 install the requirements, and create a `.env` file with the following contents:
 ```
+# General bot configuration
 BOT_TOKEN= # Your Discord Bot token
 WEBHOOK_NAME= # The name of the Discord Webhooks your bot will create
 BLOCKED_USERS="[user_id1, user_id2, ...]" # List of globally blocked users
 USER_REPORTS_CHANNEL_ID= # Discord Channel ID to send user reports to
 CACHE_PATH="cache" # Recommend you keep this as the default value
 
-# API Exclusive Config
+# API settings
 SECRET_KEY= # (see "Secret Key" below)
 CLIENT_ID= # Your Discord app client id
 CLIENT_SECRET= # Your Discord app secret
 REDIRECT_URI= # Your Discord REDIRECT_URI
 ```
+
+If all of these contents aren't present, an error will be thrown by the program
+automatically.
 
 You should also install all the requirements from `requirements.txt` and create the
 cache directory and a `people` directory inside it, with, for example,
