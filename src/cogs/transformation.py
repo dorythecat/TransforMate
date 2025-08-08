@@ -196,8 +196,13 @@ class Transformation(commands.Cog):
             file_url = response.attachments[0].url
             if utils.is_transformed(ctx.author, ctx.guild):
                 # Solution to https://github.com/dorythecat/TransforMate/issues/16
+                image_channel = transformed_data['images']
+                if not image_channel:
+                    await ctx.respond(f"You can't transform the other user whilst transformed yourself!\n"
+                                      f"There's bo image buffer channel in this server!")
+                    return
                 file = await response.attachments[0].to_file()
-                file_message = await ctx.guild.get_channel(1273264391273320478).send(file=file) # PLACEHOLDER, DO NOT SHIP
+                file_message = await ctx.guild.get_channel(transformed_data['images']).send(file=file)
                 file_url = file_message.attachments[0].url
 
         if response.content.lower().strip() == "cancel":

@@ -37,6 +37,7 @@ CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
 # VERSION 1: Base version
 CURRENT_TMUD_VERSION = 15 # 15.1
 
+# VERSION 8: Added "images" field
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
 # VERSION 5: Added "logs" and "clear_other_logs" fields
@@ -44,7 +45,7 @@ CURRENT_TMUD_VERSION = 15 # 15.1
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 7
+CURRENT_TRANSFORMED_DATA_VERSION = 8
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -340,11 +341,15 @@ def write_transformed(guild: discord.Guild | int,
                       block_channel: discord.TextChannel | int | None = None,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
                       clear_other_logs: bool | None = None,
-                      affixes: bool | None = None) -> dict:
+                      affixes: bool | None = None,
+                      images: int | None = None) -> dict:
     data = load_transformed()
-    if data == {} or data['version'] != CURRENT_TRANSFORMED_DATA_VERSION:
-        if CLEAR_OLD_TRANSFORMED_DATA:
-            data = {}  # Clear data if necessary
+    if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
+        if int(data['version']) == 7:
+            for server in data:
+                if server == 'version':
+                    continue
+                data[server]['images'] = None
         data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
 
     guild_id = str(guild if type(guild) is int else guild.id)
@@ -355,7 +360,8 @@ def write_transformed(guild: discord.Guild | int,
             'logs': [None, None, None, None],
             'clear_other_logs': False,
             'affixes': False,
-            'transformed_users': {}
+            'transformed_users': {},
+            'images': None
         }
 
     if user is not None:
@@ -390,6 +396,9 @@ def write_transformed(guild: discord.Guild | int,
         data[guild_id]['clear_other_logs'] = clear_other_logs
     if affixes is not None:
         data[guild_id]['affixes'] = affixes
+
+    if images is not None:
+        data[guild_id]['images'] = images
 
     write_file(f'{CACHE_PATH}/transformed.json', data)
     return data[guild_id]
