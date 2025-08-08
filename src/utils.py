@@ -639,8 +639,11 @@ def clear_apple_marks(text: str) -> str:
 def encode_tsf(data: dict, version: int) -> str:
     """
     Encodes a TMUD-compliant transformation data dict into a TSF-compliant string.
+    The latest version of the TSF standard (v1.1) is used for this operation.
+
     :param data: Properly encoded TMUD-compliant transformation data dict.
     :param version: The version of the TMUD standard to use. (Used at the moment only to check compatibility)
+
     :return: A TSF-compliant string.
     """
 
@@ -648,15 +651,17 @@ def encode_tsf(data: dict, version: int) -> str:
         raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
 
     # Basic stuff
-    output = str(version) + ";"
+    output = "1;" # TSF v1(.1)
     output += data['into'] + ";"
     output += data['image_url'] + ";"
 
     # Booleans
-    output += "1;" if data['big'] else "0;"
-    output += "1;" if data['small'] else "0;"
-    output += "1;" if data['hush'] else "0;"
-    output += "1;" if data['backwards'] else "0;"
+    boolean_number = 0
+    boolean_number += 1 if data['big'] else 0
+    boolean_number += 2 if data['small'] else 0
+    boolean_number += 4 if data['hush'] else 0
+    boolean_number += 8 if data['backwards'] else 0
+    output += str(hex(boolean_number))[2:] + ";"
 
     # "Easy Stuff"
     output += str(data['stutter']) + ";"
