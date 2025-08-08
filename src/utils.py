@@ -515,10 +515,23 @@ def transform_text(data: dict, original: str) -> str:
         trans_table = str.maketrans("abcdefghijklmnopqrstuvwxyz.0123456789+-=()",
                                     "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
 
+
         transformed_list = transformed.lower().translate(trans_table).splitlines()
+
         transformed = "\n"
         for text in transformed_list:
+            if text.strip() == "":
+                transformed += "\n"
+                continue
             transformed += "-# " + text.strip() + "\n"
+
+        # Make sure mentions work appropiately
+        mention_transformed = ""
+        for word in transformed.split(" "):
+            if word.startswith("<@"):
+                word = word.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
+            mention_transformed += word + " "
+        transformed = mention_transformed.strip()
 
     if data['hush']:
         transformed = "||" + transformed + "||"
