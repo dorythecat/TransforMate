@@ -525,7 +525,7 @@ def transform_text(data: dict, original: str) -> str:
                 continue
             transformed += "-# " + text.strip() + "\n"
 
-        # Make sure mentions work appropiately
+        # Make sure mentions work appropriately
         mention_transformed = ""
         for word in transformed.split(" "):
             if word.startswith("<@"):
