@@ -16,6 +16,23 @@ async def transform_function(ctx: discord.ApplicationContext,
                              brackets: list[str] | None = None,
                              copy: discord.User | None = None,
                              merge: bool | None = None) -> bool:
+    if into:
+        # Webhook names should be more than two characters
+        if len(into) <= 1:
+            await ctx.respond("Please provide a name longer than 1 character!")
+            return False
+
+        # Webhook names cannot contain "discord", will return a 400 error
+        if "discord" in into.lower():
+            await ctx.respond("You cannot use that as a name!")
+            return False
+
+    if image_url:
+        image_url = utils.check_url(image_url)
+        if image_url == "":
+            await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
+            return False
+
     if copy is not None:
         new_data = utils.load_tf(copy, ctx.guild)
         if new_data == {} or new_data['all'] == {}:
@@ -24,34 +41,19 @@ async def transform_function(ctx: discord.ApplicationContext,
         if merge in [False, None]:
             new_data['all']['into'] += "឵឵ᅟ"
         if into:
-            # Webhook username cannot contain "discord", or it will return a 400 error
-            # TODO: Find a better fix, perhaps?
-            if into.lower().__contains__("discord"):
-                into = into.lower().replace("discord", "Disc0rd")
             new_data['all']['into'] = into
         if image_url:
-            image_url = utils.check_url(image_url)
-            if image_url == "":
-                await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
-                return False
             new_data['all']['image_url'] = image_url
         utils.write_tf(user, ctx.guild, new_data=new_data)
         utils.write_transformed(ctx.guild, user, channel)
         return True
-    if not into:
-        await ctx.send("Please specify a name!")
-        return False
-    if not image_url:
-        image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
-    image_url = utils.check_url(image_url)
-    if image_url == "":
-        await ctx.respond("Invalid Image URL! Please provide a valid image URL!")
-        return False
 
-    # Webhook username cannot contain "discord", or it will return a 400 error
-    # TODO: Find a better fix, perhaps?
-    if into.lower().__contains__("discord"):
-        into = into.lower().replace("discord", "Disc0rd")
+    if not into:
+        # Defaults to their name
+        into = user.name
+    if not image_url:
+        # Defaults to their avatar, or, if they lack one, to the default Discord avatar
+        image_url = user.avatar.url if user.avatar is not None else "https://cdn.discordapp.com/embed/avatars/1.png"
 
     utils.write_tf(user,
                    ctx.guild,
@@ -173,9 +175,7 @@ class Transformation(commands.Cog):
                 return
 
         if into:
-            if len(into) <= 1:
-                await ctx.respond("Please provide a name longer than 1 character!")
-            elif await transform_function(ctx, user, into, image_url, channel, brackets, None):
+            if await transform_function(ctx, user, into, image_url, channel, brackets, None):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
@@ -199,9 +199,6 @@ class Transformation(commands.Cog):
         response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
         if response.content.strip() == "CANCEL":
             await ctx.respond("Cancelled the transformation!")
-            return
-        if len(response.content.strip()) <= 1:
-            await ctx.respond("Please provide a name longer than 1 character!")
             return
         if await transform_function(ctx,
                                     user,

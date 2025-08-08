@@ -108,7 +108,7 @@ class Admin(commands.Cog):
                                really_sure: bool = False,
                                really_really_sure: bool = False,
                                fully_sure: bool = False) -> None:
-        if (ctx.guild.member_count > MAX_REGEN_USERS):
+        if ctx.guild.member_count > MAX_REGEN_USERS:
             await ctx.respond(f"You're trying to regenerate all transformed users for a server with {ctx.guild.member_count} members!\n\n"
                               f"This operation cannot be fulfilled manually, and you should contact the bot's owner to take this action!")
         if not (sure and really_sure and really_really_sure and fully_sure):
