@@ -343,7 +343,6 @@ def write_transformed(guild: discord.Guild | int,
                       clear_other_logs: bool | None = None,
                       affixes: bool | None = None,
                       images: int | None = None) -> dict:
-    # TODO(Dory): Rework so that int functions don't require None
     data = load_transformed()
     if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
         if int(data['version']) == 7:
