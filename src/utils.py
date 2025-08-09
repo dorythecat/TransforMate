@@ -342,7 +342,7 @@ def write_transformed(guild: discord.Guild | int,
                       logs: list[int | None] | None = None,  # [edit, del, tf, claim]
                       clear_other_logs: bool | None = None,
                       affixes: bool | None = None,
-                      images: int | None = None) -> dict:
+                      images: Discord.TextChannel | int | None = None) -> dict:
     data = load_transformed()
     if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
         if int(data['version']) == 7:
@@ -398,7 +398,7 @@ def write_transformed(guild: discord.Guild | int,
         data[guild_id]['affixes'] = affixes
 
     if images is not None:
-        data[guild_id]['images'] = images
+        data[guild_id]['images'] = images if type(images) is int else images.id
 
     write_file(f'{CACHE_PATH}/transformed.json', data)
     return data[guild_id]
