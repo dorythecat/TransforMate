@@ -50,12 +50,29 @@ CURRENT_TRANSFORMED_DATA_VERSION = 8
 
 # USER TRANSFORMATION DATA UTILS
 def load_tf(user: discord.User | discord.Member | int, guild: discord.Guild | int | None = None) -> dict:
+    """
+    Loads the TMUD data of a user. If the `guild` parameter is specified, it loads only that specific server's data.
+
+    :param user: A Discord User or Member object, representing the user whose data is to be loaded.
+    :param guild: A Discord Guild object, representing the server in which the user's data is to be loaded. If not specified, loads all the user's data.
+
+    :return: A TMUD-compliant dictionary containing the user's TMUD data.
+    """
+
     return load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
 
 
-def get_data_version(user: discord.User | discord.Member) -> int:
-    return int(load_file(f'{CACHE_PATH}/people/{str(user.id)}.json')['version'])
+def get_data_version(user: discord.User | discord.Member | int) -> int:
+    """
+    Gets the version of the TMUD data of a user.
+
+    :param user: A Discord User or Member object, representing the user whose data is to be loaded.
+
+    :return: An integer representing the version of the TMUD data of the user.
+    """
+
+    return int(load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')['version'])
 
 
 def write_tf(user: discord.User | discord.Member | int,
@@ -128,6 +145,7 @@ def write_tf(user: discord.User | discord.Member | int,
 
     :return: This function does not return anything, but it will write the modified data to the cache file.
     """
+
     data = load_tf(user)
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
@@ -296,6 +314,16 @@ def write_tf(user: discord.User | discord.Member | int,
 def remove_tf(user: discord.User | discord.Member | int,
               guild: discord.Guild | int,
               channel: discord.TextChannel | int | None = None) -> None:
+    """
+    Removes the transformation data for a user in a server, and, optionally, a channel.
+
+    :param user: A Discord user or member object, representing the user whose data will be removed.
+    :param guild: A Discord guild object, representing the server from which the data will be removed.
+    :param channel: A Discord channel object, representing the channel from which the data will be removed.
+
+    :return: This function does not return anything.
+    """
+
     data = load_tf(user)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or not guild_id in data or \
@@ -310,6 +338,15 @@ def remove_tf(user: discord.User | discord.Member | int,
 
 def remove_all_server_tf(user: discord.User | discord.Member | int,
                          guild: discord.Guild | int) -> None:
+    """
+    Removes all transformation data for a user in a server, including blocked channels and users.
+
+    :param user: A Discord user or member object, representing the user whose data will be removed.
+    :param guild: A Discord guild object, representing the server from which the data will be removed.
+
+    :return: This function does not return anything.
+    """
+
     data = load_tf(user)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or not guild_id in data:
@@ -321,6 +358,14 @@ def remove_all_server_tf(user: discord.User | discord.Member | int,
 
 
 def remove_all_tf(user: discord.User | discord.Member | int) -> None:
+    """
+    Fully removes a user's data file from the system.
+
+    :param user: A Discord user or member object, representing the user whose data will be removed.
+
+    :return: This function does not return anything.
+    """
+
     try:
         os.remove(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')
     except OSError as e:
@@ -330,6 +375,14 @@ def remove_all_tf(user: discord.User | discord.Member | int) -> None:
 
 # TRANSFORMED DATA UTILS
 def load_transformed(guild: discord.Guild | int | None = None) -> dict:
+    """
+    Loads the transformation data for a server, or, optionally, the entire server data file, if a server is not specified.
+
+    :param guild: A Discord guild object, representing the server whose data will be loaded.
+
+    :return: A dictionary containing the transformation data for a server, or, optionally, the entire server data file.
+    """
+
     return load_file(f'{CACHE_PATH}/transformed.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
 
@@ -339,10 +392,27 @@ def write_transformed(guild: discord.Guild | int,
                       channel: discord.TextChannel | int | None = None,
                       block_user: discord.User | discord.Member | int | None = None,
                       block_channel: discord.TextChannel | int | None = None,
-                      logs: list[int | None] | None = None,  # [edit, del, tf, claim]
+                      logs: list[int | None] | None = None,
                       clear_other_logs: bool | None = None,
                       affixes: bool | None = None,
                       images: Discord.TextChannel | int | None = None) -> dict:
+    """
+    Writes the transformation data for a user in a server, or, optionally, a channel, to the server data file. Also
+    serves as a utility to write server settings to the file.
+
+    :param guild: A Discord guild object, representing the server to which the data will be written.
+    :param user: A Discord user or member object, representing the user whose data will be written.
+    :param channel: A Discord channel object, representing the channel to which the data will be written.
+    :param block_user: A Discord user or member object, representing a user to block in this server.
+    :param block_channel: A Discord channel object, representing a channel to block in this server.
+    :param logs: A list of four channels, which will become the logging channels, for, in order, edited messages, deleted messages, transformations, and claims.
+    :param clear_other_logs: A boolean value indicating whether to clear logs from other bots.
+    :param affixes: A boolean value indicating whether to put the bot in affixes (Tupper-like) mode.
+    :param images: A Discord channel object, representing the image buffer channel.
+
+    :return: The updated transformation data for the server.
+    """
+
     data = load_transformed()
     if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
         if int(data['version']) == 7:
@@ -407,6 +477,16 @@ def write_transformed(guild: discord.Guild | int,
 def is_transformed(user: discord.User | discord.Member | int,
                    guild: discord.Guild | int,
                    channel: discord.TextChannel | int | None = None) -> bool:
+    """
+    Check if a user is transformed in a server, or, optionally, a channel.
+
+    :param user: A Discord user or member object, representing the user to check.
+    :param guild: A Discord guild object, representing the server to check.
+    :param channel: A Discord channel object, representing the channel to check.
+
+    :return: A boolean value indicating whether the user is transformed in the specified server or, optionally, channel.
+    """
+
     data = load_transformed(guild)
     user_id = str(user if type(user) is int else user.id)
     if data == {} or user_id not in data['transformed_users'] or data['transformed_users'][user_id] in [[], None]:
@@ -418,6 +498,16 @@ def is_transformed(user: discord.User | discord.Member | int,
 def remove_transformed(user: discord.User | discord.Member | int,
                        guild: discord.Guild | int,
                        channel: discord.TextChannel | int | None = None) -> None:
+    """
+    Removes a user from the transformation data for a server, or, optionally, a channel.
+
+    :param user: A Discord user or member object, representing the user to remove.
+    :param guild: A Discord guild object, representing the server from which the user will be removed.
+    :param channel: A Discord channel object, representing the channel from which the user will be removed.
+
+    :return: This function does not return anything.
+    """
+
     data = load_transformed()
     if not is_transformed(user, guild, channel):
         return
@@ -429,6 +519,14 @@ def remove_transformed(user: discord.User | discord.Member | int,
 
 
 def remove_server_from_transformed(guild: discord.Guild | int) -> None:
+    """
+    Removes a server from the server data file.
+
+    :param guild: A Discord guild object, representing the server to remove.
+
+    :return: This function does not return anything.
+    """
+
     data = load_transformed()
     del data[str(guild if type(guild) is int else guild.id)]
     write_file(f'{CACHE_PATH}/transformed.json', data)
