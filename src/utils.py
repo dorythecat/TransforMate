@@ -395,7 +395,7 @@ def write_transformed(guild: discord.Guild | int,
                       logs: list[int | None] | None = None,
                       clear_other_logs: bool | None = None,
                       affixes: bool | None = None,
-                      images: Discord.TextChannel | int | None = None) -> dict:
+                      images: discord.TextChannel | int | None = None) -> dict:
     """
     Writes the transformation data for a user in a server, or, optionally, a channel, to the server data file. Also
     serves as a utility to write server settings to the file.
