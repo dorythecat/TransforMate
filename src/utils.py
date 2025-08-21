@@ -902,7 +902,7 @@ def add_roulette(name: str,
 
     :param name: The name of the roulette.
     :param guild: The Discord guild object or server ID to add the roulette to.
-    :param roulette_type: The type of chance to use for the roulette (0 for standard, 1 for gacha)
+    :param roulette_type: The type of roulette to use (0 for standard, 1 for gacha)
 
     :return: This function does not return anything.
     """
@@ -915,14 +915,15 @@ def add_roulette_item(name: str,
                       guild: discord.Guild | int,
                       item: str) -> None:
     """
-    Adds an item to a roulette.
+    Adds an item to the roulette.
 
     :param name: The name of the roulette.
-    :param guild: The Discord guild object or server ID to add the roulette to.
-    :param item: The transformation string for the item.
+    :param guild: The Discord guild object or server ID where the roulette is from.
+    :param item: The TSF-compliant transformation string for the item.
 
     :return: This function does not return anything.
     """
+
     roulette = load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
     if "items" not in roulette:
         roulette["items"] = []
