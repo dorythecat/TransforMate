@@ -334,7 +334,7 @@ class Transformation(commands.Cog):
             channel = ctx.channel
         else:
             data = data['all']
-        if data['claim'] is None:
+        if data['claim'] == 0:
             await ctx.respond(f"{user.mention} is currently not claimed by anyone (yet)!")
             return
         if int(data['claim']) != ctx.author.id:
@@ -348,8 +348,8 @@ class Transformation(commands.Cog):
         if transformed_data['logs'][3]:
             embed = utils.get_embed_base(title="User Unclaimed", color=discord.Color.gold())
             embed.add_field(name="User", value=user.mention)
-            embed.add_field(name="Unclaimed User", value=ctx.message.author.mention)
-            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            embed.add_field(name="Unclaimed User", value=ctx.author.mention)
+            embed.add_field(name="Channel", value=ctx.channel.mention)
             await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
     @discord.slash_command(description="Safeword command. Use in case of abuse or incommodity, to unclaim yourself.")
