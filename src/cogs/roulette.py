@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 
 import utils
+from config import BLOCKED_USERS
 
 
 class Roulette(commands.Cog):
@@ -66,8 +67,17 @@ class Roulette(commands.Cog):
         if utils.load_roulette(name, ctx.guild) == {}:
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
-        result = utils.roll_roulette(name, ctx.guild)
-        await ctx.respond(f'You rolled: "{result}"!')
+
+        new_data = utils.decode_tsf(utils.roll_roulette(name, ctx.guild))
+        new_data['transformed_by'] = ctx.author.id
+        new_data['claim'] = 0
+        new_data['eternal'] = False
+
+        data = utils.load_tf(ctx.user, ctx.guild)
+        data['all'] = new_data
+        utils.write_tf(ctx.user, ctx.guild, None, data)
+
+        await ctx.respond(f"Transformed {ctx.user.mention} successfully into {new_data['into']}!")
 
 
 def setup(bot: discord.Bot) -> None:
