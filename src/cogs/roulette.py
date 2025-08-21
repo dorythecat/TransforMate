@@ -54,7 +54,7 @@ class Roulette(commands.Cog):
         if item is None:
             await ctx.respond("Please send your TSF-compliant file or string, or any other message to cancel")
             item = await self.bot.wait_for("message",
-                                            check=lambda: m.author == ctx.author and m.channel == ctx.channel)
+                                            check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
             if item.attachments:
                 await item.attachments[0].save(f"tf_cache")
                 try:
@@ -69,7 +69,7 @@ class Roulette(commands.Cog):
                 item = item.content
 
         utils.add_roulette_item(name, ctx.guild, item)
-        await ctx.respond(f'Item "{item}" has been added to roulette "{name}"!')
+        await ctx.respond(f'Item "{item.split(";")[1]}" has been added to roulette "{name}"!')
 
 
     @roulette_command.command(description="Remove an item from a roulette")
@@ -103,6 +103,7 @@ class Roulette(commands.Cog):
         new_data['claim'] = 0
         new_data['eternal'] = False
 
+        data = utils.load_tf(ctx.user, ctx.guild)
         data['all'] = new_data
         utils.write_tf(ctx.user, ctx.guild, None, data)
 
@@ -119,7 +120,7 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        desc = ""
+        desc = "**Pulling method:** " + "Normal\n\n" if roulette['type'] == "0" else "Gacha\n\n"
         for item in roulette['items']:
             desc += f"- {item}\n"
 
