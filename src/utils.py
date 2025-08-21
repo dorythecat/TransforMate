@@ -1031,9 +1031,9 @@ async def is_blocked(ctx: discord.ApplicationContext,
         await ctx.respond(f"You can't use the bot with that user at all! They've been very naughty...", ephemeral=True)
         return True
 
-    data = utils.load_tf(ctx.user, ctx.guild)
-    user_data = utils.load_tf(user, ctx.guild) if user is not None else {}
-    transformed_data = utils.load_transformed(ctx.guild)
+    data = load_tf(ctx.user, ctx.guild)
+    user_data = load_tf(user, ctx.guild) if user is not None else {}
+    transformed_data = load_transformed(ctx.guild)
 
     # Blocked channels (user)
     if data != {}:
