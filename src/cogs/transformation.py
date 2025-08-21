@@ -301,7 +301,10 @@ class Transformation(commands.Cog):
         else:
             await ctx.respond("This user isn't transformed in this channel! Please try again in the proper channel!")
             return
-        if data['claim'] != 0 and int(data['claim']) != ctx.author.id:
+        if data['claim'] != 0:
+            if int(data['claim']) == ctx.author.id:
+                await ctx.respond(f"You can't do that! You already claimed {user.mention}!")
+                return
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
                               f"{ctx.guild.get_member(int(data['claim'])).mention}!")
             return
