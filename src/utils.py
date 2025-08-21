@@ -891,3 +891,21 @@ def check_url(url: str) -> str:
     if not url.startswith("http"): # Basic preliminary check
         return "http://" + url
     return url
+
+
+# Roulette utilities
+def add_roulette(name: str,
+                 guild: discord.Guild | int,
+                 roulette_type: int = 0) -> None:
+    """
+    Adds roulette to the database.
+
+    :param name: The name of the roulette.
+    :param guild: The Discord guild object or server ID to add the roulette to.
+    :param roulette_type: The type of chance to use for the roulette (0 for standard, 1 for gacha)
+
+    :return: This function does not return anything.
+    """
+
+    write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json',
+               { "type": roulette_type })
