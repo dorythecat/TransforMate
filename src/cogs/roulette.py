@@ -91,12 +91,16 @@ class Roulette(commands.Cog):
                    ctx: discord.ApplicationContext,
                    name: discord.Option(discord.SlashCommandOptionType.string,
                                         description="The name of the roulette to roll.") = "Default") -> None:
-        if utils.load_roulette(name, ctx.guild) == {}:
+        roulette = utils.load_roulette(name, ctx.guild)
+        if roulette == {}:
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
         if await utils.is_blocked(ctx):
             return
+
+        if len(roulette['items']) == 0:
+            await ctx.respond(f'Roulette "{name}" has no items left to roll for!')
 
         new_data = utils.decode_tsf(utils.roll_roulette(name, ctx.guild))
         new_data['transformed_by'] = ctx.author.id
