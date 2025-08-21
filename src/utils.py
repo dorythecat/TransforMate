@@ -910,7 +910,7 @@ def add_roulette(name: str,
     """
 
     write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json',
-               { "type": roulette_type })
+               { 'type': roulette_type, 'items': {} })
 
 
 def remove_roulette(name: str,
@@ -968,8 +968,6 @@ def add_roulette_item(roulette_name: str,
     if item_name == "":
         item_name = item_content.split(";")[1] # Use the name of the transformation
 
-    if "items" not in roulette:
-        roulette['items'] = {}
     roulette['items'][item_name] = item_content
     write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{roulette_name}.json', roulette)
 
