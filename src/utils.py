@@ -1010,7 +1010,7 @@ def roll_roulette(name: str,
 
 # Miscellaneous utilities
 async def is_blocked(ctx: discord.ApplicationContext,
-                     user: discord.Member | discord.User | int | None = None) -> bool:
+                     user: discord.Member | discord.User | None = None) -> bool:
     """
     Get whether a user (and an optional companion) is blocked from using the bot in a given context.
 
@@ -1027,14 +1027,24 @@ async def is_blocked(ctx: discord.ApplicationContext,
                           f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
         return True
 
+    if user is not None and user.id in BLOCKED_USERS:
+        await ctx.respond(f"You can't use the bot with that user at all! They've been very naughty...", ephemeral=True)
+        return True
+
     data = utils.load_tf(ctx.user, ctx.guild)
+    user_data = utils.load_tf(user, ctx.guild) if user is not None else {}
     transformed_data = utils.load_transformed(ctx.guild)
 
     # Blocked channels (user)
     if data != {}:
         if str(ctx.channel.id) in data['blocked_channels']:
-            await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                              f"They have blocked the bot here!", ephemeral=True)
+            await ctx.respond(f"You can't use the bot in this channel!"
+                              f"You have blocked the bot here!", ephemeral=True)
+            return True
+
+        if user_data != {} and str(ctx.channel.id) in user_data['blocked_channels']:
+            await ctx.respond(f"You can't use the bot in this channel!"
+                              f"The other user has blocked the bot here!", ephemeral=True)
             return True
 
         if transformed_data != {}:
@@ -1047,4 +1057,9 @@ async def is_blocked(ctx: discord.ApplicationContext,
             if str(ctx.user.id) in transformed_data['blocked_users']:
                 await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
                 return True
+
+            if user is not None and str(user.id) in transformed_data['blocked_users']:
+                await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                return True
+
     return False
