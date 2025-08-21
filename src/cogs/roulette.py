@@ -41,13 +41,8 @@ class Roulette(commands.Cog):
 
         if item is None:
             await ctx.respond("Please send your TSF-compliant file or string, or any other message to cancel")
-            def check(m: discord.Message) -> bool:
-                return m.author == ctx.author and m.channel == ctx.channel
-            try:
-                item = await self.bot.wait_for("message", check=check, timeout=60)
-            except TimeoutError:
-                await ctx.respond("Timed out! Cancelling!")
-                return
+            item = await self.bot.wait_for("message",
+                                            check=lambda: m.author == ctx.author and m.channel == ctx.channel)
             if item.attachments:
                 await item.attachments[0].save(f"tf_cache")
                 try:
