@@ -929,3 +929,21 @@ def add_roulette_item(name: str,
         roulette["items"] = []
     roulette["items"].append(item)
     write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json', roulette)
+
+
+def roll_roulette(name: str,
+                  guild: discord.Guild | int) -> str:
+    """
+    Rolls the roulette.
+
+    :param name: The name of the roulette.
+    :param guild: The Discord guild object or server ID where the roulette is from.
+
+    :return: Returns the TSF-compliant transformation string of the item rolled.
+    """
+
+    data = load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
+
+    if data["type"] == 0:
+        return random.choice(data["items"])
+    return {}
