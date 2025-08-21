@@ -14,10 +14,6 @@ from config import CACHE_PATH
 # TODO: https://github.com/dorythecat/TransforMate/issues/40
 # TODO: https://github.com/dorythecat/TransforMate/issues/52
 
-# SETTINGS
-#CLEAR_OLD_TFEE_DATA = True  # If a file is from a previous version that we can't translate, should it be cleared out?
-CLEAR_OLD_TRANSFORMED_DATA = True  # Same as above
-
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
 # VERSION 15: Added individual chances to all modifiers - ADDENDUM 1: Made the "transformed_by" and "claim" fields be integers now
@@ -150,7 +146,6 @@ def write_tf(user: discord.User | discord.Member | int,
     if data == {} or data['version'] != CURRENT_TMUD_VERSION:
         if data != {} and data['transformed_by']: # Translate from v15 to v15.1
             data['transformed_by'] = int(data['transformed_by'])
-        #data = {} if CLEAR_OLD_TFEE_DATA else data # Clear data if necessary
         data['version'] = CURRENT_TMUD_VERSION
     transformed_data = load_transformed(guild)
     if transformed_data == {}:
