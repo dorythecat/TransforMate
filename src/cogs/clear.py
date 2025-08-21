@@ -144,11 +144,11 @@ class Clear(commands.Cog):
         if not data['censor']['active']:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
-        if censor_word not in ["", None]:
-            if censor_word not in data['censor']['contents']:
-                await ctx.respond(f"{user.mention} is not censored with the word \"{censor_word}\"!")
+        if censor not in ["", None]:
+            if censor not in data['censor']['contents']:
+                await ctx.respond(f"{user.mention} is not censored with the word \"{censor}\"!")
                 return
-            data['censor']['contents'].remove(censor_word)
+            data['censor']['contents'].remove(censor)
             utils.write_tf(user, ctx.guild, censor=data['censor'])
             return
         utils.write_tf(user, ctx.guild, censor="")
