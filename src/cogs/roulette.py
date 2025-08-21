@@ -18,33 +18,8 @@ class Roulette(commands.Cog):
                      ctx: discord.ApplicationContext,
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulette to add.") = "Default") -> None:
-        # Blocked users (globally)
-        if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+        if utils.is_blocked(ctx):
             return
-
-        data = utils.load_tf(ctx.user, ctx.guild)
-        transformed_data = utils.load_transformed(ctx.guild)
-
-        # Blocked channels (user)
-        if data != {}:
-            if str(ctx.channel.id) in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
-                return
-
-            if transformed_data != {}:
-                # Blocked channels (server)
-                if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                    return
-
-                # Blocked users (server)
-                if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                    return
 
         utils.add_roulette(name, ctx.guild)
         await ctx.respond(f'Roulette "{name}" has been created!')
@@ -61,33 +36,8 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        # Blocked users (globally)
-        if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+        if utils.is_blocked(ctx):
             return
-
-        data = utils.load_tf(ctx.user, ctx.guild)
-        transformed_data = utils.load_transformed(ctx.guild)
-
-        # Blocked channels (user)
-        if data != {}:
-            if str(ctx.channel.id) in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
-                return
-
-            if transformed_data != {}:
-                # Blocked channels (server)
-                if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                    return
-
-                # Blocked users (server)
-                if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                    return
 
         if item is None:
             await ctx.respond("Please send your TSF-compliant file or string, or any other message to cancel")
@@ -124,33 +74,8 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        # Blocked users (globally)
-        if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+        if utils.is_blocked(ctx):
             return
-
-        data = utils.load_tf(ctx.user, ctx.guild)
-        transformed_data = utils.load_transformed(ctx.guild)
-
-        # Blocked channels (user)
-        if data != {}:
-            if str(ctx.channel.id) in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
-                return
-
-            if transformed_data != {}:
-                # Blocked channels (server)
-                if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                    return
-
-                # Blocked users (server)
-                if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                    return
 
         new_data = utils.decode_tsf(utils.roll_roulette(name, ctx.guild))
         new_data['transformed_by'] = ctx.author.id
