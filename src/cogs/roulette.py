@@ -28,10 +28,17 @@ class Roulette(commands.Cog):
     @roulette_command.command(description="Remove a roulette")
     async def remove(self,
                      ctx: discord.ApplicationContext,
+                     sure: discord.Option(discord.SlashCommandOptionType.boolean) = False,
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulet to be removed.") = "Default") -> None:
         if await utils.is_blocked(ctx):
             return
+
+        if not sure:
+            await ctx.respond(f'Are you sure you want to remove roulette "{name}"? (Send YES, in all caps, to confirm)')
+            sure = await self.bot.wait_for("message", check=lambda m: m.author == ctx.author)
+            if sure.content != "YES":
+                await ctx.respond("Cancelling!")
 
         utils.remove_roulette(name, ctx.guild)
         await ctx.respond(f'Roulette "{name}" has been removed!')
