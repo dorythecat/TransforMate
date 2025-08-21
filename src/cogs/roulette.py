@@ -18,7 +18,7 @@ class Roulette(commands.Cog):
                      ctx: discord.ApplicationContext,
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulette to add.") = "Default") -> None:
-        if utils.is_blocked(ctx):
+        if await utils.is_blocked(ctx):
             return
 
         utils.add_roulette(name, ctx.guild)
@@ -30,7 +30,7 @@ class Roulette(commands.Cog):
                      ctx: discord.ApplicationContext,
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulet to be removed.") = "Default") -> None:
-        if utils.is_blocked(ctx):
+        if await utils.is_blocked(ctx):
             return
 
         utils.remove_roulette(name, ctx.guild)
@@ -48,7 +48,7 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        if utils.is_blocked(ctx):
+        if await utils.is_blocked(ctx):
             return
 
         if item is None:
@@ -79,7 +79,7 @@ class Roulette(commands.Cog):
                                                description="The name of the item to be removed.") = None,
                           name: discord.Option(discord.SlashCommandOptionType.string,
                                                description="The name of the roulette to add an item to.") = "Default") -> None:
-        if utils.is_blocked(ctx):
+        if await utils.is_blocked(ctx):
             return
 
         utils.remove_roulette_item(name, ctx.guild, item)
@@ -95,7 +95,7 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        if utils.is_blocked(ctx):
+        if await utils.is_blocked(ctx):
             return
 
         new_data = utils.decode_tsf(utils.roll_roulette(name, ctx.guild))

@@ -103,7 +103,7 @@ class Transformation(commands.Cog):
                         merge: discord.Option(discord.SlashCommandOptionType.boolean,
                                               description="Whether to merge or not the user's messages to the"
                                                           "original transformed user's when copying") = None) -> None:
-        if utils.is_blocked(ctx, user):
+        if await utils.is_blocked(ctx, user):
             return
         if user is None:
             user = ctx.author
@@ -354,7 +354,7 @@ class Transformation(commands.Cog):
                         user: discord.Option(discord.User) = None,
                         file: discord.Option(discord.SlashCommandOptionType.boolean,
                                              description="Whether the output is a .tf file or a string") = True) -> None:
-        if utils.is_blocked(ctx, user):
+        if await utils.is_blocked(ctx, user):
             return
         if user is None:
             user = ctx.author
@@ -386,7 +386,7 @@ class Transformation(commands.Cog):
     async def import_tf(self,
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None) -> None:
-        if utils.is_blocked(ctx, user):
+        if await utils.is_blocked(ctx, user):
             return
         if user is None:
             user = ctx.author
