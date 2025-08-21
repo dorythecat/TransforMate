@@ -364,7 +364,7 @@ class Transformation(commands.Cog):
             data = data['all']
         # We have to check if they are claimed OR eternally transformed. If both are false, safeword does nothing.
         # If either are true, we need to keep going, otherwise we can just return.
-        if data['claim'] is not None and not data['eternal']:
+        if data['claim'] != 0 and not data['eternal']:
             await ctx.respond(f"You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
             return
         utils.write_tf(ctx.author, ctx.guild, channel, claim_user=None, eternal=0)
@@ -376,7 +376,7 @@ class Transformation(commands.Cog):
         if transformed_data['logs'][3]:
             embed = utils.get_embed_base(title="User Safeworded", color=discord.Color.gold())
             embed.add_field(name="User", value=ctx.author.mention)
-            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            embed.add_field(name="Channel", value=ctx.channel.mention)
             await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
     # TF EXPORTING/IMPORTING
