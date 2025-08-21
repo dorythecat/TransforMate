@@ -304,8 +304,8 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
     data_claim = data['claim']
     transformed_data = utils.load_transformed(reaction.message.guild)
     if str(reaction.emoji) == "🔒":
-        if data_claim not in ["", None]:
-            await user.send(f"\"{reaction.message.author.name}\" is already claimed by {data_claim}!")
+        if data_claim not in ["", 0]:
+            await user.send(f"\"{reaction.message.author.name}\" is already claimed by {bot.get_user(data_claim).mention}!")
             return
         utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user=user.id)
         await user.send(f"Successfully claimed \"{reaction.message.author.name}\" for yourself!")
@@ -321,8 +321,8 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         return
 
     if str(reaction.emoji) == "🔓":
-        if data_claim in ["", None]:
-            await user.send(f"\"{reaction.message.author.name}\" is not claimed by anyone!")
+        if data_claim in ["", 0]:
+            await user.send(f"\"{reaction.message.author.name}\" is not claimed by anyone, at the moment!")
             return
         if data_claim != user.name:
             await user.send(f"\"{reaction.message.author.name}\" is claimed by {data_claim}! You can't unclaim them!")
