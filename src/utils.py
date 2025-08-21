@@ -81,10 +81,10 @@ def write_tf(user: discord.User | discord.Member | int,
              new_data: dict | None = None,
              block_channel: discord.TextChannel | int | None = None,
              block_user: discord.User | discord.Member | int | None = None,
-             transformed_by: discord.User | discord.Member | int = 0,
+             transformed_by: discord.User | discord.Member | int = None,
              into: str | None = None,
              image_url: str | None = None,
-             claim_user: discord.User | discord.Member | int = 0,
+             claim_user: discord.User | discord.Member | int = None,
              eternal: int | None = None,
              prefix: str | None = None,
              suffix: str | None = None,
@@ -214,11 +214,11 @@ def write_tf(user: discord.User | discord.Member | int,
             'bio': None
         }
     else:
-        if transformed_by != 0:
+        if transformed_by is not None:
             data[guild_id][channel_id]['transformed_by'] = transformed_by if type(transformed_by) is int else transformed_by.id
         if image_url is not None and image_url != "":
             data[guild_id][channel_id]['image_url'] = image_url
-        if claim_user != 0:
+        if claim_user is not None:
             data[guild_id][channel_id]['claim'] = claim_user if type(claim_user) is int else claim_user.id
         if eternal is not None:
             data[guild_id][channel_id]['eternal'] = eternal != 0
