@@ -1006,3 +1006,45 @@ def roll_roulette(name: str,
     if roulette["type"] == 0:
         return random.choice(list(roulette["items"].values()))
     return {}
+
+
+# Miscellaneous utilities
+async def is_blocked(ctx: discord.ApplicationContext,
+                     user: discord.Member | discord.User | int | None = None) -> bool:
+    """
+    Get whether a user (and an optional companion) is blocked from using the bot in a given context.
+
+    :param ctx: The context in which to check.
+    :param user: A user (apart from the ctx.user parameter) to check if it's blocked. If not provided, isn't checked.
+
+    :return: Whether the user(s) is (are) blocked from using the bot in this context.
+    """
+
+    # Blocked users (globally)
+    if ctx.user.id in BLOCKED_USERS:
+        await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
+                          f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
+                          f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+        return True
+
+    data = utils.load_tf(ctx.user, ctx.guild)
+    transformed_data = utils.load_transformed(ctx.guild)
+
+    # Blocked channels (user)
+    if data != {}:
+        if str(ctx.channel.id) in data['blocked_channels']:
+            await ctx.respond(f"You can't transform {user.mention} in this channel!"
+                              f"They have blocked the bot here!", ephemeral=True)
+            return True
+
+        if transformed_data != {}:
+            # Blocked channels (server)
+            if str(ctx.channel.id) in transformed_data['blocked_channels']:
+                await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+                return True
+
+            # Blocked users (server)
+            if str(ctx.user.id) in transformed_data['blocked_users']:
+                await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                return True
+    return False
