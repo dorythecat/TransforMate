@@ -105,7 +105,6 @@ class Transformation(commands.Cog):
                                                           "original transformed user's when copying") = None) -> None:
         if utils.is_blocked(ctx, user):
             return
-
         if user is None:
             user = ctx.author
 
@@ -357,7 +356,6 @@ class Transformation(commands.Cog):
                                              description="Whether the output is a .tf file or a string") = True) -> None:
         if utils.is_blocked(ctx, user):
             return
-
         if user is None:
             user = ctx.author
 
@@ -390,7 +388,6 @@ class Transformation(commands.Cog):
                         user: discord.Option(discord.User) = None) -> None:
         if utils.is_blocked(ctx, user):
             return
-
         if user is None:
             user = ctx.author
 
