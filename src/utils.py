@@ -178,7 +178,7 @@ def write_tf(user: discord.User | discord.Member | int,
             'transformed_by': transformed_by if type(transformed_by) is int else transformed_by.id,
             'into': into,
             'image_url': image_url,
-            'claim': claim_user if type(claim_user) is int else claim_user.id,
+            'claim': 0 if claim_user is None else (claim_user if type(claim_user) is int else claim_user.id),
             'eternal': False,
             'prefix': {
                 'active': False,
