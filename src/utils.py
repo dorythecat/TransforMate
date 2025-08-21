@@ -911,10 +911,10 @@ def add_roulette(name: str,
                { "type": roulette_type })
 
 
-def delete_roulette(name: str,
+def remove_roulette(name: str,
                     guild: discord.Guild | int) -> None:
     """
-    Deletes roulette from the database.
+    Removes roulette from the database.
 
     :param name: The name of the roulette.
     :param guild: The Discord guild object or server ID to delete the roulette from.
