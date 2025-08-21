@@ -1008,7 +1008,15 @@ def roll_roulette(name: str,
 
     roulette = load_roulette(name, guild)
     if roulette["type"] == 0:
-        return random.choice(list(roulette["items"].values()))
+        choice = random.choice(list(roulette['items'].keys()))
+        content = roulette['items'][choice]
+
+        # Remove this option from the list so we don't twin anyone
+        # TODO: Make this into an option
+        del roulette['items'][choice]
+        write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json', roulette)
+
+        return content
     return {}
 
 
