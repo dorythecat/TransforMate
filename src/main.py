@@ -171,8 +171,8 @@ async def on_message(message: discord.Message) -> None:
     if message.reference:  # Check if the message is a reply
         mention = message.reference.resolved.author.mention
         if message.reference.resolved.webhook_id:
-            tfee, data_replied = utils.check_message(message.reference.resolved)
-            mention = bot.get_user(tfee).mention
+            tfee, _ = utils.check_message(message.reference.resolved)
+            mention = f"<@{tfee}>"
         content += (f"***Replying to {mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
         # TODO: Make this an option for server owners
