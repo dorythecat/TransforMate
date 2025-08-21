@@ -1,3 +1,5 @@
+import os
+
 import discord
 from discord.ext import commands
 
@@ -23,12 +25,35 @@ class Roulette(commands.Cog):
     async def add_item(self,
                        ctx: discord.ApplicationContext,
                        item: discord.Option(discord.SlashCommandOptionType.string,
-                                            description="The TSF-compliant transformation string for the item."),
+                                            description="The TSF-compliant transformation string for the item.") = None,
                        name: discord.Option(discord.SlashCommandOptionType.string,
                                             description="The name of the roulette to add an item to.") = "Default") -> None:
         if utils.load_roulette(name, ctx.guild) == {}:
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
+
+        if item is None:
+            await ctx.respond("Please send your TSF-compliant file or string, or any other message to cancel")
+            def check(m: discord.Message) -> bool:
+                return m.author == ctx.author and m.channel == ctx.channel
+            try:
+                item = await self.bot.wait_for("message", check=check, timeout=60)
+            except TimeoutError:
+                await ctx.respond("Timed out! Cancelling!")
+                return
+            if item.attachments:
+                await item.attachments[0].save(f"tf_cache")
+                try:
+                    with open("tf_cache") as f:
+                        item = f.read()
+                    os.remove("tf_cache")
+                except OSError as e:
+                    print(f"Error reading from file or removing file:")
+                    print(e)
+                    await ctx.respond("Error reading file! Cancelling!")
+            else:
+                item = item.content
+
         utils.add_roulette_item(name, ctx.guild, item)
         await ctx.respond(f'Item "{item}" has been added to roulette "{name}"!')
 
