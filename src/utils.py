@@ -909,3 +909,22 @@ def add_roulette(name: str,
 
     write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json',
                { "type": roulette_type })
+
+
+def add_roulette_item(name: str,
+                      guild: discord.Guild | int,
+                      item: str) -> None:
+    """
+    Adds an item to a roulette.
+
+    :param name: The name of the roulette.
+    :param guild: The Discord guild object or server ID to add the roulette to.
+    :param item: The transformation string for the item.
+
+    :return: This function does not return anything.
+    """
+    roulette = load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
+    if "items" not in roulette:
+        roulette["items"] = []
+    roulette["items"].append(item)
+    write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json', roulette)
