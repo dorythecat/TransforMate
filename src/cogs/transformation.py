@@ -146,14 +146,14 @@ class Transformation(commands.Cog):
             elif 'all' in data:
                 data = data['all']
             elif transformed_data != {} and transformed_data['affixes']:
-                data = { 'claim': None }  # Empty data so we can do multiple tfs
+                data = { 'claim': 0 }  # Empty data so we can do multiple tfs
             elif data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = { 'claim': None }
+                data = { 'claim': 0 }
             else:
                 await ctx.respond(f"{user.mention} is already transformed at the moment!")
                 return
-            if data['claim'] is not None and int(data['claim']) != ctx.author.id and data['eternal']:
+            if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
                                       f"{ctx.guild.get_member(int(data['claim'])).mention}!")
@@ -242,7 +242,7 @@ class Transformation(commands.Cog):
                               f"(At least on this channel)")
             return
         else:
-            data = {'claim': None, 'eternal': None, 'into': 'all'}  # Empty data so we can do multiple tfs
+            data = {'claim': 0, 'eternal': None, 'into': 'all'}  # Empty data so we can do multiple tfs
 
         if not utils.is_transformed(user, ctx.guild, ctx.channel) and not utils.is_transformed(user, ctx.guild):
             if data['into'] in ["", None]:
@@ -510,7 +510,7 @@ class Transformation(commands.Cog):
 
         new_data = utils.decode_tsf(tsf_string)
         new_data['transformed_by'] = ctx.author.id
-        new_data['claim'] = None
+        new_data['claim'] = 0
         new_data['eternal'] = False
 
         data = utils.load_tf(user, ctx.guild)
