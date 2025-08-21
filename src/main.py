@@ -371,6 +371,7 @@ bot.load_extension('.clear', package='cogs')  # "Clear" Commands
 bot.load_extension('.get', package='cogs')  # "Get" Commands
 bot.load_extension('.admin', package='cogs')  # "Admin" Commands
 bot.load_extension('.block', package='cogs')  # "Block" Commands
+bot.load_extension('.roulette', package='cogs') # "Roulette" Commands
 
 
 # Misc commands
