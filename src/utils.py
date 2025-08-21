@@ -689,9 +689,11 @@ def load_file(filename: str, guild_id: int | None = None) -> dict:
 
 def write_file(filename: str,
                data: dict) -> None:
+    if not os.path.exists(filename):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
     try:
         with open(filename, "w+") as f:
-            f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+            f.write(json.dumps(data, indent=4))  # TODO: Remove indents for production
     except OSError as e:
         print("Error writing to file:")
         print(f"{str(type(e))}: {e}")
