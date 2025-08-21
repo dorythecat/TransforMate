@@ -911,6 +911,19 @@ def add_roulette(name: str,
                { "type": roulette_type })
 
 
+def load_roulette(name: str,
+                  guild: discord.Guild | int) -> dict:
+    """
+    Loads the data for a given roulette.
+
+    :param name: The name of the roulette.
+    :param guild: The Discord guild object or server ID to load the roulette from.
+
+    :return: The data for the given roulette.
+    """
+    return load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
+
+
 def add_roulette_item(name: str,
                       guild: discord.Guild | int,
                       item: str) -> None:
@@ -924,7 +937,7 @@ def add_roulette_item(name: str,
     :return: This function does not return anything.
     """
 
-    roulette = load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
+    roulette = load_roulette(name, guild)
     if "items" not in roulette:
         roulette["items"] = []
     roulette["items"].append(item)
@@ -942,8 +955,7 @@ def roll_roulette(name: str,
     :return: Returns the TSF-compliant transformation string of the item rolled.
     """
 
-    data = load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
-
+    data = load_roulette(name, guild)
     if data["type"] == 0:
         return random.choice(data["items"])
     return {}
