@@ -911,6 +911,24 @@ def add_roulette(name: str,
                { "type": roulette_type })
 
 
+def delete_roulette(name: str,
+                    guild: discord.Guild | int) -> None:
+    """
+    Deletes roulette from the database.
+
+    :param name: The name of the roulette.
+    :param guild: The Discord guild object or server ID to delete the roulette from.
+
+    :return: This function does not return anything.
+    """
+
+    if os.path.exists(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json'):
+        os.remove(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json') # Delete roulette
+        if os.path.exists(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}'):
+            if len(os.listdir(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}')) == 0:
+                os.rmdir(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}') # Clean up the directory
+
+
 def load_roulette(name: str,
                   guild: discord.Guild | int) -> dict:
     """
