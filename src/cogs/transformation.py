@@ -301,7 +301,7 @@ class Transformation(commands.Cog):
         else:
             await ctx.respond("This user isn't transformed in this channel! Please try again in the proper channel!")
             return
-        if data['claim'] is not None and int(data['claim']) != ctx.author.id:
+        if data['claim'] != 0 and int(data['claim']) != ctx.author.id:
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
                               f"{ctx.guild.get_member(int(data['claim'])).mention}!")
             return
@@ -312,8 +312,8 @@ class Transformation(commands.Cog):
         if transformed_data['logs'][3]:
             embed = utils.get_embed_base(title="User Claimed", color=discord.Color.gold())
             embed.add_field(name="User", value=user.mention)
-            embed.add_field(name="Claimed User", value=ctx.message.author.mention)
-            embed.add_field(name="Channel", value=ctx.message.channel.mention)
+            embed.add_field(name="Claimed User", value=ctx.author.mention)
+            embed.add_field(name="Channel", value=ctx.channel.mention)
             await ctx.guild.get_channel(transformed_data['logs'][3]).send(embed=embed)
 
     @discord.slash_command(description="Unclaim a transformed user")
