@@ -986,7 +986,7 @@ def remove_roulette_item(roulette_name: str,
     """
 
     roulette = load_roulette(roulette_name, guild)
-    if roulette == {} or "items" not in roulette or item_name not in roulette["items"]:
+    if roulette == {} or 'items' not in roulette or item_name not in roulette['items']:
         return
 
     del roulette['items'][item_name]
@@ -1012,7 +1012,7 @@ def roll_roulette(name: str,
         # Remove this option from the list so we don't twin anyone
         # TODO: Make this into an option
         del roulette['items'][choice]
-        write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json', roulette)
+        write_file(f"{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json", roulette)
 
         return content
     return {}
