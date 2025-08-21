@@ -56,7 +56,7 @@ class Set(commands.Cog):
         if data['big']:
             await ctx.respond(f"{user.mention} is already speaking big!")
             return
-        utils.write_tf(user, ctx.guild, big=1)
+        utils.write_tf(user, ctx.guild, big=True)
         await ctx.respond(f"{user.mention} will now speak in big text!")
 
     @set_command.command(description="Set the transformed user to speak in small text")
@@ -69,7 +69,7 @@ class Set(commands.Cog):
         if data['small']:
             await ctx.respond(f"{user.mention} is already speaking small!")
             return
-        utils.write_tf(user, ctx.guild, small=1)
+        utils.write_tf(user, ctx.guild, small=True)
         await ctx.respond(f"{user.mention} will now speak in small text!")
 
     @set_command.command(description="Set the transformed user to hush")
@@ -82,7 +82,7 @@ class Set(commands.Cog):
         if data['hush']:
             await ctx.respond(f"{user.mention} is already hushed!")
             return
-        utils.write_tf(user, ctx.guild, hush=1)
+        utils.write_tf(user, ctx.guild, hush=True)
         await ctx.respond(f"{user.mention} will now hush!")
 
     @set_command.command(description="Set the transformed user to speak backwards")
@@ -95,7 +95,7 @@ class Set(commands.Cog):
         if data['backwards']:
             await ctx.respond(f"{user.mention} is already speaking backwards!")
             return
-        utils.write_tf(user, ctx.guild, backwards=1)
+        utils.write_tf(user, ctx.guild, backwards=True)
         await ctx.respond(f"{user.mention} will now speak backwards!")
 
     @set_command.command(description="Set the transformed user to be eternally transformed")
@@ -111,7 +111,7 @@ class Set(commands.Cog):
         if data['eternal']:
             await ctx.respond(f"{user.mention} is already eternally transformed!")
             return
-        utils.write_tf(user, ctx.guild, eternal=1)
+        utils.write_tf(user, ctx.guild, eternal=True)
         await ctx.respond(f"{user.mention} is now eternally transformed!")
 
         transformed_data = utils.load_transformed(ctx.guild)

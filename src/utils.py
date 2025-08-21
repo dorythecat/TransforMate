@@ -85,13 +85,13 @@ def write_tf(user: discord.User | discord.Member | int,
              into: str | None = None,
              image_url: str | None = None,
              claim_user: discord.User | discord.Member | int = None,
-             eternal: int | None = None,
+             eternal: bool | None = None,
              prefix: str | None = None,
              suffix: str | None = None,
-             big: int | None = None,
-             small: int | None = None,
-             hush: int | None = None,
-             backwards: int | None = None,
+             big: bool | None = None,
+             small: bool | None = None,
+             hush: bool | None = None,
+             backwards: bool | None = None,
              censor: str | None = None,
              censor_replacement: str | None = None,
              sprinkle: str | None = None,
@@ -112,8 +112,6 @@ def write_tf(user: discord.User | discord.Member | int,
 
     For inputting modifiers (prefix, suffix, sprinkle, muffle, alt_muffle) specify one modifier per function call, and
     remember to always include the chance parameter. In the case of censor, include always a censor_replacement.
-
-    All booleans are integer parameters, that will be set to False if they equal 0, and otherwise, set to True.
 
     :param user: A Discord User or Member object, representing the user whose data is to be altered.
     :param guild: A Discord Guild object, representing the server in which the user's data is to be altered.
@@ -179,7 +177,7 @@ def write_tf(user: discord.User | discord.Member | int,
             'into': into,
             'image_url': image_url,
             'claim': 0 if claim_user is None else (claim_user if type(claim_user) is int else claim_user.id),
-            'eternal': False,
+            'eternal': False if eternal is None else eternal,
             'prefix': {
                 'active': False,
                 'contents': {}
@@ -188,10 +186,10 @@ def write_tf(user: discord.User | discord.Member | int,
                 'active': False,
                 'contents': {}
             },
-            'big': False,
-            'small': False,
-            'hush': False,
-            'backwards': False,
+            'big': False if big is None else big,
+            'small': False if small is None else small,
+            'hush': False if hush is None else hush,
+            'backwards': False if backwards is None else backwards,
             'censor': {
                 'active': False,
                 'contents': {}
@@ -221,7 +219,7 @@ def write_tf(user: discord.User | discord.Member | int,
         if claim_user is not None:
             data[guild_id][channel_id]['claim'] = claim_user if type(claim_user) is int else claim_user.id
         if eternal is not None:
-            data[guild_id][channel_id]['eternal'] = eternal != 0
+            data[guild_id][channel_id]['eternal'] = eternal
         if block_channel is not None:
             block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
             if block_channel not in data[guild_id]['blocked_channels']:
@@ -253,13 +251,13 @@ def write_tf(user: discord.User | discord.Member | int,
             else:
                 data[guild_id][channel_id]['suffix']['contents'] = {}
         if big is not None:
-            data[guild_id][channel_id]['big'] = big != 0
+            data[guild_id][channel_id]['big'] = big
         if small is not None:
-            data[guild_id][channel_id]['small'] = small != 0
+            data[guild_id][channel_id]['small'] = small
         if hush is not None:
-            data[guild_id][channel_id]['hush'] = hush != 0
+            data[guild_id][channel_id]['hush'] = hush
         if backwards is not None:
-            data[guild_id][channel_id]['backwards'] = backwards != 0
+            data[guild_id][channel_id]['backwards'] = backwards
         if censor is not None:
             data[guild_id][channel_id]['censor']['active'] = True if censor != "" else False
             if censor != "":

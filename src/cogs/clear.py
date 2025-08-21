@@ -20,13 +20,13 @@ class Clear(commands.Cog):
         utils.write_tf(user,
                        ctx.guild,
                        claim_user=None,
-                       eternal=0,
+                       eternal=False,
                        prefix="",
                        suffix="",
-                       big=0,
-                       small=0,
-                       hush=0,
-                       backwards=0,
+                       big=False,
+                       small=False,
+                       hush=False,
+                       backwards=False,
                        censor="",
                        sprinkle="",
                        muffle="",
@@ -90,7 +90,7 @@ class Clear(commands.Cog):
         if not data['big']:
             await ctx.respond(f"{user.mention} doesn't have big text set!")
             return
-        utils.write_tf(user, ctx.guild, big=0)
+        utils.write_tf(user, ctx.guild, big=False)
         await ctx.respond(f"{user.mention} will no longer speak in big text!")
 
     @clear_command.command(description="Clear the small text setting for the transformed messages")
@@ -103,7 +103,7 @@ class Clear(commands.Cog):
         if not data['small']:
             await ctx.respond(f"{user.mention} doesn't have small text set!")
             return
-        utils.write_tf(user, ctx.guild, small=0)
+        utils.write_tf(user, ctx.guild, small=False)
         await ctx.respond(f"{user.mention} will no longer speak in small text!")
 
     @clear_command.command(description="Clear hush setting")
@@ -116,7 +116,7 @@ class Clear(commands.Cog):
         if not data['hush']:
             await ctx.respond(f"{user.mention} doesn't have hush text set!")
             return
-        utils.write_tf(user, ctx.guild, hush=0)
+        utils.write_tf(user, ctx.guild, hush=False)
         await ctx.respond(f"{user.mention} will no longer hush!")
 
     @clear_command.command(description="Clear backwards setting")
@@ -129,7 +129,7 @@ class Clear(commands.Cog):
         if not data['backwards']:
             await ctx.respond(f"{user.mention} doesn't have backwards text set!")
             return
-        utils.write_tf(user, ctx.guild, backwards=0)
+        utils.write_tf(user, ctx.guild, backwards=False)
         await ctx.respond(f"{user.mention} will no longer speak backwards!")
 
     @clear_command.command(description="Clear censor setting")
@@ -213,7 +213,7 @@ class Clear(commands.Cog):
         if not data['eternal']:
             await ctx.respond(f"{user.mention} isn't eternally transformed!")
             return
-        utils.write_tf(user, ctx.guild, eternal=0)
+        utils.write_tf(user, ctx.guild, eternal=False)
         await ctx.respond(f"{user.mention} is no longer eternally transformed!")
 
     @clear_command.command(description="Clear a user's biography")

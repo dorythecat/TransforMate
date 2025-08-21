@@ -327,7 +327,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         if data_claim != user.name:
             await user.send(f"\"{reaction.message.author.name}\" is claimed by {data_claim}! You can't unclaim them!")
             return
-        utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user=None, eternal=0)
+        utils.write_tf(bot.get_user(tfee), reaction.message.guild, claim_user=0, eternal=False)
         await user.send(f"Successfully unclaimed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has unclaimed \"{reaction.message.author.name}\"!")
 
@@ -347,12 +347,12 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
                                 f"You can't free them!")
                 return
             # Clear the eternal transformation
-            utils.write_tf(bot.get_user(tfee), reaction.message.guild, eternal=0)
+            utils.write_tf(bot.get_user(tfee), reaction.message.guild, eternal=False)
             await user.send(f"Successfully un-eternally transformed \"{reaction.message.author.name}\"!")
             await reaction.message.channel.send(f"{user.mention} has un-eternally transformed"
                                                 f"\"{reaction.message.author.name}\"!")
             return
-        utils.write_tf(bot.get_user(tfee), reaction.message.guild, eternal=1, claim_user=user.id)
+        utils.write_tf(bot.get_user(tfee), reaction.message.guild, eternal=True, claim_user=user.id)
         await user.send(f"Successfully eternally transformed \"{reaction.message.author.name}\"!")
         await reaction.message.channel.send(f"{user.mention} has eternally transformed"
                                             f"\"{reaction.message.author.name}\"!")
