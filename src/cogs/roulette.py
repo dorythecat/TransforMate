@@ -25,6 +25,18 @@ class Roulette(commands.Cog):
         await ctx.respond(f'Roulette "{name}" has been created!')
 
 
+    @roulette_command.command(description="Remove a roulette")
+    async def remove(self,
+                     ctx: discord.ApplicationContext,
+                     name: discord.Option(discord.SlashCommandOptionType.string,
+                                          description="The name of the roulet to be removed.") = "Default") -> None:
+        if utils.is_blocked(ctx):
+            return
+
+        utils.remove_roulette(name, ctx.guild)
+        await ctx.respond(f'Roulette "{name}" has been removed!')
+
+
     @roulette_command.command(description="Add an item to a roulette")
     async def add_item(self,
                        ctx: discord.ApplicationContext,
@@ -58,6 +70,20 @@ class Roulette(commands.Cog):
 
         utils.add_roulette_item(name, ctx.guild, item)
         await ctx.respond(f'Item "{item}" has been added to roulette "{name}"!')
+
+
+    @roulette_command.command(description="Remove an item from a roulette")
+    async def remove_item(self,
+                          ctx: discord.ApplicationContext,
+                          item: discord.Option(discord.SlashCommandOptionType.string,
+                                               description="The name of the item to be removed.") = None,
+                          name: discord.Option(discord.SlashCommandOptionType.string,
+                                               description="The name of the roulette to add an item to.") = "Default") -> None:
+        if utils.is_blocked(ctx):
+            return
+
+        utils.remove_roulette_item(name, ctx.guild, item)
+        await ctx.respond(f'Item "{item}" has been removed from roulette "{name}"!')
 
 
     @roulette_command.command(description="Roll a roulette")

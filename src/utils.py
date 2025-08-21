@@ -941,6 +941,8 @@ def load_roulette(name: str,
 
     :return: The data for the given roulette.
     """
+    if not os.path.exists(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json'):
+        return {}
     return load_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{name}.json')
 
 
