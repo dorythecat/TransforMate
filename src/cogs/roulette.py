@@ -10,7 +10,7 @@ class Roulette(commands.Cog):
 
     roulette_command = discord.SlashCommandGroup("roulette", "LETS GO GAMBLING")
 
-    @roulette_command.command(description="Create a new roulette")
+    @roulette_command.command(description="Create a new roulette (or reset an existing one)")
     async def create(self,
                      ctx: discord.ApplicationContext,
                      name: discord.Option(discord.SlashCommandOptionType.string,
