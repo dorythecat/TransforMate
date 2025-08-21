@@ -970,6 +970,27 @@ def add_roulette_item(roulette_name: str,
     write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{roulette_name}.json', roulette)
 
 
+def remove_roulette_item(roulette_name: str,
+                         guild: discord.Guild | int,
+                         item_name: str) -> None:
+    """
+    Removes an item from the roulette.
+
+    :param roulette_name: The name of the roulette.
+    :param guild: The Discord guild object or server ID where the roulette is from.
+    :param item_name: The name of the item to remove.
+
+    :return: This function does not return anything.
+    """
+
+    roulette = load_roulette(roulette_name, guild)
+    if roulette == {} or "items" not in roulette or item_name not in roulette["items"]:
+        return
+
+    del roulette["items"][item_name]
+    write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{roulette_name}.json', roulette)
+
+
 def roll_roulette(name: str,
                   guild: discord.Guild | int) -> str:
     """
