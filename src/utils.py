@@ -8,7 +8,7 @@ from types import NoneType
 
 import discord
 
-from config import CACHE_PATH
+from config import CACHE_PATH, BLOCKED_USERS
 
 # TODO: https://github.com/dorythecat/TransforMate/issues/31
 # TODO: https://github.com/dorythecat/TransforMate/issues/40

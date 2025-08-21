@@ -109,5 +109,22 @@ class Roulette(commands.Cog):
         await ctx.respond(f"Transformed {ctx.user.mention} successfully into {new_data['into']}!")
 
 
+    @roulette_command.command(description="Get a roulette's info")
+    async def info(self,
+                   ctx: discord.ApplicationContext,
+                   name: discord.Option(discord.SlashCommandOptionType.string,
+                                        description="The name of the roulette to get info for.") = "Default") -> None:
+        roulette = utils.load_roulette(name, ctx.guild)
+        if roulette == {}:
+            await ctx.respond(f'Roulette "{name}" does not exist!')
+            return
+
+        desc = ""
+        for item in roulette['items']:
+            desc += f"- {item}\n"
+
+        await ctx.respond(embed=utils.get_embed_base(f'Roulette "{name}" info:', desc))
+
+
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Roulette(bot))
