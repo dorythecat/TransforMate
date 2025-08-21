@@ -926,21 +926,29 @@ def load_roulette(name: str,
 
 def add_roulette_item(roulette_name: str,
                       guild: discord.Guild | int,
-                      item: str) -> None:
+                      item_content: str,
+                      item_name: str = "") -> None:
     """
     Adds an item to the roulette.
 
     :param roulette_name: The name of the roulette.
     :param guild: The Discord guild object or server ID where the roulette is from.
-    :param item: The TSF-compliant transformation string for the item.
+    :param item_content: The TSF-compliant transformation string for the item.
+    :param item_name: The name of the item. If not provided, defaults to the name of the transformation.
 
     :return: This function does not return anything.
     """
 
     roulette = load_roulette(roulette_name, guild)
+    if roulette == {}:
+        return
+
+    if item_name == "":
+        item_name = item_content.split(";")[1] # Use the name of the transformation
+
     if "items" not in roulette:
-        roulette["items"] = []
-    roulette["items"].append(item)
+        roulette["items"] = {}
+    roulette["items"][item_name] = item_content
     write_file(f'{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}/{roulette_name}.json', roulette)
 
 
@@ -957,5 +965,5 @@ def roll_roulette(name: str,
 
     roulette = load_roulette(name, guild)
     if roulette["type"] == 0:
-        return random.choice(roulette["items"])
+        return random.choice(list(roulette["items"].values()))
     return {}
