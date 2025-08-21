@@ -513,7 +513,6 @@ class Transformation(commands.Cog):
         new_data['claim'] = 0
         new_data['eternal'] = False
 
-        data = utils.load_tf(user, ctx.guild)
         data['all'] = new_data
         utils.write_tf(user, ctx.guild, None, data)
 
