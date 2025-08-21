@@ -341,7 +341,7 @@ class Transformation(commands.Cog):
             await ctx.respond(f"You can't do that! {user.mention} is claimed by "
                               f"{ctx.guild.get_member(int(data['claim'])).mention}, not you!")
             return
-        utils.write_tf(user, ctx.guild, channel, claim_user=None, eternal=0)
+        utils.write_tf(user, ctx.guild, channel, claim_user=0, eternal=0)
         await ctx.respond(f"You have successfully unclaimed {user.mention}! They are now free from your grasp!")
 
         transformed_data = utils.load_transformed(ctx.guild)
@@ -367,7 +367,7 @@ class Transformation(commands.Cog):
         if data['claim'] != 0 and not data['eternal']:
             await ctx.respond(f"You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
             return
-        utils.write_tf(ctx.author, ctx.guild, channel, claim_user=None, eternal=0)
+        utils.write_tf(ctx.author, ctx.guild, channel, claim_user=0, eternal=0)
         await ctx.respond(f"You have successfully activated the safeword command.\n"
                           f"Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
                           f"Use \"/goback\" to return to your normal self.")
