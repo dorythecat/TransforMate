@@ -1053,8 +1053,8 @@ async def is_blocked(ctx: discord.ApplicationContext,
 
     # Blocked users (globally)
     if ctx.user.id in BLOCKED_USERS:
-        await ctx.respond(f"You are blocked from using this bot at all! You must've done something very bad..."
-                          f"You might wanna appeal your ban in our Discord server, but, do not get your hopes up..."
+        await ctx.respond(f"You are blocked from using this bot at all! You must've done something very bad...\n"
+                          f"You might wanna appeal your ban in our Discord server, but, do not get your hopes up...\n"
                           f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
         return True
 
@@ -1077,12 +1077,12 @@ async def is_blocked(ctx: discord.ApplicationContext,
         print(user_data)
         # Blocked users (user)
         if user is not None and user.id in data['blocked_users']:
-            await ctx.respond(f"You are unable to use the bot with that user!"
+            await ctx.respond(f"You are unable to use the bot with that user!\n"
                               f"You have blocked them!", ephemeral=True)
             return True
 
         if user is not None and ctx.user.id in user_data['blocked_users']:
-            await ctx.respond(f"You are unable to use the bot with that user!"
+            await ctx.respond(f"You are unable to use the bot with that user!\n"
                               f"They have blocked you!", ephemeral=True)
             return True
 
@@ -1092,12 +1092,12 @@ async def is_blocked(ctx: discord.ApplicationContext,
             user_data = user_data[str(ctx.guild.id)]
         # Blocked channels (user)
         if ctx.channel.id in data['blocked_channels']:
-            await ctx.respond(f"You are unable to use the bot in this channel!"
+            await ctx.respond(f"You are unable to use the bot in this channel!\n"
                               f"You have blocked the bot here!", ephemeral=True)
             return True
 
         if user_data != {} and str(ctx.channel.id) in user_data['blocked_channels']:
-            await ctx.respond(f"You are unable to use the bot in this channel!"
+            await ctx.respond(f"You are unable to use the bot in this channel!\n"
                               f"The other user has blocked the bot here!", ephemeral=True)
             return True
 
