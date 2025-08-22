@@ -26,8 +26,11 @@ class Block(commands.Cog):
     async def user(self,
                    ctx: discord.ApplicationContext,
                    user: discord.User) -> None:
+        if user == ctx.author:
+            await ctx.respond("You can't block yourself!")
+            return
         utils.write_tf(ctx.author, ctx.guild, block_user=user)
-        word = "unblocked" if user.id in utils.load_tf(ctx.user, ctx.guild)['blocked_users'] else "blocked"
+        word = "blocked" if user.id in utils.load_tf(ctx.user)['blocked_users'] else "unblocked"
         await ctx.respond(f"{user.mention} has been {word} from interacting with you!")
 
 
