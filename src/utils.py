@@ -1060,10 +1060,10 @@ async def is_blocked(ctx: discord.ApplicationContext,
         return True
 
     data = load_tf(ctx.user)
-    if data['version'] != 16:
+    if data != {} and data['version'] != 16:
         data = data[str(ctx.guild.id)]
     user_data = load_tf(user) if user is not None else {}
-    if user_data['version'] != 16:
+    if data != {} and user_data['version'] != 16:
         user_data = user_data[str(ctx.guild.id)]
     transformed_data = load_transformed(ctx.guild)
 
