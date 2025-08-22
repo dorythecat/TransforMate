@@ -363,7 +363,8 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
 
-        data = utils.load_tf(user, ctx.guild)[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
+        data = utils.load_tf(user, ctx.guild)
+        data = data[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
         version = utils.get_data_version(user)
 
         output = utils.encode_tsf(data, version)
