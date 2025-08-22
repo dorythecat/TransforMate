@@ -19,8 +19,8 @@ class Roulette(commands.Cog):
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulette to add.") = "Default") -> None:
         if not ctx.guild_id in PATREON_SERVERS and len(utils.get_roulettes(ctx.guild)) != 0:
-            await ctx.respond(f'The maximum number of roulettes for this server is 1!\n'
-                              f'Subscribe to the Patreon to remove this limit!')
+            await ctx.respond('The maximum number of roulettes for this server is 1!\n'
+                              'Subscribe to the Patreon to remove this limit!')
             return
 
         if await utils.is_blocked(ctx):
