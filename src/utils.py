@@ -1073,13 +1073,15 @@ async def is_blocked(ctx: discord.ApplicationContext,
 
     # Blocked channels (user)
     if data != {}:
+        print(data)
+        print(user_data)
         # Blocked users (user)
-        if user is not None and str(user.id) in data['blocked_users']:
+        if user is not None and user.id in data['blocked_users']:
             await ctx.respond(f"You are unable to use the bot with that user!"
                               f"You have blocked them!", ephemeral=True)
             return True
 
-        if user is not None and str(ctx.user.id) in user_data['blocked_users']:
+        if user is not None and ctx.user.id in user_data['blocked_users']:
             await ctx.respond(f"You are unable to use the bot with that user!"
                               f"They have blocked you!", ephemeral=True)
             return True
@@ -1089,7 +1091,7 @@ async def is_blocked(ctx: discord.ApplicationContext,
         if 'version' in user_data:
             user_data = user_data[str(ctx.guild.id)]
         # Blocked channels (user)
-        if str(ctx.channel.id) in data['blocked_channels']:
+        if ctx.channel.id in data['blocked_channels']:
             await ctx.respond(f"You are unable to use the bot in this channel!"
                               f"You have blocked the bot here!", ephemeral=True)
             return True
@@ -1101,16 +1103,16 @@ async def is_blocked(ctx: discord.ApplicationContext,
 
         if transformed_data != {}:
             # Blocked channels (server)
-            if str(ctx.channel.id) in transformed_data['blocked_channels']:
+            if ctx.channel.id in transformed_data['blocked_channels']:
                 await ctx.respond(f"You are unable to use the bot, at least on this channel!", ephemeral=True)
                 return True
 
             # Blocked users (server)
-            if str(ctx.user.id) in transformed_data['blocked_users']:
+            if ctx.user.id in transformed_data['blocked_users']:
                 await ctx.respond(f"You are unable to use the bot, at least on this server!", ephemeral=True)
                 return True
 
-            if user is not None and str(user.id) in transformed_data['blocked_users']:
+            if user is not None and user.id in transformed_data['blocked_users']:
                 await ctx.respond(f"That user is unable to use the bot, at least on this server!", ephemeral=True)
                 return True
 
