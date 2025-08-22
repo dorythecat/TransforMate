@@ -1071,49 +1071,47 @@ async def is_blocked(ctx: discord.ApplicationContext,
         user_data = user_data[str(ctx.guild.id)]
     transformed_data = load_transformed(ctx.guild)
 
+    if data == {} or transformed_data == {}:
+        return False
+
+    # Blocked users (user)
+    if user is not None and user.id in data['blocked_users']:
+        await ctx.respond(f"You are unable to use the bot with that user!\n"
+                          f"You have blocked them!", ephemeral=True)
+        return True
+
+    if user is not None and ctx.user.id in user_data['blocked_users']:
+        await ctx.respond(f"You are unable to use the bot with that user!\n"
+                          f"They have blocked you!", ephemeral=True)
+        return True
+
+    if 'version' in data:
+        data = data[str(ctx.guild.id)]
+    if 'version' in user_data:
+        user_data = user_data[str(ctx.guild.id)]
     # Blocked channels (user)
-    if data != {}:
-        print(data)
-        print(user_data)
-        # Blocked users (user)
-        if user is not None and user.id in data['blocked_users']:
-            await ctx.respond(f"You are unable to use the bot with that user!\n"
-                              f"You have blocked them!", ephemeral=True)
-            return True
+    if ctx.channel.id in data['blocked_channels']:
+        await ctx.respond(f"You are unable to use the bot in this channel!\n"
+                          f"You have blocked the bot here!", ephemeral=True)
+        return True
 
-        if user is not None and ctx.user.id in user_data['blocked_users']:
-            await ctx.respond(f"You are unable to use the bot with that user!\n"
-                              f"They have blocked you!", ephemeral=True)
-            return True
+    if user_data != {} and str(ctx.channel.id) in user_data['blocked_channels']:
+        await ctx.respond(f"You are unable to use the bot in this channel!\n"
+                          f"The other user has blocked the bot here!", ephemeral=True)
+        return True
 
-        if 'version' in data:
-            data = data[str(ctx.guild.id)]
-        if 'version' in user_data:
-            user_data = user_data[str(ctx.guild.id)]
-        # Blocked channels (user)
-        if ctx.channel.id in data['blocked_channels']:
-            await ctx.respond(f"You are unable to use the bot in this channel!\n"
-                              f"You have blocked the bot here!", ephemeral=True)
-            return True
+    # Blocked channels (server)
+    if ctx.channel.id in transformed_data['blocked_channels']:
+        await ctx.respond(f"You are unable to use the bot, at least on this channel!", ephemeral=True)
+        return True
 
-        if user_data != {} and str(ctx.channel.id) in user_data['blocked_channels']:
-            await ctx.respond(f"You are unable to use the bot in this channel!\n"
-                              f"The other user has blocked the bot here!", ephemeral=True)
-            return True
+    # Blocked users (server)
+    if ctx.user.id in transformed_data['blocked_users']:
+        await ctx.respond(f"You are unable to use the bot, at least on this server!", ephemeral=True)
+        return True
 
-        if transformed_data != {}:
-            # Blocked channels (server)
-            if ctx.channel.id in transformed_data['blocked_channels']:
-                await ctx.respond(f"You are unable to use the bot, at least on this channel!", ephemeral=True)
-                return True
-
-            # Blocked users (server)
-            if ctx.user.id in transformed_data['blocked_users']:
-                await ctx.respond(f"You are unable to use the bot, at least on this server!", ephemeral=True)
-                return True
-
-            if user is not None and user.id in transformed_data['blocked_users']:
-                await ctx.respond(f"That user is unable to use the bot, at least on this server!", ephemeral=True)
-                return True
+    if user is not None and user.id in transformed_data['blocked_users']:
+        await ctx.respond(f"That user is unable to use the bot, at least on this server!", ephemeral=True)
+        return True
 
     return False
