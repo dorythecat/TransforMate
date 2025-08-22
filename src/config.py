@@ -24,16 +24,16 @@ for var in required_variables:
         raise Exception(f"{var} has been provided, but is empty! Check your .env! Aborting")
 
 # General bot configuration
-BOT_TOKEN: str = os.getenv("BOT_TOKEN")  # Token for the bot
-WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")  # Name to use for the webhooks
-BLOCKED_USERS: list[int] = parse_list(os.getenv("BLOCKED_USERS"))  # Users that are blocked from using the bot
-BLOCKED_SERVERS: list[int] = parse_list(os.getenv("BLOCKED_SERVERS")) # List of globally blocked servers
-USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
-CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder? (In relationship to the utils.py file)
-MAX_REGEN_USERS: int = int(os.getenv("MAX_REGEN_USERS")) # Maximum number of users in a server allowed for /regen_server_tfs
+BOT_TOKEN: str = os.getenv("BOT_TOKEN")
+WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")
+BLOCKED_USERS: list[int] = parse_list(os.getenv("BLOCKED_USERS"))
+BLOCKED_SERVERS: list[int] = parse_list(os.getenv("BLOCKED_SERVERS"))
+USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))
+CACHE_PATH: str = os.getenv("CACHE_PATH")
+MAX_REGEN_USERS: int = int(os.getenv("MAX_REGEN_USERS"))
 
 # API settings
-SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others
+SECRET_KEY: str = os.getenv("SECRET_KEY")
 CLIENT_ID: str = os.getenv("CLIENT_ID")
 CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
 REDIRECT_URI: str = os.getenv("REDIRECT_URI")
