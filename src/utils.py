@@ -1018,6 +1018,19 @@ def roll_roulette(name: str,
     return {}
 
 
+def get_roulettes(guild: discord.Guild | int) -> list[str]:
+    """
+    Returns a list of roulettes for a given guild.
+
+    :param guild: The Discord guild object or server ID to get the roulettes for.
+
+    :return: The list of roulettes for the given guild.
+    """
+
+    # We remove the ".json" from the end of the files
+    return [item[:-5] for item in os.listdir(f"{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}")]
+
+
 # Miscellaneous utilities
 async def is_blocked(ctx: discord.ApplicationContext,
                      user: discord.Member | discord.User | None = None) -> bool:
