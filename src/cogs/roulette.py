@@ -59,6 +59,10 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
+        if len(utils.load_roulette(name, ctx.guild)['items']) >= 30:
+            await ctx.respond(f'The maximum number of items for roulette "{name}" is 30!')
+            return
+
         if await utils.is_blocked(ctx):
             return
 
