@@ -108,6 +108,10 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
 
+        channel_id = str(ctx.channel.id if not channel else channel.id)
+        data = utils.load_tf(user, ctx.guild)
+        transformed_data = utils.load_transformed(ctx.guild)
+
         if utils.is_transformed(user, ctx.guild):
             if channel_id in data:
                 data = data[channel_id]
@@ -359,8 +363,8 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
 
+        data = utils.load_tf(user, ctx.guild)[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
         version = utils.get_data_version(user)
-        data = data[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
 
         output = utils.encode_tsf(data, version)
 
@@ -413,6 +417,8 @@ class Transformation(commands.Cog):
         new_data['transformed_by'] = ctx.author.id
         new_data['claim'] = 0
         new_data['eternal'] = False
+
+        data = utils.load_tf(user, ctx.guild)
 
         data['all'] = new_data
         utils.write_tf(user, ctx.guild, None, data)
