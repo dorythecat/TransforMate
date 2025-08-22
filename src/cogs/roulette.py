@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 import utils
-from config import BLOCKED_USERS
+from config import BLOCKED_USERS, PATREON_SERVERS
 
 
 class Roulette(commands.Cog):
@@ -18,8 +18,9 @@ class Roulette(commands.Cog):
                      ctx: discord.ApplicationContext,
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulette to add.") = "Default") -> None:
-        if len(utils.get_roulettes(ctx.guild)) != 0:
-            await ctx.respond(f'The maximum number of roulettes for this server is 1!')
+        if not ctx.guild_id in PATREON_SERVERS and len(utils.get_roulettes(ctx.guild)) != 0:
+            await ctx.respond(f'The maximum number of roulettes for this server is 1!\n'
+                              f'Subscribe to the Patreon to remove this limit!')
             return
 
         if await utils.is_blocked(ctx):
@@ -59,8 +60,9 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        if len(utils.load_roulette(name, ctx.guild)['items']) >= 30:
-            await ctx.respond(f'The maximum number of items for roulette "{name}" is 30!')
+        if not ctx.guild_id in PATREON_SERVERS and len(utils.load_roulette(name, ctx.guild)['items']) >= 30:
+            await ctx.respond(f'The maximum number of items for roulette "{name}" is 30!\n'
+                              f'Subscribe to the Patreon to remove this limit!')
             return
 
         if await utils.is_blocked(ctx):
