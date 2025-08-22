@@ -1059,12 +1059,32 @@ async def is_blocked(ctx: discord.ApplicationContext,
                           ephemeral=True)
         return True
 
-    data = load_tf(ctx.user, ctx.guild)
-    user_data = load_tf(user, ctx.guild) if user is not None else {}
+    data = load_tf(ctx.user)
+    if data['version'] != 16:
+        data = data[str(ctx.guild.id)]
+    user_data = load_tf(user) if user is not None else {}
+    if user_data['version'] != 16:
+        user_data = user_data[str(ctx.guild.id)]
     transformed_data = load_transformed(ctx.guild)
 
     # Blocked channels (user)
     if data != {}:
+        # Blocked users (user)
+        if user is not None and str(user.id) in data['blocked_users']:
+            await ctx.respond(f"You are unable to use the bot with that user!"
+                              f"You have blocked them!", ephemeral=True)
+            return True
+
+        if user is not None and str(ctx.user.id) in user_data['blocked_users']:
+            await ctx.respond(f"You are unable to use the bot with that user!"
+                              f"They have blocked you!", ephemeral=True)
+            return True
+
+        if 'version' in data:
+            data = data[str(ctx.guild.id)]
+        if 'version' in user_data:
+            user_data = user_data[str(ctx.guild.id)]
+        # Blocked channels (user)
         if str(ctx.channel.id) in data['blocked_channels']:
             await ctx.respond(f"You are unable to use the bot in this channel!"
                               f"You have blocked the bot here!", ephemeral=True)
