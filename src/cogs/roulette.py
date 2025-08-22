@@ -18,6 +18,10 @@ class Roulette(commands.Cog):
                      ctx: discord.ApplicationContext,
                      name: discord.Option(discord.SlashCommandOptionType.string,
                                           description="The name of the roulette to add.") = "Default") -> None:
+        if len(utils.get_roulettes(ctx.guild)) != 0:
+            await ctx.respond(f'The maximum number of roulettes for this server is 1!')
+            return
+
         if await utils.is_blocked(ctx):
             return
 
