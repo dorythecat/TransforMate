@@ -107,7 +107,8 @@ class Roulette(commands.Cog):
             return
 
         if len(roulette['items']) == 0:
-            await ctx.respond(f'Roulette "{name}" has no items left to roll for!')
+            await ctx.respond(f'Roulette "{name}" has no items left to roll for left!')
+            return
 
         new_data = utils.decode_tsf(utils.roll_roulette(name, ctx.guild))
         new_data['transformed_by'] = ctx.author.id
