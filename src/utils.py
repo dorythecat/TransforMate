@@ -12,10 +12,10 @@ from config import CACHE_PATH, BLOCKED_USERS, BLOCKED_SERVERS
 
 # TODO: https://github.com/dorythecat/TransforMate/issues/31
 # TODO: https://github.com/dorythecat/TransforMate/issues/40
-# TODO: https://github.com/dorythecat/TransforMate/issues/52
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 16: Made user blocking global instead of per-server (https://github.com/dorythecat/TransforMate/issues/52)
 # VERSION 15: Added individual chances to all modifiers - ADDENDUM 1: Made the "transformed_by" and "claim" fields be integers now
 # VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
@@ -31,7 +31,7 @@ from config import CACHE_PATH, BLOCKED_USERS, BLOCKED_SERVERS
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TMUD_VERSION = 15 # 15.1
+CURRENT_TMUD_VERSION = 16
 
 # VERSION 8: Added "images" field
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
@@ -144,17 +144,20 @@ def write_tf(user: discord.User | discord.Member | int,
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or data['version'] != CURRENT_TMUD_VERSION:
-        if data != {} and data['transformed_by']: # Translate from v15 to v15.1
-            data['transformed_by'] = int(data['transformed_by'])
+        if data != {} and data[guild_id] and data[guild_id]['blocked_users']: # Translate to latest version
+            del data[guild_id]['blocked_users']
         data['version'] = CURRENT_TMUD_VERSION
+        data['blocked_users'] = []
+    if block_user is not None:
+        data['blocked_users'].append(block_user if type(block_user) is int else block_user.id)
     transformed_data = load_transformed(guild)
     if transformed_data == {}:
         # Write some blank data if there's nothing to read here, and then read it
         transformed_data = write_transformed(guild)
     if new_data is not None:
-        new_data['blocked_users'] = [] if 'blocked_users' not in new_data else new_data['blocked_users']
         new_data['blocked_channels'] = [] if 'blocked_channels' not in new_data else new_data['blocked_channels']
         data[guild_id] = new_data
+        data['blocked_users'] = [] if 'blocked_users' not in data else data['blocked_users']
         write_file(f'{CACHE_PATH}/people/{str(user_id)}.json', data)
         write_transformed(guild, user, channel, block_user, block_channel)
         return
@@ -166,7 +169,6 @@ def write_tf(user: discord.User | discord.Member | int,
         if guild_id not in data:
             data[guild_id] = {}
             data[guild_id]['blocked_channels'] = []
-            data[guild_id]['blocked_users'] = []
         data[guild_id][channel_id] = {
             'transformed_by': transformed_by if type(transformed_by) is int else transformed_by.id,
             'into': into,
@@ -221,12 +223,6 @@ def write_tf(user: discord.User | discord.Member | int,
                 data[guild_id]['blocked_channels'].append(block_channel)
             else:
                 data[guild_id]['blocked_channels'].remove(block_channel)
-        if block_user is not None:
-            block_user = str(block_user if type(block_user) is int else block_user.id)
-            if block_user not in data[guild_id]['blocked_users']:
-                data[guild_id]['blocked_users'].append(block_user)
-            else:
-                data[guild_id]['blocked_users'].remove(block_user)
         if prefix is not None:
             data[guild_id][channel_id]['prefix']['active'] = True if prefix != "" else False
             if prefix != "":

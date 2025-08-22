@@ -297,7 +297,6 @@ class UserTransformationData(BaseModel):
 
 class UserData(BaseModel):
     blocked_channels: list[int] = []
-    blocked_users: list[int] = []
     all: UserTransformationData = UserTransformationData()
 
 
@@ -342,13 +341,13 @@ async def get_tfed_user(token: Annotated[str, Depends(get_current_token)],
         return JSONResponse(status_code=403,
                             content={ 'detail': 'This server has blocked that user' })
 
-    tf = utils.load_tf(user_id, server_id)
+    tf = utils.load_tf(user_id)
     if tf != {} and current_user_id in tf['blocked_users']:
         return JSONResponse(status_code=403,
                             content={ 'detail': 'This user has blocked the current user' })
 
+    tf = tf[server_id]
     return UserData(
-        blocked_users=tf['blocked_users'],
         blocked_channels=tf['blocked_channels'],
         all=UserTransformationData(
             transformed_by=tf['all']['transformed_by'],
