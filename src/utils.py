@@ -148,8 +148,12 @@ def write_tf(user: discord.User | discord.Member | int,
             del data[guild_id]['blocked_users']
         data['version'] = CURRENT_TMUD_VERSION
         data['blocked_users'] = []
+    block_user = block_user if type(block_user) in [int, NoneType] else block_user.id
     if block_user is not None:
-        data['blocked_users'].append(block_user if type(block_user) is int else block_user.id)
+        if block_user in data['blocked_users']:
+            data['blocked_users'].remove(block_user)
+        else:
+            data['blocked_users'].append(block_user)
     transformed_data = load_transformed(guild)
     if transformed_data == {}:
         # Write some blank data if there's nothing to read here, and then read it
