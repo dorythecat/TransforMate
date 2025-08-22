@@ -752,8 +752,8 @@ def encode_tsf(data: dict, version: int) -> str:
     :return: A TSF-compliant string.
     """
 
-    if version != 15:
-        raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
+    if version not in [15, 16]:
+        raise ValueError("encode_tsf() only supports TMUDv15 and TMUDv16, at the moment!")
 
     # Basic stuff
     output = "1;" # TSF v1(.1)
