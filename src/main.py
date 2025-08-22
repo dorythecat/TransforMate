@@ -31,6 +31,12 @@ async def on_ready() -> None:
 # features that might be disabled.
 @bot.event
 async def on_guild_join(guild: discord.Guild) -> None:
+    if guild.id in BLOCKED_SERVERS:
+        await guild.owner.send("# Sorry, but this server is blocked from using the TransforMate bot.\n"
+                               "If you think this is a mistake, please contact the bot owner.")
+        await guild.leave()
+        return
+
     await guild.owner.send("# Thanks for adding the TransforMate bot to your server!\n"
                            "By having the bot on your server, you agree to our [Terms of Service]"
                            "(https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md), "
