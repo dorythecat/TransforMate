@@ -140,7 +140,7 @@ class Roulette(commands.Cog):
             await ctx.respond(f'Roulette "{name}" does not exist!')
             return
 
-        desc = "**Pulling method:** " + "Normal\n\n" if roulette['type'] == "0" else "Gacha\n\n"
+        desc = "**Pulling method:** " + ("Normal\n\n" if roulette['type'] == 0 else "Gacha\n\n")
         for item in roulette['items']:
             desc += f"- {item}\n"
 
