@@ -1,4 +1,3 @@
-import json
 import requests
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, NamedTuple, Union
