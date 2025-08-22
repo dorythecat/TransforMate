@@ -15,7 +15,8 @@ if not load_dotenv():
     raise Exception("Either your .env file is empty, or you don't even have a .env file! Aborting")
 
 required_variables = ["BOT_TOKEN", "WEBHOOK_NAME", "BLOCKED_USERS", "USER_REPORTS_CHANNEL_ID", "CACHE_PATH",
-                      "SECRET_KEY", "CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI"]
+                      "SECRET_KEY", "CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI",
+                      "PATREON_SERVERS"]
 for var in required_variables:
     if os.getenv(var) is None:
         raise Exception(f"{var} hasn't been provided! Check your .env! Aborting")
@@ -35,3 +36,6 @@ SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords an
 CLIENT_ID: str = os.getenv("CLIENT_ID")
 CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
 REDIRECT_URI: str = os.getenv("REDIRECT_URI")
+
+# Patreon settings
+PATREON_SERVERS: list[int] = parse_list(os.getenv("PATREON_USERS"))

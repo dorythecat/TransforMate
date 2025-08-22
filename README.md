@@ -72,6 +72,9 @@ SECRET_KEY= # (see "Secret Key" below)
 CLIENT_ID= # Your Discord app client id
 CLIENT_SECRET= # Your Discord app secret
 REDIRECT_URI= # Your Discord REDIRECT_URI
+
+# Patreon settings
+PATREON_SERVERS=[server_id1, server_id2, ...] # List of servers that have Patreon-exclusive features enabled
 ```
 
 If all of these contents aren't present, an error will be thrown by the program
