@@ -111,7 +111,7 @@ class Roulette(commands.Cog):
             return
 
         if len(roulette['items']) == 0:
-            await ctx.respond(f'Roulette "{name}" has no items left to roll for left!')
+            await ctx.respond(f'There are no items left to roll for in roulette "{name}"!')
             return
 
         new_data = utils.decode_tsf(utils.roll_roulette(name, ctx.guild))
