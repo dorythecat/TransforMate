@@ -8,7 +8,7 @@ from types import NoneType
 
 import discord
 
-from config import CACHE_PATH, BLOCKED_USERS
+from config import CACHE_PATH, BLOCKED_USERS, BLOCKED_SERVERS
 
 # TODO: https://github.com/dorythecat/TransforMate/issues/31
 # TODO: https://github.com/dorythecat/TransforMate/issues/40
@@ -1042,6 +1042,14 @@ async def is_blocked(ctx: discord.ApplicationContext,
 
     :return: Whether the user(s) is (are) blocked from using the bot in this context.
     """
+
+    # Blocked servers (globally)
+    if ctx.guild_id in BLOCKED_SERVERS:
+        await ctx.respond("Sorry, this server is blocked from using the bot.\n"
+                          "If you think this is a mistake, please contact the bot owner.\n"
+                          "The bot will now automatically leave the server.")
+        await ctx.guild.leave()
+        return True
 
     # Blocked users (globally)
     if ctx.user.id in BLOCKED_USERS:
