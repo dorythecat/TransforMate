@@ -14,7 +14,7 @@ def parse_list(string: str | None) -> list[int]:
 if not load_dotenv():
     raise Exception("Either your .env file is empty, or you don't even have a .env file! Aborting")
 
-required_variables = ["BOT_TOKEN", "WEBHOOK_NAME", "BLOCKED_USERS", "USER_REPORTS_CHANNEL_ID", "CACHE_PATH",
+required_variables = ["BOT_TOKEN", "WEBHOOK_NAME", "BLOCKED_USERS", "BLOCKED_SERVERS", "USER_REPORTS_CHANNEL_ID", "CACHE_PATH",
                       "SECRET_KEY", "CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI",
                       "PATREON_SERVERS"]
 for var in required_variables:
@@ -27,6 +27,7 @@ for var in required_variables:
 BOT_TOKEN: str = os.getenv("BOT_TOKEN")  # Token for the bot
 WEBHOOK_NAME: str = os.getenv("WEBHOOK_NAME")  # Name to use for the webhooks
 BLOCKED_USERS: list[int] = parse_list(os.getenv("BLOCKED_USERS"))  # Users that are blocked from using the bot
+BLOCKED_SERVERS: list[int] = parse_list(os.getenv("BLOCKED_SERVERS")) # List of globally blocked servers
 USER_REPORTS_CHANNEL_ID: int = int(os.getenv("USER_REPORTS_CHANNEL_ID"))  # Channel to use for the /report command
 CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder? (In relationship to the utils.py file)
 MAX_REGEN_USERS: int = int(os.getenv("MAX_REGEN_USERS")) # Maximum number of users in a server allowed for /regen_server_tfs

@@ -63,6 +63,7 @@ install the requirements, and create a `.env` file with the following contents:
 BOT_TOKEN= # Your Discord Bot token
 WEBHOOK_NAME= # The name of the Discord Webhooks your bot will create
 BLOCKED_USERS="[user_id1, user_id2, ...]" # List of globally blocked users
+BLOCKED_SERVERS="[server_id1, server_id2, ...]" # List of globally blocked servers
 USER_REPORTS_CHANNEL_ID= # Discord Channel ID to send user reports to
 CACHE_PATH="cache" # Path for cache files, especifically TMUD data and server settings
 MAX_REGEN_USERS=100 # Maximum number of users in a server allowed for /regen_server_tfs
