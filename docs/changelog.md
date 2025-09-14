@@ -1,4 +1,21 @@
-## v2.0.0
+## v2.2.0
+- Fixed [#55](https://github.com/dorythecat/TransforMate/issues/55)
+- Fixed [#61](https://github.com/dorythecat/TransforMate/issues/61)
+- Updated TSF to v1.2, which fixes [#56](https://github.com/dorythecat/TransforMate/issues/56)
+
+## v2.1.1
+- Fixed a few bugs, of all kinds.
+
+---
+
+## v2.1.0
+- Fixed the ability to use the alternative TF method when transformed and
+  trying to transform others
+- Fixed a few minor bugs.
+
+---
+
+## v2.0.0 (TransforWeb)
 - Added [TransforWeb](http://www.transformate.live/) and the accompanying
   [TransforMate API](http://api.transformate.live/) to production, allowing
   for a lot of new features, like the TSF Editor.
