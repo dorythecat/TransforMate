@@ -756,9 +756,9 @@ def encode_tsf(data: dict, version: int) -> str:
         raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
 
     # Basic stuff
-    output = "1;" # TSF v1(.1)
-    output += data['into'] + ";"
-    output += data['image_url'] + ";"
+    output = "1;" # TSF v1(.2)
+    output += data['into'] + "\;%"
+    output += data['image_url'] + "\;%"
 
     # Booleans
     boolean_number = 0
@@ -766,42 +766,42 @@ def encode_tsf(data: dict, version: int) -> str:
     boolean_number += 2 if data['small'] else 0
     boolean_number += 4 if data['hush'] else 0
     boolean_number += 8 if data['backwards'] else 0
-    output += str(hex(boolean_number))[2:] + ";"
+    output += str(hex(boolean_number))[2:] + "\;%"
 
     # "Easy Stuff"
-    output += str(data['stutter']) + ";"
-    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";"
-    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";"
-    output += (data['bio'] if data['bio'] else "") + ";"
+    output += str(data['stutter']) + "\;%"
+    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + "\;%"
+    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + "\;%"
+    output += (data['bio'] if data['bio'] else "") + "\;%"
 
     # Prefix
-    output += "1;" if data['prefix']['active'] else "0;"
-    output += (",".join([key + "|" + str(value) for key, value in data['prefix']['contents'].items()])
-               if data['prefix']['active'] else "") + ";"
+    output += "1\;%" if data['prefix']['active'] else "0\;%"
+    output += ("\,%".join([key + "\|%" + str(value) for key, value in data['prefix']['contents'].items()])
+               if data['prefix']['active'] else "") + "\;%"
 
     # Suffix
-    output += "1;" if data['suffix']['active'] else "0;"
-    output += (",".join([key + "|" + str(value) for key, value in data['suffix']['contents'].items()])
-               if data['suffix']['active'] else "") + ";"
+    output += "1\;%" if data['suffix']['active'] else "0\;%"
+    output += ("\,%".join([key + "\|%" + str(value) for key, value in data['suffix']['contents'].items()])
+               if data['suffix']['active'] else "") + "\;%"
 
     # Sprinkle
-    output += "1;" if data['sprinkle']['active'] else "0;"
-    output += (",".join([key + "|" + str(value) for key, value in data['sprinkle']['contents'].items()])
-               if data['sprinkle']['active'] else "") + ";"
+    output += "1\;%" if data['sprinkle']['active'] else "0\;%"
+    output += ("\,%".join([key + "\|%" + str(value) for key, value in data['sprinkle']['contents'].items()])
+               if data['sprinkle']['active'] else "") + "\;%"
 
     # Muffle
-    output += "1;" if data['muffle']['active'] else "0;"
-    output += (",".join([key + "|" + str(value) for key, value in data['muffle']['contents'].items()])
-               if data['muffle']['active'] else "") + ";"
+    output += "1\;%" if data['muffle']['active'] else "0\;%"
+    output += ("\,%".join([key + "\|%" + str(value) for key, value in data['muffle']['contents'].items()])
+               if data['muffle']['active'] else "") + "\;%"
 
     # Alt Muffle
-    output += "1;" if data['alt_muffle']['active'] else "0;"
-    output += (",".join([key + "|" + str(value) for key, value in data['alt_muffle']['contents'].items()])
-               if data['alt_muffle']['active'] else "") + ";"
+    output += "1\;%" if data['alt_muffle']['active'] else "0\;%"
+    output += ("\,%".join([key + "\|%" + str(value) for key, value in data['alt_muffle']['contents'].items()])
+               if data['alt_muffle']['active'] else "") + "\;%"
 
     # Censor
-    output += "1;" if data['censor']['active'] else "0;"
-    output += (",".join([key + "|" + value for key, value in data['censor']['contents'].items()])
+    output += "1\;%" if data['censor']['active'] else "0\;%"
+    output += ("\,%".join([key + "\|%" + value for key, value in data['censor']['contents'].items()])
                if data['censor']['active'] else "")
 
     return output
@@ -815,15 +815,19 @@ def decode_tsf(tsf_string: str) -> dict:
     :return: A TMUD-compliant transformation data dict.
     """
 
-    tsf_data = tsf_string.split(";")
+    sep = ";"
+    if tsf_string[0:4] == "1\;%": # v1.2
+        sep = "\;%"
+
+    tsf_data = tsf_string.split(sep)
     version = int(tsf_data[0])
-    if version != 15 and version != 1: # v1.0 and v1.1
-        raise ValueError("decode_tsf() only supports TSFv1.0, at the moment!")
+    if version != 15 and version != 1: # v1.0 and v1.x
+        raise ValueError("decode_tsf() only supports TSFv1.x, at the moment!")
 
     if version == 15 and len(tsf_data) != 23:
         raise ValueError("decode_tsf() expected 23 elements in the TSFv1.0 string, got " + str(len(tsf_data)))
     if version == 1 and len(tsf_data) != 20:
-        raise ValueError("decode_tsf() expected 20 elements in the TSFv1.1 string, got " + str(len(tsf_data)))
+        raise ValueError("decode_tsf() expected 20 elements in the TSFv1.x string, got " + str(len(tsf_data)))
 
     tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
 
@@ -834,7 +838,7 @@ def decode_tsf(tsf_string: str) -> dict:
         hush = tsf_data[4] == "1"
         backwards = tsf_data[5] == "1"
         next_index = 6
-    else: # v1.1
+    else: # v1.x
         boolean_number = int(tsf_data[2], 16)
         big = boolean_number & 1 != 0
         small = boolean_number & 2 != 0
@@ -864,11 +868,11 @@ def decode_tsf(tsf_string: str) -> dict:
         }
         if not data[modifier]['active']:
             continue
-        modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split(",")
+        modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else "\,%")
         for mod in modifier_data:
             if mod == "":
                 continue
-            key, value = mod.split("|")
+            key, value = mod.split("|" if sep == ";" else "\|%")
             data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
 
     return data
