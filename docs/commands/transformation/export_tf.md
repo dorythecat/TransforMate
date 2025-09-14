@@ -66,10 +66,9 @@ with TMUDv14 (Both deprecated since v1.5.0).
 ### v1.2 specification (Introduced in v2.2.0)
 This revision includes one change from v1.1.
 
-To allow for all of the modifiers to include commas, all separators will be
-prefixed with a backslash (`\`), and suffixed with a percent sign (`%`). In
-this way, the string will be properly escaped, and the chance of confusion
-with modifier content becomes minimal.
+To allow for all the modifiers to include commas, all separators will be
+suffixed with a percent sign (`%`). In this way, the string will be properly
+escaped, ensuring the chance of confusion with modifier content becomes minimal.
 
 ### v1.1 specification (Introduced in v2.0.0)
 This revision includes two changes from v1.0.
