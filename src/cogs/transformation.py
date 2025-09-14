@@ -493,6 +493,7 @@ class Transformation(commands.Cog):
                     await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
                     return
 
+        channel_id = str(ctx.channel.id)
         if utils.is_transformed(user, ctx.guild):
             if channel_id in data:
                 data = data[channel_id]
