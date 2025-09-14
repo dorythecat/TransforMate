@@ -586,7 +586,7 @@ def transform_text(data: dict, original: str) -> str:
 
     if data['stutter'] > 0:
         for i in range(len(words)):
-            if words[i].startswith("http"):
+            if words[i].startswith("http") or words[i] not in "abcdefghijklmnopqrstuvwxyz":
                 continue
 
             if random.randint(0, 100) <= int(data['stutter']):
