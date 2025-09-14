@@ -23,6 +23,9 @@ class Roulette(commands.Cog):
                               'Subscribe to the Patreon to remove this limit!')
             return
 
+        if name in utils.get_roulettes(ctx.guild):
+            await ctx.respond(f'Roulette "{name}" already exists!')
+
         if await utils.is_blocked(ctx):
             return
 
@@ -44,6 +47,10 @@ class Roulette(commands.Cog):
             sure = await self.bot.wait_for("message", check=lambda m: m.author == ctx.author)
             if sure.content != "YES":
                 await ctx.respond("Cancelling!")
+
+        if name not in utils.get_roulettes(ctx.guild):
+            await ctx.respond(f'Roulette "{name}" does not exist!')
+            return
 
         utils.remove_roulette(name, ctx.guild)
         await ctx.respond(f'Roulette "{name}" has been removed!')
