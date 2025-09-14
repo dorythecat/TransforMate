@@ -1,3 +1,9 @@
+## v2.2.1
+- Fixed a few minor bugs, and an undocumented bug by which people
+  would not properly get tfed randomly.
+
+---
+
 ## v2.2.0
 - Fixed [#55](https://github.com/dorythecat/TransforMate/issues/55)
 - Fixed [#61](https://github.com/dorythecat/TransforMate/issues/61)
