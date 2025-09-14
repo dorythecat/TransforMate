@@ -756,7 +756,7 @@ def encode_tsf(data: dict, version: int) -> str:
         raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
 
     # Basic stuff
-    output = "1;" # TSF v1(.2)
+    output = "1\\;%" # TSF v1(.2)
     output += data['into'] + "\\;%"
     output += data['image_url'] + "\\;%"
 
