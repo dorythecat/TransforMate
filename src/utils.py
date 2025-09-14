@@ -1032,6 +1032,8 @@ def get_roulettes(guild: discord.Guild | int) -> list[str]:
     """
 
     # We remove the ".json" from the end of the files
+    if not os.path.exists(f"{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}"):
+        return []
     return [item[:-5] for item in os.listdir(f"{CACHE_PATH}/roulette/{guild if type(guild) is int else guild.id}")]
 
 
@@ -1071,8 +1073,8 @@ async def is_blocked(ctx: discord.ApplicationContext,
     if data != {} and data['version'] != 16:
         data = data[str(ctx.guild.id)]
     user_data = load_tf(user) if user is not None else {}
-    if data != {} and user_data['version'] != 16:
-        user_data = user_data[str(ctx.guild.id)]
+    if data != {} and 'version' in user_data and user_data['version'] != 16:
+            user_data = user_data[str(ctx.guild.id)]
     transformed_data = load_transformed(ctx.guild)
 
     if data == {} or transformed_data == {}:
