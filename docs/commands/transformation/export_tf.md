@@ -63,7 +63,7 @@ with TMUDv14 (Both deprecated since v1.5.0).
     be kept as an archive for future reference, with the expected behavior when
     importing said versions of TSF data.
 
-### v1.1 specification (Not yet introduced)
+### v1.1 specification (çIntroduced in v2.0.0)
 This revision includes two changes from v1.0.
 
 The first of these has to do with how the version number is indicated. Instead of
