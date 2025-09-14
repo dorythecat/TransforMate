@@ -475,6 +475,9 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"You can't transform {user.mention} in this channel!"
                                   f"They have blocked the bot here!", ephemeral=True)
                 return
+            if str(ctx.user.id) in data['blocked_users']:
+                await ctx.respond(f"{user.mention} has blocked you from transforming them!", ephemeral=True)
+                return
 
             if transformed_data != {}:
                 # Blocked channels (server)
@@ -489,6 +492,27 @@ class Transformation(commands.Cog):
                 if str(user.id) in transformed_data['blocked_users']:
                     await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
                     return
+
+        if utils.is_transformed(user, ctx.guild):
+            if channel_id in data:
+                data = data[channel_id]
+            elif 'all' in data:
+                data = data['all']
+            elif transformed_data != {} and transformed_data['affixes']:
+                data = { 'claim': 0 }  # Empty data so we can do multiple tfs
+            elif data == {}:
+                # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+                data = { 'claim': 0 }
+            else:
+                await ctx.respond(f"{user.mention} is already transformed at the moment!")
+                return
+            if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
+                if ctx.author.name != user.name:
+                    await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
+                                      f"{ctx.guild.get_member(int(data['claim'])).mention}!")
+                    return
+                await ctx.respond(f"Your master can't allow you to transform, at least for now...")
+                return
 
         await ctx.respond(f"Please send the saved transformation you want to apply to {user.mention}?"
                           f"(Send CANCEL to cancel)")
