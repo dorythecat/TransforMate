@@ -144,7 +144,7 @@ def write_tf(user: discord.User | discord.Member | int,
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or data['version'] != CURRENT_TMUD_VERSION:
-        if data != {} and data['transformed_by']: # Translate from v15 to v15.1
+        if data != {} and 'transformed_by' in data and data['transformed_by']: # Translate from v15 to v15.1
             data['transformed_by'] = int(data['transformed_by'])
         data['version'] = CURRENT_TMUD_VERSION
     transformed_data = load_transformed(guild)
