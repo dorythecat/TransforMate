@@ -816,7 +816,7 @@ def decode_tsf(tsf_string: str) -> dict:
     """
 
     sep = ";"
-    if tsf_string[0:4] == "1;%": # v1.2
+    if tsf_string[0:3] == "1;%": # v1.2
         sep = ";%"
 
     tsf_data = tsf_string.split(sep)
