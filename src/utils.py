@@ -12,6 +12,7 @@ from config import CACHE_PATH, BLOCKED_USERS, BLOCKED_SERVERS
 
 # TODO: https://github.com/dorythecat/TransforMate/issues/31
 # TODO: https://github.com/dorythecat/TransforMate/issues/40
+# TODO: https://github.com/dorythecat/TransforMate/issues/52
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
@@ -144,8 +145,8 @@ def write_tf(user: discord.User | discord.Member | int,
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or data['version'] != CURRENT_TMUD_VERSION:
-        if data != {} and data[guild_id] and data[guild_id]['blocked_users']: # Translate to latest version
-            del data[guild_id]['blocked_users']
+        if data != {} and 'transformed_by' in data and data['transformed_by']: # Translate from v15 to v15.1
+            data['transformed_by'] = int(data['transformed_by'])
         data['version'] = CURRENT_TMUD_VERSION
         data['blocked_users'] = []
     block_user = block_user if type(block_user) in [int, NoneType] else block_user.id
@@ -760,9 +761,9 @@ def encode_tsf(data: dict, version: int) -> str:
         raise ValueError("encode_tsf() only supports TMUDv15 and TMUDv16, at the moment!")
 
     # Basic stuff
-    output = "1;" # TSF v1(.2)
-    output += data['into'] + "\\;%"
-    output += data['image_url'] + "\\;%"
+    output = "1;%" # TSF v1(.2)
+    output += data['into'] + ";%"
+    output += data['image_url'] + ";%"
 
     # Booleans
     boolean_number = 0
@@ -770,42 +771,42 @@ def encode_tsf(data: dict, version: int) -> str:
     boolean_number += 2 if data['small'] else 0
     boolean_number += 4 if data['hush'] else 0
     boolean_number += 8 if data['backwards'] else 0
-    output += str(hex(boolean_number))[2:] + "\\;%"
+    output += str(hex(boolean_number))[2:] + ";%"
 
     # "Easy Stuff"
-    output += str(data['stutter']) + "\\;%"
-    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + "\\;%"
-    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + "\\;%"
-    output += (data['bio'] if data['bio'] else "") + "\\;%"
+    output += str(data['stutter']) + ";%"
+    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";%"
+    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";%"
+    output += (data['bio'] if data['bio'] else "") + ";%"
 
     # Prefix
-    output += "1\\;%" if data['prefix']['active'] else "0\\;%"
-    output += ("\\,%".join([key + "\\|%" + str(value) for key, value in data['prefix']['contents'].items()])
-               if data['prefix']['active'] else "") + "\\;%"
+    output += "1;%" if data['prefix']['active'] else "0;%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['prefix']['contents'].items()])
+               if data['prefix']['active'] else "") + ";%"
 
     # Suffix
-    output += "1\\;%" if data['suffix']['active'] else "0\\;%"
-    output += ("\\,%".join([key + "\\|%" + str(value) for key, value in data['suffix']['contents'].items()])
-               if data['suffix']['active'] else "") + "\\;%"
+    output += "1;%" if data['suffix']['active'] else "0;%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['suffix']['contents'].items()])
+               if data['suffix']['active'] else "") + ";%"
 
     # Sprinkle
-    output += "1\\;%" if data['sprinkle']['active'] else "0\\;%"
-    output += ("\\,%".join([key + "\\|%" + str(value) for key, value in data['sprinkle']['contents'].items()])
-               if data['sprinkle']['active'] else "") + "\\;%"
+    output += "1;%" if data['sprinkle']['active'] else "0;%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['sprinkle']['contents'].items()])
+               if data['sprinkle']['active'] else "") + ";%"
 
     # Muffle
-    output += "1\\;%" if data['muffle']['active'] else "0\\;%"
-    output += ("\\,%".join([key + "\\|%" + str(value) for key, value in data['muffle']['contents'].items()])
-               if data['muffle']['active'] else "") + "\\;%"
+    output += "1;%" if data['muffle']['active'] else "0;%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['muffle']['contents'].items()])
+               if data['muffle']['active'] else "") + ";%"
 
     # Alt Muffle
-    output += "1\\;%" if data['alt_muffle']['active'] else "0\\;%"
-    output += ("\\,%".join([key + "\\|%" + str(value) for key, value in data['alt_muffle']['contents'].items()])
-               if data['alt_muffle']['active'] else "") + "\\;%"
+    output += "1;%" if data['alt_muffle']['active'] else "0;%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['alt_muffle']['contents'].items()])
+               if data['alt_muffle']['active'] else "") + ";%"
 
     # Censor
-    output += "1\\;%" if data['censor']['active'] else "0\\;%"
-    output += ("\\,%".join([key + "\\|%" + value for key, value in data['censor']['contents'].items()])
+    output += "1;%" if data['censor']['active'] else "0;%"
+    output += (",%".join([key + "|%" + value for key, value in data['censor']['contents'].items()])
                if data['censor']['active'] else "")
 
     return output
@@ -820,8 +821,8 @@ def decode_tsf(tsf_string: str) -> dict:
     """
 
     sep = ";"
-    if tsf_string[0:4] == "1\\;%": # v1.2
-        sep = "\\;%"
+    if tsf_string[0:3] == "1;%": # v1.2
+        sep = ";%"
 
     tsf_data = tsf_string.split(sep)
     version = int(tsf_data[0])
@@ -872,11 +873,11 @@ def decode_tsf(tsf_string: str) -> dict:
         }
         if not data[modifier]['active']:
             continue
-        modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else "\\,%")
+        modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else ",%")
         for mod in modifier_data:
             if mod == "":
                 continue
-            key, value = mod.split("|" if sep == ";" else "\\|%")
+            key, value = mod.split("|" if sep == ";" else "|%")
             data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
 
     return data
