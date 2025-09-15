@@ -653,7 +653,7 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
                                                                                dict | None,
                                                                                discord.User | discord.Member | None]:
     if await is_blocked(ctx, user):
-        return
+        return False, None, None
     if user is None:
         user = ctx.author
     if not is_transformed(user, ctx.guild, channel):
