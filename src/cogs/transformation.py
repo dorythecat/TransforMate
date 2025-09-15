@@ -396,43 +396,6 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
 
-        # Blocked users (globally)
-        if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
-            return
-        if user.id in BLOCKED_USERS:
-            await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
-            return
-
-        data = utils.load_tf(user, ctx.guild)
-        transformed_data = utils.load_transformed(ctx.guild)
-
-        # Blocked channels (user)
-        if data != {}:
-            if str(ctx.channel.id) in data['blocked_channels']:
-                await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
-                return
-            if str(ctx.user.id) in data['blocked_users']:
-                await ctx.respond(f"{user.mention} has blocked you from transforming them!", ephemeral=True)
-                return
-
-            if transformed_data != {}:
-                # Blocked channels (server)
-                if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
-                    return
-
-                # Blocked users (server)
-                if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
-                    return
-                if str(user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
-                    return
-
         channel_id = str(ctx.channel.id)
         if utils.is_transformed(user, ctx.guild):
             if channel_id in data:
