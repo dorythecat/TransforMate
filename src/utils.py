@@ -544,9 +544,9 @@ def transform_text(data: dict, original: str) -> str:
             if random.randint(0, 100) <= int(data['alt_muffle']['contents'][alt_muffle]):
                 return alt_muffle
 
-    transformed = original
-    transformed = clear_apple_marks(transformed)
-    words = transformed.split(" ")
+    # Clear apple marks
+    transformed: str = original.replace("’", "'").replace("“", "\"").replace("”", "\"")
+    words: list[str] = transformed.split(" ")
 
     for i in range(len(words)):
         # Force lowercase and strip punctuation
@@ -737,12 +737,6 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
         if data['into'] == message.author.name:
             return int(tfee), data
     return None, None
-
-
-def clear_apple_marks(text: str) -> str:
-    text = text.replace("’", "'")
-    text = text.replace("“", "\"")
-    return text.replace("”", "\"")
 
 # TSF Utilities
 # See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
