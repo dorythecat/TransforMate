@@ -891,7 +891,7 @@ def check_url(url: str) -> str:
 
     :return: A string containing a usable URL, blank if the given URL is invalid and con't be automatically fixed.
     """
-    if not re.match(r'(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)', url):
+    if not re.match(r'(http(s)?://.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)', url):
         return ""
     if "?" in url:
         url = url[:url.index("?")]
@@ -939,7 +939,7 @@ def remove_roulette(name: str,
 def load_roulette(name: str,
                   guild: discord.Guild | int) -> dict:
     """
-    Loads the data for a given roulette.
+    Loads the data for given roulette.
 
     :param name: The name of the roulette.
     :param guild: The Discord guild object or server ID to load the roulette from.
