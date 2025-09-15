@@ -20,7 +20,7 @@ string has to offer.
 ??? info
     Creates roulette for the server the command is executed in.
 
-- [`/roulette remove <name>`](remove.md)
+- [`/roulette remove <sure> <name>`](remove.md)
 ??? info
     Deletes the roulette with the given name.
     
