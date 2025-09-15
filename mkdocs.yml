@@ -24,6 +24,7 @@ nav:
           - Index: commands/roulette/index.md
           - /roulette create: commands/roulette/create.md
           - /roulette remove: commands/roulette/remove.md
+          - /roulette add_item: commands/roulette/add_item.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
           - /clear all_fields: commands/set_and_clear/all_fields.md
