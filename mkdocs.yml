@@ -27,6 +27,7 @@ nav:
           - /roulette add_item: commands/roulette/add_item.md
           - /roulette remove_item: commands/roulette/remove_item.md
           - /roulette roll: commands/roulette/roll.md
+          - /roulette info: commands/roulette/info.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
           - /clear all_fields: commands/set_and_clear/all_fields.md
