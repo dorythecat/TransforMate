@@ -15,32 +15,32 @@ string has to offer.
     environment variable. In the Official server, all patreon supporters can select a
     number of servers to override the limit, and how many they can do so for depends on
     their Patreon tier.
-~~~~
-- [`/roulette create <name>`]
+
+- [`/roulette create <name>`](create.md)
 ??? info
     Creates roulette for the server the command is executed in.
 
-- [`/roulette remove <name>`]
+- [`/roulette remove <name>`](remove.md)
 ??? info
     Deletes the roulette with the given name.
     
     !!! warning
         This will delete all the items in the roulette, and they will be lost forever!
 
-- [`/roulette add <item> <name>`]
+- [`/roulette add <item> <name>`](add.md)
 ??? info
     Adds an item to the roulette. If no item parameter is provided, it will ask for a
-    string or file to be sent to fulfill said parameter.
+    string or file to be sent to fulfill the parameter.
 
-- [`/roulette remove <item> <name>`]
+- [`/roulette remove <item> <name>`](remove.md)
 ??? info
     Removes an item from the roulette.
 
-- [`/roulette roll <name>`]
+- [`/roulette roll <name>`](roll.md)
 ??? info
     Rolls the given roulette and applies the transformation, removing it from the list
     of items afterward.
 
-- [`/roulette info <name>`]
+- [`/roulette info <name>`](info.md)
 ??? info
     Lists the roulette's information, including the items inside of it.
