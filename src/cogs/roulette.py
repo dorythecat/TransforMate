@@ -100,7 +100,7 @@ class Roulette(commands.Cog):
     async def remove_item(self,
                           ctx: discord.ApplicationContext,
                           item: discord.Option(discord.SlashCommandOptionType.string,
-                                               description="The name of the item to be removed.") = None,
+                                               description="The name of the item to be removed."),
                           name: discord.Option(discord.SlashCommandOptionType.string,
                                                description="The name of the roulette to add an item to.") = "Default") -> None:
         if await utils.is_blocked(ctx):
