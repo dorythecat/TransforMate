@@ -27,12 +27,12 @@ string has to offer.
     !!! warning
         This will delete all the items in the roulette, and they will be lost forever!
 
-- [`/roulette add <item> <name>`](add.md)
+- [`/roulette add_item <item> <name>`](add_item.md)
 ??? info
     Adds an item to the roulette. If no item parameter is provided, it will ask for a
     string or file to be sent to fulfill the parameter.
 
-- [`/roulette remove <item> <name>`](remove.md)
+- [`/roulette remove_item <item> <name>`](remove_item.md)
 ??? info
     Removes an item from the roulette.
 
