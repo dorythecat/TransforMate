@@ -15,7 +15,7 @@ string has to offer.
     environment variable. In the Official server, all patreon supporters can select a
     number of servers to override the limit, and how many they can do so for depends on
     their Patreon tier.
-
+~~~~
 - [`/roulette create <name>`]
 ??? info
     Creates roulette for the server the command is executed in.

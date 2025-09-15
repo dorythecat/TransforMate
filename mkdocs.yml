@@ -20,6 +20,8 @@ nav:
           - /safeword: commands/transformation/safeword.md
           - /export_tf: commands/transformation/export_tf.md
           - /import_tf: commands/transformation/import_tf.md
+      - Roulette:
+          - Index: commands/roulette/index.md
       - Set and Clear:
           - Index: commands/set_and_clear/index.md
           - /clear all_fields: commands/set_and_clear/all_fields.md
