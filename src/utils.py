@@ -1075,11 +1075,11 @@ async def is_blocked(ctx: discord.ApplicationContext,
         data = data[str(ctx.guild.id)]
     user_data = load_tf(user) if user is not None else {}
     if data != {} and 'version' in user_data and user_data['version'] != 16:
-            user_data = user_data[str(ctx.guild.id)]
+        user_data = user_data[str(ctx.guild.id)]
     transformed_data = load_transformed(ctx.guild)
 
     if data == {} or transformed_data == {}:
-        return False
+        return False # No data, no block
 
     # Blocked users (user)
     if user is not None and user.id in data['blocked_users']:
