@@ -396,8 +396,6 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
 
-<<<<<<< HEAD
-=======
         # Blocked users (globally)
         if ctx.user.id in BLOCKED_USERS:
             await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
@@ -457,7 +455,6 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
 
->>>>>>> main
         await ctx.respond(f"Please send the saved transformation you want to apply to {user.mention}?"
                           f"(Send CANCEL to cancel)")
         response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
