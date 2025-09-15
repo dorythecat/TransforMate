@@ -5,11 +5,11 @@ from a simple chance game to a complex way of gambling away your identity.
 The roulette works using TSF strings, so it's compatible with all of the features a TSF
 string has to offer.
 
-!!! info
+!!! note
     All the commands which take a `name` parameter default to giving the roulette the
     name "Default"
 
-!!! info
+!!! warning
     You can only create one roulette, with up to 30 items, per server. This limit can be
     overridden by the bot's owner by adding the server ID to the `PATREON_SERVERS`
     environment variable. In the Official server, all patreon supporters can select a
