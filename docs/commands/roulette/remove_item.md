@@ -10,8 +10,9 @@
 ---
 
 ## Usages
-The command is used to remove an existing roulette in the server it is executed
-in. The command will fail if no roulette with the given name exists.
+The command is used to remove an existing roulette item from a roulette in the
+server it is executed in. The command will fail if no roulette with the given name
+exists, or if no item with the given name exists in the roulette.
 
 ---
 
