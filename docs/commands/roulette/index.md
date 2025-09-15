@@ -1,0 +1,46 @@
+The "roulette" commands allow you to set up, manage, and use roulettes, which are a way
+of randomly selecting a transformation with a varying chance. They can be used for things
+from a simple chance game to a complex way of gambling away your identity.
+
+The roulette works using TSF strings, so it's compatible with all of the features a TSF
+string has to offer.
+
+!!! info
+    All the commands which take a `name` parameter default to giving the roulette the
+    name "Default"
+
+!!! info
+    You can only create one roulette, with up to 30 items, per server. This limit can be
+    overridden by the bot's owner by adding the server ID to the `PATREON_SERVERS`
+    environment variable. In the Official server, all patreon supporters can select a
+    number of servers to override the limit, and how many they can do so for depends on
+    their Patreon tier.
+
+- [`/roulette create <name>`]
+??? info
+    Creates roulette for the server the command is executed in.
+
+- [`/roulette remove <name>`]
+??? info
+    Deletes the roulette with the given name.
+    
+    !!! warning
+        This will delete all the items in the roulette, and they will be lost forever!
+
+- [`/roulette add <item> <name>`]
+??? info
+    Adds an item to the roulette. If no item parameter is provided, it will ask for a
+    string or file to be sent to fulfill said parameter.
+
+- [`/roulette remove <item> <name>`]
+??? info
+    Removes an item from the roulette.
+
+- [`/roulette roll <name>`]
+??? info
+    Rolls the given roulette and applies the transformation, removing it from the list
+    of items afterward.
+
+- [`/roulette info <name>`]
+??? info
+    Lists the roulette's information, including the items inside of it.

@@ -13,9 +13,14 @@ provided for all uses. `[parameter]` denotes a parameter that is required, and t
 command won't work without it.
 
 - ## [Transformation](transformation/index.md)
-  > These commands allow us to transform ourselves and others, and pay around with
-    those transformations, without altering any modifiers. This also includes the
-    commands to save and load tf files and srings
+  > These commands allow us to transform ourselves and others; and play around with
+    those transformations without altering any modifiers. This also includes the
+    commands to save and load tf files and strings.
+
+- ## [Roulette](roulette/index.md)
+  > These commands allow us to set up and use one (or more, with a Patreon subscription)
+    roulettes, which are a way to randomly assign a transformation from a chosen list of
+    possibilities.
 
 - ## [Set and Clear](set_and_clear/index.md)
   > These commands allow us to configure, alter, and clear the settings a user has,
