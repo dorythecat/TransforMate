@@ -1,5 +1,6 @@
 ## v2.3.0
 - Added [`/block category`](commands/block/category.md) command.
+- Added [`/admin block_category`](commands/admin/block_category.md) command.
 
 ---
 
