@@ -539,6 +539,9 @@ class Transformation(commands.Cog):
         new_data['eternal'] = False
 
         data = utils.load_tf(user, ctx.guild)
+        if 'all' in data: # Make sure to keep existing claims and eternal status
+            new_data['claim'] = data['all']['claim']
+            new_data['eternal'] = data['all']['eternal']
         data['all'] = new_data
         utils.write_tf(user, ctx.guild, None, data)
 
