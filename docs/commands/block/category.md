@@ -1,7 +1,7 @@
 ## Syntax
 `/block channel <category>`
 
-- `category`: A valid Discord Channel. If not provided, defaults to the current channel.
+- `category`: A valid Discord Channel Category. If not provided, defaults to the current channel category.
 
 ---
 
