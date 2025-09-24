@@ -21,7 +21,7 @@ you're transformed globally, your messages won't be altered on a blocked channel
 flowchart TD
     CommandReceived[Command Received] --> CheckChannel[channel parameter provided]
     CheckChannel --> |False| AssignChannel[[channel = ctx.channel]]
-    CheckChannel --> |True| BlockChannel[[Block the selected channel]]
+    CheckChannel --> |True| BlockChannel[[Block or unblock the selected channel]]
     AssignChannel --> BlockChannel
     BlockChannel --> SendAnswer[[Send answer]]
 ```

@@ -20,3 +20,9 @@ want to be interacting with the bot, at a personal level.
         Remember: blocking another user only blocks them in the server you're
         currently on, not on all servers.
     They won't be able to interact with you through the bot in any manner.
+
+- [`/block category <category>`](category.md)
+??? info
+    Block a specific channel category for you personally. Nobody, not even admins,
+    will be able tp transform you on said channel category. If you're transformed
+    on the server, it will not show up on blocked channels.

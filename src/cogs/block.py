@@ -30,6 +30,19 @@ class Block(commands.Cog):
         word = "unblocked" if user.id in utils.load_tf(ctx.user, ctx.guild)['blocked_users'] else "blocked"
         await ctx.respond(f"{user.mention} has been {word} from interacting with you!")
 
+    @block_command.command(description="Set a channel category where you just wanna be yourself")
+    async def category(self,
+                       ctx: discord.ApplicationContext,
+                       category: discord.CategoryChannel = None) -> None:
+        if category is None:
+            category = ctx.channel.category
+        for channel in category.channels:
+            utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
+        word = "yourself" if str(category.channels[0].id) in utils.load_tf(ctx.user, ctx.guild)[
+            'blocked_channels'] else "transformed"
+        category_word = "this channel" if category == ctx.channel.category else category.mention
+        await ctx.respond(f"You will now be {word} in {category_word}!")
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Block(bot))
