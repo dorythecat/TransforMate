@@ -3,6 +3,8 @@
 - Added [`/admin block_category`](commands/admin/block_category.md) command.
 - Messages can now be escaped with `\`.
 - Fixed a bug where censors would not work properly with special characters.
+- Fixed a bug where claimed users would lose that status upon having a transformation
+  imported upon them.
 
 ---
 
