@@ -23,6 +23,11 @@ up the server logs and settings.
 ??? info
     Blocks a user from using the bot inside the server.
 
+- [`/admin block_category <category>`](block_category.md)
+??? info
+    Block a channel category from being used by anyone in the server. Globally
+    transformed users won't have any messages altered on these channel categories.
+
 - [`/admin list_blocked_channels`](list_blocked_channels.md)
 ??? info
     List all the globally blocked channels on the server.
