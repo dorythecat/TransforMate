@@ -554,7 +554,7 @@ def transform_text(data: dict, original: str) -> str:
         # Censor will change a word for another, "censoring" it
         if data['censor']['active']:
             raw_word = words[i].lower()
-            word = raw_word.strip("*.,!?\"'()[]{}<>:;")
+            word = ''.join(e for e in raw_word if e.isalnum()) # Removed special characters
 
             if word in data['censor']['contents']:
                 words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
