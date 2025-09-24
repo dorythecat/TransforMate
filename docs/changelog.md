@@ -1,3 +1,8 @@
+## v2.3.0
+- Added [`/block category`](commands/block/category.md) command.
+
+---
+
 ## v2.2.1
 - Fixed a few minor bugs, and an undocumented bug by which people
   would not properly get tfed randomly.
