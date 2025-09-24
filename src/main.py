@@ -109,8 +109,7 @@ async def on_message(message: discord.Message) -> None:
         return
 
     # Check if user is transformed
-    if (not utils.is_transformed(message.author, message.guild, message.channel) or
-        message.content.strip().startswith('(')):
+    if not utils.is_transformed(message.author, message.guild, message.channel):
         return
 
     data = utils.load_tf(message.author, message.guild)
