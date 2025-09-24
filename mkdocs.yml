@@ -51,6 +51,7 @@ nav:
           - Index: commands/block/index.md
           - /block channel: commands/block/channel.md
           - /block user: commands/block/user.md
+          - /block category: commands/block/category.md
       - Admin:
           - Index: commands/admin/index.md
           - /admin killhooks: commands/admin/killhooks.md
