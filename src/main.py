@@ -109,8 +109,8 @@ async def on_message(message: discord.Message) -> None:
         return
 
     # Check if user is transformed
-    if not utils.is_transformed(message.author, message.guild, message.channel) or \
-            message.content.strip().startswith('('):
+    if (not utils.is_transformed(message.author, message.guild, message.channel) or
+        message.content.strip().startswith('(')):
         return
 
     data = utils.load_tf(message.author, message.guild)
@@ -119,7 +119,8 @@ async def on_message(message: discord.Message) -> None:
 
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
-    if str(message.channel.id) in (data['blocked_channels'] or utils.load_transformed(message.guild)['blocked_channels']):
+    if (str(message.channel.id) in (data['blocked_channels'] or
+        utils.load_transformed(message.guild)['blocked_channels'])):
         return
 
     # If the message contains stickers, we just don't process it
