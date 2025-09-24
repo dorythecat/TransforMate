@@ -20,7 +20,7 @@ class Admin(commands.Cog):
                 await wh.delete()
         await ctx.respond("All webhooks have been deleted! The bot will regenerate them as needed.", ephemeral=True)
 
-    @admin_command.command(description="(Un)block a channel from being users being transformed in")
+    @admin_command.command(description="(Un)block a channel from having users being transformed in")
     @discord.default_permissions(administrator=True)
     async def block_channel(self,
                             ctx: discord.ApplicationContext,
@@ -41,6 +41,19 @@ class Admin(commands.Cog):
         data = utils.load_transformed(ctx.guild)['blocked_users']
         word = "blocked" if str(user.id) in data else "unblocked"
         await ctx.respond(f"{user.mention} has been {word}!", ephemeral=True)
+
+    @admin_command.command(description="(Un)block a channel category from having users being transformed in this server")
+    @discord.default_permissions(administrator=True)
+    async def block_category(self,
+                             ctx: discord.ApplicationContext,
+                             category: discord.Option(discord.CategoryChannel) = None) -> None:
+        if category is None:
+            category = ctx.channel.category
+        for channel in category.channels:
+            utils.write_transformed(ctx.guild, block_channel=channel)
+        data = utils.load_transformed(ctx.guild)['blocked_channels']
+        word = "blocked" if str(category.channels[0].id) in data else "unblocked"
+        await ctx.respond(f"{category.mention} has been {word}!", ephemeral=True)
 
     @admin_command.command(description="List all blocked channels")
     @discord.default_permissions(administrator=True)
