@@ -148,8 +148,8 @@ class Clear(commands.Cog):
             if censor not in data['censor']['contents']:
                 await ctx.respond(f"{user.mention} is not censored with the word \"{censor}\"!")
                 return
-            data['censor']['contents'].remove(censor)
-            utils.write_tf(user, ctx.guild, censor=data['censor'])
+            censor = "$/-" + censor
+            utils.write_tf(user, ctx.guild, censor=censor)
             return
         utils.write_tf(user, ctx.guild, censor="")
         await ctx.respond(f"{user.mention} will no longer have a censor set!")

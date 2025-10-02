@@ -2,6 +2,7 @@
 - Fixed [#65](https://github.com/dorythecat/TransforMate/issues/65)
 - Fixed [#67](https://github.com/dorythecat/TransforMate/issues/67)
 - Fixed [#68](https://github.com/dorythecat/TransforMate/issues/68)
+- Fixed [#69](https://github.com/dorythecat/TransforMate/issues/69)
 - Fixed a bug where the bot would not properly work on Windows systems.
 - Fixed a few minor bugs.
 
