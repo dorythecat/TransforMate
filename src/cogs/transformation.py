@@ -132,6 +132,7 @@ class Transformation(commands.Cog):
         transformed_data = utils.load_transformed(ctx.guild)
         if transformed_data == {}:
             utils.write_transformed(ctx.guild)
+            transformed_data = utils.load_transformed(ctx.guild)
         # Blocked channels (server)
         if channel_id in transformed_data['blocked_channels']:
             await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
