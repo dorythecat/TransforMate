@@ -112,6 +112,10 @@ async def on_message(message: discord.Message) -> None:
     if not utils.is_transformed(message.author, message.guild, message.channel):
         return
 
+    # Check if user is using OOC mode
+    if message.startswith("(") or message.startswith("\\"):
+        return
+
     data = utils.load_tf(message.author, message.guild)
     if data == {}:  # User isn't transformed
         return

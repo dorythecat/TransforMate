@@ -530,8 +530,7 @@ def remove_server_from_transformed(guild: discord.Guild | int) -> None:
 def transform_text(data: dict, original: str) -> str:
     # Ignore italics and bold messages
     if ((original.startswith("*") and original.endswith("*")) or
-        (original.startswith("_") and original.endswith("_")) or
-        original.startswith("(") or original.startswith("\\")):
+        (original.startswith("_") and original.endswith("_"))):
         return original
 
     if data['alt_muffle']['active']:
