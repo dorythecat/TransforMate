@@ -44,6 +44,11 @@ async def transform_function(ctx: discord.ApplicationContext,
             new_data['all']['into'] = into
         if image_url:
             new_data['all']['image_url'] = image_url
+        new_data['all']['transformed_by'] = ctx.author.id
+        new_data['all']['proxy_prefix'] = brackets[0] if brackets is not None else None
+        new_data['all']['proxy_suffix'] = brackets[1] if brackets is not None else None
+        new_data['all']['claim'] = 0
+        new_data['all']['eternal'] = False
         utils.write_tf(user, ctx.guild, new_data=new_data)
         utils.write_transformed(ctx.guild, user, channel)
         return True

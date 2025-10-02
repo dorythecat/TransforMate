@@ -1,3 +1,8 @@
+## v2.3.1
+- Fixed [#68](https://github.com/dorythecat/TransforMate/issues/68)
+
+---
+
 ## v2.3.0 (Blockade)
 - Added [`/block category`](commands/block/category.md) command.
 - Added [`/admin block_category`](commands/admin/block_category.md) command.
