@@ -243,7 +243,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
     tfee, data = utils.check_message(reaction.message)
     if tfee is None:
         return
-    await reaction.remove(user)  # Remove the reaction from the message
+    await reaction.remove(user) # Remove the reaction from the message
 
     # Message related reactions
     if str(reaction.emoji) in ["❓", "❔"]:
