@@ -116,7 +116,7 @@ async def on_message(message: discord.Message) -> None:
         return
 
     # Check if user is using OOC mode
-    if message.startswith("(") or message.startswith("\\"):
+    if message.content.startswith("(") or message.content.startswith("\\"):
         return
 
     data = utils.load_tf(message.author, message.guild)
