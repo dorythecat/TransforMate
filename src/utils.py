@@ -408,7 +408,7 @@ def write_transformed(guild: discord.Guild | int,
 
     data = load_transformed()
     if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
-        if int(data['version']) == 7:
+        if 'version' in data and int(data['version']) == 7:
             for server in data:
                 if server == 'version':
                     continue
