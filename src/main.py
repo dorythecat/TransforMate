@@ -4,7 +4,10 @@ import os
 # Make sure we're on the proper working directory
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
-os.chdir("/".join(dname.split("/")[:-1]))
+if os.name == "nt":
+    os.chdir("\\".join(dname.split("\\")[:-1]))
+else:
+    os.chdir("/".join(dname.split("/")[:-1]))
 
 from pathlib import Path
 
