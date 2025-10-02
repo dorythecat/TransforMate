@@ -1,4 +1,4 @@
-## v2.3.0
+## v2.3.0 (Blockade)
 - Added [`/block category`](commands/block/category.md) command.
 - Added [`/admin block_category`](commands/admin/block_category.md) command.
 - Messages can now be escaped with `\`.
