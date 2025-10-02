@@ -36,8 +36,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if copy is not None:
         new_data = utils.load_tf(copy, ctx.guild)
         if new_data == {} or new_data['all'] == {}:
-            await ctx.respond("That user can't be copied, since hey don't have any transformation available!")
-            return False
+            return await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel, brackets)
         if merge in [False, None]:
             new_data['all']['into'] += "឵឵ᅟ"
         if into:
@@ -186,11 +185,8 @@ class Transformation(commands.Cog):
             return
 
         if copy:
-            if not utils.is_transformed(copy, ctx.guild):
-                if await transform_function(ctx, user, into, image_url, channel, brackets, None, merge):
-                    await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
-            elif await transform_function(ctx, user, into, image_url, channel, brackets, copy, merge):
-                await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.name}"!')
+            if await transform_function(ctx, user, into, image_url, channel, brackets, copy, merge):
+                await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
             return
 
         await ctx.respond(f"What do we want to transform {user.mention} into? (Send CANCEL to cancel)")
