@@ -4,6 +4,7 @@
 - Fixed [#68](https://github.com/dorythecat/TransforMate/issues/68)
 - Fixed [#69](https://github.com/dorythecat/TransforMate/issues/69)
 - Fixed a bug where the bot would not properly work on Windows systems.
+- Made export_tf output be in code block format.
 - Fixed a few minor bugs.
 
 ---

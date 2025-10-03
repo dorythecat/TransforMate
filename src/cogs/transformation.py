@@ -449,7 +449,7 @@ class Transformation(commands.Cog):
                 print(f"{str(type(e))}: {e}")
             return
 
-        await ctx.respond(output)
+        await ctx.respond("```" + output + "```")
 
     @discord.slash_command(description="Import your saved transformations")
     async def import_tf(self,
