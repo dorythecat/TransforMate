@@ -730,6 +730,9 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
             continue
         data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
         if data['into'] == message.author.name:
+            # TODO: Make it so that this function returns all currently tfed users with this tf name
+            if load_transformed(message.guild)['transformed_users'][tfee] in [[], None]:
+                continue
             return int(tfee), data
     return None, None
 

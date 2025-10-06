@@ -6,6 +6,8 @@
 - Fixed [#69](https://github.com/dorythecat/TransforMate/issues/69)
 - Fixed a bug where the bot would not properly work on Windows systems.
 - Made export_tf output be in code block format.
+- Fixed a bug where the bot would not properly discern if a user was tfed or
+  not when using the "who is it" reaction
 - Fixed a few minor bugs.
 
 ---
