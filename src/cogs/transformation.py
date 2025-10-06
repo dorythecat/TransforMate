@@ -435,7 +435,7 @@ class Transformation(commands.Cog):
 
         if file:
             try:
-                with open("tf_cache", "w") as f:
+                with open("tf_cache", "w", encoding='utf-8') as f:
                     f.write(output)
             except OSError as e:
                 print(f"Error writing to file:")
@@ -528,7 +528,7 @@ class Transformation(commands.Cog):
         if response.attachments:
             await response.attachments[0].save(f"tf_cache")
             try:
-                with open("tf_cache") as f:
+                with open("tf_cache", encoding='utf-8') as f:
                     tsf_string = f.read()
                 os.remove("tf_cache")
             except OSError as e:
