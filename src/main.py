@@ -254,8 +254,8 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
 
     # Message related reactions
     if str(reaction.emoji) in ["❓", "❔"]:
-        await user.send(f"\"{reaction.message.author.name}\" is, in fact, {bot.get_user(tfee).mention}!\n"
-                        f"(Transformed by {bot.get_user(int(data['transformed_by'])).mention})")
+        await user.send(f"\"{reaction.message.author.name}\" is, in fact, <@!{tfee}>!\n"
+                        f"(Transformed by <@!{data['transformed_by']}>)")
         return
 
     if str(reaction.emoji) == "✏️":
