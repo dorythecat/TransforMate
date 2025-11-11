@@ -54,7 +54,6 @@ def load_tf(user: discord.User | discord.Member | int, guild: discord.Guild | in
 
     :return: A TMUD-compliant dictionary containing the user's TMUD data.
     """
-
     return load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
 
@@ -67,7 +66,6 @@ def get_data_version(user: discord.User | discord.Member | int) -> int:
 
     :return: An integer representing the version of the TMUD data of the user.
     """
-
     return int(load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')['version'])
 
 
@@ -349,7 +347,6 @@ def load_transformed(guild: discord.Guild | int | None = None) -> dict:
 
     :return: A dictionary containing the transformation data for a server, or, optionally, the entire server data file.
     """
-
     return load_file(f'{CACHE_PATH}/transformed.json',
                      guild if type(guild) in [int, NoneType] else guild.id)
 
@@ -377,7 +374,6 @@ def write_transformed(guild: discord.Guild | int,
 
     :return: The updated transformation data for the server.
     """
-
     data = load_transformed()
     if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
         if 'version' in data and int(data['version']) == 7:
@@ -454,7 +450,6 @@ def is_transformed(user: discord.User | discord.Member | int,
 
     :return: A boolean value indicating whether the user is transformed in the specified server or, optionally, channel.
     """
-
     data = load_transformed(guild)
     user_id = str(user if type(user) is int else user.id)
     if data == {} or user_id not in data['transformed_users'] or data['transformed_users'][user_id] in [[], None]:
@@ -475,7 +470,6 @@ def remove_transformed(user: discord.User | discord.Member | int,
 
     :return: This function does not return anything.
     """
-
     data = load_transformed()
     if not is_transformed(user, guild, channel):
         return
@@ -494,7 +488,6 @@ def remove_server_from_transformed(guild: discord.Guild | int) -> None:
 
     :return: This function does not return anything.
     """
-
     data = load_transformed()
     del data[str(guild if type(guild) is int else guild.id)]
     write_file(f'{CACHE_PATH}/transformed.json', data)
@@ -738,7 +731,6 @@ def encode_tsf(data: dict, version: int) -> str:
 
     :return: A TSF-compliant string.
     """
-
     if not version > 15:
         raise ValueError("encode_tsf() only supports TMUDv15 and up!")
 
@@ -793,7 +785,6 @@ def decode_tsf(tsf_string: str) -> dict:
 
     :return: A TMUD-compliant transformation data dict.
     """
-
     sep = ";%"
     if tsf_string[0] == "2": # v2.x
         tsf_data = tsf_string.split(";%")
@@ -900,7 +891,7 @@ def check_url(url: str) -> str:
 
     :return: A string containing a usable URL, blank if the given URL is invalid and con't be automatically fixed.
     """
-    if not re.match(r'(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)', url):
+    if not re.match(r'(http(s)?://.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)', url):
         return ""
     if "?" in url:
         url = url[:url.index("?")]
