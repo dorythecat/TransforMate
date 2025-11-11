@@ -134,35 +134,13 @@ async def on_message(message: discord.Message) -> None:
         await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
         return
 
-    found = False
-    if transformed_data['affixes']:
-        for d in data:
-            if d in ['blocked_channels', 'blocked_users']:
-                continue
-            original_d = d
-            d = d.split(' ')
-            if d[0] != "":
-                if not message.content.startswith(d[0]):
-                    continue
-                message.content = message.content[len(d[0]):]
-            if d[1] != "":
-                if not message.content.endswith(d[1]):
-                    continue
-                message.content = message.content[:-len(d[1])]
-            data = data[original_d]
-            found = True
-            break
-
-    # This means we either don't have affixes on, or that the message didn't contain them,
-    # so we can do the "usual" checks now
-    if not found:
-        tfed_channels = utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]
-        if str(message.channel.id) in data and tfed_channels:
-            data = data[str(message.channel.id)]
-        elif 'all' in data and tfed_channels:
-            data = data['all']
-        else:
-            return
+    tfed_channels = utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]
+    if str(message.channel.id) in data and tfed_channels:
+        data = data[str(message.channel.id)]
+    elif 'all' in data and tfed_channels:
+        data = data['all']
+    else:
+        return
 
     name = data['into']
     image_url = data['image_url']
