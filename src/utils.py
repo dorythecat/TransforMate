@@ -124,7 +124,7 @@ def write_tf(user: discord.User | discord.Member | int,
     :param small: A boolean indicating whether the text the transformed user writes should be made small.
     :param hush: A boolean indicating whether the text the transformed user writes should be hushed. (Discord censor)
     :param backwards: A boolean indicating whether the text the transformed user writes should be reversed.
-    :param censor: A string to censor.
+    :param censor: A regex string to censor.
     :param censor_replacement: What to replace the censored text with.
     :param sprinkle: A string to sprinkle randomly throughout the transformed user's text.
     :param muffle: A string that will replace random words on the user's text.
@@ -541,6 +541,12 @@ def transform_text(data: dict, original: str) -> str:
         if data['censor']['active']:
             raw_word = words[i].lower()
             word = ''.join(e for e in raw_word if e.isalnum()) # Removed special characters
+
+            if data['censor']['contents'][0] == "/": # It's a regex censor
+                pattern = re.compile(data['censor']['contents'])
+                if pattern.search(raw_word):
+                    words[i] = pattern.sub(data['censor']['contents'][pattern], raw_word)
+                    continue
 
             if word in data['censor']['contents']:
                 words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
