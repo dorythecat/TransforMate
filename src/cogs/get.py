@@ -18,16 +18,16 @@ class Get(commands.Cog):
         if not valid:
             return
         embed = utils.get_embed_base(f"Settings for {user.name}:")
-        embed.add_field(name="Prefix", value="Yes" if data['prefix']['active'] else "No")
-        embed.add_field(name="Suffix", value="Yes" if data['suffix']['active'] else "No")
+        embed.add_field(name="Prefix", value="Yes" if data['prefix'] != {} else "No")
+        embed.add_field(name="Suffix", value="Yes" if data['suffix'] != {} else "No")
         embed.add_field(name="Big Text", value="Yes" if data['big'] else "No")
         embed.add_field(name="Small Text", value="Yes" if data['small'] else "No")
         embed.add_field(name="Hush", value="Yes" if data['hush'] else "No")
         embed.add_field(name="Backwards", value="Yes" if data['backwards'] else "No")
-        embed.add_field(name="Censor", value="Yes" if data['censor']['active'] else "No")
-        embed.add_field(name="Sprinkle", value="Yes" if data['sprinkle']['active'] else "No")
-        embed.add_field(name="Muffle", value="Yes" if data['muffle']['active'] else "No")
-        embed.add_field(name="Alt Muffle", value="Yes" if data['alt_muffle']['active'] else "No")
+        embed.add_field(name="Censor", value="Yes" if data['censor'] != {} else "No")
+        embed.add_field(name="Sprinkle", value="Yes" if data['sprinkle'] != {} else "No")
+        embed.add_field(name="Muffle", value="Yes" if data['muffle'] != {} else "No")
+        embed.add_field(name="Alt Muffle", value="Yes" if data['alt_muffle'] != {} else "No")
         embed.add_field(name="Stutter", value=f"{data['stutter']}%")
         await ctx.respond(embed=embed)
 
@@ -51,13 +51,13 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-        if not data['censor']['active']:
+        if data['censor'] == {}:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
 
         desc = ""
-        for censor in data['censor']['contents']:
-            desc += f"**{censor}**: {data['censor']['contents'][censor]}\n\n"
+        for censor in data['censor']:
+            desc += f"**{censor}**: {data['censor'][censor]}\n\n"
         await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the sprinkles for the transformed user")
@@ -72,8 +72,8 @@ class Get(commands.Cog):
             return
 
         desc = ""
-        for sprinkle in data['sprinkle']['contents']:
-            desc += f"**{sprinkle}**: {data['sprinkle']['contents'][sprinkle]}%\n\n"
+        for sprinkle in data['sprinkle']:
+            desc += f"**{sprinkle}**: {data['sprinkle'][sprinkle]}%\n\n"
         await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the muffle for the transformed user")
@@ -86,14 +86,14 @@ class Get(commands.Cog):
 
         if data['muffle']:
             desc = ""
-            for muffle in data['muffle']['contents']:
-                desc += f"**{muffle}**: {data['muffle']['contents'][muffle]}%\n\n"
+            for muffle in data['muffle']:
+                desc += f"**{muffle}**: {data['muffle'][muffle]}%\n\n"
             await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc[:-2]))
 
         if data['alt_muffle']:
             desc = ""
-            for alt_muffle in data['alt_muffle']['contents']:
-                desc += f"**{alt_muffle}**: {data['alt_muffle']['contents'][alt_muffle]}%\n\n"
+            for alt_muffle in data['alt_muffle']:
+                desc += f"**{alt_muffle}**: {data['alt_muffle'][alt_muffle]}%\n\n"
             await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc[:-2]))
 
         if not (data['muffle'] or data['alt_muffle']):
@@ -111,8 +111,8 @@ class Get(commands.Cog):
             return
 
         desc = ""
-        for prefix in data['prefix']['contents']:
-            desc += f"**{prefix}**: {data['prefix']['contents'][prefix]}%\n\n"
+        for prefix in data['prefix']:
+            desc += f"**{prefix}**: {data['prefix'][prefix]}%\n\n"
         await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc[:-2]))
 
     @get_command.command(description="List the suffixes for the transformed user")
@@ -127,8 +127,8 @@ class Get(commands.Cog):
             return
 
         desc = ""
-        for suffix in data['suffix']['contents']:
-            desc += f"**{suffix}**: {data['suffix']['contents'][suffix]}%\n\n"
+        for suffix in data['suffix']:
+            desc += f"**{suffix}**: {data['suffix'][suffix]}%\n\n"
         await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc[:-2]))
 
     @get_command.command(description="Get the biography of a transformed user")

@@ -14,7 +14,7 @@ from config import CACHE_PATH
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
-# VERSION 16: Removed "proxy_prefix" and "proxy_suffix" fields
+# VERSION 16: Removed "proxy_prefix" and "proxy_suffix" fields, and removed "active" and "contents" subfields from modifiers
 # VERSION 15: Added individual chances to all modifiers - ADDENDUM 1: Made the "transformed_by" and "claim" fields be integers now
 # VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
@@ -140,8 +140,19 @@ def write_tf(user: discord.User | discord.Member | int,
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
     if data == {} or data['version'] != CURRENT_TMUD_VERSION:
-        if data != {} and 'transformed_by' in data and data['transformed_by']: # Translate from v15 to v15.1
-            data['transformed_by'] = int(data['transformed_by'])
+        if data != {}:
+            for server in data:
+                if server == 'version':
+                    continue
+                for channel in data[server]:
+                    if channel in ['blocked_channels', 'blocked_users']:
+                        continue
+                    del data[server][channel]['proxy_prefix']
+                    del data[server][channel]['proxy_suffix']
+                    for modifier in ['prefix', 'suffix', 'censor', 'sprinkle', 'muffle']:
+                        del data[server][channel][modifier]['active']
+                        data[server][channel][modifier] = data[server][channel][modifier]['contents']
+                        del data[server][channel]['contents']
         data['version'] = CURRENT_TMUD_VERSION
     transformed_data = load_transformed(guild)
     if transformed_data == {}:
@@ -166,34 +177,16 @@ def write_tf(user: discord.User | discord.Member | int,
             'image_url': image_url,
             'claim': 0 if claim_user is None else (claim_user if type(claim_user) is int else claim_user.id),
             'eternal': False if eternal is None else eternal,
-            'prefix': {
-                'active': False,
-                'contents': {}
-            },
-            'suffix': {
-                'active': False,
-                'contents': {}
-            },
+            'prefix': {},
+            'suffix': {},
             'big': False if big is None else big,
             'small': False if small is None else small,
             'hush': False if hush is None else hush,
             'backwards': False if backwards is None else backwards,
-            'censor': {
-                'active': False,
-                'contents': {}
-            },
-            'sprinkle': {
-                'active': False,
-                'contents': {}
-            },
-            'muffle': {
-                'active': False,
-                'contents': {}
-            },
-            'alt_muffle': {
-                'active': False,
-                'contents': {}
-            },
+            'censor': {},
+            'sprinkle': {},
+            'muffle': {},
+            'alt_muffle': {},
             'stutter': 0,
             'bio': None
         }
@@ -219,23 +212,21 @@ def write_tf(user: discord.User | discord.Member | int,
             else:
                 data[guild_id]['blocked_users'].remove(block_user)
         if prefix is not None:
-            data[guild_id][channel_id]['prefix']['active'] = True if prefix != "" else False
             if prefix != "":
                 if prefix.startswith("$/-"):
-                    data[guild_id][channel_id]['prefix']['contents'].pop(prefix[3:])
+                    data[guild_id][channel_id]['prefix'].pop(prefix[3:])
                 else:
-                    data[guild_id][channel_id]['prefix']['contents'][prefix] = chance if chance else 30
+                    data[guild_id][channel_id]['prefix'][prefix] = chance if chance else 30
             else:
-                data[guild_id][channel_id]['prefix']['contents'] = {}
+                data[guild_id][channel_id]['prefix'] = {}
         if suffix is not None:
-            data[guild_id][channel_id]['suffix']['active'] = True if suffix != "" else False
             if suffix != "":
                 if suffix.startswith("$/-"):
-                    data[guild_id][channel_id]['suffix']['contents'].pop(suffix[3:])
+                    data[guild_id][channel_id]['suffix'].pop(suffix[3:])
                 else:
-                    data[guild_id][channel_id]['suffix']['contents'][suffix] = chance if chance else 30
+                    data[guild_id][channel_id]['suffix'][suffix] = chance if chance else 30
             else:
-                data[guild_id][channel_id]['suffix']['contents'] = {}
+                data[guild_id][channel_id]['suffix'] = {}
         if big is not None:
             data[guild_id][channel_id]['big'] = big
         if small is not None:
@@ -245,43 +236,39 @@ def write_tf(user: discord.User | discord.Member | int,
         if backwards is not None:
             data[guild_id][channel_id]['backwards'] = backwards
         if censor is not None:
-            data[guild_id][channel_id]['censor']['active'] = True if censor != "" else False
-            if censor == "":
-                data[guild_id][channel_id]['censor']['contents'] = {}
-            else:
+            if censor != "":
                 if censor.startswith("$/-"):
-                    data[guild_id][channel_id]['censor']['contents'].pop(censor[3:])
+                    data[guild_id][channel_id]['censor'].pop(censor[3:])
                 elif censor_replacement not in ["", None]:
-                    if data[guild_id][channel_id]['censor']['contents'] is None:
-                        data[guild_id][channel_id]['censor']['contents'] = {}
-                    data[guild_id][channel_id]['censor']['contents'][censor] = censor_replacement
+                    if data[guild_id][channel_id]['censor'] is None:
+                        data[guild_id][channel_id]['censor'] = {}
+                    data[guild_id][channel_id]['censor'][censor] = censor_replacement
+            else:
+                data[guild_id][channel_id]['censor'] = {}
         if sprinkle is not None:
-            data[guild_id][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
             if sprinkle != "":
                 if sprinkle.startswith("$/-"):
-                    data[guild_id][channel_id]['sprinkle']['contents'].pop(sprinkle[3:])
+                    data[guild_id][channel_id]['sprinkle'].pop(sprinkle[3:])
                 else:
-                    data[guild_id][channel_id]['sprinkle']['contents'][sprinkle] = chance if chance else 30
+                    data[guild_id][channel_id]['sprinkle'][sprinkle] = chance if chance else 30
             else:
-                data[guild_id][channel_id]['sprinkle']['contents'] = {}
+                data[guild_id][channel_id]['sprinkle'] = {}
         if muffle is not None:
-            data[guild_id][channel_id]['muffle']['active'] = True if muffle != "" else False
             if muffle != "":
                 if muffle.startswith("$/-"):
-                    data[guild_id][channel_id]['muffle']['contents'].pop(muffle[3:])
+                    data[guild_id][channel_id]['muffle'].pop(muffle[3:])
                 else:
-                    data[guild_id][channel_id]['muffle']['contents'][muffle] = chance if chance else 30
+                    data[guild_id][channel_id]['muffle'][muffle] = chance if chance else 30
             else:
-                data[guild_id][channel_id]['muffle']['contents'] = {}
+                data[guild_id][channel_id]['muffle'] = {}
         if alt_muffle is not None:
-            data[guild_id][channel_id]['alt_muffle']['active'] = True if alt_muffle != "" else False
             if alt_muffle != "":
                 if alt_muffle.startswith("$/-"):
-                    data[guild_id][channel_id]['alt_muffle']['contents'].pop(alt_muffle[3:])
+                    data[guild_id][channel_id]['alt_muffle'].pop(alt_muffle[3:])
                 else:
-                    data[guild_id][channel_id]['alt_muffle']['contents'][alt_muffle] = chance if chance else 30
+                    data[guild_id][channel_id]['alt_muffle'][alt_muffle] = chance if chance else 30
             else:
-                data[guild_id][channel_id]['alt_muffle']['contents'] = {}
+                data[guild_id][channel_id]['alt_muffle'] = {}
 
         if stutter is not None:
             data[guild_id][channel_id]['stutter'] = stutter
@@ -521,14 +508,14 @@ def transform_text(data: dict, original: str) -> str:
         (original.startswith("_") and original.endswith("_"))):
         return original
 
-    if data['alt_muffle']['active']:
+    if data['alt_muffle'] != {}:
         # Alternative Muffle will overwrite the entire message with a word from the data array from random chance
         # If we apply this one transformation, that's it. Only this one. That's why it's at the top.
-        if original in data['alt_muffle']['contents']:
+        if original in data['alt_muffle']:
             return original
 
-        for alt_muffle in data['alt_muffle']['contents']:
-            if random.randint(0, 100) <= int(data['alt_muffle']['contents'][alt_muffle]):
+        for alt_muffle in data['alt_muffle']:
+            if random.randint(0, 100) <= int(data['alt_muffle'][alt_muffle]):
                 return alt_muffle
 
     transformed = original
@@ -537,48 +524,48 @@ def transform_text(data: dict, original: str) -> str:
 
     for i in range(len(words)):
         # Censor will change a word for another, "censoring" it
-        if data['censor']['active']:
+        if data['censor'] != {}:
             raw_word = words[i]
             word = ''.join(e for e in raw_word if e.isalnum()) # Removed special characters
 
             regex = False
-            for pattern in data['censor']['contents']:
+            for pattern in data['censor']:
                 if not pattern.startswith("/"):
                     continue
                 if re.search(pattern[1:], raw_word):
-                    words[i] = re.sub(pattern[1:], data['censor']['contents'][pattern], raw_word)
+                    words[i] = re.sub(pattern[1:], data['censor'][pattern], raw_word)
                     regex = True
                     break
             if regex:
                 continue
 
-            if word in data['censor']['contents']:
-                words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
+            if word in data['censor']:
+                words[i] = raw_word.replace(word, data['censor'][word]) # We keep punctuation
                 continue
 
-            if raw_word in data['censor']['contents']:
-                words[i] = data['censor']['contents'][raw_word] # The entire word should be replaced
+            if raw_word in data['censor']:
+                words[i] = data['censor'][raw_word] # The entire word should be replaced
                 continue
 
         # Muffle will overwrite a word with a word from the data array by random chance
-        if data['muffle']['active']:
+        if data['muffle'] != {}:
             if words[i].startswith("http"):
                 continue
 
-            muffles = list(data['muffle']['contents'].keys())
+            muffles = list(data['muffle'].keys())
             random.shuffle(muffles)
             for muffle in muffles:
-                if random.randint(0, 100) <= int(data['muffle']['contents'][muffle]):
+                if random.randint(0, 100) <= int(data['muffle'][muffle]):
                     words[i] = muffle
 
     # Sprinkle will add the sprinkled word to the message between words by random chance
     # for each word, if the chance is met, add a sprinkled word before it
-    if data['sprinkle']['active']:
-        sprinkles = list(data['sprinkle']['contents'].keys())
+    if data['sprinkle'] != {}:
+        sprinkles = list(data['sprinkle'].keys())
         for i in range(len(words)):
             random.shuffle(sprinkles)
             for sprinkle in sprinkles:
-                if random.randint(0, 100) <= int(data['sprinkle']['contents'][sprinkle]):
+                if random.randint(0, 100) <= int(data['sprinkle'][sprinkle]):
                     words[i] = sprinkle + " " + words[i]
 
     if data['stutter'] > 0:
@@ -592,18 +579,18 @@ def transform_text(data: dict, original: str) -> str:
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
-    if data['prefix']['active']:
-        prefixes = list(data['prefix']['contents'].keys())
+    if data['prefix'] != {}:
+        prefixes = list(data['prefix'].keys())
         random.shuffle(prefixes)
         for prefix in prefixes:
-            if random.randint(0, 100) <= int(data['prefix']['contents'][prefix]):
+            if random.randint(0, 100) <= int(data['prefix'][prefix]):
                 transformed = prefix + transformed
 
-    if data['suffix']['active']:
-        suffixes = list(data['suffix']['contents'].keys())
+    if data['suffix'] != {}:
+        suffixes = list(data['suffix'].keys())
         random.shuffle(suffixes)
         for suffix in suffixes:
-            if random.randint(0, 100) <= int(data['suffix']['contents'][suffix]):
+            if random.randint(0, 100) <= int(data['suffix'][suffix]):
                 transformed += suffix
 
     # We need to do this now to avoid https://github.com/dorythecat/TransforMate/issues/48
@@ -773,28 +760,28 @@ def encode_tsf(data: dict, version: int) -> str:
     output += (data['bio'] if data['bio'] else "") + ";%"
 
     # Prefix
-    output += (",%".join([key + "|%" + str(value) for key, value in data['prefix']['contents'].items()])
-               if data['prefix']['active'] else "") + ";%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['prefix'].items()])
+               if data['prefix'] != {} else "") + ";%"
 
     # Suffix
-    output += (",%".join([key + "|%" + str(value) for key, value in data['suffix']['contents'].items()])
-               if data['suffix']['active'] else "") + ";%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['suffix'].items()])
+               if data['suffix'] != {} else "") + ";%"
 
     # Sprinkle
-    output += (",%".join([key + "|%" + str(value) for key, value in data['sprinkle']['contents'].items()])
-               if data['sprinkle']['active'] else "") + ";%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['sprinkle'].items()])
+               if data['sprinkle'] != {} else "") + ";%"
 
     # Muffle
-    output += (",%".join([key + "|%" + str(value) for key, value in data['muffle']['contents'].items()])
-               if data['muffle']['active'] else "") + ";%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['muffle'].items()])
+               if data['muffle'] != {} else "") + ";%"
 
     # Alt Muffle
-    output += (",%".join([key + "|%" + str(value) for key, value in data['alt_muffle']['contents'].items()])
-               if data['alt_muffle']['active'] else "") + ";%"
+    output += (",%".join([key + "|%" + str(value) for key, value in data['alt_muffle'].items()])
+               if data['alt_muffle'] != {} else "") + ";%"
 
     # Censor
-    output += (",%".join([key + "|%" + value for key, value in data['censor']['contents'].items()])
-               if data['censor']['active'] else "")
+    output += (",%".join([key + "|%" + value for key, value in data['censor'].items()])
+               if data['censor'] != {} else "")
 
     return output
 
@@ -838,18 +825,13 @@ def decode_tsf(tsf_string: str) -> dict:
 
         modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
         for modifier in modifiers:
-            data[modifier] = {
-                'active': tsf_data[next_index + 4 + modifiers.index(modifier) * 2] != "0",
-                'contents': {}
-            }
-            if not data[modifier]['active']:
-                continue
+            data[modifier] = {}
             modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else ",%")
             for mod in modifier_data:
                 if mod == "":
                     continue
                 key, value = mod.split("|" if sep == ";" else "|%")
-                data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
+                data[modifier][key] = int(value) if modifier != 'censor' else value
 
         return data
 
@@ -899,18 +881,13 @@ def decode_tsf(tsf_string: str) -> dict:
 
     modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
     for modifier in modifiers:
-        data[modifier] = {
-            'active': tsf_data[next_index + 4 + modifiers.index(modifier) * 2] != "0",
-            'contents': {}
-        }
-        if not data[modifier]['active']:
-            continue
+        data[modifier] = {}
         modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else ",%")
         for mod in modifier_data:
             if mod == "":
                 continue
             key, value = mod.split("|" if sep == ";" else "|%")
-            data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
+            data[modifier][key] = int(value) if modifier != 'censor' else value
 
     return data
 

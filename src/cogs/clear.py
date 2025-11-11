@@ -43,12 +43,12 @@ class Clear(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if not data['prefix']['active']:
+        if data['prefix'] == {}:
             await ctx.respond(f"{user.mention} doesn't have a prefix set!")
             return
         if prefix != "":
-            if not prefix in data['prefix']['contents']:
-                if prefix + " " in data['prefix']['contents']:
+            if not prefix in data['prefix']:
+                if prefix + " " in data['prefix']:
                     prefix += " "
                 else:
                     await ctx.respond(f"{user.mention} doesn't have that prefix set!")
@@ -66,12 +66,12 @@ class Clear(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if not data['suffix']['active']:
+        if data['suffix'] == {}:
             await ctx.respond(f"{user.mention} doesn't have a suffix set!")
             return
         if suffix != "":
-            if not suffix in data['suffix']['contents']:
-                if " " + suffix in data['suffix']['contents']:
+            if not suffix in data['suffix']:
+                if " " + suffix in data['suffix']:
                     suffix = " " + suffix
                 else:
                     await ctx.respond(f"{user.mention} doesn't have that suffix set!")
@@ -141,11 +141,11 @@ class Clear(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if data['censor']['contents'] == {}:
+        if data['censor'] == {}:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
         if censor not in ["", None]:
-            if censor not in data['censor']['contents']:
+            if censor not in data['censor']:
                 await ctx.respond(f"{user.mention} is not censored with the word \"{censor}\"!")
                 return
             censor = "$/-" + censor
@@ -164,11 +164,11 @@ class Clear(commands.Cog):
         if not valid:
             return
         # If the user is not sprinkled, we can just return
-        if not data['sprinkle']['active']:
+        if data['sprinkle'] == {}:
             await ctx.respond(f"{user.mention} is not sprinkled at the moment!")
             return
         if sprinkle != "":
-            if not sprinkle in data['sprinkle']['contents']:
+            if not sprinkle in data['sprinkle']:
                 await ctx.respond(f"{user.mention} doesn't have that sprinkle set!")
                 return
             sprinkle = "$/-" + sprinkle
@@ -185,12 +185,12 @@ class Clear(commands.Cog):
         if not valid:
             return
         # If the user is not muffled, we can just return
-        if not (data['muffle']['active'] or data['alt_muffle']['active']):
+        if data['muffle'] == {} and data['alt_muffle'] == {}:
             await ctx.respond(f"{user.mention} is not muffled at the moment!")
             return
         if muffle != "":
-            if not muffle in data['muffle']['contents']:
-                if muffle in data['alt_muffle']['contents']:
+            if not muffle in data['muffle']:
+                if muffle in data['alt_muffle']:
                     muffle = "$/-" + muffle
                     utils.write_tf(user, ctx.guild, alt_muffle=muffle)
                     await ctx.respond(f"{user.mention} will no longer have a muffle set!")
