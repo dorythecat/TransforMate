@@ -542,11 +542,13 @@ def transform_text(data: dict, original: str) -> str:
             raw_word = words[i].lower()
             word = ''.join(e for e in raw_word if e.isalnum()) # Removed special characters
 
-            if data['censor']['contents'][0] == "/": # It's a regex censor
-                pattern = re.compile(data['censor']['contents'])
-                if pattern.search(raw_word):
-                    words[i] = pattern.sub(data['censor']['contents'][pattern], raw_word)
+            # regex
+            for pattern in data['censor']['contents']:
+                if not pattern.startswith("/"):
                     continue
+                if re.fullmatch(pattern, raw_word):
+                    words[i] = raw_word.replace(raw_word, data['censor']['contents'][pattern]) # We keep punctuation
+                    break
 
             if word in data['censor']['contents']:
                 words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
