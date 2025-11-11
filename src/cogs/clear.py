@@ -141,7 +141,7 @@ class Clear(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
         if not valid:
             return
-        if not data['censor']['active']:
+        if data['censor']['contents'] == {}:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
         if censor not in ["", None]:

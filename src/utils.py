@@ -246,7 +246,9 @@ def write_tf(user: discord.User | discord.Member | int,
             data[guild_id][channel_id]['backwards'] = backwards
         if censor is not None:
             data[guild_id][channel_id]['censor']['active'] = True if censor != "" else False
-            if censor != "":
+            if censor == "":
+                data[guild_id][channel_id]['censor']['contents'] = {}
+            else:
                 if censor.startswith("$/-"):
                     data[guild_id][channel_id]['censor']['contents'].pop(censor[3:])
                 elif censor_replacement not in ["", None]:
