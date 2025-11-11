@@ -534,20 +534,21 @@ def transform_text(data: dict, original: str) -> str:
     words = transformed.split(" ")
 
     for i in range(len(words)):
-        # Force lowercase and strip punctuation
-
         # Censor will change a word for another, "censoring" it
         if data['censor']['active']:
-            raw_word = words[i].lower()
+            raw_word = words[i]
             word = ''.join(e for e in raw_word if e.isalnum()) # Removed special characters
 
-            # regex
+            regex = False
             for pattern in data['censor']['contents']:
                 if not pattern.startswith("/"):
                     continue
-                if re.fullmatch(pattern, raw_word):
-                    words[i] = raw_word.replace(raw_word, data['censor']['contents'][pattern]) # We keep punctuation
+                if re.search(pattern[1:], raw_word):
+                    words[i] = re.sub(pattern[1:], data['censor']['contents'][pattern], raw_word)
+                    regex = True
                     break
+            if regex:
+                continue
 
             if word in data['censor']['contents']:
                 words[i] = raw_word.replace(word, data['censor']['contents'][word]) # We keep punctuation
