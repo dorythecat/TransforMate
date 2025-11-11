@@ -375,7 +375,7 @@ def write_transformed(guild: discord.Guild | int,
     :return: The updated transformation data for the server.
     """
     data = load_transformed()
-    if data == {} or int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION:
+    if data == {} or ('version' in data and int(data['version']) != CURRENT_TRANSFORMED_DATA_VERSION):
         if 'version' in data and int(data['version']) == 7:
             for server in data:
                 if server == 'version':
@@ -644,11 +644,8 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 
 # FILE UTILS
 def load_file(filename: str, guild_id: int | None = None) -> dict:
-    filename = filename.split("/")
-    if filename[-1] not in os.listdir("/".join(filename[:-1])):
-        return {}
     try:
-        with open("/".join(filename)) as f:
+        with open(filename) as f:
             contents = f.read().strip()
     except OSError as e:
         print("Error loading file:")
@@ -675,12 +672,8 @@ def write_file(filename: str,
 
 
 # MISCELLANEOUS UTILS
-def get_webhook_by_name(webhooks: list[discord.Webhook],
-                        name: str) -> discord.Webhook | None:
-    for wh in webhooks:
-        if wh.name == name:
-            return wh
-    return None
+def get_webhook_by_name(webhooks: list[discord.Webhook], name: str) -> discord.Webhook | None:
+    return next((wh for wh in webhooks if wh.name == name), None)
 
 
 def get_embed_base(title: str,
@@ -708,9 +701,8 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
         data = data[str(message.channel.id)] if str(message.channel.id) in data else data['all']
         if data['into'] == message.author.name:
             # TODO: Make it so that this function returns all currently tfed users with this tf name
-            if load_transformed(message.guild)['transformed_users'][tfee] in [[], None]:
-                continue
-            return int(tfee), data
+            if load_transformed(message.guild)['transformed_users'][tfee] not in [[], None]:
+                return int(tfee), data
     return None, None
 
 

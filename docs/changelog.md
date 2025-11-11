@@ -5,7 +5,8 @@
 - Bumped TMUD format to v16.
 - Updated TSF to v2.0, to match the new TMUD format.
 - Fixed [#82](https://github.com/dorythecat/TransforMate/issues/82)
-- Made censors no longer be forced to lowercase
+- Made censors no longer be forced to lowercase.
+- Slightly improved performance and structure.
 
 ---
 
