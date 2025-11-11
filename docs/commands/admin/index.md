@@ -45,12 +45,12 @@ up the server logs and settings.
 
         See [this](https://github.com/dorythecat/TransforMate/issues/53)
 
-- [`/admin update_settings <clean_logs> <brackets>`](update_settings.md)
+- [`/admin update_settings <clean_logs> <image_buffer>`](update_settings.md)
 ??? info
     Update the settings to your server. Clean logs makes it so that deletion logs
     from other bots (Dyno bot, at the moment) get deleted to not clog up your log
-    channel. Brackets activates bracket mode, which makes the bot work more like
-    TupperBox.
+    channel.Image buffer lets the bot store images in a channel which makes it more
+    reliable most of the time.
 
 - [`/admin regen_server_tfs <sure> <really_sure> <really_really_sure> <fully_sure>`](regen_server_tfs.md)
 ??? info
