@@ -1,3 +1,9 @@
+## v2.4.0 (RegExpansion)
+- Removed "brackets" or "Tupper-like" mode from the feature list.
+- Bumped TMUD format to v16.
+
+---
+
 ## v2.3.1
 - Fixed [#65](https://github.com/dorythecat/TransforMate/issues/65)
 - Fixed [#66](https://github.com/dorythecat/TransforMate/issues/66)
