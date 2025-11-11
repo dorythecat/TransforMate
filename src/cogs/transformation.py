@@ -33,11 +33,14 @@ async def transform_function(ctx: discord.ApplicationContext,
             return False
 
     if copy is not None:
+        old_data = utils.load_tf(user, ctx.guild)
         new_data = utils.load_tf(copy, ctx.guild)
         if new_data == {} or new_data['all'] == {}:
             return await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel)
+        new_data['blocked_channels'] = old_data['blocked_channels'] if 'blocked_channels' in old_data else []
+        new_data['blocked_users'] = old_data['blocked_users'] if 'blocked_users' in old_data else []
         if merge in [False, None]:
-            new_data['all']['into'] += "឵឵ᅟ"
+            new_data['all']['into'] += "឵ᅟ"
         if into:
             new_data['all']['into'] = into
         if image_url:
