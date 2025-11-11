@@ -13,7 +13,6 @@ async def transform_function(ctx: discord.ApplicationContext,
                              into: str | None = None,
                              image_url: str | None = None,
                              channel: discord.TextChannel | None = None,
-                             brackets: list[str] | None = None,
                              copy: discord.User | None = None,
                              merge: bool | None = None) -> bool:
     if into:
@@ -36,7 +35,7 @@ async def transform_function(ctx: discord.ApplicationContext,
     if copy is not None:
         new_data = utils.load_tf(copy, ctx.guild)
         if new_data == {} or new_data['all'] == {}:
-            return await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel, brackets)
+            return await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel)
         if merge in [False, None]:
             new_data['all']['into'] += "឵឵ᅟ"
         if into:
@@ -44,8 +43,6 @@ async def transform_function(ctx: discord.ApplicationContext,
         if image_url:
             new_data['all']['image_url'] = image_url
         new_data['all']['transformed_by'] = ctx.author.id
-        new_data['all']['proxy_prefix'] = brackets[0] if brackets is not None else None
-        new_data['all']['proxy_suffix'] = brackets[1] if brackets is not None else None
         new_data['all']['claim'] = 0
         new_data['all']['eternal'] = False
         utils.write_tf(user, ctx.guild, new_data=new_data)
@@ -64,9 +61,7 @@ async def transform_function(ctx: discord.ApplicationContext,
                    channel,
                    transformed_by=ctx.author,
                    into=into.strip(),
-                   image_url=image_url,
-                   proxy_prefix=brackets[0] if brackets is not None else None,
-                   proxy_suffix=brackets[1] if brackets is not None else None)
+                   image_url=image_url)
     utils.write_transformed(ctx.guild, user, channel)
 
     transformed_data = utils.load_transformed(ctx.guild)
@@ -75,8 +70,6 @@ async def transform_function(ctx: discord.ApplicationContext,
         embed.add_field(name="User", value=user.mention)
         embed.add_field(name="Transformed By", value=ctx.author.mention)
         embed.add_field(name="Into", value=into)
-        if brackets is not None:
-            embed.add_field(name="Brackets", value=f"{brackets[0]}text{brackets[1]}")
         embed.set_image(url=image_url)
         await ctx.guild.get_channel(transformed_data['logs'][2]).send(embed=embed)
 
@@ -98,10 +91,6 @@ class Transformation(commands.Cog):
                                                   description="Image URL to use") = None,
                         channel: discord.Option(discord.TextChannel,
                                                 description="Transform the user only on this channel") = None,
-                        brackets: discord.Option(discord.SlashCommandOptionType.string,
-                                                 description="What brackets to use for this proxy."
-                                                             "Ex: \"text\", Abc:text, etc."
-                                                             "(Only available in certain servers)") = None,
                         copy: discord.Option(discord.User,
                                              description="Copy another user") = None,
                         merge: discord.Option(discord.SlashCommandOptionType.boolean,
@@ -166,26 +155,13 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"Your master can't allow you to transform, at least for now...")
                 return
 
-        if transformed_data['affixes']:
-            if not brackets:
-                await ctx.respond(f"Please provide brackets for this transformation!")
-                return
-            brackets = brackets.split("text")
-            if len(brackets) > 2:
-                await ctx.respond(f"Invalid brackets! Please provide valid brackets for this transformation!")
-                return
-        else:
-            if brackets is not None:
-                await ctx.respond(f"This server does not allow brackets for transformations!")
-                return
-
         if into:
-            if await transform_function(ctx, user, into, image_url, channel, brackets, None):
+            if await transform_function(ctx, user, into, image_url, channel, None):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
         if copy:
-            if await transform_function(ctx, user, into, image_url, channel, brackets, copy, merge):
+            if await transform_function(ctx, user, into, image_url, channel, copy, merge):
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
             return
 
@@ -215,7 +191,6 @@ class Transformation(commands.Cog):
                                     response.content,
                                     file_url,
                                     channel,
-                                    brackets,
                                     None):
             await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 

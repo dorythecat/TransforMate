@@ -16,6 +16,7 @@ from config import CACHE_PATH
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
+# VERSION 16: Removed "proxy_prefix" and "proxy_suffix" fields
 # VERSION 15: Added individual chances to all modifiers - ADDENDUM 1: Made the "transformed_by" and "claim" fields be integers now
 # VERSION 14: Added "stutter" field
 # VERSION 13: Made "claim" field be an integer, instead of a string
@@ -31,8 +32,9 @@ from config import CACHE_PATH
 # VERSION 3: Added "big", "small", and "hush" fields, and changed "eternal" from bool to int
 # VERSION 2: Added guild-specific data
 # VERSION 1: Base version
-CURRENT_TMUD_VERSION = 15 # 15.1
+CURRENT_TMUD_VERSION = 16
 
+# VERSION 9: Removed "affixes" field
 # VERSION 8: Added "images" field
 # VERSION 7: Added compatibility with the new multi-character mode for TFee Data v12
 # VERSION 6: Added "affixes" field
@@ -41,7 +43,7 @@ CURRENT_TMUD_VERSION = 15 # 15.1
 # VERSION 3: Added "blocked_users" field
 # VERSION 2: Added "blocked_channels" and "transformed_users" fields
 # VERSION 1: Base version
-CURRENT_TRANSFORMED_DATA_VERSION = 8
+CURRENT_TRANSFORMED_DATA_VERSION = 9
 
 
 # USER TRANSFORMATION DATA UTILS
@@ -95,8 +97,6 @@ def write_tf(user: discord.User | discord.Member | int,
              alt_muffle: str | None = None,
              stutter: int | None = None,
              chance: int | None = None,
-             proxy_prefix: str | None = None,
-             proxy_suffix: str | None = None,
              bio: str | None = None) -> None:
     """
     This is a utility function with the unique purpose of modifying the TMUD-compliant transformation data of a given
@@ -133,8 +133,6 @@ def write_tf(user: discord.User | discord.Member | int,
     :param alt_muffle: A string that will replace random messages entirely.
     :param stutter: A value from 0 to 100 indicating the amount of stuttering to apply.
     :param chance: A value from 0 to 100 indicating the chance of the associated modifier being applied.
-    :param proxy_prefix: When in Tupper-like mode, this is the string that has to precede the user's text for the transformation to be applied.
-    :param proxy_suffix: Same as proxy_prefix but has to follow the user's text instead.
     :param bio: The biography of the transformed form. Can be used as general storage for strings, as per the TMUD standard.
 
     :return: This function does not return anything, but it will write the modified data to the cache file.
@@ -158,10 +156,7 @@ def write_tf(user: discord.User | discord.Member | int,
         write_file(f'{CACHE_PATH}/people/{str(user_id)}.json', data)
         write_transformed(guild, user, channel, block_user, block_channel)
         return
-    if transformed_data['affixes']:
-        channel_id = proxy_prefix + " " + proxy_suffix
-    else:
-        channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
+    channel_id = 'all' if channel is None else str(channel if type(channel) is int else channel.id)
     if into not in ["", None]:
         if guild_id not in data:
             data[guild_id] = {}
@@ -202,8 +197,6 @@ def write_tf(user: discord.User | discord.Member | int,
                 'contents': {}
             },
             'stutter': 0,
-            'proxy_prefix': proxy_prefix,
-            'proxy_suffix': proxy_suffix,
             'bio': None
         }
     else:
@@ -294,11 +287,6 @@ def write_tf(user: discord.User | discord.Member | int,
         if stutter is not None:
             data[guild_id][channel_id]['stutter'] = stutter
 
-        if proxy_prefix is not None:
-            data[guild_id][channel_id]['proxy_prefix'] = None if proxy_prefix == "" else proxy_prefix
-        if proxy_suffix is not None:
-            data[guild_id][channel_id]['proxy_suffix'] = None if proxy_suffix == "" else proxy_suffix
-
         if bio is not None:
             data[guild_id][channel_id]['bio'] = None if bio == "" else bio
     write_file(f'{CACHE_PATH}/people/{user_id}.json', data)
@@ -387,7 +375,6 @@ def write_transformed(guild: discord.Guild | int,
                       block_channel: discord.TextChannel | int | None = None,
                       logs: list[int | None] | None = None,
                       clear_other_logs: bool | None = None,
-                      affixes: bool | None = None,
                       images: discord.TextChannel | int | None = None) -> dict:
     """
     Writes the transformation data for a user in a server, or, optionally, a channel, to the server data file. Also
@@ -400,7 +387,6 @@ def write_transformed(guild: discord.Guild | int,
     :param block_channel: A Discord channel object, representing a channel to block in this server.
     :param logs: A list of four channels, which will become the logging channels, for, in order, edited messages, deleted messages, transformations, and claims.
     :param clear_other_logs: A boolean value indicating whether to clear logs from other bots.
-    :param affixes: A boolean value indicating whether to put the bot in affixes (Tupper-like) mode.
     :param images: A Discord channel object, representing the image buffer channel.
 
     :return: The updated transformation data for the server.
@@ -413,7 +399,13 @@ def write_transformed(guild: discord.Guild | int,
                 if server == 'version':
                     continue
                 data[server]['images'] = None
-        data['version'] = CURRENT_TRANSFORMED_DATA_VERSION
+            data['version'] = 8
+        if 'version' in data and int(data['version']) == 8:
+            for server in data:
+                if server == 'version':
+                    continue
+                del data[server]['affixes']
+            data['version'] = 9
 
     guild_id = str(guild if type(guild) is int else guild.id)
     if guild_id not in data:
@@ -422,7 +414,6 @@ def write_transformed(guild: discord.Guild | int,
             'blocked_channels': [],
             'logs': [None, None, None, None],
             'clear_other_logs': False,
-            'affixes': False,
             'transformed_users': {},
             'images': None
         }
@@ -457,8 +448,6 @@ def write_transformed(guild: discord.Guild | int,
 
     if clear_other_logs is not None:
         data[guild_id]['clear_other_logs'] = clear_other_logs
-    if affixes is not None:
-        data[guild_id]['affixes'] = affixes
 
     if images is not None:
         data[guild_id]['images'] = images if type(images) is int else images.id

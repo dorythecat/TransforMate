@@ -105,15 +105,11 @@ class Admin(commands.Cog):
                               clean_logs: discord.Option(discord.SlashCommandOptionType.boolean,
                                                          description="Should the bot clean up the logs"
                                                                      "made by other bots?") = False,
-                              brackets: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                       description="Do we use brackets for"
-                                                                   "transformations?") = False,
                               image_buffer: discord.Option(discord.SlashCommandOptionType.channel,
                                                            description="Channel to send transformed user images to when "
                                                                        "a buffer is necessary.") = None) -> None:
         utils.write_transformed(ctx.guild,
                                 clear_other_logs=clean_logs,
-                                affixes=brackets,
                                 images=image_buffer.id if image_buffer else None)
         await ctx.respond("Bot settings have been updated!\n-# We recommend running /admin regen_server_files after "
                           "updating your settings, but BE CAREFUL, since this command REMOVES ALL TRANSFORMED USERS "
