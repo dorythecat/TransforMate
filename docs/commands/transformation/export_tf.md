@@ -64,6 +64,14 @@ with TMUDv14 (Both deprecated since v1.5.0).
     be kept as an archive for future reference, with the expected behavior when
     importing said versions of TSF data.
 
+### v2.0 specification (Introduced in v2.4.0)
+This revision includes various changes from v1.2.
+
+First of all, the `proxy_prefix` and `proxy_suffix` modifiers have been removed,
+as they were only relevant for Tupper-like servers, which are no longer supported.
+The indicators preceding the complex modifiers have been removed, as they were
+redundant. If a complex modifier is empty, it should be considered inactive.
+
 ### v1.2 specification (Introduced in v2.2.0)
 This revision includes one change from v1.1.
 
@@ -137,9 +145,6 @@ bot has available.
 - `backwards`: Invert text.
 
 #### Basic modifiers
-<<<<<<< HEAD
-These modifiers aren't separated within themselves, since they are simple strings or
-=======
 These modifiers aren't separated within themselves since they are simple strings or
 integers.
 

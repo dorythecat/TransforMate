@@ -769,32 +769,26 @@ def encode_tsf(data: dict, version: int) -> str:
     output += (data['bio'] if data['bio'] else "") + ";%"
 
     # Prefix
-    output += "1;%" if data['prefix']['active'] else "0;%"
     output += (",%".join([key + "|%" + str(value) for key, value in data['prefix']['contents'].items()])
                if data['prefix']['active'] else "") + ";%"
 
     # Suffix
-    output += "1;%" if data['suffix']['active'] else "0;%"
     output += (",%".join([key + "|%" + str(value) for key, value in data['suffix']['contents'].items()])
                if data['suffix']['active'] else "") + ";%"
 
     # Sprinkle
-    output += "1;%" if data['sprinkle']['active'] else "0;%"
     output += (",%".join([key + "|%" + str(value) for key, value in data['sprinkle']['contents'].items()])
                if data['sprinkle']['active'] else "") + ";%"
 
     # Muffle
-    output += "1;%" if data['muffle']['active'] else "0;%"
     output += (",%".join([key + "|%" + str(value) for key, value in data['muffle']['contents'].items()])
                if data['muffle']['active'] else "") + ";%"
 
     # Alt Muffle
-    output += "1;%" if data['alt_muffle']['active'] else "0;%"
     output += (",%".join([key + "|%" + str(value) for key, value in data['alt_muffle']['contents'].items()])
                if data['alt_muffle']['active'] else "") + ";%"
 
     # Censor
-    output += "1;%" if data['censor']['active'] else "0;%"
     output += (",%".join([key + "|%" + value for key, value in data['censor']['contents'].items()])
                if data['censor']['active'] else "")
 
@@ -816,7 +810,7 @@ def decode_tsf(tsf_string: str) -> dict:
         if version != 0: # v2.0
             raise ValueError("decode_tsf() does not support that version, at this moment!")
 
-        if len(tsf_data) != 18:
+        if len(tsf_data) != 12:
             raise ValueError("decode_tsf() expected 18 elements in the TSFv2.0 string, got " + str(len(tsf_data)))
 
         boolean_number = int(tsf_data[2], 16)
