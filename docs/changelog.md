@@ -1,6 +1,7 @@
 ## v2.4.0 (RegExpansion)
 - Removed "brackets" or "Tupper-like" mode from the feature list.
 - Bumped TMUD format to v16.
+- Updated TSF to v2.0.
 
 ---
 

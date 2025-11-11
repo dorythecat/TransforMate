@@ -744,11 +744,11 @@ def encode_tsf(data: dict, version: int) -> str:
     :return: A TSF-compliant string.
     """
 
-    if version != 15:
-        raise ValueError("encode_tsf() only supports TMUDv15, at the moment!")
+    if not version > 15:
+        raise ValueError("encode_tsf() only supports TMUDv15 and up!")
 
     # Basic stuff
-    output = "1;%" # TSF v1(.2)
+    output = "2.0;%" # TSF v2(.0)
     output += data['into'] + ";%"
     output += data['image_url'] + ";%"
 
@@ -762,8 +762,6 @@ def encode_tsf(data: dict, version: int) -> str:
 
     # "Easy Stuff"
     output += str(data['stutter']) + ";%"
-    output += (data['proxy_prefix'] if data['proxy_prefix'] else "") + ";%"
-    output += (data['proxy_suffix'] if data['proxy_suffix'] else "") + ";%"
     output += (data['bio'] if data['bio'] else "") + ";%"
 
     # Prefix
@@ -807,14 +805,59 @@ def decode_tsf(tsf_string: str) -> dict:
     :return: A TMUD-compliant transformation data dict.
     """
 
-    sep = ";"
-    if tsf_string[0:3] == "1;%": # v1.2
-        sep = ";%"
+    sep = ";%"
+    if tsf_string[0] == "2": # v2.x
+        tsf_data = tsf_string.split(";%")
+        version = int(tsf_data[0].split(".")[1]) # Get the minor version
+        if version != 0: # v2.0
+            raise ValueError("decode_tsf() does not support that version, at this moment!")
 
-    tsf_data = tsf_string.split(sep)
+        if len(tsf_data) != 18:
+            raise ValueError("decode_tsf() expected 18 elements in the TSFv2.0 string, got " + str(len(tsf_data)))
+
+        boolean_number = int(tsf_data[2], 16)
+        big = boolean_number & 1 != 0
+        small = boolean_number & 2 != 0
+        hush = boolean_number & 4 != 0
+        backwards = boolean_number & 8 != 0
+        next_index = 3
+
+        # Generate basic data
+        data = {
+            'into': tsf_data[0],
+            'image_url': tsf_data[1],
+            'big': big,
+            'small': small,
+            'hush': hush,
+            'backwards': backwards,
+            'stutter': int(tsf_data[next_index]),
+            'bio': tsf_data[next_index + 3]
+        }
+
+        modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
+        for modifier in modifiers:
+            data[modifier] = {
+                'active': tsf_data[next_index + 4 + modifiers.index(modifier) * 2] != "0",
+                'contents': {}
+            }
+            if not data[modifier]['active']:
+                continue
+            modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else ",%")
+            for mod in modifier_data:
+                if mod == "":
+                    continue
+                key, value = mod.split("|" if sep == ";" else "|%")
+                data[modifier]['contents'][key] = int(value) if modifier != 'censor' else value
+
+        return data
+
+    tsf_data = tsf_string.split(";%") # v1.2
+    if tsf_string[0] == "1": # v1.0 and v1.1
+        tsf_data = tsf_string.split(";")
+
     version = int(tsf_data[0])
     if version != 15 and version != 1: # v1.0 and v1.x
-        raise ValueError("decode_tsf() only supports TSFv1.x, at the moment!")
+        raise ValueError("decode_tsf() does not support that version, at this moment!")
 
     if version == 15 and len(tsf_data) != 23:
         raise ValueError("decode_tsf() expected 23 elements in the TSFv1.0 string, got " + str(len(tsf_data)))

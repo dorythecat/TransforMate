@@ -50,9 +50,10 @@ with TMUDv14 (Both deprecated since v1.5.0).
     [contact us](../../about.md#contact)
 
 !!! note
-    The TSF and TMUD format are both open and licencsed under the same
+    The TSF and TMUD format are both open and licensed under the same
     [license](https://github.com/dorythecat/TransforMate/blob/main/LICENSE) as the bot,
-    so you can use them freely for your projects, modify, and propose changes to them.
+    so you can use them freely for your projects, and also modify, and propose changes
+    to them.
 
 !!! warning
     TSF is backwards compatible with all previous versions (except v0, deprecated
