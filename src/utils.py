@@ -252,8 +252,7 @@ def write_tf(user: discord.User | discord.Member | int,
                 elif censor_replacement not in ["", None]:
                     if data[guild_id][channel_id]['censor']['contents'] is None:
                         data[guild_id][channel_id]['censor']['contents'] = {}
-                    data[guild_id][channel_id]['censor']['contents'][censor.lower()] = \
-                        censor_replacement.lower()
+                    data[guild_id][channel_id]['censor']['contents'][censor] = censor_replacement
         if sprinkle is not None:
             data[guild_id][channel_id]['sprinkle']['active'] = True if sprinkle != "" else False
             if sprinkle != "":
