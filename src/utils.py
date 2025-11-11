@@ -758,10 +758,10 @@ def encode_tsf(data: dict, version: int) -> str:
 
     # Booleans
     boolean_number = 0
-    boolean_number += 1 if data['big'] else 0
-    boolean_number += 2 if data['small'] else 0
-    boolean_number += 4 if data['hush'] else 0
-    boolean_number += 8 if data['backwards'] else 0
+    boolean_number += int(data['big'])
+    boolean_number += 2 * int(data['small'])
+    boolean_number += 4 * int(data['hush'])
+    boolean_number += 8 * int(data['backwards'])
     output += str(hex(boolean_number))[2:] + ";%"
 
     # "Easy Stuff"
