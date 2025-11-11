@@ -10,9 +10,7 @@ import discord
 
 from config import CACHE_PATH
 
-# TODO: https://github.com/dorythecat/TransforMate/issues/31
 # TODO: https://github.com/dorythecat/TransforMate/issues/40
-# TODO: https://github.com/dorythecat/TransforMate/issues/52
 
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
