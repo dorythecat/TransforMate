@@ -1,5 +1,5 @@
 ## Syntax
-`/transform <user> <into> <image_url> <channel> <brackets> <copy> <merge>`
+`/transform <user> <into> <image_url> <channel> <copy> <merge>`
 
 - `user`: A valid Discord User, representing the user to be transformed. If left
           empty, will transform the user executing the command.
@@ -13,11 +13,6 @@
              exclusive to that channel. On the contrary, if it isn't provided, the
              transformation will apply for all the server's channels, except any
              that are blocked.
-
-- `brackets`: A string with the format of "<front brackets>text<back brackets>".
-              Only works in servers that have enabled this feature, and will make
-              the transformations exclusively happen when the brackets are used,
-              similar to the working principle of TupperBox.
 
 - `copy`: A valid Discord User. If provided, will copy the transformation data,
           including modifiers from said user. All the other parameters can still
@@ -38,7 +33,7 @@
 ## Usages
 This command has three different usages, as described in the
 [Basic TransforMate Tutorial](../../tutorials/basic.md). You can provide only the
-`user`, `channel`, and/or `brackets` parameters to do a two-step transformation.
+`user` and/or `channel` parameters to do a two-step transformation.
 Providing `into` and `image_url` will make a normal transformation, and providing
 `copy`, and, optionally, `merge`, will make a twinning/merging transformation.
 
