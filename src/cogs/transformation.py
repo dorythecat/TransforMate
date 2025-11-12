@@ -442,7 +442,6 @@ class Transformation(commands.Cog):
                     await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
                     return
 
-        channel_id = str(ctx.channel.id)
         if utils.is_transformed(user, ctx.guild):
             if data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
@@ -477,11 +476,12 @@ class Transformation(commands.Cog):
         new_data['transformed_by'] = ctx.author.id
 
         data = utils.load_tf(user, ctx.guild)
+        new_data['blocked_users'] = data['blocked_users'] if 'blocked_users' in data else []
+        new_data['blocked_channels'] = data['blocked_channels'] if 'blocked_channels' in data else []
         new_data['claim'] = data['claim'] if 'claim' in data else 0
         new_data['eternal'] = data['eternal'] if 'eternal' in data else False
         data = new_data
         utils.write_tf(user, ctx.guild, data)
-
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 
 
