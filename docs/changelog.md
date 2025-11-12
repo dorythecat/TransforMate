@@ -1,6 +1,7 @@
 ## v2.4.0 (RegExpansion)
 - Removed "brackets" or "Tupper-like" mode from the feature list.
-- Added regex support on censors. (Use "/" before the censor to enable it.)
+- Added regex support on censors. (Use "/" before the censor to enable it
+  on a per-word basis, or use "//" to enable it on the entire message.)
   (Fulfills [#77](https://github.com/dorythecat/TransforMate/issues/77))
 - Bumped TMUD format to v16.
 - Updated TSF to v2.0, to match the new TMUD format.
@@ -9,6 +10,7 @@
 - Slightly improved performance and structure.
 - Added [#83](https://github.com/dorythecat/TransforMate/issues/83),
   and extended it to all modifiers.
+- Removed per-channel transformations
 
 ---
 

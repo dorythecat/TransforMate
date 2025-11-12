@@ -502,6 +502,14 @@ def transform_text(data: dict, original: str) -> str:
 
     transformed = original
     transformed = clear_apple_marks(transformed)
+
+    if data['censor'] != {}:
+        for pattern in data['censor']:
+            if not pattern.startswith("//"):
+                continue
+            if re.search(pattern[2:], transformed):
+                transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
+
     words = transformed.split(" ")
 
     for i in range(len(words)):
