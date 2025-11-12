@@ -3,7 +3,7 @@ from discord.ext import commands
 
 import utils
 
-MAX_ITEMS_PER_PAGE: int = 10 # Max items per page for views
+MAX_ITEMS_PER_PAGE: int = 2 # Max items per page for views
 
 class PageView(discord.ui.View):
     embed_title: str = ""
@@ -18,7 +18,7 @@ class PageView(discord.ui.View):
         self.total = total
         self.offset = offset
 
-    @discord.ui.button(label="Previous Page", style=discord.ButtonStyle.primary, disabled=True)
+    @discord.ui.button(label="⬅️ Previous Page", style=discord.ButtonStyle.primary, disabled=True)
     async def previous_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
         self.next_button_callback.disabled = False
         self.offset -= MAX_ITEMS_PER_PAGE * 2
@@ -30,7 +30,7 @@ class PageView(discord.ui.View):
             button.disabled = True
             await interaction.message.edit(view=self)
 
-    @discord.ui.button(label="Next Page", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="Next Page ➡️", style=discord.ButtonStyle.primary)
     async def next_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
         self.previous_button_callback.disabled = False
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
