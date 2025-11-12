@@ -7,7 +7,8 @@
 - Fixed [#82](https://github.com/dorythecat/TransforMate/issues/82)
 - Made censors no longer be forced to lowercase.
 - Slightly improved performance and structure.
-- Added [#83](https://github.com/dorythecat/TransforMate/issues/83)
+- Added [#83](https://github.com/dorythecat/TransforMate/issues/83),
+  and extended it to all modifiers.
 
 ---
 
