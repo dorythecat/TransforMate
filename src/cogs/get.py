@@ -5,13 +5,15 @@ import utils
 
 MAX_ITEMS_PER_PAGE: int = 10 # Max items per page for views
 
-class TransformedView(discord.ui.View):
+class PageView(discord.ui.View):
+    embed_title: str = ""
     desc: str = ""
     total_users: int = 0
     offset: int = 0
 
-    def __init__(self, desc: str, total_users: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
+    def __init__(self, embed_title: str, desc: str, total_users: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
         super().__init__(timeout=None)
+        self.embed_title = embed_title
         self.desc = desc
         self.total_users = total_users
         self.offset = offset
@@ -22,7 +24,7 @@ class TransformedView(discord.ui.View):
         self.offset -= MAX_ITEMS_PER_PAGE * 2
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
         self.offset += MAX_ITEMS_PER_PAGE
-        await interaction.response.edit_message(embed=utils.get_embed_base("Transformed Users", desc), view=self)
+        await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc), view=self)
         if self.offset <= MAX_ITEMS_PER_PAGE:
             button.disabled = True
             await interaction.message.edit(view=self)
@@ -32,7 +34,7 @@ class TransformedView(discord.ui.View):
         self.previous_button_callback.disabled = False
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
         self.offset += MAX_ITEMS_PER_PAGE
-        await interaction.response.edit_message(embed=utils.get_embed_base("Transformed Users", desc), view=self)
+        await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc), view=self)
         if self.offset >= self.total_users:
             button.disabled = True
             await interaction.message.edit(view=self)
@@ -200,10 +202,10 @@ class Get(commands.Cog):
 
         view = None
         if total_users > MAX_ITEMS_PER_PAGE:
-            view = TransformedView(desc, total_users)
+            view = PageView("Transformed Users", desc, total_users)
 
-        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE]) + "\n\n"
-        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc[:-2]), view=view)
+        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc), view=view)
 
     @get_command.command(description="Get the profile image of a transformed user")
     async def image(self,
