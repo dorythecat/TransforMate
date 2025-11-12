@@ -858,8 +858,6 @@ def decode_tsf(tsf_string: str) -> dict:
         'hush': hush,
         'backwards': backwards,
         'stutter': int(tsf_data[next_index]),
-        'proxy_prefix': tsf_data[next_index + 1],
-        'proxy_suffix': tsf_data[next_index + 2],
         'bio': tsf_data[next_index + 3]
     }
 
