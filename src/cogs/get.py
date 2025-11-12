@@ -23,8 +23,9 @@ class PageView(discord.ui.View):
         self.next_button_callback.disabled = False
         self.offset -= MAX_ITEMS_PER_PAGE * 2
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
         self.offset += MAX_ITEMS_PER_PAGE
-        await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc), view=self)
+        await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc, footer), view=self)
         if self.offset <= MAX_ITEMS_PER_PAGE:
             button.disabled = True
             await interaction.message.edit(view=self)
@@ -33,8 +34,9 @@ class PageView(discord.ui.View):
     async def next_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
         self.previous_button_callback.disabled = False
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
         self.offset += MAX_ITEMS_PER_PAGE
-        await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc), view=self)
+        await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc, footer), view=self)
         if self.offset >= self.total:
             button.disabled = True
             await interaction.message.edit(view=self)
@@ -94,11 +96,13 @@ class Get(commands.Cog):
         for censor in data['censor']:
             desc += f"**{censor}**: {data['censor'][censor]}\n\n"
 
-        view = None
+        view: PageView | None = None
+        footer: str | None = None
         if len(data['censor']) > MAX_ITEMS_PER_PAGE:
             view = PageView(f"Censors for {user.name}:", desc, len(data['censor']))
+            footer = f"Page 1 of {(len(data['censor']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-        await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc), view=view)
+        await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the sprinkles for the transformed user")
     async def sprinkles(self,
@@ -115,11 +119,13 @@ class Get(commands.Cog):
         for sprinkle in data['sprinkle']:
             desc += f"**{sprinkle}**: {data['sprinkle'][sprinkle]}%\n\n"
 
-        view = None
+        view: PageView | None = None
+        footer: str | None = None
         if len(data['sprinkle']) > MAX_ITEMS_PER_PAGE:
             view = PageView(f"Sprinkles for {user.name}:", desc, len(data['sprinkle']))
+            footer = f"Page 1 of {(len(data['sprinkle']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-        await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc), view=view)
+        await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the muffle for the transformed user")
     async def muffle(self,
@@ -136,22 +142,26 @@ class Get(commands.Cog):
             for muffle in data['muffle']:
                 desc += f"**{muffle}**: {data['muffle'][muffle]}%\n\n"
 
-            view = None
+            view: PageView | None = None
+            footer: str | None = None
             if len(data['muffle']) > MAX_ITEMS_PER_PAGE:
                 view = PageView(f"Muffles for {user.name}:", desc, len(data['muffle']))
+                footer = f"Page 1 of {(len(data['muffle']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
             desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-            await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc), view=view)
+            await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc, footer), view=view)
 
         if data['alt_muffle']:
             desc: str = ""
             for alt_muffle in data['alt_muffle']:
                 desc += f"**{alt_muffle}**: {data['alt_muffle'][alt_muffle]}%\n\n"
 
-            view = None
+            view: PageView | None = None
+            footer: str | None = None
             if len(data['alt_muffle']) > MAX_ITEMS_PER_PAGE:
                 view = PageView(f"Alternative muffles for {user.name}:", desc, len(data['alt_muffle']))
+                footer = f"Page 1 of {(len(data['alt_muffle']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
             desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-            await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc), view=view)
+            await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the prefixes for the transformed user")
     async def prefixes(self,
@@ -168,11 +178,13 @@ class Get(commands.Cog):
         for prefix in data['prefix']:
             desc += f"**{prefix}**: {data['prefix'][prefix]}%\n\n"
 
-        view = None
+        view: PageView | None = None
+        footer: str | None = None
         if len(data['prefix']) > MAX_ITEMS_PER_PAGE:
             view = PageView(f"Prefixes for {user.name}:", desc, len(data['prefix']))
+            footer = f"Page 1 of {(len(data['prefix']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-        await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc), view=view)
+        await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the suffixes for the transformed user")
     async def suffixes(self,
@@ -189,11 +201,13 @@ class Get(commands.Cog):
         for suffix in data['suffix']:
             desc += f"**{suffix}**: {data['suffix'][suffix]}%\n\n"
 
-        view = None
+        view: PageView | None = None
+        footer: str | None = None
         if len(data['suffix']) > MAX_ITEMS_PER_PAGE:
             view = PageView(f"Suffixes for {user.name}:", desc, len(data['suffix']))
+            footer = f"Page 1 of {(len(data['suffix']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-        await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc), view=view)
+        await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="Get the biography of a transformed user")
     async def bio(self,
@@ -205,7 +219,6 @@ class Get(commands.Cog):
         if data['bio'] in ["", None]:
             await ctx.respond(f"{user.mention} has no biography set!")
             return
-
         await ctx.respond(embed=utils.get_embed_base(f"Biography for {user.name}:", data['bio']))
 
     @get_command.command(description="Get a list of transformed users")
@@ -228,11 +241,13 @@ class Get(commands.Cog):
             desc += f"<@{tfee}> is \"{into}\"\n\n"
             users += 1
 
-        view = None
+        view: PageView | None = None
+        footer: str | None = None
         if users > MAX_ITEMS_PER_PAGE:
             view = PageView("Transformed Users", desc, users)
+            footer = f"Page 1 of {(users - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
-        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc), view=view)
+        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc, footer), view=view)
 
     @get_command.command(description="Get the profile image of a transformed user")
     async def image(self,
