@@ -820,7 +820,7 @@ def decode_tsf(tsf_string: str) -> dict:
         return data
 
     tsf_data = tsf_string.split(";%") # v1.2
-    if tsf_string[0] == "1": # v1.0 and v1.1
+    if tsf_string[:3] != "1;%": # v1.0 and v1.1
         tsf_data = tsf_string.split(";")
 
     version = int(tsf_data[0])

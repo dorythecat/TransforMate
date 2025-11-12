@@ -3,7 +3,7 @@ from discord.ext import commands
 
 import utils
 
-MAX_ITEMS_PER_PAGE: int = 2 # Max items per page for views
+MAX_ITEMS_PER_PAGE: int = 10 # Max items per page for views
 
 class PageView(discord.ui.View):
     embed_title: str = ""
