@@ -677,6 +677,7 @@ def get_webhook_by_name(webhooks: list[discord.Webhook], name: str) -> discord.W
 
 def get_embed_base(title: str,
                    desc: str | None = None,
+                   footer_text: str | None = None,
                    color: discord.Color = discord.Color.blue()) -> discord.Embed:
     return discord.Embed(
         title=title,
@@ -685,7 +686,8 @@ def get_embed_base(title: str,
         author=discord.EmbedAuthor(
             name="TransforMate",
             icon_url="https://cdn.discordapp.com/avatars/967123840587141181/46a629c191f53ec9d446ed4b712fb39b.png"
-        )
+        ),
+        footer=discord.EmbedFooter(text=footer_text if footer_text is not None else "TransforMate")
     )
 
 
