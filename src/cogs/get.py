@@ -20,6 +20,8 @@ class PageView(discord.ui.View):
 
     @discord.ui.button(label="⬅️ Previous Page", style=discord.ButtonStyle.primary, disabled=True)
     async def previous_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
+        if self.offset <= MAX_ITEMS_PER_PAGE:
+            return
         self.next_button_callback.disabled = False
         self.offset -= MAX_ITEMS_PER_PAGE * 2
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
@@ -32,6 +34,8 @@ class PageView(discord.ui.View):
 
     @discord.ui.button(label="Next Page ➡️", style=discord.ButtonStyle.primary)
     async def next_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
+        if self.offset >= self.total:
+            return
         self.previous_button_callback.disabled = False
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
         footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
