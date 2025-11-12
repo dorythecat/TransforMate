@@ -21,7 +21,7 @@ class Set(commands.Cog):
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                                 description="Add a space after the prefix "
                                                             "(defaults true)") = True) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         prefix += (" " * whitespace)
@@ -39,7 +39,7 @@ class Set(commands.Cog):
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
                                                 description="Add a space before the suffix (defaults true)") = True) \
             -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         suffix = (" " * whitespace) + suffix
@@ -50,7 +50,7 @@ class Set(commands.Cog):
     async def big(self,
                   ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['big']:
@@ -63,7 +63,7 @@ class Set(commands.Cog):
     async def small(self,
                     ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['small']:
@@ -76,7 +76,7 @@ class Set(commands.Cog):
     async def hush(self,
                    ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['hush']:
@@ -89,7 +89,7 @@ class Set(commands.Cog):
     async def backwards(self,
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['backwards']:
@@ -102,7 +102,7 @@ class Set(commands.Cog):
     async def eternal(self,
                       ctx: discord.ApplicationContext,
                       user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['claim'] == 0:
@@ -130,7 +130,7 @@ class Set(commands.Cog):
                      replacement: discord.Option(discord.SlashCommandOptionType.string,
                                                  description="Text to replace with"),
                      user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         utils.write_tf(user, ctx.guild, censor=censor, censor_replacement=replacement)
@@ -144,7 +144,7 @@ class Set(commands.Cog):
                        chance: discord.Option(discord.SlashCommandOptionType.number,
                                               description='Chance for sprinkle to go off') = 30,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         utils.write_tf(user, ctx.guild, sprinkle=sprinkle, chance=chance)
@@ -161,7 +161,7 @@ class Set(commands.Cog):
                      alt: discord.Option(discord.SlashCommandOptionType.boolean,
                                          description="Muffle full messages, instead of a per-word muffle.") = False,
                      user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if alt:
@@ -177,7 +177,7 @@ class Set(commands.Cog):
                       chance: discord.Option(discord.SlashCommandOptionType.number,
                                              description="Chance to stutter") = 30,
                       user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         utils.write_tf(user, ctx.guild, stutter=chance)
@@ -189,7 +189,7 @@ class Set(commands.Cog):
                   biography: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Biography for the transformed user"),
                   user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         utils.write_tf(user, ctx.guild, bio=biography)

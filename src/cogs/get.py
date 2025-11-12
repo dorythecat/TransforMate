@@ -55,7 +55,7 @@ class Get(commands.Cog):
     async def settings(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         embed = utils.get_embed_base(f"Settings for {user.name}:")
@@ -77,7 +77,7 @@ class Get(commands.Cog):
     async def claim(self,
                     ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if data['claim'] == 0:
@@ -89,7 +89,7 @@ class Get(commands.Cog):
     async def censors(self,
                       ctx: discord.ApplicationContext,
                       user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if data['censor'] == {}:
@@ -112,7 +112,7 @@ class Get(commands.Cog):
     async def sprinkles(self,
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if not data['sprinkle']:
@@ -135,7 +135,7 @@ class Get(commands.Cog):
     async def muffle(self,
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if not (data['muffle'] or data['alt_muffle']):
@@ -171,7 +171,7 @@ class Get(commands.Cog):
     async def prefixes(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if not data['prefix']:
@@ -194,7 +194,7 @@ class Get(commands.Cog):
     async def suffixes(self,
                        ctx: discord.ApplicationContext,
                        user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if not data['suffix']:
@@ -217,7 +217,7 @@ class Get(commands.Cog):
     async def bio(self,
                   ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         if data['bio'] in ["", None]:
@@ -239,8 +239,6 @@ class Get(commands.Cog):
             transformed_data = utils.load_tf(int(tfee), ctx.guild)
             if transformed_data == {}:
                 continue
-            transformed_data = transformed_data[
-                str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
             desc += f"<@{tfee}> is \"{into}\"\n\n"
             users += 1
@@ -257,7 +255,7 @@ class Get(commands.Cog):
     async def image(self,
                     ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user, True)
         if not valid:
             return
         await ctx.respond(f"{user.mention}'s image for [{data['into']}]({data['image_url']})")

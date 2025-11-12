@@ -17,8 +17,7 @@ class Block(commands.Cog):
         if channel is None:
             channel = ctx.channel
         utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
-        word = "yourself" if str(channel.id) in utils.load_tf(ctx.user, ctx.guild)[
-            'blocked_channels'] else "transformed"
+        word = "yourself" if str(channel.id) in utils.load_tf(ctx.user, ctx.guild)['blocked_channels'] else "transformed"
         channel_word = "this channel" if channel == ctx.channel else channel.mention
         await ctx.respond(f"You will now be {word} in {channel_word}!")
 
@@ -38,8 +37,7 @@ class Block(commands.Cog):
             category = ctx.channel.category
         for channel in category.channels:
             utils.write_tf(ctx.author, ctx.guild, block_channel=channel)
-        word = "yourself" if str(category.channels[0].id) in utils.load_tf(ctx.user, ctx.guild)[
-            'blocked_channels'] else "transformed"
+        word = "yourself" if str(category.channels[0].id) in utils.load_tf(ctx.user, ctx.guild)['blocked_channels'] else "transformed"
         category_word = "this channel" if category == ctx.channel.category else category.mention
         await ctx.respond(f"You will now be {word} in {category_word}!")
 

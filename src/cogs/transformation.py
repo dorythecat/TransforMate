@@ -12,7 +12,6 @@ async def transform_function(ctx: discord.ApplicationContext,
                              user: discord.User,
                              into: str | None = None,
                              image_url: str | None = None,
-                             channel: discord.TextChannel | None = None,
                              copy: discord.User | None = None,
                              merge: bool | None = None) -> bool:
     if into:
@@ -35,21 +34,21 @@ async def transform_function(ctx: discord.ApplicationContext,
     if copy is not None:
         old_data = utils.load_tf(user, ctx.guild)
         new_data = utils.load_tf(copy, ctx.guild)
-        if new_data == {} or new_data['all'] == {}:
-            return await transform_function(ctx, user, copy.display_name, copy.avatar.url, channel)
+        if new_data == {}:
+            return await transform_function(ctx, user, copy.display_name, copy.avatar.url)
         new_data['blocked_channels'] = old_data['blocked_channels'] if 'blocked_channels' in old_data else []
         new_data['blocked_users'] = old_data['blocked_users'] if 'blocked_users' in old_data else []
         if merge in [False, None]:
-            new_data['all']['into'] += "឵ᅟ"
+            new_data['into'] += "឵ᅟ"
         if into:
-            new_data['all']['into'] = into
+            new_data['into'] = into
         if image_url:
-            new_data['all']['image_url'] = image_url
-        new_data['all']['transformed_by'] = ctx.author.id
-        new_data['all']['claim'] = 0
-        new_data['all']['eternal'] = False
+            new_data['image_url'] = image_url
+        new_data['transformed_by'] = ctx.author.id
+        new_data['claim'] = 0
+        new_data['eternal'] = False
         utils.write_tf(user, ctx.guild, new_data=new_data)
-        utils.write_transformed(ctx.guild, user, channel)
+        utils.write_transformed(ctx.guild, user)
         return True
 
     if not into:
@@ -61,11 +60,10 @@ async def transform_function(ctx: discord.ApplicationContext,
 
     utils.write_tf(user,
                    ctx.guild,
-                   channel,
                    transformed_by=ctx.author,
                    into=into.strip(),
                    image_url=image_url)
-    utils.write_transformed(ctx.guild, user, channel)
+    utils.write_transformed(ctx.guild, user)
 
     transformed_data = utils.load_transformed(ctx.guild)
     if transformed_data['logs'][2]:
@@ -92,8 +90,6 @@ class Transformation(commands.Cog):
                                              description="What to trasnform them into") = None,
                         image_url: discord.Option(discord.SlashCommandOptionType.string,
                                                   description="Image URL to use") = None,
-                        channel: discord.Option(discord.TextChannel,
-                                                description="Transform the user only on this channel") = None,
                         copy: discord.Option(discord.User,
                                              description="Copy another user") = None,
                         merge: discord.Option(discord.SlashCommandOptionType.boolean,
@@ -112,10 +108,9 @@ class Transformation(commands.Cog):
             await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
             return
 
-        channel_id = str(ctx.channel.id if not channel else channel.id)
         data = utils.load_tf(user, ctx.guild)
         # Blocked channels (user)
-        if data != {} and channel_id in data['blocked_channels']:
+        if data != {} and str(ctx.channel.id) in data['blocked_channels']:
             await ctx.respond(f"You can't transform {user.mention} in this channel!"
                               f"They have blocked the bot here!", ephemeral=True)
             return
@@ -125,7 +120,7 @@ class Transformation(commands.Cog):
             utils.write_transformed(ctx.guild)
             transformed_data = utils.load_transformed(ctx.guild)
         # Blocked channels (server)
-        if channel_id in transformed_data['blocked_channels']:
+        if str(ctx.channel.id) in transformed_data['blocked_channels']:
             await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
             return
 
@@ -138,18 +133,9 @@ class Transformation(commands.Cog):
             return
 
         if utils.is_transformed(user, ctx.guild):
-            if channel_id in data:
-                data = data[channel_id]
-            elif 'all' in data:
-                data = data['all']
-            elif transformed_data != {} and transformed_data['affixes']:
-                data = { 'claim': 0 }  # Empty data so we can do multiple tfs
-            elif data == {}:
+            if data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
                 data = { 'claim': 0 }
-            else:
-                await ctx.respond(f"{user.mention} is already transformed at the moment!")
-                return
             if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
@@ -159,12 +145,12 @@ class Transformation(commands.Cog):
                 return
 
         if into:
-            if await transform_function(ctx, user, into, image_url, channel, None):
+            if await transform_function(ctx, user, into, image_url, None):
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
         if copy:
-            if await transform_function(ctx, user, into, image_url, channel, copy, merge):
+            if await transform_function(ctx, user, into, image_url, copy, merge):
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
             return
 
@@ -193,7 +179,6 @@ class Transformation(commands.Cog):
                                     user,
                                     response.content,
                                     file_url,
-                                    channel,
                                     None):
             await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
@@ -212,19 +197,12 @@ class Transformation(commands.Cog):
 
         data = utils.load_tf(user, ctx.guild)
         channel = None
-        if str(ctx.channel.id) in data:
-            data = data[str(ctx.channel.id)]
-            channel = ctx.channel
-        elif 'all' in data:
-            data = data['all']
-        elif not transformed_data['affixes']:
+        if data == {}:
             await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to! "
                               f"(At least on this channel)")
             return
-        else:
-            data = {'claim': 0, 'eternal': None, 'into': 'all'}  # Empty data so we can do multiple tfs
 
-        if not utils.is_transformed(user, ctx.guild, ctx.channel) and not utils.is_transformed(user, ctx.guild):
+        if not utils.is_transformed(user, ctx.guild):
             if data['into'] in ["", None]:
                 await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to!")
                 return
@@ -249,7 +227,7 @@ class Transformation(commands.Cog):
             await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
             return
 
-        utils.remove_transformed(user, ctx.guild, None if utils.is_transformed(user, ctx.guild) else ctx.channel)
+        utils.remove_transformed(user, ctx.guild)
         await ctx.respond(f"{user.mention} has been turned back to normal!")
 
         transformed_data = utils.load_transformed(ctx.guild)
@@ -272,13 +250,7 @@ class Transformation(commands.Cog):
             await ctx.respond(f"{user.mention} is not transformed at the moment, you can't claim them!")
             return
         data = utils.load_tf(user, ctx.guild)
-        channel = None
-        if str(ctx.channel) in data:
-            data = data[str(ctx.channel)]
-            channel = ctx.channel
-        elif 'all' in data:
-            data = data['all']
-        else:
+        if data == {}:
             await ctx.respond("This user isn't transformed in this channel! Please try again in the proper channel!")
             return
         if data['claim'] != 0:
@@ -288,7 +260,7 @@ class Transformation(commands.Cog):
             await ctx.respond(f"You can't do that! {user.mention} has been claimed already by "
                               f"{ctx.guild.get_member(int(data['claim'])).mention}!")
             return
-        utils.write_tf(user, ctx.guild, channel, claim_user=ctx.author.id)
+        utils.write_tf(user, ctx.guild, claim_user=ctx.author.id)
         await ctx.respond(f"You have successfully claimed {user.mention} for yourself! Hope you enjoy!")
 
         transformed_data = utils.load_transformed(ctx.guild)
@@ -406,10 +378,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
                 return
 
-        version = utils.get_data_version(user)
-        data = data[str(ctx.channel.id) if str(ctx.channel.id) in data else 'all']
-
-        output = utils.encode_tsf(data, version)
+        output = utils.encode_tsf(data, utils.get_data_version(user))
 
         if file:
             try:
@@ -475,18 +444,9 @@ class Transformation(commands.Cog):
 
         channel_id = str(ctx.channel.id)
         if utils.is_transformed(user, ctx.guild):
-            if channel_id in data:
-                data = data[channel_id]
-            elif 'all' in data:
-                data = data['all']
-            elif transformed_data != {} and transformed_data['affixes']:
-                data = { 'claim': 0 }  # Empty data so we can do multiple tfs
-            elif data == {}:
+            if data == {}:
                 # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
                 data = { 'claim': 0 }
-            else:
-                await ctx.respond(f"{user.mention} is already transformed at the moment!")
-                return
             if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
@@ -515,15 +475,12 @@ class Transformation(commands.Cog):
 
         new_data = utils.decode_tsf(tsf_string)
         new_data['transformed_by'] = ctx.author.id
-        new_data['claim'] = 0
-        new_data['eternal'] = False
 
         data = utils.load_tf(user, ctx.guild)
-        if 'all' in data: # Make sure to keep existing claims and eternal status
-            new_data['claim'] = data['all']['claim']
-            new_data['eternal'] = data['all']['eternal']
-        data['all'] = new_data
-        utils.write_tf(user, ctx.guild, None, data)
+        new_data['claim'] = data['claim'] if 'claim' in data else 0
+        new_data['eternal'] = data['eternal'] if 'eternal' in data else False
+        data = new_data
+        utils.write_tf(user, ctx.guild, data)
 
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 

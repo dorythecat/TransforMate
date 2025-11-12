@@ -14,7 +14,7 @@ class Clear(commands.Cog):
     async def all_fields(self,
                          ctx: discord.ApplicationContext,
                          user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         utils.write_tf(user,
@@ -40,7 +40,7 @@ class Clear(commands.Cog):
                      user: discord.Option(discord.User) = None,
                      prefix: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Prefix to remove") = "") -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['prefix'] == {}:
@@ -63,7 +63,7 @@ class Clear(commands.Cog):
                      user: discord.Option(discord.User) = None,
                      suffix: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Suffix to remove") = "") -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['suffix'] == {}:
@@ -84,7 +84,7 @@ class Clear(commands.Cog):
     async def big(self,
                   ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if not data['big']:
@@ -97,7 +97,7 @@ class Clear(commands.Cog):
     async def small(self,
                     ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if not data['small']:
@@ -110,7 +110,7 @@ class Clear(commands.Cog):
     async def hush(self,
                    ctx: discord.ApplicationContext,
                    user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if not data['hush']:
@@ -123,7 +123,7 @@ class Clear(commands.Cog):
     async def backwards(self,
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if not data['backwards']:
@@ -138,7 +138,7 @@ class Clear(commands.Cog):
                      user: discord.Option(discord.User) = None,
                      censor: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Censor to clear") = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['censor'] == {}:
@@ -160,7 +160,7 @@ class Clear(commands.Cog):
                        user: discord.Option(discord.User) = None,
                        sprinkle: discord.Option(discord.SlashCommandOptionType.string,
                                                 description="Sprinkle to clear") = "") -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         # If the user is not sprinkled, we can just return
@@ -181,7 +181,7 @@ class Clear(commands.Cog):
                      user: discord.Option(discord.User) = None,
                      muffle: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Muffle to clear") = "") -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         # If the user is not muffled, we can just return
@@ -207,7 +207,7 @@ class Clear(commands.Cog):
     async def eternal(self,
                       ctx: discord.ApplicationContext,
                       user: discord.Option(discord.User)) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if not data['eternal']:
@@ -220,7 +220,7 @@ class Clear(commands.Cog):
     async def bio(self,
                   ctx: discord.ApplicationContext,
                   user: discord.Option(discord.User) = None) -> None:
-        valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
+        valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['bio'] in ["", None]:

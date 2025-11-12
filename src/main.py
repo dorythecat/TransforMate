@@ -106,13 +106,12 @@ async def on_message(message: discord.Message) -> None:
         if message.author.id == 1273264155482390570:  # Dyno bot
             if message.embeds and "Deleted" in message.embeds[0].description:
                 if utils.is_transformed(discord.utils.get(bot.get_all_members(), name=message.embeds[0].author.name),
-                                        message.guild,
-                                        message.channel):
+                                        message.guild):
                     await message.delete()
         return
 
     # Check if user is transformed
-    if not utils.is_transformed(message.author, message.guild, message.channel):
+    if not utils.is_transformed(message.author, message.guild):
         return
 
     # Check if user is using OOC mode
@@ -125,21 +124,14 @@ async def on_message(message: discord.Message) -> None:
 
     # Handle blocked channels
     # Not necessary to check for blocked users, since they shouldn't be able to use the bot anyway
-    if (str(message.channel.id) in (data['blocked_channels'] or
-        utils.load_transformed(message.guild)['blocked_channels'])):
+    if 'blocked_channels' not in data:
+        data['blocked_channels'] = []
+    if str(message.channel.id) in data['blocked_channels'] + utils.load_transformed(message.guild)['blocked_channels']:
         return
 
     # If the message contains stickers, we just don't process it
     if message.stickers:
         await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
-        return
-
-    tfed_channels = utils.load_transformed(message.guild)['transformed_users'][str(message.author.id)]
-    if str(message.channel.id) in data and tfed_channels:
-        data = data[str(message.channel.id)]
-    elif 'all' in data and tfed_channels:
-        data = data['all']
-    else:
         return
 
     name = data['into']
