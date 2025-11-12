@@ -775,12 +775,13 @@ def decode_tsf(tsf_string: str) -> dict:
         if len(tsf_data) != 12:
             raise ValueError("decode_tsf() expected 18 elements in the TSFv2.0 string, got " + str(len(tsf_data)))
 
+        tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
+
         boolean_number = int(tsf_data[2], 16)
         big = boolean_number & 1 != 0
         small = boolean_number & 2 != 0
         hush = boolean_number & 4 != 0
         backwards = boolean_number & 8 != 0
-        next_index = 3
 
         # Generate basic data
         data = {
@@ -790,18 +791,17 @@ def decode_tsf(tsf_string: str) -> dict:
             'small': small,
             'hush': hush,
             'backwards': backwards,
-            'stutter': int(tsf_data[next_index]),
-            'bio': tsf_data[next_index + 3]
+            'stutter': int(tsf_data[3]),
+            'bio': tsf_data[4]
         }
 
         modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
         for modifier in modifiers:
             data[modifier] = {}
-            modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else ",%")
-            for mod in modifier_data:
+            for mod in tsf_data[5 + modifiers.index(modifier)].split(",%"):
                 if mod == "":
                     continue
-                key, value = mod.split("|" if sep == ";" else "|%")
+                key, value = mod.split("|%")
                 data[modifier][key] = int(value) if modifier != 'censor' else value
 
         return data
