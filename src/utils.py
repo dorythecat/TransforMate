@@ -518,26 +518,25 @@ def transform_text(data: dict, original: str) -> str:
     for i in range(len(words)):
         # Censor will change a word for another, "censoring" it
         if data['censor'] != {}:
-            raw_word = words[i]
-            word = ''.join(e for e in raw_word if e.isalnum()) # Removed special characters
+            word = ''.join(e for e in words[i] if e.isalnum()) # Removed special characters
+
+            if word in data['censor']:
+                words[i] = words[i].replace(word, data['censor'][word]) # We keep punctuation
+                continue
+
+            if words[i] in data['censor']:
+                words[i] = data['censor'][words[i]] # The entire word should be replaced
+                continue
 
             regex = False
             for pattern in data['censor']:
                 if not pattern.startswith("/"):
                     continue
-                if re.search(pattern[1:], raw_word):
-                    words[i] = re.sub(pattern[1:], data['censor'][pattern], raw_word)
+                if re.search(pattern[1:], words[i]):
+                    words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
                     regex = True
                     break
             if regex:
-                continue
-
-            if word in data['censor']:
-                words[i] = raw_word.replace(word, data['censor'][word]) # We keep punctuation
-                continue
-
-            if raw_word in data['censor']:
-                words[i] = data['censor'][raw_word] # The entire word should be replaced
                 continue
 
         # Muffle will overwrite a word with a word from the data array by random chance
