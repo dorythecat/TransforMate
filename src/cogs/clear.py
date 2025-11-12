@@ -137,21 +137,19 @@ class Clear(commands.Cog):
                      ctx: discord.ApplicationContext,
                      user: discord.Option(discord.User) = None,
                      censor: discord.Option(discord.SlashCommandOptionType.string,
-                                            description="Censor to clear") = None) -> None:
+                                            description="Censor to clear") = "") -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
         if data['censor'] == {}:
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
-        if censor not in ["", None]:
+        if censor != "":
             if censor not in data['censor']:
                 await ctx.respond(f"{user.mention} is not censored with the word \"{censor}\"!")
                 return
             censor = "$/-" + censor
-            utils.write_tf(user, ctx.guild, censor=censor)
-            return
-        utils.write_tf(user, ctx.guild, censor="")
+        utils.write_tf(user, ctx.guild, censor=censor)
         await ctx.respond(f"{user.mention} will no longer have a censor set!")
 
     @clear_command.command(description="Clear sprinkle setting")
