@@ -3,6 +3,39 @@ from discord.ext import commands
 
 import utils
 
+MAX_ITEMS_PER_PAGE: int = 10 # Max items per page for views
+
+class TransformedView(discord.ui.View):
+    desc: str = ""
+    total_users: int = 0
+    offset: int = 0
+
+    def __init__(self, desc: str, total_users: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
+        super().__init__(timeout=None)
+        self.desc = desc
+        self.total_users = total_users
+        self.offset = offset
+
+    @discord.ui.button(label="Previous Page", style=discord.ButtonStyle.primary, disabled=True)
+    async def previous_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
+        self.next_button_callback.disabled = False
+        self.offset -= MAX_ITEMS_PER_PAGE * 2
+        desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        self.offset += MAX_ITEMS_PER_PAGE
+        await interaction.response.edit_message(embed=utils.get_embed_base("Transformed Users", desc), view=self)
+        if self.offset <= MAX_ITEMS_PER_PAGE:
+            button.disabled = True
+            await interaction.message.edit(view=self)
+
+    @discord.ui.button(label="Next Page", style=discord.ButtonStyle.primary)
+    async def next_button_callback(self, button: discord.Button, interaction: discord.Interaction) -> None:
+        self.previous_button_callback.disabled = False
+        desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        self.offset += MAX_ITEMS_PER_PAGE
+        await interaction.response.edit_message(embed=utils.get_embed_base("Transformed Users", desc), view=self)
+        if self.offset >= self.total_users:
+            button.disabled = True
+            await interaction.message.edit(view=self)
 
 class Get(commands.Cog):
     def __init__(self, bot: discord.Bot) -> None:
@@ -153,7 +186,8 @@ class Get(commands.Cog):
             await ctx.respond("No one is transformed in this server, at the moment!")
             return
 
-        desc = ""
+        desc: str = ""
+        total_users: int = 0
         for tfee in tfee_data:
             transformed_data = utils.load_tf(int(tfee), ctx.guild)
             if transformed_data == {}:
@@ -162,7 +196,14 @@ class Get(commands.Cog):
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
             desc += f"<@{tfee}> is \"{into}\"\n\n"
-        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc[:-2]))
+            total_users += 1
+
+        view = None
+        if total_users > MAX_ITEMS_PER_PAGE:
+            view = TransformedView(desc, total_users)
+
+        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE]) + "\n\n"
+        await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc[:-2]), view=view)
 
     @get_command.command(description="Get the profile image of a transformed user")
     async def image(self,
