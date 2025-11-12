@@ -8,14 +8,14 @@ MAX_ITEMS_PER_PAGE: int = 10 # Max items per page for views
 class PageView(discord.ui.View):
     embed_title: str = ""
     desc: str = ""
-    total_users: int = 0
+    total: int = 0
     offset: int = 0
 
-    def __init__(self, embed_title: str, desc: str, total_users: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
+    def __init__(self, embed_title: str, desc: str, total: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
         super().__init__(timeout=None)
         self.embed_title = embed_title
         self.desc = desc
-        self.total_users = total_users
+        self.total = total
         self.offset = offset
 
     @discord.ui.button(label="Previous Page", style=discord.ButtonStyle.primary, disabled=True)
@@ -35,7 +35,7 @@ class PageView(discord.ui.View):
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
         self.offset += MAX_ITEMS_PER_PAGE
         await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc), view=self)
-        if self.offset >= self.total_users:
+        if self.offset >= self.total:
             button.disabled = True
             await interaction.message.edit(view=self)
 
@@ -90,10 +90,15 @@ class Get(commands.Cog):
             await ctx.respond(f"{user.mention} is not censored at the moment!")
             return
 
-        desc = ""
+        desc: str = ""
         for censor in data['censor']:
             desc += f"**{censor}**: {data['censor'][censor]}\n\n"
-        await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc[:-2]))
+
+        view = None
+        if len(data['censor']) > MAX_ITEMS_PER_PAGE:
+            view = PageView(f"Censors for {user.name}:", desc, len(data['censor']))
+        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc), view=view)
 
     @get_command.command(description="List the sprinkles for the transformed user")
     async def sprinkles(self,
@@ -106,10 +111,15 @@ class Get(commands.Cog):
             await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
             return
 
-        desc = ""
+        desc: str = ""
         for sprinkle in data['sprinkle']:
             desc += f"**{sprinkle}**: {data['sprinkle'][sprinkle]}%\n\n"
-        await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc[:-2]))
+
+        view = None
+        if len(data['sprinkle']) > MAX_ITEMS_PER_PAGE:
+            view = PageView(f"Sprinkles for {user.name}:", desc, len(data['sprinkle']))
+        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc), view=view)
 
     @get_command.command(description="List the muffle for the transformed user")
     async def muffle(self,
@@ -118,21 +128,30 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-
-        if data['muffle']:
-            desc = ""
-            for muffle in data['muffle']:
-                desc += f"**{muffle}**: {data['muffle'][muffle]}%\n\n"
-            await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc[:-2]))
-
-        if data['alt_muffle']:
-            desc = ""
-            for alt_muffle in data['alt_muffle']:
-                desc += f"**{alt_muffle}**: {data['alt_muffle'][alt_muffle]}%\n\n"
-            await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc[:-2]))
-
         if not (data['muffle'] or data['alt_muffle']):
             await ctx.respond(f"{user.mention} has no muffles at the moment!")
+
+        if data['muffle']:
+            desc: str = ""
+            for muffle in data['muffle']:
+                desc += f"**{muffle}**: {data['muffle'][muffle]}%\n\n"
+
+            view = None
+            if len(data['muffle']) > MAX_ITEMS_PER_PAGE:
+                view = PageView(f"Muffles for {user.name}:", desc, len(data['muffle']))
+            desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+            await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc), view=view)
+
+        if data['alt_muffle']:
+            desc: str = ""
+            for alt_muffle in data['alt_muffle']:
+                desc += f"**{alt_muffle}**: {data['alt_muffle'][alt_muffle]}%\n\n"
+
+            view = None
+            if len(data['alt_muffle']) > MAX_ITEMS_PER_PAGE:
+                view = PageView(f"Alternative muffles for {user.name}:", desc, len(data['alt_muffle']))
+            desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+            await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc), view=view)
 
     @get_command.command(description="List the prefixes for the transformed user")
     async def prefixes(self,
@@ -145,10 +164,15 @@ class Get(commands.Cog):
             await ctx.respond(f"{user.mention} has no prefixes at the moment!")
             return
 
-        desc = ""
+        desc: str = ""
         for prefix in data['prefix']:
             desc += f"**{prefix}**: {data['prefix'][prefix]}%\n\n"
-        await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc[:-2]))
+
+        view = None
+        if len(data['prefix']) > MAX_ITEMS_PER_PAGE:
+            view = PageView(f"Prefixes for {user.name}:", desc, len(data['prefix']))
+        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc), view=view)
 
     @get_command.command(description="List the suffixes for the transformed user")
     async def suffixes(self,
@@ -161,10 +185,15 @@ class Get(commands.Cog):
             await ctx.respond(f"{user.mention} has no suffixes at the moment!")
             return
 
-        desc = ""
+        desc: str = ""
         for suffix in data['suffix']:
             desc += f"**{suffix}**: {data['suffix'][suffix]}%\n\n"
-        await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc[:-2]))
+
+        view = None
+        if len(data['suffix']) > MAX_ITEMS_PER_PAGE:
+            view = PageView(f"Suffixes for {user.name}:", desc, len(data['suffix']))
+        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc), view=view)
 
     @get_command.command(description="Get the biography of a transformed user")
     async def bio(self,
@@ -182,14 +211,13 @@ class Get(commands.Cog):
     @get_command.command(description="Get a list of transformed users")
     async def transformed(self,
                           ctx: discord.ApplicationContext) -> None:
-        # TODO: https://github.com/dorythecat/TransforMate/issues/51
         tfee_data = utils.load_transformed(ctx.guild)['transformed_users']
         if tfee_data == {}:
             await ctx.respond("No one is transformed in this server, at the moment!")
             return
 
+        users: int = 0
         desc: str = ""
-        total_users: int = 0
         for tfee in tfee_data:
             transformed_data = utils.load_tf(int(tfee), ctx.guild)
             if transformed_data == {}:
@@ -198,12 +226,11 @@ class Get(commands.Cog):
                 str(ctx.channel.id) if str(ctx.channel.id) in transformed_data else 'all']
             into = transformed_data['into']
             desc += f"<@{tfee}> is \"{into}\"\n\n"
-            total_users += 1
+            users += 1
 
         view = None
-        if total_users > MAX_ITEMS_PER_PAGE:
-            view = PageView("Transformed Users", desc, total_users)
-
+        if users > MAX_ITEMS_PER_PAGE:
+            view = PageView("Transformed Users", desc, users)
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
         await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc), view=view)
 
@@ -214,7 +241,6 @@ class Get(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user, True, ctx.channel)
         if not valid:
             return
-
         await ctx.respond(f"{user.mention}'s image for [{data['into']}]({data['image_url']})")
 
 
