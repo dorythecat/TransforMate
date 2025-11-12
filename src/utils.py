@@ -92,7 +92,7 @@ def write_tf(user: discord.User | discord.Member | int,
              muffle: str | None = None,
              alt_muffle: str | None = None,
              stutter: int | None = None,
-             chance: int | None = None,
+             chance: float | None = None,
              bio: str | None = None) -> None:
     """
     This is a utility function with the unique purpose of modifying the TMUD-compliant transformation data of a given

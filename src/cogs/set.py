@@ -15,7 +15,7 @@ class Set(commands.Cog):
                      ctx: discord.ApplicationContext,
                      prefix: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Prefix to add"),
-                     chance: discord.Option(discord.SlashCommandOptionType.integer,
+                     chance: discord.Option(discord.SlashCommandOptionType.number,
                                             description="Chance for prefix to go off") = 30,
                      user: discord.Option(discord.User) = None,
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
@@ -33,7 +33,7 @@ class Set(commands.Cog):
                      ctx: discord.ApplicationContext,
                      suffix: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Suffix to add"),
-                     chance: discord.Option(discord.SlashCommandOptionType.integer,
+                     chance: discord.Option(discord.SlashCommandOptionType.number,
                                             description="Chance for suffix to go off") = 30,
                      user: discord.Option(discord.User) = None,
                      whitespace: discord.Option(discord.SlashCommandOptionType.boolean,
@@ -141,7 +141,7 @@ class Set(commands.Cog):
                        ctx: discord.ApplicationContext,
                        sprinkle: discord.Option(discord.SlashCommandOptionType.string,
                                                 description="Text to sprinkle"),
-                       chance: discord.Option(discord.SlashCommandOptionType.integer,
+                       chance: discord.Option(discord.SlashCommandOptionType.number,
                                               description='Chance for sprinkle to go off') = 30,
                        user: discord.Option(discord.User) = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
@@ -156,7 +156,7 @@ class Set(commands.Cog):
                      ctx: discord.ApplicationContext,
                      muffle: discord.Option(discord.SlashCommandOptionType.string,
                                             description="Text that will replace others"),
-                     chance: discord.Option(discord.SlashCommandOptionType.integer,
+                     chance: discord.Option(discord.SlashCommandOptionType.number,
                                             description='Chance for muffle to go off') = 30,
                      alt: discord.Option(discord.SlashCommandOptionType.boolean,
                                          description="Muffle full messages, instead of a per-word muffle.") = False,
@@ -174,7 +174,7 @@ class Set(commands.Cog):
     @set_command.command(description="Set the transformed user to stutter on random words, with a certain chance")
     async def stutter(self,
                       ctx: discord.ApplicationContext,
-                      chance: discord.Option(discord.SlashCommandOptionType.integer,
+                      chance: discord.Option(discord.SlashCommandOptionType.number,
                                              description="Chance to stutter") = 30,
                       user: discord.Option(discord.User) = None) -> None:
         valid, data, user = await utils.extract_tf_data(ctx, user, channel=ctx.channel)
