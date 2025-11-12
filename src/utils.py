@@ -500,18 +500,14 @@ def transform_text(data: dict, original: str) -> str:
             if random.randint(0, 100) <= int(data['alt_muffle'][alt_muffle]):
                 return alt_muffle
 
-    transformed = original
-    transformed = clear_apple_marks(transformed)
+    transformed = clear_apple_marks(original)
 
     if data['censor'] != {}:
         for pattern in data['censor']:
-            if not pattern.startswith("//"):
-                continue
-            if re.search(pattern[2:], transformed):
+            if pattern.startswith("-/") and re.search(pattern[2:], transformed):
                 transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
 
     words = transformed.split(" ")
-
     for i in range(len(words)):
         # Censor will change a word for another, "censoring" it
         if data['censor'] != {}:
