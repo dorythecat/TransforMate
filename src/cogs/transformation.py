@@ -480,8 +480,8 @@ class Transformation(commands.Cog):
         new_data['blocked_channels'] = data['blocked_channels'] if 'blocked_channels' in data else []
         new_data['claim'] = data['claim'] if 'claim' in data else 0
         new_data['eternal'] = data['eternal'] if 'eternal' in data else False
-        data = new_data
-        utils.write_tf(user, ctx.guild, data)
+        utils.write_tf(user, ctx.guild, new_data)
+        utils.write_transformed(ctx.guild, user)
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 
 

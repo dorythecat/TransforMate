@@ -405,8 +405,6 @@ def write_transformed(guild: discord.Guild | int,
         user_id = str(user if type(user) is int else user.id)
         if user_id not in data[guild_id]['transformed_users'] or not data[guild_id]['transformed_users'][user_id]:
             data[guild_id]['transformed_users'][user_id] = True
-        else:
-            data[guild_id]['transformed_users'][user_id] = False
 
     if block_channel is not None:
         block_channel = str(block_channel if type(block_channel) is int else block_channel.id)
