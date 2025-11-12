@@ -268,9 +268,6 @@ bot! We've only really skipped two features in all of this tutorial. The first
 of these is the per-channel transformations, but you should be able to figure
 those out with the information in this tutorial.
 
-!!! hint
-    Check out the `channel` parameter in the `/transform` command.
-
 There's only really one thing you've missed, and that's the twinning and merging
 capabilities of the bot. These are very specific and kinda fiddly. Check out the
 [Basic Twinning Tutorial](twinning.md) to learn more about this feature!
