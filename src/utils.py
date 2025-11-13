@@ -683,14 +683,11 @@ def get_embed_base(title: str,
 def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
     transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
-    # TODO(Before release): Find a better way to do this
     for tfee in transformed_data:
         data = load_tf(int(tfee), message.guild)
-        if data == {}:
-            continue
-        if data['into'] == message.author.name:
+        if data != {} and data['into'] == message.author.name:
             # TODO: Make it so that this function returns all currently tfed users with this tf name
-            if load_transformed(message.guild)['transformed_users'][tfee] not in [[], None]:
+            if transformed_data[tfee] not in [[], None]:
                 return int(tfee), data
     return None, None
 
