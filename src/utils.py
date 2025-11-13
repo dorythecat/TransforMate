@@ -655,8 +655,16 @@ def write_file(filename: str, data: dict) -> None:
 
 
 # MISCELLANEOUS UTILS
-def get_webhook_by_name(webhooks: list[discord.Webhook], name: str) -> discord.Webhook | None:
-    return next((wh for wh in webhooks if wh.name == name), None)
+async def get_webhook_by_name(channel: discord.TextChannel, name: str) -> discord.Webhook:
+    """
+    Helper to get (or create, if it doesn't exist) a webhook by name from a list of webhooks.
+
+    :param channel: The Discord channel to get the webhook from.
+    :param name: The name of the webhook to get.
+
+    :return: The Discord webhook with the specified name.
+    """
+    return next((wh for wh in await channel.webhooks() if wh.name == name), await channel.create_webhook(name=name))
 
 
 def get_embed_base(title: str,

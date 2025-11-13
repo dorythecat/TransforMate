@@ -140,9 +140,7 @@ async def on_message(message: discord.Message) -> None:
     is_thread = message.channel.type in [discord.ChannelType.private_thread, discord.ChannelType.public_thread]
     channel = message.channel.parent if is_thread else message.channel
 
-    webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
-    if not webhook:
-        webhook = await channel.create_webhook(name=WEBHOOK_NAME)
+    webhook = await utils.get_webhook_by_name(channel, WEBHOOK_NAME)
 
     content = ""
     if message.reference:  # Check if the message is a reply
@@ -240,9 +238,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
                                                       discord.ChannelType.public_thread]
         channel = reaction.message.channel.parent if is_thread else reaction.message.channel
 
-        webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
-        if not webhook:
-            webhook = await channel.create_webhook(name=WEBHOOK_NAME)
+        webhook = await utils.get_webhook_by_name(channel, WEBHOOK_NAME)
 
         attachments = []
         for attachment in response.attachments:
