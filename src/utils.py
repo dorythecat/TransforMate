@@ -390,6 +390,7 @@ def write_transformed(guild: discord.Guild | int,
                         continue
                     del data[server]['transformed_users'][user]
                     data[server]['transformed_users'][user] = True
+        data['version'] = 10
 
     guild_id = str(guild if type(guild) is int else guild.id)
     if guild_id not in data:
