@@ -864,6 +864,8 @@ def check_url(url: str) -> str:
             response = requests.head(url, allow_redirects=True, timeout=5)
             if response.status_code >= 400:
                 return ""
+        if not response.headers['Content-Type'].startswith("image/"):
+            return ""
     except requests.RequestException:
         return ""
     return url
