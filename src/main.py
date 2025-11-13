@@ -2,12 +2,8 @@ import discord
 import os
 
 # Make sure we're on the proper working directory
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-if os.name == "nt":
-    os.chdir("\\".join(dname.split("\\")[:-1]))
-else:
-    os.chdir("/".join(dname.split("/")[:-1]))
+sep = "\\" if os.name == "nt" else "/"
+os.chdir(sep.join(os.path.dirname(os.path.abspath(__file__)).split(sep)[:-1]))
 
 from pathlib import Path
 
@@ -30,8 +26,6 @@ async def on_ready() -> None:
     Path("../cache/people").mkdir(parents=True, exist_ok=True)
 
 
-# TODO: When the bot joins a server, we should check if it has the proper permissions, and then warn the owner of
-# features that might be disabled.
 @bot.event
 async def on_guild_join(guild: discord.Guild) -> None:
     await guild.owner.send("# Thanks for adding the TransforMate bot to your server!\n"
@@ -63,8 +57,8 @@ async def on_message(message: discord.Message) -> None:
 
     if not message.guild:  # DMs
         if "report" in message.content.lower():
-            await message.author.send("Uh, oh! Do you want to report someone? If so, please provide the user ID, which"
-                                      " you can get by right-clicking on their name and selecting \"Copy ID\".")
+            await message.author.send("Uh, oh! Do you want to report someone? If so, please provide the user ID, which "
+                                      "you can get by right-clicking on their name and selecting \"Copy ID\".")
             user_id = await bot.wait_for('message', check=lambda m: m.author == message.author)
             if not user_id.content.isdigit():
                 await message.author.send("That's not a valid user ID! Please try reporting another time!")
@@ -94,8 +88,9 @@ async def on_message(message: discord.Message) -> None:
             embed.add_field(name="Reported User", value=user.mention)
             embed.add_field(name="Reporter", value=message.author.mention)
             embed.add_field(name="Reason", value=reason.content.strip())
-            embed.add_field(name="Reported in DMs", value="")
+            embed.add_field(name="Reported in DMs", value=str(user.id))
             await bot.get_channel(USER_REPORTS_CHANNEL_ID).send(embed=embed)
+            print(f"[REPORT] User {user} reported by {message.author} in DMs for reason: {reason.content.strip()}")
             await message.author.send("Thank you for your report! It has been sent to the developers, for review.")
         return
 
@@ -119,7 +114,7 @@ async def on_message(message: discord.Message) -> None:
         return
 
     data = utils.load_tf(message.author, message.guild)
-    if data == {}:  # User isn't transformed
+    if data == {}: # User isn't transformed
         return
 
     # Handle blocked channels
