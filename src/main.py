@@ -178,6 +178,10 @@ async def on_message(message: discord.Message) -> None:
 
     if message.content:
         tfed_content = utils.transform_text(data, message.content)
+        if len(tfed_content) > 2000:
+            await message.author.send("Sorry, but your transformed message exceeded Discord's 2000 character "
+                                      "limit! Please try sending a shorter message.")
+            return
 
         # Check if censor, muffles, alt muffle, or sprinkles are active in data, and if the message is different from
         # the original, to send it to the author of the transformation
