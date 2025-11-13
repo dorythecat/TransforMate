@@ -384,13 +384,14 @@ async def report(ctx: discord.ApplicationContext,
 
 @bot.slash_command(description="See information about the bot")
 async def info(ctx: discord.ApplicationContext) -> None:
-    embed = utils.get_embed_base(title="Info", desc="> \"Let's get transforming!\"")
+    embed = utils.get_embed_base("Info", "> \"Let's get transforming!\"")
     embed.add_field(name="Original Creators", value="<@770662556456976415>\n<@250982256976330754>")
     embed.add_field(name="Logo by", value="<@317115440180494337>")
     embed.add_field(name="Source Code", value="[GitHub](https://github.com/dorythecat/transformate)")
-    embed.add_field(name="official Documentation", value="https://dorythecat.github.io/TransforMate/")
+    embed.add_field(name="Official Documentation", value="https://dorythecat.github.io/TransforMate/")
     embed.add_field(name="Official Discord Server", value="[Join here!](https://discord.gg/uGjWk2SRf6)")
-    embed.add_field(name="Support the project!", value="[Patreon](https://www.patreon.com/dorythecat)")
+    embed.add_field(name="Support the project!", value="[Patreon](https://www.patreon.com/dorythecat) | "
+                                                       "[Official Shop](https://shop.transformate.live/)")
     await ctx.respond(embed=embed)
 
 @bot.slash_command(description="Legal stuff, so fun!")
