@@ -688,7 +688,16 @@ async def get_webhook_by_name(channel: discord.TextChannel, name: str) -> discor
 
     :return: The Discord webhook with the specified name.
     """
-    return next((wh for wh in await channel.webhooks() if wh.name == name), await channel.create_webhook(name=name))
+    webhook = next((wh for wh in await channel.webhooks() if wh.name == name), None)
+    if webhook is None:
+        try:
+            webhook = await channel.create_webhook(name=name)
+        except discord.errors.HTTPException: # Webhook limit reached
+            webhooks = await channel.webhooks()
+            if len(webhooks) == 0:
+                raise
+            webhook = webhooks[0]
+    return webhook
 
 
 def get_embed_base(title: str,
