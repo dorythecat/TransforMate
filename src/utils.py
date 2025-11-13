@@ -596,7 +596,7 @@ def transform_text(data: dict, original: str) -> str:
             if text.strip() == "":
                 transformed += "\n"
                 continue
-            transformed += "-# " + text.strip() + "\n"
+            transformed += f"-# {text.strip()}\n"
 
         # Make sure mentions work appropriately
         mention_transformed = ""
@@ -607,7 +607,7 @@ def transform_text(data: dict, original: str) -> str:
         transformed = mention_transformed.strip()
 
     if data['hush']:
-        transformed = "||" + transformed + "||"
+        transformed = f"||{transformed}||"
 
     return transformed
 
