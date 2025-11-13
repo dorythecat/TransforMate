@@ -3,6 +3,7 @@ import os
 import random
 import math
 import re
+import requests
 
 from types import NoneType
 
@@ -854,5 +855,14 @@ def check_url(url: str) -> str:
     if "?" in url:
         url = url[:url.index("?")]
     if not url.startswith("http"): # Basic preliminary check
-        return "http://" + url
+        return f"https://{url}" # Try HTTPS
+    try: # Check that the url is reachable
+        response = requests.head(url, allow_redirects=True, timeout=5)
+        if response.status_code >= 400: # Try HTTP
+            url = f"http://{url[8:]}"
+            response = requests.head(url, allow_redirects=True, timeout=5)
+            if response.status_code >= 400:
+                return ""
+    except requests.RequestException:
+        return ""
     return url
