@@ -184,7 +184,7 @@ def write_tf(user: discord.User | discord.Member | int,
             'sprinkle': {},
             'muffle': {},
             'alt_muffle': {},
-            'stutter': stutter,
+            'stutter': 0 if stutter is None else stutter,
             'bio': bio
         }
     else:
