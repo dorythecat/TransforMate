@@ -363,7 +363,7 @@ async def report(ctx: discord.ApplicationContext,
     if response.content.strip() != "CONFIRM":
         await ctx.send("Cancelled the report!")
         return
-    await ctx.channel.delete_messages([response])  # Delete confirmation message, for privacy
+    await ctx.channel.delete_messages([response]) # Delete confirmation message, for privacy
 
     embed = utils.get_embed_base(title="RECEIVED A REPORT", color=discord.Color.dark_red())
     embed.add_field(name="Reported User", value=user.mention)
@@ -372,9 +372,12 @@ async def report(ctx: discord.ApplicationContext,
     await ctx.guild.owner.send(embed=embed)
 
     # Dev data
-    embed.add_field(name="Server", value=ctx.guild.name)
+    embed.add_field(name=f"Reported on: **{ctx.guild.name}**", value=str(ctx.guild.id))
     embed.add_field(name="Server Owner", value=ctx.guild.owner.mention)
     await bot.get_channel(USER_REPORTS_CHANNEL_ID).send(embed=embed)
+
+    # Print to console
+    print(f"[REPORT] User {user} reported by {ctx.author} on server {ctx.guild.name} for reason: {reason}")
 
     await ctx.respond("Report sent! Thank you for helping us keep this bot safe!", ephemeral=True)
 
