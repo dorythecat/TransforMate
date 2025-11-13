@@ -746,7 +746,6 @@ def decode_tsf(tsf_string: str) -> dict:
 
     :return: A TMUD-compliant transformation data dict.
     """
-    sep = ";%"
     if tsf_string[0] == "2": # v2.x
         tsf_data = tsf_string.split(";%")
         version = int(tsf_data[0].split(".")[1]) # Get the minor version
@@ -787,9 +786,11 @@ def decode_tsf(tsf_string: str) -> dict:
 
         return data
 
+    sep = ";%"
     tsf_data = tsf_string.split(";%") # v1.2
     if tsf_string[:3] != "1;%": # v1.0 and v1.1
         tsf_data = tsf_string.split(";")
+        sep = ";"
 
     version = int(tsf_data[0])
     if version != 15 and version != 1: # v1.0 and v1.x
@@ -803,19 +804,19 @@ def decode_tsf(tsf_string: str) -> dict:
     tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
 
     # Booleans
+    boolean_number = int(tsf_data[2], 16)
+    big = boolean_number & 1 != 0
+    small = boolean_number & 2 != 0
+    hush = boolean_number & 4 != 0
+    backwards = boolean_number & 8 != 0
+    next_index = 3
+
     if version == 15: # v1.0
         big = tsf_data[2] == "1"
         small = tsf_data[3] == "1"
         hush = tsf_data[4] == "1"
         backwards = tsf_data[5] == "1"
         next_index = 6
-    else: # v1.x
-        boolean_number = int(tsf_data[2], 16)
-        big = boolean_number & 1 != 0
-        small = boolean_number & 2 != 0
-        hush = boolean_number & 4 != 0
-        backwards = boolean_number & 8 != 0
-        next_index = 3
 
     # Generate basic data
     data = {
