@@ -713,50 +713,30 @@ def encode_tsf(data: dict, version: int) -> str:
 
     :return: A TSF-compliant string.
     """
-    if not version > 15:
-        raise ValueError("encode_tsf() only supports TMUDv15 and up!")
+    if not version == 16:
+        raise ValueError("encode_tsf() only supports TMUDv16!")
 
     # Basic stuff
     output = "2.0;%" # TSF v2(.0)
-    output += data['into'] + ";%"
-    output += data['image_url'] + ";%"
+    output += f"{data['into']};%{data['image_url']};%"
 
     # Booleans
-    boolean_number = 0
-    boolean_number += int(data['big'])
-    boolean_number += 2 * int(data['small'])
-    boolean_number += 4 * int(data['hush'])
-    boolean_number += 8 * int(data['backwards'])
+    boolean_number = int(data['big']) + 2 * int(data['small']) + 4 * int(data['hush']) + 8 * int(data['backwards'])
     output += str(hex(boolean_number))[2:] + ";%"
 
     # "Easy Stuff"
-    output += str(data['stutter']) + ";%"
-    output += (data['bio'] if data['bio'] else "") + ";%"
+    output += f"{str(data['stutter'])};%{str(data['bio'])};%"
 
-    # Prefix
-    output += (",%".join([key + "|%" + str(value) for key, value in data['prefix'].items()])
-               if data['prefix'] != {} else "") + ";%"
+    def parse_mod(mod_data: dict) -> str:
+        if mod_data == {}: return ";%"
+        return ",%".join([f"{key}|%{str(value)}" for key, value in mod_data.items()]) + ";%"
 
-    # Suffix
-    output += (",%".join([key + "|%" + str(value) for key, value in data['suffix'].items()])
-               if data['suffix'] != {} else "") + ";%"
-
-    # Sprinkle
-    output += (",%".join([key + "|%" + str(value) for key, value in data['sprinkle'].items()])
-               if data['sprinkle'] != {} else "") + ";%"
-
-    # Muffle
-    output += (",%".join([key + "|%" + str(value) for key, value in data['muffle'].items()])
-               if data['muffle'] != {} else "") + ";%"
-
-    # Alt Muffle
-    output += (",%".join([key + "|%" + str(value) for key, value in data['alt_muffle'].items()])
-               if data['alt_muffle'] != {} else "") + ";%"
-
-    # Censor
-    output += (",%".join([key + "|%" + value for key, value in data['censor'].items()])
-               if data['censor'] != {} else "")
-
+    output += parse_mod(data['prefix'])
+    output += parse_mod(data['suffix'])
+    output += parse_mod(data['sprinkle'])
+    output += parse_mod(data['muffle'])
+    output += parse_mod(data['alt_muffle'])
+    output += parse_mod(data['censor'])
     return output
 
 def decode_tsf(tsf_string: str) -> dict:
