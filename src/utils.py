@@ -515,22 +515,16 @@ def transform_text(data: dict, original: str) -> str:
 
             if word in data['censor']:
                 words[i] = words[i].replace(word, data['censor'][word]) # We keep punctuation
-                continue
 
             if words[i] in data['censor']:
                 words[i] = data['censor'][words[i]] # The entire word should be replaced
-                continue
 
-            regex = False
             for pattern in data['censor']:
                 if not pattern.startswith("/"):
                     continue
                 if re.search(pattern[1:], words[i]):
                     words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
-                    regex = True
-                    break
-            if regex:
-                continue
+
 
         # Muffle will overwrite a word with a word from the data array by random chance
         if data['muffle'] != {}:
