@@ -483,6 +483,14 @@ def remove_server_from_transformed(guild: discord.Guild | int) -> None:
 # TEXT UTILS
 # Apply all necessary modifications to the message, based on the user's transformation data
 def transform_text(data: dict, original: str) -> str:
+    """
+    Transforms a message based on the provided transformation data.
+
+    :param data: A TMUD-compliant dictionary containing the transformation data.
+    :param original: The original message to be transformed.
+
+    :return: The transformed message.
+    """
     # Ignore italics and bold messages
     if ((original.startswith("*") and original.endswith("*")) or
         (original.startswith("_") and original.endswith("_"))):
@@ -630,6 +638,14 @@ async def extract_tf_data(ctx: discord.ApplicationContext,
 
 # FILE UTILS
 def load_file(filename: str, guild_id: int | None = None) -> dict:
+    """
+    Loads a JSON file from disk. If `guild_id` is specified, returns only the data for that guild.
+
+    :param filename: The path to the JSON file to load.
+    :param guild_id: The ID of the guild to load data for. If not specified, returns the entire file.
+
+    :return: A dictionary containing the data from the JSON file, or the data for the specified guild.
+    """
     try:
         with open(filename) as f:
             contents = f.read().strip()
@@ -647,9 +663,17 @@ def load_file(filename: str, guild_id: int | None = None) -> dict:
 
 
 def write_file(filename: str, data: dict) -> None:
+    """
+    Writes a dictionary to a JSON file on disk.
+
+    :param filename: The path to the JSON file to write.
+    :param data: The dictionary to write to the JSON file.
+
+    :return: This function does not return anything.
+    """
     try:
         with open(filename, "w+") as f:
-            f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
+            f.write(json.dumps(data))
     except OSError as e:
         print(f"Error writing to file:\n{str(type(e))}: {e}")
 
