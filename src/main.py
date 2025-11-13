@@ -178,12 +178,9 @@ async def on_message(message: discord.Message) -> None:
 
     if message.content:
         tfed_content = utils.transform_text(data, message.content)
-        if len(tfed_content) > 2000:
-            await message.author.send("Sorry, but your transformed message exceeded Discord's 2000 character "
-                                      "limit! Please try sending a shorter message.")
-            return
+        content += tfed_content
 
-        # Check if censor, muffles, alt muffle, or sprinkles are active in data, and if the message is different from
+        # Check if censors, muffles, alt muffles, or sprinkles are active in data, and if the message is different from
         # the original, to send it to the author of the transformation
         if (data['censor'] != {} or
             data['muffle'] != {} or
@@ -193,24 +190,21 @@ async def on_message(message: discord.Message) -> None:
             transformed_by = bot.get_user(int(data['transformed_by'] if data['claim'] is None else data['claim']))
 
             # Check if the message is from the user who transformed this user
-            if transformed_by is not None and not message.author == transformed_by:
+            if transformed_by not in [None, message.author]:
                 # DM the user who transformed this user the original message they sent
                 await transformed_by.send(
-                    f"**{message.author.name}** said in #**{channel.name}**:\n```{message.content}```")
+                    f"**{message.author.mention}** said in #**{channel.name}**:\n```{message.content}```")
 
-        content += tfed_content
-
-    attachments = []
-    for attachment in message.attachments:
-        attachment_file = await attachment.to_file()
-        attachments.append(attachment_file)
+    if len(content) > 2000:
+        await message.author.send("Sorry, but your final message is too long to be sent!")
+        return
 
     # The message needs to either have content or attachments (or both) to be sent,
     # so we don't need to worry about sending empty messages and triggering 400 errors
     await webhook.send(content,
                        username=name,
                        avatar_url=image_url,
-                       files=attachments,
+                       files=[await attachment.to_file() for attachment in message.attachments],
                        thread=message.channel if is_thread else discord.utils.MISSING)
     await message.delete()
 
