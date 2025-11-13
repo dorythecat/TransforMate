@@ -414,6 +414,5 @@ async def ping(ctx: discord.ApplicationContext) -> None:
     await ctx.respond(f"Pong! ({bot.latency * 1000:.0f}ms)")
 
 
-
 if __name__ == "__main__":
     bot.run(BOT_TOKEN)  # Start the bot up
