@@ -227,38 +227,39 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
         return
 
     if str(reaction.emoji) == "✏️":
-        # Edit message
-        if user.id == tfee:
-            # Editing messages that are not the last one will cause weird behaviours, so we prevent that by checking
-            await user.send(f"You have requested to edit the following message:\n"
-                            f"\"{reaction.message.content}\"\n"
-                            f"Please provide the edited message you want to send.")
-            response = await bot.wait_for('message', check=lambda m: m.author == user)
-            # Send the message through the webhook
-            is_thread = reaction.message.channel.type in [discord.ChannelType.private_thread,
-                                                          discord.ChannelType.public_thread]
-            channel = reaction.message.channel.parent if is_thread else reaction.message.channel
+        if user.id != tfee:
+            return
+        # Editing messages that are not the last one will cause weird behaviours, so we prevent that by checking
+        await user.send(f"You have requested to edit the following message:\n"
+                        f"\"{reaction.message.content}\"\n"
+                        f"Please provide the edited message you want to send.")
+        response = await bot.wait_for('message', check=lambda m: m.author == user and
+                                                                       m.channel.type == discord.ChannelType.private)
+        # Send the message through the webhook
+        is_thread = reaction.message.channel.type in [discord.ChannelType.private_thread,
+                                                      discord.ChannelType.public_thread]
+        channel = reaction.message.channel.parent if is_thread else reaction.message.channel
 
-            webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
-            if not webhook:
-                webhook = await channel.create_webhook(name=WEBHOOK_NAME)
+        webhook = utils.get_webhook_by_name(await channel.webhooks(), WEBHOOK_NAME)
+        if not webhook:
+            webhook = await channel.create_webhook(name=WEBHOOK_NAME)
 
-            attachments = []
-            for attachment in response.attachments:
-                attachment_file = await attachment.to_file()
-                attachments.append(attachment_file)
+        attachments = []
+        for attachment in response.attachments:
+            attachment_file = await attachment.to_file()
+            attachments.append(attachment_file)
 
-            await webhook.edit_message(reaction.message.id, content=response.content, files=attachments)
-            await user.send("Message edited successfully!")
+        await webhook.edit_message(reaction.message.id, content=response.content, files=attachments)
+        await user.send("Message edited successfully!")
 
-            transformed_data = utils.load_transformed(reaction.message.guild)
-            if transformed_data['logs'][0]:
-                embed = utils.get_embed_base(title="Message Edited")
-                embed.add_field(name="User", value=user.mention)
-                embed.add_field(name="Original Message", value=reaction.message.content)
-                embed.add_field(name="Edited Message", value=response.content)
-                embed.add_field(name="Channel", value=reaction.message.channel.mention)
-                await bot.get_channel(transformed_data['logs'][0]).send(embed=embed)
+        transformed_data = utils.load_transformed(reaction.message.guild)
+        if transformed_data['logs'][0]:
+            embed = utils.get_embed_base(title="Message Edited")
+            embed.add_field(name="User", value=user.mention)
+            embed.add_field(name="Original Message", value=reaction.message.content)
+            embed.add_field(name="Edited Message", value=response.content)
+            embed.add_field(name="Channel", value=reaction.message.channel.mention)
+            await bot.get_channel(transformed_data['logs'][0]).send(embed=embed)
         return
 
     if str(reaction.emoji) == "❌":
