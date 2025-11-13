@@ -715,28 +715,24 @@ def encode_tsf(data: dict, version: int) -> str:
     if not version == 16:
         raise ValueError("encode_tsf() only supports TMUDv16!")
 
-    # Basic stuff
-    output = "2.0;%" # TSF v2(.0)
-    output += f"{data['into']};%{data['image_url']};%"
-
-    # Booleans
-    boolean_number = int(data['big']) + 2 * int(data['small']) + 4 * int(data['hush']) + 8 * int(data['backwards'])
-    output += str(hex(boolean_number))[2:] + ";%"
-
-    # "Easy Stuff"
-    output += f"{str(data['stutter'])};%{str(data['bio'])};%"
-
     def parse_mod(mod_data: dict) -> str:
         if mod_data == {}: return ";%"
         return ",%".join([f"{key}|%{str(value)}" for key, value in mod_data.items()]) + ";%"
 
-    output += parse_mod(data['prefix'])
-    output += parse_mod(data['suffix'])
-    output += parse_mod(data['sprinkle'])
-    output += parse_mod(data['muffle'])
-    output += parse_mod(data['alt_muffle'])
-    output += parse_mod(data['censor'])
-    return output
+    return ";%".join([
+        "2.0",
+        data['into'],
+        data['image_url'],
+        str(hex(int(data['big']) + 2 * int(data['small']) + 4 * int(data['hush']) + 8 * int(data['backwards'])))[2:],
+        str(data['stutter']),
+        str(data['bio']),
+        parse_mod(data['prefix']),
+        parse_mod(data['suffix']),
+        parse_mod(data['sprinkle']),
+        parse_mod(data['muffle']),
+        parse_mod(data['alt_muffle']),
+        parse_mod(data['censor'])
+    ])
 
 def decode_tsf(tsf_string: str) -> dict:
     """
