@@ -133,7 +133,6 @@ def write_tf(user: discord.User | discord.Member | int,
 
     :return: This function does not return anything, but it will write the modified data to the cache file.
     """
-
     data = load_tf(user)
     user_id = str(user if type(user) is int else user.id)
     guild_id = str(guild if type(guild) is int else guild.id)
@@ -155,10 +154,8 @@ def write_tf(user: discord.User | discord.Member | int,
                     data[server][modifier] = data[server][modifier]['contents']
                     del data[server]['contents']
         data['version'] = CURRENT_TMUD_VERSION
-    transformed_data = load_transformed(guild)
-    if transformed_data == {}:
-        # Write some blank data if there's nothing to read here, and then read it
-        transformed_data = write_transformed(guild)
+    if load_transformed(guild) == {}:
+        write_transformed(guild)
     if new_data is not None:
         new_data['blocked_users'] = [] if 'blocked_users' not in new_data else new_data['blocked_users']
         new_data['blocked_channels'] = [] if 'blocked_channels' not in new_data else new_data['blocked_channels']
@@ -176,19 +173,19 @@ def write_tf(user: discord.User | discord.Member | int,
             'into': into,
             'image_url': image_url,
             'claim': 0 if claim_user is None else (claim_user if type(claim_user) is int else claim_user.id),
-            'eternal': False if eternal is None else eternal,
+            'eternal': eternal is not None and eternal,
             'prefix': {},
             'suffix': {},
-            'big': False if big is None else big,
-            'small': False if small is None else small,
-            'hush': False if hush is None else hush,
-            'backwards': False if backwards is None else backwards,
+            'big': big is not None and big,
+            'small': small is not None and small,
+            'hush': hush is not None and hush,
+            'backwards': backwards is not None and backwards,
             'censor': {},
             'sprinkle': {},
             'muffle': {},
             'alt_muffle': {},
-            'stutter': 0,
-            'bio': None
+            'stutter': stutter,
+            'bio': bio
         }
     else:
         if transformed_by is not None:
@@ -328,8 +325,7 @@ def remove_all_tf(user: discord.User | discord.Member | int) -> None:
     try:
         os.remove(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')
     except OSError as e:
-        print("Error removing file:")
-        print(f"{str(type(e))}: {e}")
+        print(f"Error removing file:\n{str(type(e))}: {e}")
 
 
 # TRANSFORMED DATA UTILS
