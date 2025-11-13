@@ -10,7 +10,8 @@
 - Slightly improved performance and structure.
 - Added [#83](https://github.com/dorythecat/TransforMate/issues/83),
   and extended it to all modifiers.
-- Removed per-channel transformations
+- Removed per-channel transformations.
+- Added an error on too-long messages when transformed.
 
 ---
 
