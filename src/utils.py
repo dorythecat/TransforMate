@@ -775,7 +775,7 @@ def decode_tsf(tsf_string: str) -> dict:
             raise ValueError("decode_tsf() does not support that version, at this moment!")
 
         if len(tsf_data) != 12:
-            raise ValueError("decode_tsf() expected 18 elements in the TSFv2.0 string, got " + str(len(tsf_data)))
+            raise ValueError("decode_tsf() expected 12 elements in the TSFv2.0 string, got " + str(len(tsf_data)))
 
         tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
 
