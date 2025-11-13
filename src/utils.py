@@ -637,8 +637,7 @@ def load_file(filename: str, guild_id: int | None = None) -> dict:
         with open(filename) as f:
             contents = f.read().strip()
     except OSError as e:
-        print("Error loading file:")
-        print(f"{str(type(e))}: {e}")
+        print(f"Error loading file:\n{str(type(e))}: {e}")
         return {}
     if contents == "":
         return {}
@@ -655,8 +654,7 @@ def write_file(filename: str, data: dict) -> None:
         with open(filename, "w+") as f:
             f.write(json.dumps(data, indent=4))  # Indents are just so that data is more readable. Remove for production.
     except OSError as e:
-        print("Error writing to file:")
-        print(f"{str(type(e))}: {e}")
+        print(f"Error writing to file:\n{str(type(e))}: {e}")
 
 
 # MISCELLANEOUS UTILS
