@@ -12,6 +12,7 @@
   and extended it to all modifiers.
 - Removed per-channel transformations.
 - Added an error on too-long messages when transformed.
+- We now actually check if the image URL provided is reachable.
 
 ---
 
