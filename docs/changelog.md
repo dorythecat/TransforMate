@@ -1,3 +1,8 @@
+## v2.4.1
+- Non-regex censors are case-insensitive again.
+
+---
+
 ## v2.4.0 (RegExpansion)
 - Removed "brackets" or "Tupper-like" mode from the feature list.
 - Added regex support on censors. (Use "/" before the censor to enable it

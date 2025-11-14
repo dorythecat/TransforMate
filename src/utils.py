@@ -522,8 +522,9 @@ def transform_text(data: dict, original: str) -> str:
         if data['censor'] != {}:
             word = ''.join(e for e in words[i] if e.isalnum()) # Removed special characters
 
-            if word in data['censor']:
-                words[i] = words[i].replace(word, data['censor'][word]) # We keep punctuation
+            for censor in data['censor']:
+                if word.casefold() == censor.casefold():
+                    words[i] = words[i].replace(word, data['censor'][censor]) # We keep punctuation
 
             if words[i] in data['censor']:
                 words[i] = data['censor'][words[i]] # The entire word should be replaced
