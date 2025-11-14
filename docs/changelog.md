@@ -1,5 +1,6 @@
 ## v2.4.1
 - Non-regex censors are case-insensitive again.
+- Fixed an issue with TSFv2.0 exporting.
 
 ---
 

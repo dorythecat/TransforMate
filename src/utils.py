@@ -750,8 +750,8 @@ def encode_tsf(data: dict, version: int) -> str:
         raise ValueError("encode_tsf() only supports TMUDv16!")
 
     def parse_mod(mod_data: dict) -> str:
-        if mod_data == {}: return ";%"
-        return ",%".join([f"{key}|%{str(value)}" for key, value in mod_data.items()]) + ";%"
+        if mod_data == {}: return ""
+        return ",%".join([f"{key}|%{str(value)}" for key, value in mod_data.items()])
 
     return ";%".join([
         "2.0",
