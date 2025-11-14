@@ -245,7 +245,7 @@ class Transformation(commands.Cog):
         if user == ctx.author:
             await ctx.respond(f"You can't claim yourself!")
             return
-        if not utils.is_transformed(user, ctx.guild, ctx.channel):
+        if not utils.is_transformed(user, ctx.guild,):
             # TODO: https://github.com/dorythecat/TransforMate/issues/35
             await ctx.respond(f"{user.mention} is not transformed at the moment, you can't claim them!")
             return
@@ -281,12 +281,7 @@ class Transformation(commands.Cog):
             return
         data = utils.load_tf(user, ctx.guild)
         channel = None
-        if str(ctx.channel) in data:
-            data = data[str(ctx.channel)]
-            channel = ctx.channel
-        else:
-            data = data['all']
-        if data['claim'] == 0:
+        if data == {} or data['claim'] == 0:
             await ctx.respond(f"{user.mention} is currently not claimed by anyone (yet)!")
             return
         if int(data['claim']) != ctx.author.id:
@@ -309,14 +304,9 @@ class Transformation(commands.Cog):
                        ctx: discord.ApplicationContext) -> None:
         data = utils.load_tf(ctx.author, ctx.guild)
         channel = None
-        if str(ctx.channel) in data:
-            data = data[str(ctx.channel)]
-            channel = ctx.channel
-        else:
-            data = data['all']
         # We have to check if they are claimed OR eternally transformed. If both are false, safeword does nothing.
         # If either are true, we need to keep going, otherwise we can just return.
-        if data['claim'] != 0 and not data['eternal']:
+        if data == {} or data['claim'] == 0:
             await ctx.respond(f"You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
             return
         utils.write_tf(ctx.author, ctx.guild, channel, claim_user=0, eternal=False)
