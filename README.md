@@ -98,3 +98,7 @@ our Discord server, where we have channels and forums specifically for this stuf
 [Discord Server](https://discord.gg/uGjWk2SRf6)
 
 Inspired by the awesome BPTBot, made by Leroco.
+
+# Demo video for some reason
+
+https://github.com/user-attachments/assets/39b7115c-2c17-40d7-83e0-27a083f981ae
