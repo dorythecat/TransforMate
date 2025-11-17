@@ -11,8 +11,6 @@ import discord
 
 from config import CACHE_PATH
 
-# TODO: https://github.com/dorythecat/TransforMate/issues/40
-
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
 # VERSION 16: Removed "proxy_prefix" and "proxy_suffix" fields, removed "active" and "contents" subfields from modifiers, and removed per-channel data
