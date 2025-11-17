@@ -368,7 +368,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
                 return
 
-        output = utils.encode_tsf(data, utils.get_data_version(user))
+        output = utils.encode_tsf(data)
 
         if file:
             try:

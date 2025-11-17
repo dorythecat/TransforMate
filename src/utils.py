@@ -58,17 +58,6 @@ def load_tf(user: discord.User | discord.Member | int, guild: discord.Guild | in
                      guild if type(guild) in [int, NoneType] else guild.id)
 
 
-def get_data_version(user: discord.User | discord.Member | int) -> int:
-    """
-    Gets the version of the TMUD data of a user.
-
-    :param user: A Discord User or Member object, representing the user whose data is to be loaded.
-
-    :return: An integer representing the version of the TMUD data of the user.
-    """
-    return int(load_file(f'{CACHE_PATH}/people/{str(user if type(user) is int else user.id)}.json')['version'])
-
-
 def write_tf(user: discord.User | discord.Member | int,
              guild: discord.Guild | int,
              new_data: dict | None = None,
@@ -734,19 +723,15 @@ def clear_apple_marks(text: str) -> str:
 
 # TSF Utilities
 # See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
-def encode_tsf(data: dict, version: int) -> str:
+def encode_tsf(data: dict) -> str:
     """
     Encodes a TMUD-compliant transformation data dict into a TSF-compliant string.
     The latest version of the TSF standard (v1.1) is used for this operation.
 
     :param data: Properly encoded TMUD-compliant transformation data dict.
-    :param version: The version of the TMUD standard to use. (Used at the moment only to check compatibility)
 
     :return: A TSF-compliant string.
     """
-    if not version == 16:
-        raise ValueError("encode_tsf() only supports TMUDv16!")
-
     def parse_mod(mod_data: dict) -> str:
         if mod_data == {}: return ""
         return ",%".join([f"{key}|%{str(value)}" for key, value in mod_data.items()])
