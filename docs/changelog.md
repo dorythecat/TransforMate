@@ -1,3 +1,8 @@
+## v2.4.2
+- Added support for float values in chances and stutter.
+
+---
+
 ## v2.4.1
 - Non-regex censors are case-insensitive again.
 - Fixed an issue with TSFv2.0 exporting.

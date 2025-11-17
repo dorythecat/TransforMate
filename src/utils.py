@@ -801,7 +801,7 @@ def decode_tsf(tsf_string: str) -> dict:
             'small': small,
             'hush': hush,
             'backwards': backwards,
-            'stutter': int(tsf_data[3]),
+            'stutter': float(tsf_data[3]),
             'bio': tsf_data[4]
         }
 
@@ -812,7 +812,7 @@ def decode_tsf(tsf_string: str) -> dict:
                 if mod == "":
                     continue
                 key, value = mod.split("|%")
-                data[modifier][key] = int(value) if modifier != 'censor' else value
+                data[modifier][key] = float(value) if modifier != 'censor' else value
 
         return data
 
@@ -856,7 +856,7 @@ def decode_tsf(tsf_string: str) -> dict:
         'small': small,
         'hush': hush,
         'backwards': backwards,
-        'stutter': int(tsf_data[next_index]),
+        'stutter': float(tsf_data[next_index]),
         'bio': tsf_data[next_index + 3]
     }
 
@@ -868,7 +868,7 @@ def decode_tsf(tsf_string: str) -> dict:
             if mod == "":
                 continue
             key, value = mod.split("|" if sep == ";" else "|%")
-            data[modifier][key] = int(value) if modifier != 'censor' else value
+            data[modifier][key] = float(value) if modifier != 'censor' else value
 
     return data
 
