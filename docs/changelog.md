@@ -1,5 +1,6 @@
 ## v2.4.2
 - Added support for float values in chances and stutter.
+- Corrected a deadly typo.
 
 ---
 

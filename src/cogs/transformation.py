@@ -166,7 +166,7 @@ class Transformation(commands.Cog):
                 image_channel = transformed_data['images']
                 if not image_channel:
                     await ctx.respond(f"You can't transform the other user whilst transformed yourself!\n"
-                                      f"There's bo image buffer channel in this server!")
+                                      f"There's no image buffer channel in this server!")
                     return
                 file = await response.attachments[0].to_file()
                 file_message = await ctx.guild.get_channel(transformed_data['images']).send(file=file)
