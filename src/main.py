@@ -137,12 +137,14 @@ async def on_message(message: discord.Message) -> None:
 
     webhook = await utils.get_webhook_by_name(channel, WEBHOOK_NAME)
 
-    content = ""
+    content: str = ""
     if message.reference:  # Check if the message is a reply
-        mention = message.reference.resolved.author.mention
+        mention = f"***{message.reference.resolved.author.mention}***"
         if message.reference.resolved.webhook_id and not message.reference.resolved.author == bot.user:
             tfee, _ = utils.check_message(message.reference.resolved)
-            mention = f"<@{tfee}>"
+            mention = f'***"{message.reference.resolved.author.display_name}"***'
+            if tfee is not None:
+                mention = f"***<@{tfee}>***"
         content += (f"***Replying to {mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
         # TODO: Make this an option for server owners

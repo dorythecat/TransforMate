@@ -4,6 +4,8 @@
 - Corrected a deadly typo.
 - Fixed [#87](https://github.com/dorythecat/TransforMate/issues/87).
 - Implemented [#85](https://github.com/dorythecat/TransforMate/issues/85).
+- Fixed [#89](https://github.com/dorythecat/TransforMate/issues/89).
+- Slightly improved replies.
 
 ---
 
