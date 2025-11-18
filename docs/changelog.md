@@ -88,7 +88,6 @@
 - Added [TransforWeb](http://www.transformate.live/) and the accompanying
   [TransforMate API](http://api.transformate.live/) to production, allowing
   for a lot of new features, like the TSF Editor.
-
 - Improved the performance of the bot slightly and fixed some minor bugs.
 
 ---
@@ -107,6 +106,5 @@
 
 ## v1.6.0 (DocuMate)
 - Added documentation
-
 - Altered the [Terms of Service](legal/tos.md) and
   [Privacy Policy](legal/privacy_policy.md).
