@@ -446,7 +446,8 @@ class Transformation(commands.Cog):
 
         await ctx.respond(f"Please send the saved transformation you want to apply to {user.mention}?"
                           f"(Send CANCEL to cancel)")
-        response = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author)
+        response = await self.bot.wait_for('message',
+                                           check=lambda m: m.author == ctx.author and m.guild == ctx.guild)
         if response.content.lower().strip() == "cancel":
             await ctx.respond("Cancelled the transformation!")
             return
