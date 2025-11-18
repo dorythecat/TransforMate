@@ -195,6 +195,16 @@ class Set(commands.Cog):
         utils.write_tf(user, ctx.guild, bio=biography)
         await ctx.respond(f"{user.mention}'s biography has been set!")
 
+    @set_command.command(description="Set the nickname for the transformed user to their transformed name")
+    async def nickname(self,
+                       ctx: discord.ApplicationContext,
+                       user: discord.Option(discord.User) = None) -> None:
+        valid, data, user = await utils.extract_tf_data(ctx, user)
+        if not valid:
+            return
+        await user.edit(nick=data['into'])
+        await ctx.respond(f"{user.mention}'s nickname has been set to their transformed name!")
+
 
 def setup(bot: discord.Bot) -> None:
     bot.add_cog(Set(bot))

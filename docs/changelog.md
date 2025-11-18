@@ -6,6 +6,7 @@
 - Implemented [#85](https://github.com/dorythecat/TransforMate/issues/85).
 - Fixed [#89](https://github.com/dorythecat/TransforMate/issues/89).
 - Slightly improved replies.
+- Implemented [#81](https://github.com/dorythecat/TransforMate/issues/81).
 
 ---
 

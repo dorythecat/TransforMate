@@ -94,7 +94,9 @@ class Transformation(commands.Cog):
                                              description="Copy another user") = None,
                         merge: discord.Option(discord.SlashCommandOptionType.boolean,
                                               description="Whether to merge or not the user's messages to the"
-                                                          "original transformed user's when copying") = None) -> None:
+                                                          "original transformed user's when copying") = None,
+                        change_nickname: discord.Option(discord.SlashCommandOptionType.boolean,
+                                                        description="Change the user's nickname?") = True) -> None:
         if not user:
             user = ctx.author
 
@@ -146,11 +148,15 @@ class Transformation(commands.Cog):
 
         if into:
             if await transform_function(ctx, user, into, image_url, None):
+                if change_nickname:
+                    await user.edit(nick=into)
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
         if copy:
             if await transform_function(ctx, user, into, image_url, copy, merge):
+                if change_nickname:
+                    await user.edit(nick=into)
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
             return
 
@@ -180,6 +186,8 @@ class Transformation(commands.Cog):
                                     response.content,
                                     file_url,
                                     None):
+            if change_nickname:
+                await user.edit(nick=into)
             await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
     @discord.slash_command(description="Return someone to their previous state")
@@ -391,7 +399,9 @@ class Transformation(commands.Cog):
     @discord.slash_command(description="Import your saved transformations")
     async def import_tf(self,
                         ctx: discord.ApplicationContext,
-                        user: discord.Option(discord.User) = None) -> None:
+                        user: discord.Option(discord.User) = None,
+                        change_nickname: discord.Option(discord.SlashCommandOptionType.boolean,
+                                                        description="Change the user's nickname?") = True) -> None:
         if user is None:
             user = ctx.author
 
@@ -473,6 +483,10 @@ class Transformation(commands.Cog):
         new_data['eternal'] = data['eternal'] if 'eternal' in data else False
         utils.write_tf(user, ctx.guild, new_data)
         utils.write_transformed(ctx.guild, user)
+
+        if change_nickname:
+            await user.edit(nick=data['into'])
+
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 
 
