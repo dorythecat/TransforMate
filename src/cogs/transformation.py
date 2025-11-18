@@ -485,7 +485,7 @@ class Transformation(commands.Cog):
         utils.write_transformed(ctx.guild, user)
 
         if change_nickname:
-            await user.edit(nick=data['into'])
+            await user.edit(nick=new_data['into'])
 
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 
