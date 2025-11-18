@@ -1,6 +1,6 @@
 ## v2.4.2
-- Added support for float values in chances and stutter.
-  (Fixes [#88](https://github.com/dorythecat/TransforMate/issues/88))
+- Added support for float values in chances and stutter, which fixes
+  [#88](https://github.com/dorythecat/TransforMate/issues/88).
 - Corrected a deadly typo.
 - Fixed [#87](https://github.com/dorythecat/TransforMate/issues/87).
 - Implemented [#85](https://github.com/dorythecat/TransforMate/issues/85).
