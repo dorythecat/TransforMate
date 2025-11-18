@@ -205,7 +205,7 @@ async def on_message(message: discord.Message) -> None:
 @bot.event
 async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> None:
     if reaction.message.author == bot.user or not reaction.message.author.bot or \
-            str(reaction.emoji) not in ["❓", "❔", "✏️", "❌", "🔒", "🔓", "🔐"]:
+            str(reaction.emoji) not in ["❓", "❔", "✏️", "📝", "❌", "🔒", "🔓", "🔐"]:
         return
 
     tfee, data = utils.check_message(reaction.message)
@@ -219,7 +219,7 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
                         f"(Transformed by <@!{data['transformed_by']}>)")
         return
 
-    if str(reaction.emoji) == "✏️":
+    if str(reaction.emoji) in ["✏️", "📝"]:
         if user.id != tfee:
             return
         # Editing messages that are not the last one will cause weird behaviours, so we prevent that by checking
