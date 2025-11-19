@@ -335,12 +335,108 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> Non
 
 
 bot.load_extension('.transformation', package='cogs')  # Transformation (base) Commands
-bot.load_extension('.set', package='cogs')  # "Set" Commands
 bot.load_extension('.clear', package='cogs')  # "Clear" Commands
 bot.load_extension('.get', package='cogs')  # "Get" Commands
 bot.load_extension('.admin', package='cogs')  # "Admin" Commands
 bot.load_extension('.block', package='cogs')  # "Block" Commands
 
+
+@bot.slash_command(description="Set settings for transformed users")
+async def set(ctx: discord.ApplicationContext,
+              user: discord.Option(discord.User,
+                                   "User to apply modifier to, defaults to executor") = None,
+              mod_type: discord.Option(str,
+                                       "Type of the modifier to set",
+                                       choices=[
+                                           "prefix", "suffix", "big", "small", "hush", "backwards", "eternal",
+                                           "censor", "sprinkle", "muffle", "alt muffle", "stutter", "bio", "nickname"
+                                       ]) = None,
+              content: discord.Option(str,
+                                      "Content of the modifier") = None,
+              chance: discord.Option(float,
+                                     "Chance of the modifier going off") = None,
+              whitespace: discord.Option(bool,
+                                         "Wether to add a whitespace to prefixes and suffixes") = True,
+              replacement: discord.Option(str,
+                                          "Replacmeent for censors") = None) -> None:
+    valid, data, user = await utils.extract_tf_data(ctx, user)
+    if not valid:
+        return
+
+    if mod_type in ["prefix", "suffix"]:
+        if content is None or chance is None or not 0 < chance < 100 or whitespace is None or replacement is not None:
+            await ctx.respond("Please provide valid settings for this modifier!", ephemeral=True)
+            return
+        # Prefixes and Suffixes
+        if mod_type == "prefix":
+            content += " " * whitespace
+            utils.write_tf(user, ctx.guild, prefix=content, chance=chance)
+        else:
+            content = " " * whitespace + content
+            utils.write_tf(user, ctx.guild, suffix=content, chance=chance)
+        await ctx.respond(f"Successfully set {mod_type} for {user.mention}!", ephemeral=True)
+    elif mod_type in ["big", "small", "hush", "backwards", "eternal", "nickname"]:
+        if content is not None or chance is not None or whitespace is not None or replacement is not None:
+            await ctx.respond("You don't need to provide any values for this modifier!", ephemeral=True)
+            return
+        if data[mod_type]:
+            await ctx.respond(f"{user.mention} already has the {mod_type} modifier set!", ephemeral=True)
+            return
+        if mod_type == "eternal":
+            if data['claim'] == 0:
+                await ctx.respond(f"{user.mention} isn't owned by anyone! Claim them to eternally transform them!",
+                                  ephemeral=True)
+                return
+            utils.write_tf(user, ctx.guild, eternal=True)
+            await ctx.respond(f"{user.mention} is now eternally transformed!")
+        elif mod_type == "big":
+            utils.write_tf(user, ctx.guild, big=True)
+            await ctx.respond(f"{user.mention} will now speak in big text!")
+        elif mod_type == "small":
+            utils.write_tf(user, ctx.guild, small=True)
+            await ctx.respond(f"{user.mention} will now speak in small text!")
+        elif mod_type == "hush":
+            utils.write_tf(user, ctx.guild, hush=True)
+            await ctx.respond(f"{user.mention} will now be hushed!")
+        elif mod_type == "backwards":
+            utils.write_tf(user, ctx.guild, backwards=True)
+            await ctx.respond(f"{user.mention} will now speak backwards!")
+        elif mod_type == "nickname":
+            await user.edit(nick=data['into'])
+            await ctx.respond(f"{user.mention}'s nickname has been set to their transformed name!")
+    elif mod_type in ["sprinkle", "muffle", "alt muffle"]:
+        if content is None or chance is None or not 0 < chance < 100 or whitespace is not None or replacement is not None:
+            await ctx.respond("Please provide valid settings for this modifier!", ephemeral=True)
+            return
+        if mod_type == "sprinkle":
+            utils.write_tf(user, ctx.guild, sprinkle=content, chance=chance)
+            await ctx.respond(f"{user.mention} will now have the word \"{content}\" sprinkled in their messages!")
+        elif mod_type == "muffle":
+            utils.write_tf(user, ctx.guild, muffle=content, chance=chance)
+            await ctx.respond(f"{user.mention} will now have their words muffled with \"{content}\"!")
+        elif mod_type == "alt muffle":
+            utils.write_tf(user, ctx.guild, alt_muffle=content, chance=chance)
+            await ctx.respond(f"{user.mention} will now have their words muffled with \"{content}\"!")
+    elif mod_type == "censor":
+        if content is None or chance is not None or whitespace is not None or replacement is None:
+            await ctx.respond("Please provide valid settings for this modifier!", ephemeral=True)
+            return
+        utils.write_tf(user, ctx.guild, censor=content, censor_replacement=replacement)
+        await ctx.respond(f"{user.mention} will now have the word \"{content}\" censored to \"{replacement}\"!")
+    elif mod_type == "stutter":
+        if content is not None or chance is None or not 0 < chance < 100 or whitespace is not None or replacement is not None:
+            await ctx.respond("Please provide valid settings for this modifier!", ephemeral=True)
+            return
+        utils.write_tf(user, ctx.guild, stutter=chance)
+        await ctx.respond(f"{user.mention} will now stutter in their messages!")
+    elif mod_type == "bio":
+        if content is None or chance is not None or whitespace is not None or replacement is not None:
+            await ctx.respond("Please provide valid settings for this modifier!", ephemeral=True)
+            return
+        utils.write_tf(user, ctx.guild, bio=content)
+        await ctx.respond(f"{user.mention}'s biography has been set!")
+    else:
+        await ctx.respond("Please provide a valid modifier type to set!", ephemeral=True)
 
 # Misc commands
 @bot.slash_command(description="Report a user for misuse of this bot")
