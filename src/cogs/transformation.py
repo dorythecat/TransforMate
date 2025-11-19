@@ -149,14 +149,22 @@ class Transformation(commands.Cog):
         if into:
             if await transform_function(ctx, user, into, image_url, None):
                 if change_nickname:
-                    await user.edit(nick=into)
+                    try:
+                        await user.edit(nick=into)
+                    except Exception:
+                        await ctx.respond("Could not change nickname of user! Please check the permissions of the bot!",
+                                          ephemeral=True)
                 await ctx.respond(f'You have transformed {user.mention} into "{into}"!')
             return
 
         if copy:
             if await transform_function(ctx, user, into, image_url, copy, merge):
                 if change_nickname:
-                    await user.edit(nick=into)
+                    try:
+                        await user.edit(nick=into)
+                    except Exception:
+                        await ctx.respond("Could not change nickname of user! Please check the permissions of the bot!",
+                                          ephemeral=True)
                 await ctx.respond(f'You have transformed {user.mention} into a copy of "{copy.mention}"!')
             return
 
@@ -187,7 +195,11 @@ class Transformation(commands.Cog):
                                     file_url,
                                     None):
             if change_nickname:
-                await user.edit(nick=into)
+                try:
+                    await user.edit(nick=into)
+                except Exception:
+                    await ctx.respond("Could not change nickname of user! Please check the permissions of the bot!",
+                                      ephemeral=True)
             await ctx.respond(f'You have transformed {user.mention} into "{response.content}"!')
 
     @discord.slash_command(description="Return someone to their previous state")
@@ -485,7 +497,11 @@ class Transformation(commands.Cog):
         utils.write_transformed(ctx.guild, user)
 
         if change_nickname:
-            await user.edit(nick=new_data['into'])
+            try:
+                await user.edit(nick=new_data['into'])
+            except Exception:
+                await ctx.respond("Could not change nickname of user! Please check the permissions of the bot!",
+                                  ephemeral=True)
 
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 

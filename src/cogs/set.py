@@ -202,7 +202,11 @@ class Set(commands.Cog):
         valid, data, user = await utils.extract_tf_data(ctx, user)
         if not valid:
             return
-        await user.edit(nick=data['into'])
+        try:
+            await user.edit(nick=data['into'])
+        except Exception:
+            await ctx.respond("Could not change nickname of user! Please check the permissions of the bot!",
+                              ephemeral=True)
         await ctx.respond(f"{user.mention}'s nickname has been set to their transformed name!")
 
 
