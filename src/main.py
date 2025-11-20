@@ -105,6 +105,10 @@ async def on_message(message: discord.Message) -> None:
                     await message.delete()
         return
 
+    # Check if channel is of a type we don't want to process
+    if message.channel.type in [discord.ChannelType.news, discord.ChannelType.news_thread, discord.ChannelType.forum]:
+        return
+
     # Check if user is transformed
     if not utils.is_transformed(message.author, message.guild):
         return
