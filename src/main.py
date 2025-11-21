@@ -512,21 +512,24 @@ async def get(ctx: discord.ApplicationContext,
         response: str = "isn't claimed by anyone!" if data['claim'] == 0 else f"is claimed by <@!{data['claim']}>!"
         await ctx.respond(f"{user.mention} {response}")
     elif mod_type in ["censor", "sprinkle", "muffle", "prefix", "suffix"]:
+        mod_name: str = mod_type.capitalize() + ("s" if mod_type not in ["prefix", "suffix"] else "es")
         if not data[mod_type]:
-            await ctx.respond(f"{user.mention} has no sprinkles at the moment!")
+            await ctx.respond(f"{user.mention} has no {mod_name} at the moment!")
             return
 
         desc: str = ""
         for mod in data[mod_type]:
-            desc += f"**{mod}**: {data[mod_type][mod]}%\n\n"
+            desc += f"**{mod}**: {data[mod_type][mod]}{"" if mod_type == "censor" else "%"}\n\n"
+            if desc.count("\n\n") >= MAX_ITEMS_PER_PAGE:
+                desc = desc[:-2] # Remove last \n\n
+                break
 
         view: PageView | None = None
         footer: str | None = None
-        mod_name: str = mod_type.capitalize() + ("s" if mod_type not in ["prefix", "suffix"] else "es")
-        if len(data[mod_type]) > MAX_ITEMS_PER_PAGE:
-            view = PageView(f"{mod_name} for {user.name}:", desc, len(data[mod_type]))
-            footer = f"Page 1 of {(len(data[mod_type]) - 1) // MAX_ITEMS_PER_PAGE + 1}"
-        desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        mod_size: int = len(data[mod_type])
+        if mod_size > MAX_ITEMS_PER_PAGE:
+            view = PageView(f"{mod_name} for {user.name}:", desc, mod_size)
+            footer = f"Page 1 of {(mod_size - 1) // MAX_ITEMS_PER_PAGE + 1}"
         await ctx.respond(embed=utils.get_embed_base(f"{mod_name} for {user.name}:", desc, footer), view=view)
     elif mod_type == "bio":
         if data['bio'] in ["", None]:
