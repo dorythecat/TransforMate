@@ -19,14 +19,14 @@ MAX_ITEMS_PER_PAGE: int = 10 # Max items per page for views
 
 class PageView(discord.ui.View):
     embed_title: str = ""
-    desc: str = ""
+    desc_list: list[str] = []
     total: int = 0
     offset: int = 0
 
-    def __init__(self, embed_title: str, desc: str, total: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
+    def __init__(self, embed_title: str, desc_list: list[str], total: int, offset: int = MAX_ITEMS_PER_PAGE) -> None:
         super().__init__(timeout=None)
         self.embed_title = embed_title
-        self.desc = desc
+        self.desc_list = desc_list
         self.total = total
         self.offset = offset
 
@@ -36,7 +36,7 @@ class PageView(discord.ui.View):
             return
         self.next_button_callback.disabled = False
         self.offset -= MAX_ITEMS_PER_PAGE * 2
-        desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        desc = "\n\n".join(self.desc_list[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
         footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
         self.offset += MAX_ITEMS_PER_PAGE
         await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc, footer), view=self)
@@ -49,7 +49,7 @@ class PageView(discord.ui.View):
         if self.offset >= self.total:
             return
         self.previous_button_callback.disabled = False
-        desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        desc = "\n\n".join(self.desc_list[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
         footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
         self.offset += MAX_ITEMS_PER_PAGE
         await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc, footer), view=self)
@@ -512,32 +512,31 @@ async def get(ctx: discord.ApplicationContext,
         response: str = "isn't claimed by anyone!" if data['claim'] == 0 else f"is claimed by <@!{data['claim']}>!"
         await ctx.respond(f"{user.mention} {response}")
     elif mod_type in ["censor", "sprinkle", "muffle", "prefix", "suffix"]:
-        mod_name: str = mod_type.capitalize() + ("s" if mod_type not in ["prefix", "suffix"] else "es")
+        mod_name: str = mod_type.capitalize() + ("es" if mod_type in ["prefix", "suffix"] else "s")
         if not data[mod_type]:
             await ctx.respond(f"{user.mention} has no {mod_name} at the moment!")
             return
 
-        desc: str = ""
+        desc_list: list[str] = []
         for mod in data[mod_type]:
-            desc += f"**{mod}**: {data[mod_type][mod]}{"" if mod_type == "censor" else "%"}\n\n"
-            if desc.count("\n\n") >= MAX_ITEMS_PER_PAGE:
-                desc = desc[:-2] # Remove last \n\n
-                break
+            desc_list.append(f"**{mod}**: {data[mod_type][mod]}{"" if mod_type == "censor" else "%"}")
 
         view: PageView | None = None
         footer: str | None = None
         mod_size: int = len(data[mod_type])
         if mod_size > MAX_ITEMS_PER_PAGE:
-            view = PageView(f"{mod_name} for {user.name}:", desc, mod_size)
+            view = PageView(f"{mod_name} for {user.name}:", desc_list, mod_size)
             footer = f"Page 1 of {(mod_size - 1) // MAX_ITEMS_PER_PAGE + 1}"
-        await ctx.respond(embed=utils.get_embed_base(f"{mod_name} for {user.name}:", desc, footer), view=view)
+        await ctx.respond(embed=utils.get_embed_base(f"{mod_name} for {user.name}:",
+                                                     "\n\n".join(desc_list[:MAX_ITEMS_PER_PAGE]),
+                                                     footer), view=view)
     elif mod_type == "bio":
         if data['bio'] in ["", None]:
             await ctx.respond(f"{user.mention} has no biography set!")
             return
         await ctx.respond(embed=utils.get_embed_base(f"Biography for {user.name}:", data['bio']))
     elif mod_type == "image":
-        await ctx.respond(f"{user.mention}'s image for [{data['into']}]({data['image_url']})")
+        await ctx.respond(f"{user.mention}'s image for [{data['into']}]({data['image_url']}):")
     elif mod_type == "tfed_users":
         tfee_data = utils.load_transformed(ctx.guild)['transformed_users']
         if tfee_data == {}:
