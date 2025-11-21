@@ -189,29 +189,6 @@ async def on_message(message: discord.Message) -> None:
                 mention = f"***<@{tfee}>***"
         content += (f"***Replying to {mention} on "
                     f"{message.reference.resolved.jump_url}:***\n")
-        # TODO: Make this an option for server owners
-        '''
-        if message.reference.resolved.content:
-            to_send = message.reference.resolved.content
-            if message.reference.resolved.mentions:
-                for mention in message.reference.resolved.mentions:
-                    # This avoids people abusing mentions found in messages they are replying to
-                    to_send = to_send.replace(mention.mention, f"@{mention.name}")
-            to_send = to_send.split('\n')
-            if to_send[0].startswith('***Replying to'):
-                for line in to_send[1:]:
-                    if line.startswith('> '):
-                        continue
-                    to_send = to_send[(to_send.index(line) + 1):] #  We add one to account for the blank line
-                    break
-            for line in to_send:
-                if line.startswith('> '):
-                    line = line[2:]
-                elif line.startswith('>>> '):
-                    line = line[4:]
-                content += f"> {line}\n"
-            content += "\n"
-        '''
 
     if message.content:
         tfed_content = utils.transform_text(data, message.content)
@@ -219,9 +196,7 @@ async def on_message(message: discord.Message) -> None:
 
         # Check if censors, muffles, alt muffles, or sprinkles are active in data, and if the message is different from
         # the original, to send it to the author of the transformation
-        if (data['censor'] != {} or
-            data['muffle'] != {} or
-            data['alt_muffle'] != {} or
+        if (data['censor'] != {} or data['muffle'] != {} or data['alt_muffle'] != {} or
             data['sprinkle'] != {}) and tfed_content != message.content:
             # Send the original message to transformed_by if claim is None, otherwise to claim
             transformed_by = bot.get_user(int(data['transformed_by'] if data['claim'] is None else data['claim']))
