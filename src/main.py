@@ -65,7 +65,7 @@ async def on_ready() -> None:
                                                         name="people get transformed"))
 
     # Generate the cache/people dirs so we don't have to worry about them further down the line
-    Path("../cache/people").mkdir(parents=True, exist_ok=True)
+    Path(f"{CACHE_PATH}/people").mkdir(parents=True, exist_ok=True)
 
 
 @bot.event
