@@ -105,8 +105,9 @@ async def on_message(message: discord.Message) -> None:
             if not user_id.content.isdigit():
                 await message.author.send("That's not a valid user ID! Please try reporting another time!")
                 return
-            user = await bot.fetch_user(int(user_id.content))
-            if not user:
+            try:
+                user: discord.User = await bot.fetch_user(int(user_id.content))
+            except discord.errors.NotFound:
                 await message.author.send("That user does not exist! Please try reporting another time!")
                 return
             await message.author.send("Please provide a reason for the report.")
