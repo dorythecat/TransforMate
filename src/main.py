@@ -148,12 +148,8 @@ async def on_message(message: discord.Message) -> None:
                     await message.delete()
         return
 
-    # Check if user is transformed
-    if not utils.is_transformed(message.author, message.guild):
-        return
-
-    # Check if user is using OOC mode
-    if message.content.startswith("(") or message.content.startswith("\\"):
+    if (not utils.is_transformed(message.author, message.guild) or # Check if user is transformed
+        message.content.startswith("(") or message.content.startswith("\\")): # Check if user is using OOC mode
         return
 
     data = utils.load_tf(message.author, message.guild)
@@ -171,9 +167,6 @@ async def on_message(message: discord.Message) -> None:
     if message.stickers:
         await message.author.send("Sorry, but we don't support sending stickers, for the moment! :(")
         return
-
-    name = data['into']
-    image_url = data['image_url']
 
     is_thread = message.channel.type in [discord.ChannelType.private_thread, discord.ChannelType.public_thread]
     channel = message.channel.parent if is_thread else message.channel
@@ -215,8 +208,8 @@ async def on_message(message: discord.Message) -> None:
     # The message needs to either have content or attachments (or both) to be sent,
     # so we don't need to worry about sending empty messages and triggering 400 errors
     await webhook.send(content,
-                       username=name,
-                       avatar_url=image_url,
+                       username=data['into'],
+                       avatar_url=data['image_url'],
                        files=[await attachment.to_file() for attachment in message.attachments],
                        thread=message.channel if is_thread else discord.utils.MISSING)
     await message.delete()
