@@ -449,7 +449,7 @@ async def set(ctx: discord.ApplicationContext,
         await ctx.respond("Please provide a valid modifier type to set!", ephemeral=True)
 
 
-@bot.slash_command(description="Set settings for transformed users")
+@bot.slash_command(description="Get settings for transformed users")
 async def get(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User,
                                    "User to get modifier from, defaults to executor") = None,
