@@ -449,6 +449,66 @@ async def set(ctx: discord.ApplicationContext,
         await ctx.respond("Please provide a valid modifier type to set!", ephemeral=True)
 
 
+@bot.slash_command(description="Clear settings for transformed users")
+async def clear(ctx: discord.ApplicationContext,
+                user: discord.Option(discord.User,
+                                     "User to apply modifier to, defaults to executor") = None,
+                mod_type: discord.Option(str,
+                                         "Type of the modifier to set",
+                                         choices=[
+                                             "all", "prefix", "suffix", "big", "small", "hush", "backwards", "eternal",
+                                             "censor", "sprinkle", "muffle", "alt_muffle", "stutter", "bio", "nickname"
+                                         ]) = None,
+                content: discord.Option(str, "Content of modifier to remove") = "") -> None:
+    valid, data, user = await utils.extract_tf_data(ctx, user)
+    if not valid:
+        return
+    if mod_type == "all":
+        utils.write_tf(user,
+                       ctx.guild,
+                       claim_user=None, eternal=False,
+                       prefix="", suffix="",
+                       big=False, small=False, hush=False, backwards=False,
+                       censor="",
+                       sprinkle="",
+                       muffle="",
+                       alt_muffle="",
+                       bio="")
+        await ctx.respond(f"{user.mention} has been cleared of all settings!")
+        return
+    if not data[mod_type] or data[mod_type] == {}:
+        await ctx.respond(f"{user.mention} doesn't have the \"{mod_type}\" modifier set!")
+        return
+    if mod_type in ["prefix", "suffix"]:
+        if content != "":
+            if not content in data[mod_type]:
+                if (" " + content) in data[mod_type]:
+                    content = " " + content
+                elif (content + " ") in data[mod_type]:
+                    content = content + " "
+                else:
+                    await ctx.respond(f"{user.mention} doesn't have that {mod_type} set!")
+                    return
+            content = "$/-" + content
+        utils.write_tf(user, ctx.guild, **{mod_type: content})
+    elif mod_type in ["big", "small", "hush", "backwards", "eternal"]:
+        utils.write_tf(user, ctx.guild, **{mod_type: False})
+    elif mod_type in ["sprinkle", "muffle", "alt_muffle", "censor"]:
+        if content != "":
+            if not content in data[mod_type]:
+                await ctx.respond(f"{user.mention} doesn't have that {mod_type} set!")
+                return
+            content = "$/-" + content
+        utils.write_tf(user, ctx.guild, **{mod_type: content})
+    elif mod_type == "stutter":
+        utils.write_tf(user, ctx.guild, stutter=0)
+    elif mod_type == "bio":
+        utils.write_tf(user, ctx.guild, bio="")
+    elif mod_type == "nickname":
+        await user.edit(nick=None)
+    await ctx.respond(f"{" ".join(mod_type.split("_")).capitalize()} for {user.mention} has been cleared!")
+
+
 @bot.slash_command(description="Get settings for transformed users")
 async def get(ctx: discord.ApplicationContext,
               user: discord.Option(discord.User,
