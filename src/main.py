@@ -359,7 +359,7 @@ async def set(ctx: discord.ApplicationContext,
                                        "Type of the modifier to set",
                                        choices=[
                                            "prefix", "suffix", "big", "small", "hush", "backwards", "eternal",
-                                           "censor", "sprinkle", "muffle", "alt muffle", "stutter", "bio", "nickname"
+                                           "censor", "sprinkle", "muffle", "alt_muffle", "stutter", "bio", "nickname"
                                        ]) = None,
               content: discord.Option(str,
                                       "Content of the modifier") = None,
@@ -414,7 +414,7 @@ async def set(ctx: discord.ApplicationContext,
         elif mod_type == "nickname":
             await user.edit(nick=data['into'])
             await ctx.respond(f"{user.mention}'s nickname has been set to their transformed name!")
-    elif mod_type in ["sprinkle", "muffle", "alt muffle"]:
+    elif mod_type in ["sprinkle", "muffle", "alt_muffle"]:
         if content is None or chance is None or not 0 < chance < 100 or whitespace is not None or replacement is not None:
             await ctx.respond("Please provide valid settings for this modifier!", ephemeral=True)
             return
@@ -424,7 +424,7 @@ async def set(ctx: discord.ApplicationContext,
         elif mod_type == "muffle":
             utils.write_tf(user, ctx.guild, muffle=content, chance=chance)
             await ctx.respond(f"{user.mention} will now have their words muffled with \"{content}\"!")
-        elif mod_type == "alt muffle":
+        elif mod_type == "alt_muffle":
             utils.write_tf(user, ctx.guild, alt_muffle=content, chance=chance)
             await ctx.respond(f"{user.mention} will now have their words muffled with \"{content}\"!")
     elif mod_type == "censor":
