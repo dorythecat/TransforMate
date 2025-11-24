@@ -23,7 +23,7 @@ async def on_ready() -> None:
                                                         name="people get transformed"))
 
     # Generate the cache/people dirs so we don't have to worry about them further down the line
-    Path("../cache/people").mkdir(parents=True, exist_ok=True)
+    Path(f"{CACHE_PATH}/people").mkdir(parents=True, exist_ok=True)
 
 
 @bot.event
@@ -400,8 +400,7 @@ async def legal(ctx: discord.ApplicationContext) -> None:
     desc = "By using this bot you agree to our "
     desc += "[Terms of Service](https://dorythecat.github.io/TransforMate/legal/tos.html) and our "
     desc += "[Privacy Policy](https://dorythecat.github.io/TransforMate/legal/privacy_policy.html)"
-    embed = utils.get_embed_base(title="Legal Stuff",desc=desc)
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=utils.get_embed_base(title="Legal Stuff",desc=desc))
 
 @bot.slash_command(description="Invite the bot to your server")
 async def invite(ctx: discord.ApplicationContext) -> None:
