@@ -493,7 +493,8 @@ def transform_text(data: dict, original: str) -> str:
             if random.randint(0, 100) <= int(data['alt_muffle'][alt_muffle]):
                 return alt_muffle
 
-    transformed = clear_apple_marks(original)
+    # Removed Apple's curly quotes to avoid issues with regexes
+    transformed = original.replace("’", "'").replace("“", "\"").replace("”", "\"")
 
     if data['censor'] != {}:
         for pattern in data['censor']:
@@ -715,10 +716,6 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
             # TODO: Make it so that this function returns all currently tfed users with this tf name
             return int(tfee), data
     return None, None
-
-
-def clear_apple_marks(text: str) -> str:
-    return text.replace("’", "'").replace("“", "\"").replace("”", "\"")
 
 # TSF Utilities
 # See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
