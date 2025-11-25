@@ -132,7 +132,7 @@ class Transformation(commands.Cog):
 
         if utils.is_transformed(user, ctx.guild):
             if data == {}: # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = { 'claim': 0 }
+                data['claim'] = 0
             if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
@@ -449,9 +449,8 @@ class Transformation(commands.Cog):
                     return
 
         if utils.is_transformed(user, ctx.guild):
-            if data == {}:
-                # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = { 'claim': 0 }
+            if data == {}: # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+                data['claim'] = 0
             if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
