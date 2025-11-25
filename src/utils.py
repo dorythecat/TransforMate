@@ -478,23 +478,23 @@ def transform_text(data: dict, original: str) -> str:
 
     :return: The transformed message.
     """
+    # Remove Apple's curly quotes to avoid issues with regexes
+    transformed = original.replace("’", "'").replace("“", "\"").replace("”", "\"")
+
     # Ignore italics and bold messages
-    if ((original.startswith("*") and original.endswith("*")) or
-        (original.startswith("_") and original.endswith("_"))):
-        return original
+    if ((transformed.startswith("*") and transformed.endswith("*")) or
+        (transformed.startswith("_") and transformed.endswith("_"))):
+        return transformed
 
     if data['alt_muffle'] != {}:
         # Alternative Muffle will overwrite the entire message with a word from the data array from random chance
         # If we apply this one transformation, that's it. Only this one. That's why it's at the top.
-        if original in data['alt_muffle']:
-            return original
+        if transformed in data['alt_muffle']:
+            return transformed
 
         for alt_muffle in data['alt_muffle']:
             if random.randint(0, 100) <= int(data['alt_muffle'][alt_muffle]):
                 return alt_muffle
-
-    # Removed Apple's curly quotes to avoid issues with regexes
-    transformed = original.replace("’", "'").replace("“", "\"").replace("”", "\"")
 
     if data['censor'] != {}:
         for pattern in data['censor']:
