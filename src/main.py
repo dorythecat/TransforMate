@@ -31,9 +31,9 @@ async def on_ready() -> None:
 async def on_guild_join(guild: discord.Guild) -> None:
     await guild.owner.send("# Thanks for adding the TransforMate bot to your server!\n"
                            "By having the bot on your server, you agree to our [Terms of Service]"
-                           "(https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md), "
+                           "(https://dorythecat.github.io/TransforMate/legal/tos), "
                            "and to our [Privacy Policy]"
-                           "(https://github.com/dorythecat/TransforMate/blob/main/legal/PRIVACY_POLICY.md).\n"
+                           "(https://dorythecat.github.io/TransforMate/legal/privacy_policy).\n"
                            "Check them anytime with the /legal command\n\n"
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
@@ -402,8 +402,8 @@ async def info(ctx: discord.ApplicationContext) -> None:
 @bot.slash_command(description="Legal stuff, so fun!")
 async def legal(ctx: discord.ApplicationContext) -> None:
     desc = "By using this bot you agree to our "
-    desc += "[Terms of Service](https://dorythecat.github.io/TransforMate/legal/tos.html) and our "
-    desc += "[Privacy Policy](https://dorythecat.github.io/TransforMate/legal/privacy_policy.html)"
+    desc += "[Terms of Service](https://dorythecat.github.io/TransforMate/legal/tos) and our "
+    desc += "[Privacy Policy](https://dorythecat.github.io/TransforMate/legal/privacy_policy)"
     await ctx.respond(embed=utils.get_embed_base(title="Legal Stuff",desc=desc))
 
 @bot.slash_command(description="Invite the bot to your server")
