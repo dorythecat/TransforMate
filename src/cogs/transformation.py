@@ -96,7 +96,7 @@ class Transformation(commands.Cog):
                                               description="Whether to merge or not the user's messages to the"
                                                           "original transformed user's when copying") = None,
                         change_nickname: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                        description="Change the user's nickname?") = True) -> None:
+                                                        description="Change the user's nickname?") = False) -> None:
         if not user:
             user = ctx.author
 
@@ -407,7 +407,7 @@ class Transformation(commands.Cog):
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None,
                         change_nickname: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                        description="Change the user's nickname?") = True) -> None:
+                                                        description="Change the user's nickname?") = False) -> None:
         if user is None:
             user = ctx.author
 
