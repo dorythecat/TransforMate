@@ -4,6 +4,7 @@
 - Made the nickname changing option for transformations be false by default.
 - Updated Terms of Service and Privacy Policy links.
 - Made API-related .env variables optional.
+- Improved regex errors.
 
 ---
 

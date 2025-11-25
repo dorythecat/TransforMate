@@ -502,7 +502,7 @@ def transform_text(data: dict, original: str) -> str:
                 if pattern.startswith("-/") and re.search(pattern[2:], transformed):
                     transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
             except Exception as e:
-                return f"```REGEX ERROR with pattern {pattern[2:]}:\n{e}```"
+                return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
 
     words = transformed.split(" ")
     for i in range(len(words)):
@@ -522,7 +522,7 @@ def transform_text(data: dict, original: str) -> str:
                     if pattern.startswith("/") and re.search(pattern[1:], words[i]):
                         words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
                 except Exception as e:
-                    return f"```REGEX ERROR with pattern {pattern[1:]}:\n{e}```"
+                    return f"```REGEX ERROR with pattern \"{pattern[1:]}\":\n{e}```"
 
 
         # Muffle will overwrite a word with a word from the data array by random chance
