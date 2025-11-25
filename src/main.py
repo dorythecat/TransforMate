@@ -7,13 +7,14 @@ os.chdir(sep.join(os.path.dirname(os.path.abspath(__file__)).split(sep)[:-1]))
 
 from pathlib import Path
 
-import utils as utils
+import utils
 from config import *
 
 intents = discord.Intents.default()
-intents.message_content = True
+intents.message_content  = True
 
-bot = discord.Bot(intents=intents)
+bot = discord.Bot(intents=intents,
+                  default_command_contexts=[discord.InteractionContextType.guild])
 
 @bot.event
 async def on_ready() -> None:
