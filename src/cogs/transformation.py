@@ -475,7 +475,7 @@ class Transformation(commands.Cog):
                     tsf_string = f.read()
                 os.remove("tf_cache")
             except OSError as e:
-                print(f"Error reading from file or removing file:")
+                print("Error reading or removing file:")
                 print(f"{str(type(e))}: {e}")
 
         new_data = utils.decode_tsf(tsf_string)
