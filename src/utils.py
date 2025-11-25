@@ -708,12 +708,12 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
     transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     for tfee in transformed_data:
+        if transformed_data[tfee] in [[], None]:
+            continue
         data = load_tf(int(tfee), message.guild)
-        into: str = data['into'] if 'into' in data else ""
-        if into == message.author.display_name:
+        if 'into' in data and data['into'] == message.author.display_name:
             # TODO: Make it so that this function returns all currently tfed users with this tf name
-            if transformed_data[tfee] not in [[], None]:
-                return int(tfee), data
+            return int(tfee), data
     return None, None
 
 
