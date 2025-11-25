@@ -40,6 +40,9 @@ async def on_guild_join(guild: discord.Guild) -> None:
 
 @bot.event
 async def on_guild_remove(guild: discord.Guild) -> None:
+    await guild.owner.send("We're sorry to see you go! If you have any feedback on why you decided to "
+                           "remove the bot from your server, please, feel free to let us know, so we "
+                           "can improve!\n\n [Official Discord Server](https://discord.gg/uGjWk2SRf6)")
     for member in guild.members:
         utils.remove_all_server_tf(member, guild)
     utils.remove_server_from_transformed(guild)

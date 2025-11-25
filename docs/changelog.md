@@ -1,3 +1,8 @@
+## v2.4.3
+- Added a goodbye message when removing the bot from a server.
+
+---
+
 ## v2.4.2
 - Added support for float values in chances and stutter, which fixes
   [#88](https://github.com/dorythecat/TransforMate/issues/88).
