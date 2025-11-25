@@ -1,5 +1,6 @@
 ## v2.4.3
 - Added a goodbye message when removing the bot from a server.
+- Fixed the bot not having proper command context.
 
 ---
 
