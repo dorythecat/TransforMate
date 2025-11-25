@@ -718,9 +718,7 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
 
 
 def clear_apple_marks(text: str) -> str:
-    text = text.replace("’", "'")
-    text = text.replace("“", "\"")
-    return text.replace("”", "\"")
+    return text.replace("’", "'").replace("“", "\"").replace("”", "\"")
 
 # TSF Utilities
 # See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
