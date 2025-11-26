@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import math
 import re
 import requests
 
@@ -552,7 +551,7 @@ def transform_text(data: dict, original: str) -> str:
                 continue
 
             if random.random() * 100 <= float(data['stutter']):
-                words[i] = f"{words[i][:random.randint(1, 1 + math.floor(len(words[i]) * int(data['stutter']) / 200))]}-{words[i]}"
+                words[i] = f"{words[i][:random.randint(1, 1 + int(len(words[i]) * int(data['stutter']) / 200))]}-{words[i]}"
     transformed = " ".join(words)
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
