@@ -554,7 +554,7 @@ def transform_text(data: dict, original: str) -> str:
                 continue
 
             if random.randint(0, 100) <= int(data['stutter']):
-                words[i] = words[i][:random.randint(1, 1 + math.floor(len(words[i]) * int(data['stutter']) / 200))] + "-" + words[i]
+                words[i] = f"{words[i][:random.randint(1, 1 + math.floor(len(words[i]) * int(data['stutter']) / 200))]}-{words[i]}"
     transformed = " ".join(words)
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
@@ -573,39 +573,27 @@ def transform_text(data: dict, original: str) -> str:
             if random.randint(0, 100) <= int(data['suffix'][suffix]):
                 transformed += suffix
 
-    # We need to do this now to avoid https://github.com/dorythecat/TransforMate/issues/48
-    if data['backwards']:
-        transformed = transformed[::-1]
-
-    if data['big']:
-        transformed = "# " + transformed
+    transformed = "# " * data['big'] + transformed[::-(1 - 2 * data['backwards'])]
 
     if data['small']:
-        trans_table = str.maketrans("abcdefghijklmnopqrstuvwxyz.0123456789+-=()",
-                                    "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
+        transformed_list: list[str] = transformed.lower().translate(
+            str.maketrans("abcdefghijklmnopqrstuvwxyz.0123456789+-=()",
+                          "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
+        ).splitlines()
 
-
-        transformed_list = transformed.lower().translate(trans_table).splitlines()
-
-        transformed = "\n"
+        transformed: str = ""
         for text in transformed_list:
-            if text.strip() == "":
-                transformed += "\n"
-                continue
-            transformed += f"-# {text.strip()}\n"
+            transformed += "\n" if text.strip() == "" else f"-# {text.strip()}\n"
 
         # Make sure mentions work appropriately
-        mention_transformed = ""
+        mention_transformed: str = ""
         for word in transformed.split(" "):
             if word.startswith("<@"):
                 word = word.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
             mention_transformed += word + " "
         transformed = mention_transformed.strip()
 
-    if data['hush']:
-        transformed = f"||{transformed}||"
-
-    return transformed
+    return f"||{transformed}||" if data['hush'] else transformed
 
 
 # ABSTRACTION FUNCTIONS
