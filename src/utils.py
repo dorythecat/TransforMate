@@ -493,7 +493,7 @@ def transform_text(data: dict, original: str) -> str:
             return transformed
 
         for alt_muffle in data['alt_muffle']:
-            if random.randint(0, 100) <= int(data['alt_muffle'][alt_muffle]):
+            if random.random() * 100 <= float(data['alt_muffle'][alt_muffle]):
                 return alt_muffle
 
     if data['censor'] != {}:
@@ -533,7 +533,7 @@ def transform_text(data: dict, original: str) -> str:
             muffles = list(data['muffle'].keys())
             random.shuffle(muffles)
             for muffle in muffles:
-                if random.randint(0, 100) <= int(data['muffle'][muffle]):
+                if random.random() * 100 <= float(data['muffle'][muffle]):
                     words[i] = muffle
 
     # Sprinkle will add the sprinkled word to the message between words by random chance
@@ -543,8 +543,8 @@ def transform_text(data: dict, original: str) -> str:
         for i in range(len(words)):
             random.shuffle(sprinkles)
             for sprinkle in sprinkles:
-                if random.randint(0, 100) <= int(data['sprinkle'][sprinkle]):
-                    if random.randint(0, 1) == 0:
+                if random.random() * 100 <= float(data['sprinkle'][sprinkle]):
+                    if random.random() < 0.5:
                         words[i] = f"{words[i]} {sprinkle}"
                     words[i] = f"{sprinkle} {words[i]}"
 
@@ -553,7 +553,7 @@ def transform_text(data: dict, original: str) -> str:
             if words[i].startswith("http") or not words[i].isalnum() or words[i] in "0123456789":
                 continue
 
-            if random.randint(0, 100) <= int(data['stutter']):
+            if random.random() * 100 <= float(data['stutter']):
                 words[i] = f"{words[i][:random.randint(1, 1 + math.floor(len(words[i]) * int(data['stutter']) / 200))]}-{words[i]}"
     transformed = " ".join(words)
 
@@ -563,14 +563,14 @@ def transform_text(data: dict, original: str) -> str:
         prefixes = list(data['prefix'].keys())
         random.shuffle(prefixes)
         for prefix in prefixes:
-            if random.randint(0, 100) <= int(data['prefix'][prefix]):
+            if random.random() * 100 <= float(data['prefix'][prefix]):
                 transformed = prefix + transformed
 
     if data['suffix'] != {}:
         suffixes = list(data['suffix'].keys())
         random.shuffle(suffixes)
         for suffix in suffixes:
-            if random.randint(0, 100) <= int(data['suffix'][suffix]):
+            if random.random() * 100 <= float(data['suffix'][suffix]):
                 transformed += suffix
 
     transformed = "# " * data['big'] + transformed[::-(1 - 2 * data['backwards'])]

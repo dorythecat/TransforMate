@@ -6,6 +6,7 @@
 - Made API-related .env variables optional.
 - Improved regex errors.
 - Made sprinkles be able to be after words instead of always before them.
+- Made modifiers ACTUALLY work as floats.
 
 ---
 
