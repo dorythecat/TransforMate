@@ -544,7 +544,9 @@ def transform_text(data: dict, original: str) -> str:
             random.shuffle(sprinkles)
             for sprinkle in sprinkles:
                 if random.randint(0, 100) <= int(data['sprinkle'][sprinkle]):
-                    words[i] = sprinkle + " " + words[i]
+                    if random.randint(0, 1) == 0:
+                        words[i] = f"{words[i]} {sprinkle}"
+                    words[i] = f"{sprinkle} {words[i]}"
 
     if data['stutter'] > 0:
         for i in range(len(words)):

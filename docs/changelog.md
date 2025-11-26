@@ -5,6 +5,7 @@
 - Updated Terms of Service and Privacy Policy links.
 - Made API-related .env variables optional.
 - Improved regex errors.
+- Made sprinkles be able to be after words instead of always before them.
 
 ---
 
