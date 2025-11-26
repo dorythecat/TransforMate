@@ -7,6 +7,7 @@
 - Improved regex errors.
 - Made sprinkles be able to be after words instead of always before them.
 - Made modifiers ACTUALLY work as floats.
+- Added a few new glyphs to small text parsing.
 
 ---
 

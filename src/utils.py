@@ -489,11 +489,9 @@ def transform_text(data: dict, original: str) -> str:
     if data['alt_muffle'] != {}:
         # Alternative Muffle will overwrite the entire message with a word from the data array from random chance
         # If we apply this one transformation, that's it. Only this one. That's why it's at the top.
-        if transformed in data['alt_muffle']:
-            return transformed
-
         for alt_muffle in data['alt_muffle']:
-            if random.random() * 100 <= float(data['alt_muffle'][alt_muffle]):
+            if (alt_muffle.casefold() == transformed.casefold() or
+                random.random() * 100 <= float(data['alt_muffle'][alt_muffle])):
                 return alt_muffle
 
     if data['censor'] != {}:
@@ -576,22 +574,15 @@ def transform_text(data: dict, original: str) -> str:
     transformed = "# " * data['big'] + transformed[::-(1 - 2 * data['backwards'])]
 
     if data['small']:
-        transformed_list: list[str] = transformed.lower().translate(
-            str.maketrans("abcdefghijklmnopqrstuvwxyz.0123456789+-=()",
-                          "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
-        ).splitlines()
-
-        transformed: str = ""
-        for text in transformed_list:
-            transformed += "\n" if text.strip() == "" else f"-# {text.strip()}\n"
+        transformed = "\n".join([f"-# {text.strip()}" * (text.strip() == "")
+        for text in transformed.lower().translate(
+            str.maketrans("abcdefghijklmnopqrstuvwxyz.,0123456789+-=()˄˅",
+                          "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·ʾ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ˆˇ")
+        ).splitlines()])
 
         # Make sure mentions work appropriately
-        mention_transformed: str = ""
-        for word in transformed.split(" "):
-            if word.startswith("<@"):
-                word = word.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
-            mention_transformed += word + " "
-        transformed = mention_transformed.strip()
+        transformed = " ".join([w.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")) if w[:2] == "<@" else w
+                                for w in transformed.split(" ")])
 
     return f"||{transformed}||" if data['hush'] else transformed
 
