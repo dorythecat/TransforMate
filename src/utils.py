@@ -572,7 +572,7 @@ def transform_text(data: dict, original: str) -> str:
             words[words.index(mention)] = mention[::-1]
     transformed = "# " * data['big'] + " ".join(words)[::(1 - 2 * data['backwards'])]
 
-    if data['small']:
+    if data['small'] and not data['big']:
         transformed = "\n".join(f"-# {text.strip()}" * (text.strip() == "")
         for text in transformed.lower().translate(
             str.maketrans("abcdefghijklmnopqrstuvwxyz.,0123456789+-=()˄˅",

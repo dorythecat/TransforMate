@@ -10,6 +10,7 @@
 - Greatly improved code structure and readability.
 - Made censors be the last modifier to be applied.
 - Fixed mentions on backwards text.
+- Made big text and small text not interfere mutually.
 
 ---
 
