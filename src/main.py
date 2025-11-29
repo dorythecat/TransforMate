@@ -13,8 +13,7 @@ from config import *
 intents = discord.Intents.default()
 intents.message_content  = True
 
-bot = discord.Bot(intents=intents,
-                  default_command_contexts=[discord.InteractionContextType.guild])
+bot = discord.Bot(intents=intents)
 
 @bot.event
 async def on_ready() -> None:

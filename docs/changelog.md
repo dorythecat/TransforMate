@@ -1,6 +1,5 @@
 ## v2.4.3
 - Added a goodbye message when removing the bot from a server.
-- Fixed the bot not having proper command context.
 - Made the nickname changing option for transformations be false by default.
 - Updated Terms of Service and Privacy Policy links.
 - Made API-related .env variables optional.
