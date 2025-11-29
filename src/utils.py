@@ -566,7 +566,7 @@ def transform_text(data: dict, original: str) -> str:
                 except Exception as e:
                     return f"```REGEX ERROR with pattern \"{pattern[1:]}\":\n{e}```"
 
-    transformed = "# " * data['big'] + " ".join(words)[::-(1 - 2 * data['backwards'])]
+    transformed = "# " * data['big'] + " ".join(words)[::(1 - 2 * data['backwards'])]
 
     if data['small']:
         transformed = "\n".join(f"-# {text.strip()}" * (text.strip() == "")
