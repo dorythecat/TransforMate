@@ -566,12 +566,11 @@ def transform_text(data: dict, original: str) -> str:
                 except Exception as e:
                     return f"```REGEX ERROR with pattern \"{pattern[1:]}\":\n{e}```"
 
-    transformed = "# " * data['big'] + " ".join(words)
     if data['backwards']:
-        for match in re.finditer(r"<@!?(\d+)>", transformed):
+        for match in re.finditer(r"<@!?(\d+)>", " ".join(words)):
             mention = match.group(0)
-            transformed = transformed.replace(mention, mention[::-1])
-        transformed = transformed[::-1]
+            words[words.index(mention)] = mention[::-1]
+    transformed = "# " * data['big'] + " ".join(words)[::(1 - 2 * data['backwards'])]
 
     if data['small']:
         transformed = "\n".join(f"-# {text.strip()}" * (text.strip() == "")
