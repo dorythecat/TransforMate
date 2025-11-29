@@ -493,37 +493,9 @@ def transform_text(data: dict, original: str) -> str:
                 random.random() * 100 <= float(data['alt_muffle'][alt_muffle])):
                 return alt_muffle
 
-    if data['censor'] != {}:
-        for pattern in data['censor']:
-            try:
-                if pattern.startswith("-/") and re.search(pattern[2:], transformed):
-                    transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
-            except Exception as e:
-                return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
-
     words = transformed.split(" ")
-    for i in range(len(words)):
-        # Censor will change a word for another, "censoring" it
-        if data['censor'] != {}:
-            word = ''.join(e for e in words[i] if e.isalnum()) # Remove special characters
-
-            for censor in data['censor']:
-                if word.casefold() == censor.casefold():
-                    words[i] = words[i].replace(word, data['censor'][censor]) # We keep punctuation
-
-            if words[i] in data['censor']:
-                words[i] = data['censor'][words[i]] # The entire word should be replaced
-
-            for pattern in data['censor']:
-                try:
-                    if pattern.startswith("/") and re.search(pattern[1:], words[i]):
-                        words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
-                except Exception as e:
-                    return f"```REGEX ERROR with pattern \"{pattern[1:]}\":\n{e}```"
-
-
-        # Muffle will overwrite a word with a word from the data array by random chance
-        if data['muffle'] != {}:
+    if data['muffle'] != {}:
+        for i in range(len(words)):
             if words[i].startswith("http"):
                 continue
 
@@ -552,7 +524,6 @@ def transform_text(data: dict, original: str) -> str:
 
             if random.random() * 100 <= float(data['stutter']):
                 words[i] = f"{words[i][:random.randint(1, 1 + int(len(words[i]) * int(data['stutter']) / 200))]}-{words[i]}"
-    transformed = " ".join(words)
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
@@ -561,16 +532,41 @@ def transform_text(data: dict, original: str) -> str:
         random.shuffle(prefixes)
         for prefix in prefixes:
             if random.random() * 100 <= float(data['prefix'][prefix]):
-                transformed = prefix + transformed
+                words.insert(0, prefix)
 
     if data['suffix'] != {}:
         suffixes = list(data['suffix'].keys())
         random.shuffle(suffixes)
         for suffix in suffixes:
             if random.random() * 100 <= float(data['suffix'][suffix]):
-                transformed += suffix
+                words.append(suffix)
 
-    transformed = "# " * data['big'] + transformed[::-(1 - 2 * data['backwards'])]
+    if data['censor'] != {}:
+        for pattern in data['censor']:
+            try:
+                if pattern.startswith("-/") and re.search(pattern[2:], transformed):
+                    transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
+            except Exception as e:
+                return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
+
+        for i in range(len(words)):
+            word = ''.join(e for e in words[i] if e.isalnum())  # Remove special characters
+
+            for censor in data['censor']:
+                if word.casefold() == censor.casefold():
+                    words[i] = words[i].replace(word, data['censor'][censor])  # We keep punctuation
+
+            if words[i] in data['censor']:
+                words[i] = data['censor'][words[i]]  # The entire word should be replaced
+
+            for pattern in data['censor']:
+                try:
+                    if pattern.startswith("/") and re.search(pattern[1:], words[i]):
+                        words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
+                except Exception as e:
+                    return f"```REGEX ERROR with pattern \"{pattern[1:]}\":\n{e}```"
+
+    transformed = "# " * data['big'] + " ".join(words)[::-(1 - 2 * data['backwards'])]
 
     if data['small']:
         transformed = "\n".join(f"-# {text.strip()}" * (text.strip() == "")
