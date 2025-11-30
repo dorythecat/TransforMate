@@ -802,7 +802,7 @@ def decode_tsf(tsf_string: str) -> dict:
     mods: list[str] = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
     for mod in mods:
         data[mod] = {}
-        for content in tsf_data[6 + next_index + 2 * mods.index(mod)].split(f",{sep}"):
+        for content in tsf_data[5 + next_index + 2 * mods.index(mod)].split(f",{sep}"):
             if content == "":
                 continue
             key, val = content.split(f"|{sep}")
