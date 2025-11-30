@@ -544,8 +544,9 @@ def transform_text(data: dict, original: str) -> str:
     if data['censor'] != {}:
         for pattern in data['censor']:
             try:
-                if pattern.startswith("-/") and re.search(pattern[2:], transformed):
-                    transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
+                if pattern.startswith("-/") and re.search(pattern[2:], " ".join(words)):
+                    transformed = re.sub(pattern[2:], data['censor'][pattern], " ".join(words))
+                    words = transformed.split(" ")
             except Exception as e:
                 return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
 
