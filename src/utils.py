@@ -825,12 +825,12 @@ def check_url(url: str) -> str:
     if not url.startswith("http"):
         url = f"https://{url}" # Try HTTPS
     try: # Check that the url is reachable
-        response = requests.head(url, allow_redirects=True, timeout=5)
+        response = requests.head(url, allow_redirects=True, timeout=60)
         if response.status_code >= 400:
             if url.startswith("http://"):
                 return "" # URL was already HTTP, we can't try anything else
             url = f"http://{url[8:]}" # Try HTTP
-            response = requests.head(url, allow_redirects=True, timeout=5)
+            response = requests.head(url, allow_redirects=True, timeout=60)
             if response.status_code >= 400:
                 return ""
         if not response.headers['Content-Type'].startswith("image/"):
