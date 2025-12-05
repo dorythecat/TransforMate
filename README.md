@@ -71,6 +71,10 @@ MAX_REGEN_USERS=100 # Maximum number of users in a server allowed for /regen_ser
 SECRET_KEY= # (see "Secret Key" below)
 CLIENT_ID= # Your Discord app client id
 CLIENT_SECRET= # Your Discord app secret
+
+https://github.com/user-attachments/assets/bf06995d-e1cd-4ac6-b9ae-221a6132e6da
+
+
 REDIRECT_URI= # Your Discord REDIRECT_URI
 ```
 
@@ -100,5 +104,4 @@ our Discord server, where we have channels and forums specifically for this stuf
 Inspired by the awesome BPTBot, made by Leroco.
 
 # Demo video for some reason
-
-https://github.com/user-attachments/assets/39b7115c-2c17-40d7-83e0-27a083f981ae
+https://github.com/user-attachments/assets/0d5774f6-585f-42aa-9784-495798326119
