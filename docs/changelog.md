@@ -1,6 +1,7 @@
 ## v2.4.4
 - Fixed [#93](https://github.com/dorythecat/TransforMate/issues/93).
 - Fixed some minor issues with images.
+- Fixed [#94](https://github.com/dorythecat/TransforMate/issues/94).
 
 ---
 
