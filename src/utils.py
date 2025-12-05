@@ -715,7 +715,7 @@ def encode_tsf(data: dict) -> str:
         data['image_url'],
         str(hex(int(data['big']) + 2 * int(data['small']) + 4 * int(data['hush']) + 8 * int(data['backwards'])))[2:],
         str(data['stutter']),
-        data['bio']
+        data['bio'] if data['bio'] is not None else "",
     ] + [",%".join(f"{k}|%{v}" for k, v in data[mod].items()) * (data[mod] != {})
          for mod in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']])
 

@@ -1,3 +1,8 @@
+## v2.4.4
+- Fixed [#93](https://github.com/dorythecat/TransforMate/issues/93).
+
+---
+
 ## v2.4.3
 - Added a goodbye message when removing the bot from a server.
 - Made the nickname changing option for transformations be false by default.
