@@ -100,6 +100,13 @@
    [Discord Terms of Service](https://discord.com/terms) and
    [Discord Community Guidelines](https://discord.com/guidelines).
 
+4. Users may not obtain any kind of personal gain from the distribution of the
+   Service's features or code, be it monetary or otherwise; unless explicit
+   written permission has been previously granted by the entirety of the Team.
+   This includes, but is not limited to, selling access to the Service, or any
+   of its features, distributing the Service's code as part of a paid product, or
+   using the Service's code or features in any commercial manner.
+
 ## 6. Service availability, modification, and termination
 1. The Team reserves the right to modify, suspend, or terminate the Service at any
    time, without prior notice. This includes, but is not limited to, changes to the
