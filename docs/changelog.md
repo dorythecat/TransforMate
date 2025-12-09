@@ -2,6 +2,7 @@
 - Fixed [#96](https://github.com/dorythecat/TransforMate/issues/96).
 - Fixed [#95](https://github.com/dorythecat/TransforMate/issues/95).
 - Fixed [#90](https://github.com/dorythecat/TransforMate/issues/90).
+- Improved disclosure of how /block commands work.
 
 ---
 
