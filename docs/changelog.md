@@ -1,5 +1,6 @@
 ## v2.4.5
 - Fixed [#96](https://github.com/dorythecat/TransforMate/issues/96).
+- Fixed [#95](https://github.com/dorythecat/TransforMate/issues/95).
 
 ---
 

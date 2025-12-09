@@ -10,6 +10,8 @@ import discord
 
 from config import CACHE_PATH
 
+URL_REGEX: str = r'([\S:/]?(www\.)?[\S\d@:%._+~#=]+\.[\S\d]+\b([\S\d@:%_+.~#?&=]*))*'
+
 # DATA VERSIONS
 # REMEMBER TO REGENERATE (OR UPDATE) ALL TRANSFORMATION DATA IF YOU CHANGE THE VERSION
 # VERSION 16: Removed "proxy_prefix" and "proxy_suffix" fields, removed "active" and "contents" subfields from modifiers, and removed per-channel data
@@ -545,13 +547,24 @@ def transform_text(data: dict, original: str) -> str:
         for pattern in data['censor']:
             try:
                 if pattern.startswith("-/") and re.search(pattern[2:], " ".join(words)):
-                    transformed = re.sub(pattern[2:], data['censor'][pattern], " ".join(words))
+                    transformed = " ".join(words)
+                    urls: list[str] = []
+                    for match in re.finditer(URL_REGEX, transformed):
+                        url = match.group(0)
+                        urls.append(url)
+                        transformed = transformed.replace(url, f"__URLPLACEHOLDER{len(urls)-1}__")
+                    transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
+                    for i in range(len(urls)):
+                        transformed = transformed.replace(f"__URLPLACEHOLDER{i}__", urls[i])
                     words = transformed.split(" ")
             except Exception as e:
                 return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
 
         for i in range(len(words)):
             word = ''.join(e for e in words[i] if e.isalnum())  # Remove special characters
+
+            if re.match(URL_REGEX, word):
+                continue  # Ignore URLs
 
             for censor in data['censor']:
                 if word.casefold() == censor.casefold():
@@ -820,7 +833,7 @@ def check_url(url: str) -> str:
 
     :return: A string containing a usable URL, blank if the given URL is invalid or cannot be reached.
     """
-    if not re.match(r'(http(s)?://.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)', url):
+    if not re.match(URL_REGEX, url):
         return ""
     if not url.startswith("http"):
         url = f"https://{url}" # Try HTTPS
