@@ -532,14 +532,14 @@ def transform_text(data: dict, original: str) -> str:
         random.shuffle(prefixes)
         for prefix in prefixes:
             if random.random() * 100 <= float(data['prefix'][prefix]):
-                words.insert(0, prefix)
+                words[0] = prefix + words[0]
 
     if data['suffix'] != {}:
         suffixes = list(data['suffix'].keys())
         random.shuffle(suffixes)
         for suffix in suffixes:
             if random.random() * 100 <= float(data['suffix'][suffix]):
-                words.append(suffix)
+                words[-1] += suffix
 
     if data['censor'] != {}:
         for pattern in data['censor']:
