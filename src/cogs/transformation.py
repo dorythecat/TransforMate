@@ -96,54 +96,49 @@ class Transformation(commands.Cog):
                                               description="Whether to merge or not the user's messages to the"
                                                           "original transformed user's when copying") = None,
                         change_nickname: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                        description="Change the user's nickname?") = True) -> None:
+                                                        description="Change the user's nickname?") = False) -> None:
         if not user:
             user = ctx.author
 
-        # Blocked users (globally)
-        if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+        if ctx.user.id in BLOCKED_USERS: # Blocked users (globally)
+            await ctx.respond("You're blocked from using this bot at all! You must've done something very bad..."
+                              "You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
+                              "||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
             return
         if user.id in BLOCKED_USERS:
-            await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
+            await ctx.respond("You can't transform that user at all! They've been very naughty...", ephemeral=True)
             return
 
         data = utils.load_tf(user, ctx.guild)
-        # Blocked channels (user)
-        if data != {} and str(ctx.channel.id) in data['blocked_channels']:
+        if data != {} and str(ctx.channel.id) in data['blocked_channels']: # Blocked channels (user)
             await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                              f"They have blocked the bot here!", ephemeral=True)
+                              "They have blocked the bot here!", ephemeral=True)
             return
 
         transformed_data = utils.load_transformed(ctx.guild)
         if transformed_data == {}:
             utils.write_transformed(ctx.guild)
             transformed_data = utils.load_transformed(ctx.guild)
-        # Blocked channels (server)
-        if str(ctx.channel.id) in transformed_data['blocked_channels']:
-            await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+        if str(ctx.channel.id) in transformed_data['blocked_channels']: # Blocked channels (server)
+            await ctx.respond("You can't use the bot, at least on this channel!", ephemeral=True)
             return
 
-        # Blocked users (server)
-        if str(ctx.user.id) in transformed_data['blocked_users']:
-            await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+        if str(ctx.user.id) in transformed_data['blocked_users']: # Blocked users (server)
+            await ctx.respond("You can't use the bot, at least on this server!", ephemeral=True)
             return
         if str(user.id) in transformed_data['blocked_users']:
-            await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+            await ctx.respond("That user can't use the bot, at least on this server!", ephemeral=True)
             return
 
         if utils.is_transformed(user, ctx.guild):
-            if data == {}:
-                # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = { 'claim': 0 }
+            if data == {}: # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+                data['claim'] = 0
             if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
                                       f"{ctx.guild.get_member(int(data['claim'])).mention}!")
                     return
-                await ctx.respond(f"Your master can't allow you to transform, at least for now...")
+                await ctx.respond("Your master can't allow you to transform, at least for now...")
                 return
 
         if into:
@@ -179,8 +174,8 @@ class Transformation(commands.Cog):
                 # Solution to https://github.com/dorythecat/TransforMate/issues/16
                 image_channel = transformed_data['images']
                 if not image_channel:
-                    await ctx.respond(f"You can't transform the other user whilst transformed yourself!\n"
-                                      f"There's no image buffer channel in this server!")
+                    await ctx.respond("You can't transform the other user whilst transformed yourself!\n"
+                                      "There's no image buffer channel in this server!")
                     return
                 file = await response.attachments[0].to_file()
                 file_message = await ctx.guild.get_channel(transformed_data['images']).send(file=file)
@@ -209,7 +204,6 @@ class Transformation(commands.Cog):
         if user is None:
             user = ctx.author
 
-        # No one has been transformed in the server, so why would this user be?
         transformed_data = utils.load_transformed(ctx.guild)
         if transformed_data == {}:
             await ctx.respond(f"{user.mention} is not transformed at the moment!")
@@ -219,7 +213,7 @@ class Transformation(commands.Cog):
         channel = None
         if data == {}:
             await ctx.respond(f"{user.mention} is not transformed at the moment, and has no form to go back to! "
-                              f"(At least on this channel)")
+                              "(At least on this channel)")
             return
 
         if not utils.is_transformed(user, ctx.guild):
@@ -244,7 +238,7 @@ class Transformation(commands.Cog):
                 await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
                                   f"{ctx.guild.get_member(int(data['claim'])).mention}!")
                 return
-            await ctx.respond(f"Your master won't allow you to turn back, at least for now...")
+            await ctx.respond("Your master won't allow you to turn back, at least for now...")
             return
 
         utils.remove_transformed(user, ctx.guild)
@@ -263,7 +257,7 @@ class Transformation(commands.Cog):
                     ctx: discord.ApplicationContext,
                     user: discord.Option(discord.User)) -> None:
         if user == ctx.author:
-            await ctx.respond(f"You can't claim yourself!")
+            await ctx.respond("You can't claim yourself!")
             return
         if not utils.is_transformed(user, ctx.guild,):
             # TODO: https://github.com/dorythecat/TransforMate/issues/35
@@ -296,8 +290,8 @@ class Transformation(commands.Cog):
                       ctx: discord.ApplicationContext,
                       user: discord.Option(discord.User)) -> None:
         if user == ctx.author:
-            await ctx.respond(f"You can't unclaim yourself! Only your master can do that!\n"
-                              f"||Use \"/safeword\", if you actually want to unclaim yourself.||")
+            await ctx.respond("You can't unclaim yourself! Only your master can do that!\n"
+                              "||Use \"/safeword\", if you actually want to unclaim yourself.||")
             return
         data = utils.load_tf(user, ctx.guild)
         channel = None
@@ -327,12 +321,12 @@ class Transformation(commands.Cog):
         # We have to check if they are claimed OR eternally transformed. If both are false, safeword does nothing.
         # If either are true, we need to keep going, otherwise we can just return.
         if data == {} or data['claim'] == 0:
-            await ctx.respond(f"You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
+            await ctx.respond("You can't do that! You are not claimed by anyone! Stop trying to abuse! >:(")
             return
         utils.write_tf(ctx.author, ctx.guild, channel, claim_user=0, eternal=False)
-        await ctx.respond(f"You have successfully activated the safeword command.\n"
-                          f"Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
-                          f"Use \"/goback\" to return to your normal self.")
+        await ctx.respond("You have successfully activated the safeword command.\n"
+                          "Please, sort out any issues with your rp partner(s) before you continue using the bot .\n"
+                          "Use \"/goback\" to return to your normal self.")
 
         transformed_data = utils.load_transformed(ctx.guild)
         if transformed_data['logs'][3]:
@@ -353,12 +347,12 @@ class Transformation(commands.Cog):
 
         # Blocked users (globally)
         if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                                f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                                f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+            await ctx.respond("You're blocked from using this bot at all! You must've done something very bad..."
+                              "You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
+                              "||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
             return
         if user.id in BLOCKED_USERS:
-            await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
+            await ctx.respond("You can't transform that user at all! They've been very naughty...", ephemeral=True)
             return
 
         data = utils.load_tf(user, ctx.guild)
@@ -371,21 +365,21 @@ class Transformation(commands.Cog):
         # Blocked channels (user)
         if str(ctx.channel.id) in data['blocked_channels']:
             await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                              f"They have blocked the bot here!", ephemeral=True)
+                              "They have blocked the bot here!", ephemeral=True)
             return
 
         if transformed_data != {}:
             # Blocked channels (server)
             if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+                await ctx.respond("You can't use the bot, at least on this channel!", ephemeral=True)
                 return
 
             # Blocked users (server)
             if str(ctx.user.id) in transformed_data['blocked_users']:
-                await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                await ctx.respond("You can't use the bot, at least on this server!", ephemeral=True)
                 return
             if str(user.id) in transformed_data['blocked_users']:
-                await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                await ctx.respond("That user can't use the bot, at least on this server!", ephemeral=True)
                 return
 
         output = utils.encode_tsf(data)
@@ -395,14 +389,14 @@ class Transformation(commands.Cog):
                 with open("tf_cache", "w", encoding='utf-8') as f:
                     f.write(output)
             except OSError as e:
-                print(f"Error writing to file:")
+                print("Error writing to file:")
                 print(f"{str(type(e))}: {e}")
 
             await ctx.respond(file=discord.File("tf_cache", f"{data['into']}.tsf"))
             try:
                 os.remove("tf_cache")
             except OSError as e:
-                print(f"Error removing file:")
+                print("Error removing file:")
                 print(f"{str(type(e))}: {e}")
             return
 
@@ -413,18 +407,18 @@ class Transformation(commands.Cog):
                         ctx: discord.ApplicationContext,
                         user: discord.Option(discord.User) = None,
                         change_nickname: discord.Option(discord.SlashCommandOptionType.boolean,
-                                                        description="Change the user's nickname?") = True) -> None:
+                                                        description="Change the user's nickname?") = False) -> None:
         if user is None:
             user = ctx.author
 
         # Blocked users (globally)
         if ctx.user.id in BLOCKED_USERS:
-            await ctx.respond(f"You're blocked from using this bot at all! You must've done something very bad..."
-                              f"You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
-                              f"||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
+            await ctx.respond("You're blocked from using this bot at all! You must've done something very bad..."
+                              "You might wanna appeal your ban in our Discord server, but, don't get your hopes up..."
+                              "||https://discord.gg/uGjWk2SRf6||", ephemeral=True)
             return
         if user.id in BLOCKED_USERS:
-            await ctx.respond(f"You can't transform that user at all! They've been very naughty...", ephemeral=True)
+            await ctx.respond("You can't transform that user at all! They've been very naughty...", ephemeral=True)
             return
 
         data = utils.load_tf(user, ctx.guild)
@@ -434,7 +428,7 @@ class Transformation(commands.Cog):
         if data != {}:
             if str(ctx.channel.id) in data['blocked_channels']:
                 await ctx.respond(f"You can't transform {user.mention} in this channel!"
-                                  f"They have blocked the bot here!", ephemeral=True)
+                                  "They have blocked the bot here!", ephemeral=True)
                 return
             if str(ctx.user.id) in data['blocked_users']:
                 await ctx.respond(f"{user.mention} has blocked you from transforming them!", ephemeral=True)
@@ -443,31 +437,30 @@ class Transformation(commands.Cog):
             if transformed_data != {}:
                 # Blocked channels (server)
                 if str(ctx.channel.id) in transformed_data['blocked_channels']:
-                    await ctx.respond(f"You can't use the bot, at least on this channel!", ephemeral=True)
+                    await ctx.respond("You can't use the bot, at least on this channel!", ephemeral=True)
                     return
 
                 # Blocked users (server)
                 if str(ctx.user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"You can't use the bot, at least on this server!", ephemeral=True)
+                    await ctx.respond("You can't use the bot, at least on this server!", ephemeral=True)
                     return
                 if str(user.id) in transformed_data['blocked_users']:
-                    await ctx.respond(f"That user can't use the bot, at least on this server!", ephemeral=True)
+                    await ctx.respond("That user can't use the bot, at least on this server!", ephemeral=True)
                     return
 
         if utils.is_transformed(user, ctx.guild):
-            if data == {}:
-                # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
-                data = { 'claim': 0 }
+            if data == {}: # This is to avoid https://github.com/dorythecat/TransforMate/issues/25
+                data['claim'] = 0
             if data['claim'] != 0 and int(data['claim']) != ctx.author.id and data['eternal']:
                 if ctx.author.name != user.name:
                     await ctx.respond(f"You can't do that! {user.mention} is eternally transformed by "
                                       f"{ctx.guild.get_member(int(data['claim'])).mention}!")
                     return
-                await ctx.respond(f"Your master can't allow you to transform, at least for now...")
+                await ctx.respond("Your master can't allow you to transform, at least for now...")
                 return
 
         await ctx.respond(f"Please send the saved transformation you want to apply to {user.mention}?"
-                          f"(Send CANCEL to cancel)")
+                          "(Send CANCEL to cancel)")
         response = await self.bot.wait_for('message',
                                            check=lambda m: m.author == ctx.author and m.guild == ctx.guild)
         if response.content.lower().strip() == "cancel":
@@ -476,13 +469,13 @@ class Transformation(commands.Cog):
 
         tsf_string = response.content
         if response.attachments:
-            await response.attachments[0].save(f"tf_cache")
+            await response.attachments[0].save("tf_cache")
             try:
                 with open("tf_cache", encoding='utf-8') as f:
                     tsf_string = f.read()
                 os.remove("tf_cache")
             except OSError as e:
-                print(f"Error reading from file or removing file:")
+                print("Error reading or removing file:")
                 print(f"{str(type(e))}: {e}")
 
         new_data = utils.decode_tsf(tsf_string)

@@ -7,7 +7,7 @@ os.chdir(sep.join(os.path.dirname(os.path.abspath(__file__)).split(sep)[:-1]))
 
 from pathlib import Path
 
-import utils as utils
+import utils
 from config import *
 
 intents = discord.Intents.default()
@@ -72,15 +72,18 @@ async def on_ready() -> None:
 async def on_guild_join(guild: discord.Guild) -> None:
     await guild.owner.send("# Thanks for adding the TransforMate bot to your server!\n"
                            "By having the bot on your server, you agree to our [Terms of Service]"
-                           "(https://github.com/dorythecat/TransforMate/blob/main/legal/TERMS_OF_SERVICE.md), "
+                           "(https://dorythecat.github.io/TransforMate/legal/tos), "
                            "and to our [Privacy Policy]"
-                           "(https://github.com/dorythecat/TransforMate/blob/main/legal/PRIVACY_POLICY.md).\n"
+                           "(https://dorythecat.github.io/TransforMate/legal/privacy_policy).\n"
                            "Check them anytime with the /legal command\n\n"
                            "We hope you enjoy this bot and all of its functions, and remember to always use it "
                            "with respect and consent from other users, and never for nefarious purposes!")
 
 @bot.event
 async def on_guild_remove(guild: discord.Guild) -> None:
+    await guild.owner.send("We're sorry to see you go! If you have any feedback on why you decided to "
+                           "remove the bot from your server, please, feel free to let us know, so we "
+                           "can improve!\n\n [Official Discord Server](https://discord.gg/uGjWk2SRf6)")
     for member in guild.members:
         utils.remove_all_server_tf(member, guild)
     utils.remove_server_from_transformed(guild)
@@ -146,6 +149,10 @@ async def on_message(message: discord.Message) -> None:
                 if utils.is_transformed(discord.utils.get(bot.get_all_members(), name=message.embeds[0].author.name),
                                         message.guild):
                     await message.delete()
+        return
+
+    # Check if channel is of a type we don't want to process
+    if message.channel.type in [discord.ChannelType.news, discord.ChannelType.news_thread, discord.ChannelType.forum]:
         return
 
     if (not utils.is_transformed(message.author, message.guild) or # Check if user is transformed
@@ -641,10 +648,9 @@ async def info(ctx: discord.ApplicationContext) -> None:
 @bot.slash_command(description="Legal stuff, so fun!")
 async def legal(ctx: discord.ApplicationContext) -> None:
     desc = "By using this bot you agree to our "
-    desc += "[Terms of Service](https://dorythecat.github.io/TransforMate/legal/tos.html) and our "
-    desc += "[Privacy Policy](https://dorythecat.github.io/TransforMate/legal/privacy_policy.html)"
-    embed = utils.get_embed_base(title="Legal Stuff",desc=desc)
-    await ctx.respond(embed=embed)
+    desc += "[Terms of Service](https://dorythecat.github.io/TransforMate/legal/tos) and our "
+    desc += "[Privacy Policy](https://dorythecat.github.io/TransforMate/legal/privacy_policy)"
+    await ctx.respond(embed=utils.get_embed_base(title="Legal Stuff",desc=desc))
 
 @bot.slash_command(description="Invite the bot to your server")
 async def invite(ctx: discord.ApplicationContext) -> None:

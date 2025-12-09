@@ -1,7 +1,6 @@
 import json
 import os
 import random
-import math
 import re
 import requests
 
@@ -478,61 +477,32 @@ def transform_text(data: dict, original: str) -> str:
 
     :return: The transformed message.
     """
+    # Remove Apple's curly quotes to avoid issues with regexes
+    transformed = original.replace("’", "'").replace("“", "\"").replace("”", "\"")
+
     # Ignore italics and bold messages
-    if ((original.startswith("*") and original.endswith("*")) or
-        (original.startswith("_") and original.endswith("_"))):
-        return original
+    if ((transformed.startswith("*") and transformed.endswith("*")) or
+        (transformed.startswith("_") and transformed.endswith("_"))):
+        return transformed
 
     if data['alt_muffle'] != {}:
         # Alternative Muffle will overwrite the entire message with a word from the data array from random chance
         # If we apply this one transformation, that's it. Only this one. That's why it's at the top.
-        if original in data['alt_muffle']:
-            return original
-
         for alt_muffle in data['alt_muffle']:
-            if random.randint(0, 100) <= int(data['alt_muffle'][alt_muffle]):
+            if (alt_muffle.casefold() == transformed.casefold() or
+                random.random() * 100 <= float(data['alt_muffle'][alt_muffle])):
                 return alt_muffle
 
-    transformed = clear_apple_marks(original)
-
-    if data['censor'] != {}:
-        for pattern in data['censor']:
-            try:
-                if pattern.startswith("-/") and re.search(pattern[2:], transformed):
-                    transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
-            except Exception as e:
-                return f"```REGEX ERROR with pattern {pattern[2:]}:\n{e}```"
-
     words = transformed.split(" ")
-    for i in range(len(words)):
-        # Censor will change a word for another, "censoring" it
-        if data['censor'] != {}:
-            word = ''.join(e for e in words[i] if e.isalnum()) # Removed special characters
-
-            for censor in data['censor']:
-                if word.casefold() == censor.casefold():
-                    words[i] = words[i].replace(word, data['censor'][censor]) # We keep punctuation
-
-            if words[i] in data['censor']:
-                words[i] = data['censor'][words[i]] # The entire word should be replaced
-
-            for pattern in data['censor']:
-                try:
-                    if pattern.startswith("/") and re.search(pattern[1:], words[i]):
-                        words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
-                except Exception as e:
-                    return f"```REGEX ERROR with pattern {pattern[1:]}:\n{e}```"
-
-
-        # Muffle will overwrite a word with a word from the data array by random chance
-        if data['muffle'] != {}:
+    if data['muffle'] != {}:
+        for i in range(len(words)):
             if words[i].startswith("http"):
                 continue
 
             muffles = list(data['muffle'].keys())
             random.shuffle(muffles)
             for muffle in muffles:
-                if random.randint(0, 100) <= int(data['muffle'][muffle]):
+                if random.random() * 100 <= float(data['muffle'][muffle]):
                     words[i] = muffle
 
     # Sprinkle will add the sprinkled word to the message between words by random chance
@@ -542,17 +512,18 @@ def transform_text(data: dict, original: str) -> str:
         for i in range(len(words)):
             random.shuffle(sprinkles)
             for sprinkle in sprinkles:
-                if random.randint(0, 100) <= int(data['sprinkle'][sprinkle]):
-                    words[i] = sprinkle + " " + words[i]
+                if random.random() * 100 <= float(data['sprinkle'][sprinkle]):
+                    if random.random() < 0.5:
+                        words[i] = f"{words[i]} {sprinkle}"
+                    words[i] = f"{sprinkle} {words[i]}"
 
     if data['stutter'] > 0:
         for i in range(len(words)):
             if words[i].startswith("http") or not words[i].isalnum() or words[i] in "0123456789":
                 continue
 
-            if random.randint(0, 100) <= int(data['stutter']):
-                words[i] = words[i][:random.randint(1, 1 + math.floor(len(words[i]) * int(data['stutter']) / 200))] + "-" + words[i]
-    transformed = " ".join(words)
+            if random.random() * 100 <= float(data['stutter']):
+                words[i] = f"{words[i][:random.randint(1, 1 + int(len(words[i]) * int(data['stutter']) / 200))]}-{words[i]}"
 
     # Moving these below, so text changes are applied before the prefix and suffix so they aren't affected
     # by censors or such
@@ -560,49 +531,60 @@ def transform_text(data: dict, original: str) -> str:
         prefixes = list(data['prefix'].keys())
         random.shuffle(prefixes)
         for prefix in prefixes:
-            if random.randint(0, 100) <= int(data['prefix'][prefix]):
-                transformed = prefix + transformed
+            if random.random() * 100 <= float(data['prefix'][prefix]):
+                words.insert(0, prefix)
 
     if data['suffix'] != {}:
         suffixes = list(data['suffix'].keys())
         random.shuffle(suffixes)
         for suffix in suffixes:
-            if random.randint(0, 100) <= int(data['suffix'][suffix]):
-                transformed += suffix
+            if random.random() * 100 <= float(data['suffix'][suffix]):
+                words.append(suffix)
 
-    # We need to do this now to avoid https://github.com/dorythecat/TransforMate/issues/48
+    if data['censor'] != {}:
+        for pattern in data['censor']:
+            try:
+                if pattern.startswith("-/") and re.search(pattern[2:], " ".join(words)):
+                    transformed = re.sub(pattern[2:], data['censor'][pattern], " ".join(words))
+                    words = transformed.split(" ")
+            except Exception as e:
+                return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
+
+        for i in range(len(words)):
+            word = ''.join(e for e in words[i] if e.isalnum())  # Remove special characters
+
+            for censor in data['censor']:
+                if word.casefold() == censor.casefold():
+                    words[i] = words[i].replace(word, data['censor'][censor])  # We keep punctuation
+
+            if words[i] in data['censor']:
+                words[i] = data['censor'][words[i]]  # The entire word should be replaced
+
+            for pattern in data['censor']:
+                try:
+                    if pattern.startswith("/") and re.search(pattern[1:], words[i]):
+                        words[i] = re.sub(pattern[1:], data['censor'][pattern], words[i])
+                except Exception as e:
+                    return f"```REGEX ERROR with pattern \"{pattern[1:]}\":\n{e}```"
+
     if data['backwards']:
-        transformed = transformed[::-1]
+        for match in re.finditer(r"<@!?(\d+)>", " ".join(words)):
+            mention = match.group(0)
+            words[words.index(mention)] = mention[::-1]
+    transformed = "# " * data['big'] + " ".join(words)[::(1 - 2 * data['backwards'])]
 
-    if data['big']:
-        transformed = "# " + transformed
-
-    if data['small']:
-        trans_table = str.maketrans("abcdefghijklmnopqrstuvwxyz.0123456789+-=()",
-                                    "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
-
-
-        transformed_list = transformed.lower().translate(trans_table).splitlines()
-
-        transformed = "\n"
-        for text in transformed_list:
-            if text.strip() == "":
-                transformed += "\n"
-                continue
-            transformed += f"-# {text.strip()}\n"
+    if data['small'] and not data['big']:
+        transformed = "\n".join(f"-# {text.strip()}" * (text.strip != "")
+        for text in transformed.lower().translate(
+            str.maketrans("abcdefghijklmnopqrstuvwxyz.,0123456789+-=()˄˅",
+                          "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖᵠʳˢᵗᵘᵛʷˣʸᶻ·ʾ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ˆˇ")
+        ).splitlines())
 
         # Make sure mentions work appropriately
-        mention_transformed = ""
-        for word in transformed.split(" "):
-            if word.startswith("<@"):
-                word = word.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
-            mention_transformed += word + " "
-        transformed = mention_transformed.strip()
+        transformed = " ".join(w.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")) if w[:2] == "<@" else w
+                               for w in transformed.split(" "))
 
-    if data['hush']:
-        transformed = f"||{transformed}||"
-
-    return transformed
+    return f"||{transformed}||" if data['hush'] else transformed
 
 
 # ABSTRACTION FUNCTIONS
@@ -700,7 +682,7 @@ def get_embed_base(title: str,
             name="TransforMate",
             icon_url="https://cdn.discordapp.com/avatars/967123840587141181/46a629c191f53ec9d446ed4b712fb39b.png"
         ),
-        footer=discord.EmbedFooter(text=footer_text if footer_text is not None else "TransforMate")
+        footer=discord.EmbedFooter(text=footer_text or "TransforMate")
     )
 
 
@@ -708,50 +690,34 @@ def check_message(message: discord.Message) -> tuple[int | None, dict | None]:
     transformed_data = load_transformed(message.guild)['transformed_users']
     # Currently, we have to check over ALL transformed users
     for tfee in transformed_data:
+        if transformed_data[tfee] in [[], None]:
+            continue
         data = load_tf(int(tfee), message.guild)
-        into: str = data['into'] if 'into' in data else ""
-        image_url: str = data['image_url'] if 'image_url' in data else ""
-        if into == message.author.display_name:
+        if 'into' in data and data['into'] == message.author.display_name:
             # TODO: Make it so that this function returns all currently tfed users with this tf name
-            if transformed_data[tfee] not in [[], None]:
-                return int(tfee), data
+            return int(tfee), data
     return None, None
-
-
-def clear_apple_marks(text: str) -> str:
-    text = text.replace("’", "'")
-    text = text.replace("“", "\"")
-    return text.replace("”", "\"")
 
 # TSF Utilities
 # See https://dorythecat.github.io/TransforMate/commands/transformation/export_tf/#transformation-string-format
 def encode_tsf(data: dict) -> str:
     """
     Encodes a TMUD-compliant transformation data dict into a TSF-compliant string.
-    The latest version of the TSF standard (v1.1) is used for this operation.
+    The latest version of the TSF standard (v2.0) is used for this operation.
 
     :param data: Properly encoded TMUD-compliant transformation data dict.
 
     :return: A TSF-compliant string.
     """
-    def parse_mod(mod_data: dict) -> str:
-        if mod_data == {}: return ""
-        return ",%".join([f"{key}|%{str(value)}" for key, value in mod_data.items()])
-
     return ";%".join([
         "2.0",
         data['into'],
         data['image_url'],
         str(hex(int(data['big']) + 2 * int(data['small']) + 4 * int(data['hush']) + 8 * int(data['backwards'])))[2:],
         str(data['stutter']),
-        str(data['bio']),
-        parse_mod(data['prefix']),
-        parse_mod(data['suffix']),
-        parse_mod(data['sprinkle']),
-        parse_mod(data['muffle']),
-        parse_mod(data['alt_muffle']),
-        parse_mod(data['censor'])
-    ])
+        data['bio'] if data['bio'] is not None else "",
+    ] + [",%".join(f"{k}|%{v}" for k, v in data[mod].items()) * (data[mod] != {})
+         for mod in ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']])
 
 def decode_tsf(tsf_string: str) -> dict:
     """
@@ -764,79 +730,68 @@ def decode_tsf(tsf_string: str) -> dict:
     if tsf_string[0] == "2": # v2.x
         tsf_data = tsf_string.split(";%")
         version = int(tsf_data[0].split(".")[1]) # Get the minor version
-        if version != 0: # v2.0
-            raise ValueError("decode_tsf() does not support that version, at this moment!")
+        if version != 0: # Not v2.0
+            raise ValueError("Invalid TSF version!")
 
         if len(tsf_data) != 12:
             raise ValueError("decode_tsf() expected 12 elements in the TSFv2.0 string, got " + str(len(tsf_data)))
 
-        tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
-
-        boolean_number = int(tsf_data[2], 16)
-        big = boolean_number & 1 != 0
-        small = boolean_number & 2 != 0
-        hush = boolean_number & 4 != 0
-        backwards = boolean_number & 8 != 0
+        mod_number = int(tsf_data[3], 16)
 
         # Generate basic data
         data = {
-            'into': tsf_data[0],
-            'image_url': tsf_data[1],
-            'big': big,
-            'small': small,
-            'hush': hush,
-            'backwards': backwards,
-            'stutter': float(tsf_data[3]),
-            'bio': tsf_data[4]
+            'into': tsf_data[1],
+            'image_url': tsf_data[2],
+            'big': bool(mod_number & 1),
+            'small': bool(mod_number & 2),
+            'hush': bool(mod_number & 4),
+            'backwards': bool(mod_number & 8),
+            'stutter': float(tsf_data[4]),
+            'bio': tsf_data[5]
         }
 
         modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
         for modifier in modifiers:
             data[modifier] = {}
-            for mod in tsf_data[5 + modifiers.index(modifier)].split(",%"):
+            for mod in tsf_data[6 + modifiers.index(modifier)].split(",%"):
                 if mod == "":
                     continue
-                key, value = mod.split("|%")
-                data[modifier][key] = float(value) if modifier != 'censor' else value
+                key, val = mod.split("|%")
+                data[modifier][key] = float(val) if modifier != 'censor' else val
 
         return data
 
-    sep = ";%"
-    tsf_data = tsf_string.split(";%") # v1.2
-    if tsf_string[:3] != "1;%": # v1.0 and v1.1
-        tsf_data = tsf_string.split(";")
-        sep = ";"
+    sep: str = "%" * (tsf_string[:3] == "1;%")
+    tsf_data: list[str] = tsf_string.split(f";{sep}")
 
     version = int(tsf_data[0])
-    if version != 15 and version != 1: # v1.0 and v1.x
-        raise ValueError("decode_tsf() does not support that version, at this moment!")
+    if version not in [15, 1]: # v1.0 and v1.x
+        raise ValueError("Invalid TSF version!")
 
     if version == 15 and len(tsf_data) != 23:
-        raise ValueError("decode_tsf() expected 23 elements in the TSFv1.0 string, got " + str(len(tsf_data)))
+        raise ValueError(f"decode_tsf() expected 23 elements in the TSFv1.0 string, got {len(tsf_data)}")
     if version == 1 and len(tsf_data) != 20:
-        raise ValueError("decode_tsf() expected 20 elements in the TSFv1.x string, got " + str(len(tsf_data)))
-
-    tsf_data = tsf_data[1:] # Remove the version identifier for easier handling
+        raise ValueError(f"decode_tsf() expected 20 elements in the TSFv1.x string, got {len(tsf_data)}")
 
     # Booleans
-    boolean_number = int(tsf_data[2], 16)
-    big = boolean_number & 1 != 0
-    small = boolean_number & 2 != 0
-    hush = boolean_number & 4 != 0
-    backwards = boolean_number & 8 != 0
-    next_index = 3
+    mod_number = int(tsf_data[3], 16)
+    big = bool(mod_number & 1)
+    small = bool(mod_number & 2)
+    hush = bool(mod_number & 4)
+    backwards = bool(mod_number & 8)
+    next_index: int = 4
 
     if version == 15: # v1.0
-        big = tsf_data[2] == "1"
-        small = tsf_data[3] == "1"
-        hush = tsf_data[4] == "1"
-        backwards = tsf_data[5] == "1"
-        next_index = 6
+        big = tsf_data[3] == "1"
+        small = tsf_data[4] == "1"
+        hush = tsf_data[5] == "1"
+        backwards = tsf_data[6] == "1"
+        next_index = 7
 
     # Generate basic data
-    data = {
-        'into': tsf_data[0],
-        'image_url': tsf_data[1],
+    data: dict = {
+        'into': tsf_data[1],
+        'image_url': tsf_data[2],
         'big': big,
         'small': small,
         'hush': hush,
@@ -845,15 +800,14 @@ def decode_tsf(tsf_string: str) -> dict:
         'bio': tsf_data[next_index + 3]
     }
 
-    modifiers = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
-    for modifier in modifiers:
-        data[modifier] = {}
-        modifier_data = tsf_data[next_index + 5 + modifiers.index(modifier) * 2].split("," if sep == ";" else ",%")
-        for mod in modifier_data:
-            if mod == "":
+    mods: list[str] = ['prefix', 'suffix', 'sprinkle', 'muffle', 'alt_muffle', 'censor']
+    for mod in mods:
+        data[mod] = {}
+        for content in tsf_data[5 + next_index + 2 * mods.index(mod)].split(f",{sep}"):
+            if content == "":
                 continue
-            key, value = mod.split("|" if sep == ";" else "|%")
-            data[modifier][key] = float(value) if modifier != 'censor' else value
+            key, val = content.split(f"|{sep}")
+            data[mod][key] = float(val) if mod != 'censor' else val
 
     return data
 
@@ -864,18 +818,19 @@ def check_url(url: str) -> str:
 
     :param url: The URL to check.
 
-    :return: A string containing a usable URL, blank if the given URL is invalid and con't be automatically fixed.
+    :return: A string containing a usable URL, blank if the given URL is invalid or cannot be reached.
     """
     if not re.match(r'(http(s)?://.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)', url):
         return ""
-    if not url.startswith("http"): # Basic preliminary check
-        return f"https://{url}" # Try HTTPS
+    if not url.startswith("http"):
+        url = f"https://{url}" # Try HTTPS
     try: # Check that the url is reachable
-        response = requests.head(url, allow_redirects=True, timeout=5)
-        print(response)
-        if response.status_code >= 400: # Try HTTP
-            url = f"http://{url[8:]}"
-            response = requests.head(url, allow_redirects=True, timeout=5)
+        response = requests.head(url, allow_redirects=True, timeout=60)
+        if response.status_code >= 400:
+            if url.startswith("http://"):
+                return "" # URL was already HTTP, we can't try anything else
+            url = f"http://{url[8:]}" # Try HTTP
+            response = requests.head(url, allow_redirects=True, timeout=60)
             if response.status_code >= 400:
                 return ""
         if not response.headers['Content-Type'].startswith("image/"):

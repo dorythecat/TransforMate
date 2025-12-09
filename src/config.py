@@ -14,13 +14,18 @@ def parse_list(string: str | None) -> list[int]:
 if not load_dotenv():
     raise Exception("Either your .env file is empty, or you don't even have a .env file! Aborting")
 
-required_variables = ["BOT_TOKEN", "WEBHOOK_NAME", "BLOCKED_USERS", "USER_REPORTS_CHANNEL_ID", "CACHE_PATH",
-                      "SECRET_KEY", "CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI"]
+required_variables = ["BOT_TOKEN", "WEBHOOK_NAME", "BLOCKED_USERS", "USER_REPORTS_CHANNEL_ID", "CACHE_PATH"]
+optional_variables = ["SECRET_KEY", "CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI"]
 for var in required_variables:
     if os.getenv(var) is None:
         raise Exception(f"{var} hasn't been provided! Check your .env! Aborting")
     elif os.getenv(var) in [""]:
         raise Exception(f"{var} has been provided, but is empty! Check your .env! Aborting")
+for var in optional_variables:
+    if os.getenv(var) is None:
+        print(f"Warning: {var} hasn't been provided! Some features may not work properly.")
+    elif os.getenv(var) in [""]:
+        print(f"Warning: {var} has been provided, but is empty! Some features may not work properly.")
 
 # General bot configuration
 BOT_TOKEN: str = os.getenv("BOT_TOKEN")  # Token for the bot
@@ -31,7 +36,7 @@ CACHE_PATH: str = os.getenv("CACHE_PATH")  # What's the path to the cache folder
 MAX_REGEN_USERS: int = int(os.getenv("MAX_REGEN_USERS")) # Maximum number of users in a server allowed for /regen_server_tfs
 
 # API settings
-SECRET_KEY: str = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others
-CLIENT_ID: str = os.getenv("CLIENT_ID")
-CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
-REDIRECT_URI: str = os.getenv("REDIRECT_URI")
+SECRET_KEY: str | None = os.getenv("SECRET_KEY") # Secret key for encoding passwords and others
+CLIENT_ID: str | None = os.getenv("CLIENT_ID")
+CLIENT_SECRET: str | None = os.getenv("CLIENT_SECRET")
+REDIRECT_URI: str | None = os.getenv("REDIRECT_URI")

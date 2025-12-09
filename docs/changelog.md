@@ -1,3 +1,26 @@
+## v2.4.4
+- Fixed [#93](https://github.com/dorythecat/TransforMate/issues/93).
+- Fixed some minor issues with images.
+- Fixed [#94](https://github.com/dorythecat/TransforMate/issues/94).
+
+---
+
+## v2.4.3
+- Added a goodbye message when removing the bot from a server.
+- Made the nickname changing option for transformations be false by default.
+- Updated Terms of Service and Privacy Policy links.
+- Made API-related .env variables optional.
+- Improved regex errors.
+- Made sprinkles be able to be after words instead of always before them.
+- Made modifiers ACTUALLY work as floats.
+- Added a few new glyphs to small text parsing.
+- Greatly improved code structure and readability.
+- Made censors be the last modifier to be applied.
+- Fixed mentions on backwards text.
+- Made big text and small text not interfere mutually.
+
+---
+
 ## v2.4.2
 - Added support for float values in chances and stutter, which fixes
   [#88](https://github.com/dorythecat/TransforMate/issues/88).
@@ -7,6 +30,7 @@
 - Fixed [#89](https://github.com/dorythecat/TransforMate/issues/89).
 - Slightly improved replies.
 - Implemented [#81](https://github.com/dorythecat/TransforMate/issues/81).
+- Transformations no longer apply on announcements or forums channels.
 
 ---
 
