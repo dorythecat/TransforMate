@@ -6,13 +6,13 @@ want to be interacting with the bot, at a personal level.
     Remember, to unblock a channel or user, you just have to execute the same
     command you executed when you set it up.
 
-- ['/block channel <channel>'](channel.md)
+- ['/block channel <channel> <invert> <all:_channels>'](channel.md)
 ??? info
     Block a specific channel for you personally. Nobody, not even admins, will be
     able to transform you on said channels. If you're transformed on the server,
     it will not show up on blocked channels.
 
-- [`/block user [user]`](user.md)
+- [`/block user <user> <invert> <all_users>`](user.md)
 ??? info
     Block a specific user for you personally. They won't be able to interact with
     you on that server.

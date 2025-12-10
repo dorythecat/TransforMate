@@ -1,7 +1,13 @@
 ## Syntax
-`/block channel <channel>`
+`/block channel <channel> <invert> <all_.channels>`
 
 - `channel`: A valid Discord Channel. If not provided, defaults to the current channel.
+
+- `invert`: A boolean, defaults to false. If set to true, will invert the status of ALL
+            channels, and ignores the `channel` parameter.
+
+- `all_channels`: A boolean, defaults to false. If set to true, will ONLY BLOCK all the
+                  channels on a server at once, ignoring the `channel` parameter.
 
 ---
 
