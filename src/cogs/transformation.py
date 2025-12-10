@@ -496,6 +496,9 @@ class Transformation(commands.Cog):
                 await ctx.respond("Could not change nickname of user! Please check the permissions of the bot!",
                                   ephemeral=True)
 
+        if new_data['bio'].count("$$") > 1:
+            await ctx.send(new_data['bio'].split("$$")[1])
+            return
         await ctx.send(f"Transformed {user.mention} successfully into {new_data['into']}!")
 
 
