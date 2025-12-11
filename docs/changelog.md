@@ -7,6 +7,7 @@
 - Implemented [#40](https://github.com/dorythecat/TransforMate/issues/40).
 - Removed API permanently from the codebase.
 - Updated requirements file.
+- Removed unnecessary help.md file.
 
 ---
 
