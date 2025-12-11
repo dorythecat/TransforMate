@@ -38,7 +38,6 @@ look no further! With TransforMate, this task is made much simpler!
 ## Upcoming Features
 - Avoid logging deleted messages in most popular log bots
 - More customization options, both for users AND server staff
-- ~~Custom API~~
 - ~~Webpage and web interface~~
 - ~~Even better documentation~~
 - Optimised file structure
@@ -66,16 +65,6 @@ BLOCKED_USERS="[user_id1, user_id2, ...]" # List of globally blocked users
 USER_REPORTS_CHANNEL_ID= # Discord Channel ID to send user reports to
 CACHE_PATH="cache" # Path for cache files, especifically TMUD data and server settings
 MAX_REGEN_USERS=100 # Maximum number of users in a server allowed for /regen_server_tfs
-
-# API settings
-SECRET_KEY= # (see "Secret Key" below)
-CLIENT_ID= # Your Discord app client id
-CLIENT_SECRET= # Your Discord app secret
-
-https://github.com/user-attachments/assets/bf06995d-e1cd-4ac6-b9ae-221a6132e6da
-
-
-REDIRECT_URI= # Your Discord REDIRECT_URI
 ```
 
 If all of these contents aren't present, an error will be thrown by the program

@@ -5,6 +5,7 @@
 - Improved disclosure of how /block commands work.
 - Implemented [#75](https://github.com/dorythecat/TransforMate/issues/75).
 - Implemented [#40](https://github.com/dorythecat/TransforMate/issues/40).
+- Removed API permanently from the codebase.
 
 ---
 
