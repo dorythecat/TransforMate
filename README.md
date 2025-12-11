@@ -1,5 +1,4 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/dorythecat/TransforMate)
-[![Qodana](https://github.com/dorythecat/TransforMate/actions/workflows/code_quality.yml/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/code_quality.yml)
 [![CodeQL](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/dorythecat/TransforMate/actions/workflows/github-code-scanning/codeql)
 
 # TransforMate
