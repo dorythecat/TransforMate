@@ -25,6 +25,8 @@ class PageView(discord.ui.View):
         self.next_button_callback.disabled = False
         self.offset -= MAX_ITEMS_PER_PAGE * 2
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
         self.offset += MAX_ITEMS_PER_PAGE
         await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc, footer), view=self)
@@ -38,6 +40,8 @@ class PageView(discord.ui.View):
             return
         self.previous_button_callback.disabled = False
         desc = "\n\n".join(self.desc.split("\n\n")[self.offset:self.offset + MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         footer = f"Page {self.offset // MAX_ITEMS_PER_PAGE + 1} of {(self.total - 1) // MAX_ITEMS_PER_PAGE + 1}"
         self.offset += MAX_ITEMS_PER_PAGE
         await interaction.response.edit_message(embed=utils.get_embed_base(self.embed_title, desc, footer), view=self)
@@ -106,6 +110,8 @@ class Get(commands.Cog):
             view = PageView(f"Censors for {user.name}:", desc, len(data['censor']))
             footer = f"Page 1 of {(len(data['censor']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         await ctx.respond(embed=utils.get_embed_base(f"Censors for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the sprinkles for the transformed user")
@@ -129,6 +135,8 @@ class Get(commands.Cog):
             view = PageView(f"Sprinkles for {user.name}:", desc, len(data['sprinkle']))
             footer = f"Page 1 of {(len(data['sprinkle']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         await ctx.respond(embed=utils.get_embed_base(f"Sprinkles for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the muffle for the transformed user")
@@ -152,6 +160,8 @@ class Get(commands.Cog):
                 view = PageView(f"Muffles for {user.name}:", desc, len(data['muffle']))
                 footer = f"Page 1 of {(len(data['muffle']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
             desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+            if len(desc) > 4096:
+                desc = desc[:4093] + "..."
             await ctx.respond(embed=utils.get_embed_base(f"Muffles for {user.name}:", desc, footer), view=view)
 
         if data['alt_muffle']:
@@ -165,6 +175,8 @@ class Get(commands.Cog):
                 view = PageView(f"Alternative muffles for {user.name}:", desc, len(data['alt_muffle']))
                 footer = f"Page 1 of {(len(data['alt_muffle']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
             desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+            if len(desc) > 4096:
+                desc = desc[:4093] + "..."
             await ctx.respond(embed=utils.get_embed_base(f"Alternative muffles for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the prefixes for the transformed user")
@@ -188,6 +200,8 @@ class Get(commands.Cog):
             view = PageView(f"Prefixes for {user.name}:", desc, len(data['prefix']))
             footer = f"Page 1 of {(len(data['prefix']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         await ctx.respond(embed=utils.get_embed_base(f"Prefixes for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="List the suffixes for the transformed user")
@@ -211,6 +225,8 @@ class Get(commands.Cog):
             view = PageView(f"Suffixes for {user.name}:", desc, len(data['suffix']))
             footer = f"Page 1 of {(len(data['suffix']) - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         await ctx.respond(embed=utils.get_embed_base(f"Suffixes for {user.name}:", desc, footer), view=view)
 
     @get_command.command(description="Get the biography of a transformed user")
@@ -249,6 +265,8 @@ class Get(commands.Cog):
             view = PageView("Transformed Users", desc, users)
             footer = f"Page 1 of {(users - 1) // MAX_ITEMS_PER_PAGE + 1}"
         desc = "\n\n".join(desc.split("\n\n")[:MAX_ITEMS_PER_PAGE])
+        if len(desc) > 4096:
+            desc = desc[:4093] + "..."
         await ctx.respond(embed=utils.get_embed_base("Transformed Users", desc, footer), view=view)
 
     @get_command.command(description="Get the profile image of a transformed user")

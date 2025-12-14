@@ -8,6 +8,7 @@
 - Removed API permanently from the codebase.
 - Updated requirements file.
 - Removed unnecessary help.md file.
+- Fixed a few issues with /get commands.
 
 ---
 
