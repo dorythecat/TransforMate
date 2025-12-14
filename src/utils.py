@@ -547,15 +547,12 @@ def transform_text(data: dict, original: str) -> str:
         for pattern in data['censor']:
             try:
                 if pattern.startswith("-/") and re.search(pattern[2:], " ".join(words)):
-                    return re.sub(pattern[2:], data['censor'][pattern], " ".join(words))
+                    words = re.sub(pattern[2:], data['censor'][pattern], " ".join(words)).split(" ")
             except Exception as e:
                 return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
 
         for i in range(len(words)):
             word = ''.join(e for e in words[i] if e.isalnum())  # Remove special characters
-
-            if re.match(URL_REGEX, word):
-                continue  # Ignore URLs
 
             for censor in data['censor']:
                 if word.casefold() == censor.casefold():
