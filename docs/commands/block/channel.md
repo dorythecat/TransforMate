@@ -1,5 +1,5 @@
 ## Syntax
-`/block channel <channel> <invert> <all_.channels>`
+`/block channel <channel> <invert> <all_channels>`
 
 - `channel`: A valid Discord Channel. If not provided, defaults to the current channel.
 
