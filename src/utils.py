@@ -547,16 +547,9 @@ def transform_text(data: dict, original: str) -> str:
         for pattern in data['censor']:
             try:
                 if pattern.startswith("-/") and re.search(pattern[2:], " ".join(words)):
-                    transformed = " ".join(words)
-                    urls: list[str] = []
-                    for match in re.finditer(URL_REGEX, transformed):
-                        url = match.group(0)
-                        urls.append(url)
-                        transformed = transformed.replace(url, f"__URLPLACEHOLDER{len(urls)-1}__")
-                    transformed = re.sub(pattern[2:], data['censor'][pattern], transformed)
-                    for i in range(len(urls)):
-                        transformed = transformed.replace(f"__URLPLACEHOLDER{i}__", urls[i])
-                    words = transformed.split(" ")
+                    if re.match(URL_REGEX, " ".join(words)):
+                        continue  # Ignore URLs
+                    return re.sub(pattern[2:], data['censor'][pattern], " ".join(words))
             except Exception as e:
                 return f"```REGEX ERROR with pattern \"{pattern[2:]}\":\n{e}```"
 
